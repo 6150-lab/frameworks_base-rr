@@ -77,6 +77,10 @@ public class TunerServiceImpl extends TunerService {
     // Things that use the tunable infrastructure but are now real user settings and
     // shouldn't be reset with tuner settings.
     private static final String[] RESET_EXCEPTION_LIST = new String[] {
+            Clock.STATUS_BAR_CLOCK_DATE_DISPLAY,
+            Clock.STATUS_BAR_CLOCK_DATE_STYLE,
+            Clock.STATUS_BAR_CLOCK_DATE_POSITION,
+            Clock.STATUS_BAR_CLOCK_DATE_FORMAT,
             QSHost.TILES_SETTING,
             Settings.Secure.DOUBLE_TAP_TO_WAKE,
             Settings.Secure.DOZE_ALWAYS_ON,
