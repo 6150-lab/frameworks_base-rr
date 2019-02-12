@@ -3800,7 +3800,14 @@ public class KeyguardUpdateMonitor implements TrustManager.TrustListener, CoreSt
         }
 
         // change in charging current while plugged in
-        if (nowPluggedIn && current.maxChargingWattage != old.maxChargingWattage) {
+        if (nowPluggedIn && (current.maxChargingWattage != old.maxChargingWattage
+                || current.maxChargingCurrent != old.maxChargingCurrent
+                || current.maxChargingVoltage != old.maxChargingVoltage)) {
+            return true;
+        }
+
+        // change in battery temperature while plugged in
+        if (nowPluggedIn && current.temperature != old.temperature) {
             return true;
         }
 
