@@ -3843,6 +3843,11 @@ public class KeyguardUpdateMonitor implements TrustManager.TrustListener, CoreSt
             return true;
         }
 
+        // change in OEM charging while plugged in
+        if (nowPluggedIn && current.oemChargeStatus != old.oemChargeStatus) {
+            return true;
+        }
+
         // change in battery is present or not
         if (old.present != current.present) {
             return true;
