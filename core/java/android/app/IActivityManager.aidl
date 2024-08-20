@@ -1085,4 +1085,10 @@ interface IActivityManager {
 
     /** @hide Request a keybox from Google using this device's V1 provisioning interface. */
     void provisionDuckRkp();
+
+    /**
+     *  Should disable touch if three fingers swipe enabled
+     */
+    boolean isThreeFingersSwipeActive();
+    void setThreeFingersSwipeActive(boolean active);
 }
