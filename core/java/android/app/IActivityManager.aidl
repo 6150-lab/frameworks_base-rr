@@ -1091,4 +1091,5 @@ interface IActivityManager {
      */
     boolean isThreeFingersSwipeActive();
     void setThreeFingersSwipeActive(boolean active);
+    void setThreeGestureStateActive(boolean active);
 }
