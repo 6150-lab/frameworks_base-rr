@@ -8,3 +8,10 @@
 
 # JNI ABI for libnativeChargingRing.so — class/method names are frozen.
 -keep class com.oplus.vfxsdk.charge.** { *; }
+
+# Custom rules
+-keep class com.android.systemui.smartspace.** { *; }
+
+# Google rules
+-keep class android.hardware.** { *; }
+-keep class com.google.** { *; }
