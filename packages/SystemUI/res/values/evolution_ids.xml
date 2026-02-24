@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Lock screen widget ids the clock sections constrain against; RR has no widgets -->
+    <item type="id" name="keyguard_widgets" />
+</resources>
