@@ -1239,8 +1239,8 @@ public final class NotificationPanelViewController implements
         return !isOnAod()
                 // True on small landscape screens
                 && mResources.getBoolean(R.bool.force_small_clock_on_lockscreen)
-                || Settings.Secure.getIntForUser(
-                    mContentResolver, "clock_style", 0, UserHandle.USER_CURRENT) != 0;
+                || Settings.Secure.getIntForUser(mContentResolver,
+                    Settings.Secure.LOCK_SCREEN_CUSTOM_CLOCK_STYLE, 0, UserHandle.USER_CURRENT) != 0;
     }
 
     private void updateKeyguardStatusViewAlignment() {
