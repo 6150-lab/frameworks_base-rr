@@ -314,4 +314,6 @@
     <!-- Quick settings Look tile -->
     <string name="qs_look_label">Look</string>
     <string name="qs_look_none">Tap for the next Look</string>
+    <!-- Screenshot -->
+    <string name="quick_settings_screenshot_label">Screenshot</string>
 </resources>
