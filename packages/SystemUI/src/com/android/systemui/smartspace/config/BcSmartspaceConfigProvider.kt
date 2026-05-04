@@ -16,8 +16,28 @@
 
 package com.android.systemui.smartspace.config
 
-import com.android.systemui.flags.FeatureFlags
+import com.android.systemui.dagger.SysUISingleton
 import com.android.systemui.plugins.BcSmartspaceConfigPlugin
+import javax.inject.Inject
 
-class BcSmartspaceConfigProvider(private val featureFlags: FeatureFlags) :
-    BcSmartspaceConfigPlugin {}
+@SysUISingleton
+class BcSmartspaceConfigProvider @Inject constructor() : BcSmartspaceConfigPlugin {
+
+    // Clock IDs from KNOWN_PLUGINS in ClockRegistry that render their own
+    // date/weather on the lockscreen, so the smartspace date view must be
+    // hidden to avoid overlap.
+    private val clocksWithBuiltinWeather = setOf(
+        "DIGITAL_CLOCK_WEATHER",
+    )
+
+    var currentClockId: String = ""
+
+    override val isDefaultDateWeatherDisabled: Boolean
+        get() = clocksWithBuiltinWeather.contains(currentClockId)
+
+    override val isViewPager2Enabled: Boolean
+        get() = false
+
+    override val isSwipeEventLoggingEnabled: Boolean
+        get() = false
+}
