@@ -243,6 +243,7 @@ public class KeyguardIndicationController {
     private int mChargingCurrent;
     private int mChargingVoltage;
     private int mTemperature;
+    private int mOemRatedWatts;
     private int mBatteryLevel = -1;
     private boolean mBatteryPresent = true;
     protected long mChargingTimeRemaining;
@@ -1388,7 +1389,22 @@ public class KeyguardIndicationController {
         } else {
             chargingText = mContext.getResources().getString(chargingId, percentage);
         }
-        return chargingText + computeBatteryInfo();
+        return applyOemRatedWatts(chargingText) + computeBatteryInfo();
+    }
+
+    /**
+     * Stock-OOS-style headline: turn "VOOC Charging" into e.g. "100W SuperVOOC Charging"
+     * when the adapter's rated wattage is known. The real input current is never exposed
+     * during VOOC, so like stock this shows the adapter rating as part of the label while
+     * the live battery-side details remain on the line below. No-op for other languages
+     * or chargers (string untouched when the marker or rating is absent).
+     */
+    private String applyOemRatedWatts(String chargingText) {
+        if (mOemRatedWatts > 0 && chargingText.contains("VOOC Charging")) {
+            return chargingText.replaceFirst("VOOC Charging",
+                    mOemRatedWatts + "W SuperVOOC Charging");
+        }
+        return chargingText;
     }
 
     private String computeBatteryInfo() {
@@ -1568,6 +1584,10 @@ public class KeyguardIndicationController {
             mChargingCurrent = status.maxChargingCurrent;
             mChargingVoltage = status.maxChargingVoltage;
             mTemperature = status.temperature;
+            final Intent stickyBattery = mContext.registerReceiver(null,
+                    new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+            mOemRatedWatts = stickyBattery != null
+                    ? stickyBattery.getIntExtra("oem_charger_watts", 0) : 0;
             mChargingSpeed = status.getChargingSpeed(mContext);
             mChargingStatus = status.chargingStatus;
             mBatteryLevel = status.level;
