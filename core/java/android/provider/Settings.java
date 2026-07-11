@@ -7089,6 +7089,19 @@ public final class Settings {
         public static final String STATUSBAR_CLOCK_CHIP_GRADIENT_MASK_TEXT = "statusbar_clock_chip_gradient_mask_text";
 
         /**
+         * Replace colon with period in for the time.
+         * @hide
+         */
+        public static final String STATUS_BAR_CLOCK_PERIOD_SEPARATOR =
+                "status_bar_clock_period_separator";
+
+        /**
+         * Use bold typeface for the status bar clock.
+         * @hide
+         */
+        public static final String STATUS_BAR_CLOCK_BOLD = "status_bar_clock_bold";
+
+        /**
          * Keys we no longer back up under the current schema, but want to continue to
          * process when restoring historical backup datasets.
          *
