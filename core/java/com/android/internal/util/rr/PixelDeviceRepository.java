@@ -208,12 +208,14 @@ public final class PixelDeviceRepository {
                     "com.disney.disneyplus",
                     "com.google.android.aicore",
                     "com.google.android.apps.accessibility.magnifier",
+                    "com.google.android.apps.ai.icons",
                     "com.google.android.apps.aiwallpapers",
                     "com.google.android.apps.bard",
                     "com.google.android.apps.customization.pixel",
                     "com.google.android.apps.emojiwallpaper",
                     "com.google.android.apps.pixel.agent",
                     "com.google.android.apps.pixel.creativeassistant",
+                    "com.google.android.apps.pixel.customizationbundle",
                     "com.google.android.apps.pixel.nowplaying",
                     "com.google.android.apps.pixel.psi",
                     "com.google.android.apps.pixel.subzero",
@@ -258,14 +260,14 @@ public final class PixelDeviceRepository {
     static {
         List<PixelProfile> f = new ArrayList<>();
         f.add(new PixelProfile("kodiak",    "Pixel 11 Pro XL",   "google", "kodiak",    "kodiak",
-                "google/kodiak/kodiak:17/CD1A.260905.001.B1/16238327:user/release-keys",
-                "CD1A.260905.001.B1", "2026-09-05", 0L, null, false));
+                "google/kodiak/kodiak:17/CD1A.261005.003/16262255:user/release-keys",
+                "CD1A.261005.003", "2026-10-05", 0L, null, false));
         f.add(new PixelProfile("mustang",   "Pixel 10 Pro XL",   "google", "mustang",   "mustang",
-                "google/mustang/mustang:17/CP3A.260905.009/16091614:user/release-keys",
-                "CP3A.260905.009", "2026-09-05", 0L, null, false));
+                "google/mustang/mustang:17/CP3A.261005.005/16271449:user/release-keys",
+                "CP3A.261005.005", "2026-10-05", 0L, null, false));
         f.add(new PixelProfile("tangorpro", "Pixel Tablet",      "google", "tangorpro", "tangorpro",
-                "google/tangorpro/tangorpro:17/CP3A.260905.009/16091614:user/release-keys",
-                "CP3A.260905.009", "2026-09-05", 0L, null, false));
+                "google/tangorpro/tangorpro:17/CP3A.261005.002.A1/16269273:user/release-keys",
+                "CP3A.261005.002.A1", "2026-10-05", 0L, null, false));
         FALLBACK_PROFILES = Collections.unmodifiableList(f);
     }
 
