@@ -8226,7 +8226,8 @@ public class WindowManagerService extends IWindowManager.Stub
 
     @Override
     public boolean shouldShowSystemDecors(int displayId) {
-        if (!checkCallingPermission(INTERNAL_SYSTEM_WINDOW, "shouldShowSystemDecors()")) {
+        if (!checkCallingPermission(INTERNAL_SYSTEM_WINDOW, "shouldShowSystemDecors()")
+                && !mAtmService.isCallerRecents(Binder.getCallingUid())) {
             throw new SecurityException("Requires INTERNAL_SYSTEM_WINDOW permission");
         }
 

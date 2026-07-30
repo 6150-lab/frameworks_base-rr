@@ -34,5 +34,8 @@
         <permission name="android.permission.PERSONAL_CONTEXT_RECEIVE_INSIGHTS"/>
         <permission name="android.permission.PERSONAL_CONTEXT_HOST_INSIGHT_SURFACE"/>
         <permission name="android.permission.PERSONAL_CONTEXT_READ_SETTINGS"/>
+        <permission name="android.permission.INTERNAL_SYSTEM_WINDOW"/>
+        <permission name="android.permission.MANAGE_ACTIVITY_TASKS"/>
+        <permission name="android.permission.READ_FRAME_BUFFER"/>
     </privapp-permissions>
 </permissions>
