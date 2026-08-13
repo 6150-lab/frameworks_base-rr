@@ -1587,7 +1587,7 @@ public class KeyguardIndicationController {
             final Intent stickyBattery = mContext.registerReceiver(null,
                     new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
             mOemRatedWatts = stickyBattery != null
-                    ? stickyBattery.getIntExtra("oem_charger_watts", 0) : 0;
+                    ? stickyBattery.getIntExtra(BatteryManager.EXTRA_OEM_CHARGER_WATTS, 0) : 0;
             mChargingSpeed = status.getChargingSpeed(mContext);
             mChargingStatus = status.chargingStatus;
             mBatteryLevel = status.level;
