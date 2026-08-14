@@ -402,6 +402,8 @@ public class KeyguardIndicationRotateTextViewController extends
     public static final int INDICATION_TYPE_CLICK_TO_UNLOCK_HINT = 17;
     public static final int INDICATION_TYPE_KEY_TO_UNLOCK_HINT = 18;
     public static final int INDICATION_TYPE_ENTER_TO_UNLOCK_HINT = 19;
+    /** Ambient Now Playing song text (same area as Charged / battery). */
+    public static final int INDICATION_TYPE_NOW_PLAYING = 20;
 
     @IntDef({
             INDICATION_TYPE_NONE,
@@ -424,6 +426,7 @@ public class KeyguardIndicationRotateTextViewController extends
             INDICATION_TYPE_CLICK_TO_UNLOCK_HINT,
             INDICATION_TYPE_KEY_TO_UNLOCK_HINT,
             INDICATION_TYPE_ENTER_TO_UNLOCK_HINT,
+            INDICATION_TYPE_NOW_PLAYING
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface IndicationType {
@@ -474,6 +477,8 @@ public class KeyguardIndicationRotateTextViewController extends
                 return "key_to_unlock_hint";
             case INDICATION_TYPE_ENTER_TO_UNLOCK_HINT:
                 return "enter_to_unlock_hint";
+            case INDICATION_TYPE_NOW_PLAYING:
+                return "now_playing";
             default:
                 return "unknown[" + type + "]";
         }
