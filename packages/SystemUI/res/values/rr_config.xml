@@ -22,4 +22,7 @@
 
     <!-- Key handler broadcast when changing slider position -->
     <string name="config_alertSliderIntent" translatable="false"></string>
+
+    <!-- Use Oplus GLES charging ring (libnativeChargingRing) when the .so and textures are present. -->
+    <bool name="config_chargingAnimUseStockVfx">false</bool>
 </resources>

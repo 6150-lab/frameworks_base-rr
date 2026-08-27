@@ -5,3 +5,6 @@
 }
 
 -keep,allowoptimization,allowaccessmodification class com.android.systemui.dagger.DaggerReferenceGlobalRootComponent** { !synthetic *; }
+
+# JNI ABI for libnativeChargingRing.so — class/method names are frozen.
+-keep class com.oplus.vfxsdk.charge.** { *; }
