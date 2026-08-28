@@ -995,9 +995,18 @@ public class ComputerEngine implements Computer {
         return null;
     }
 
+    private static boolean shouldHideQuickSwitchLauncher(String packageName, int userId,
+            long flags) {
+        if ((flags & (PackageManager.MATCH_DISABLED_COMPONENTS
+                | PackageManager.MATCH_UNINSTALLED_PACKAGES)) != 0) {
+            return false;
+        }
+        return QuickSwitchService.shouldHide(userId, packageName);
+    }
+
     public final ApplicationInfo getApplicationInfo(String packageName,
             @PackageManager.ApplicationInfoFlagsBits long flags, int userId) {
-        if (QuickSwitchService.shouldHide(userId, packageName))
+        if (shouldHideQuickSwitchLauncher(packageName, userId, flags))
             return null;
         return getApplicationInfoInternal(packageName, flags, Binder.getCallingUid(), userId);
     }
@@ -1012,7 +1021,7 @@ public class ComputerEngine implements Computer {
             @PackageManager.ApplicationInfoFlagsBits long flags,
             int filterCallingUid, int userId) {
         if (!mUserManager.exists(userId)) return null;
-        if (QuickSwitchService.shouldHide(userId, packageName))
+        if (shouldHideQuickSwitchLauncher(packageName, userId, flags))
             return null;
         flags = updateFlagsForApplication(flags, userId);
 
@@ -1676,7 +1685,7 @@ public class ComputerEngine implements Computer {
 
     public final PackageInfo getPackageInfo(String packageName,
             @PackageManager.PackageInfoFlagsBits long flags, int userId) {
-        if (QuickSwitchService.shouldHide(userId, packageName))
+        if (shouldHideQuickSwitchLauncher(packageName, userId, flags))
             return null;
         return getPackageInfoInternal(packageName, PackageManager.VERSION_CODE_HIGHEST,
                 flags, Binder.getCallingUid(), userId);
