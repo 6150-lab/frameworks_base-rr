@@ -1191,6 +1191,10 @@ public final class BatteryService extends SystemService {
         if (sid == 0x650A0013L) {
             return 100;
         }
+        // OnePlus 13 (dodge): measured 53.9W at 55% SoC. Same sid on stock ColorOS.
+        if (sid == 0x65005013L) {
+            return 100;
+        }
         // TODO: add 80W-class sids (Type-A / 10A cable sessions) once captured.
         // Unknown sid but SuperVOOC protocol active: fall back to class rating.
         // Protocol id is device-family specific (105 aston / 0x69, 101 dodge /
