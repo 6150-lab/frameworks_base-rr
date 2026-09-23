@@ -136,4 +136,7 @@
     <string name="charging_vfx_source_vooc">VOOC</string>
     <string name="charging_vfx_source_wireless">Wireless</string>
     <string name="charging_vfx_source_dock">Dock</string>
+    <string name="charging_vfx_source_pps">PPS</string>
+    <!-- Under the SUPERVOOC row: health HAL time to full. [CHAR LIMIT=24] -->
+    <string name="charging_vfx_time_to_full">Full in <xliff:g id="time" example="25 min">%s</xliff:g></string>
 </resources>

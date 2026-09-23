@@ -56,12 +56,14 @@ class ChargingVfxBrandingView @JvmOverloads constructor(
     private var wattageBg: Drawable? = null
     private var ratedWatts = 0
     private var batteryLevel = 0
+    private var levelCenti = 0
     private var showLogo = false
     private var statusLabel: String? = null
     private var sourceLabel: String? = null
     private var fadedIn = false
     private var speedUpGradient = false
     private var showBoostTip = false
+    private var timeToFull: String? = null
 
     private val levelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = Color.WHITE
@@ -105,6 +107,11 @@ class ChargingVfxBrandingView @JvmOverloads constructor(
         typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
         letterSpacing = 0.04f
     }
+    private val timeToFullPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = Color.WHITE
+        textAlign = Paint.Align.CENTER
+        typeface = Typeface.create("sans-serif", Typeface.NORMAL)
+    }
 
     init {
         setWillNotDraw(false)
@@ -114,6 +121,15 @@ class ChargingVfxBrandingView @JvmOverloads constructor(
 
     fun setBatteryLevel(level: Int) {
         batteryLevel = level.coerceIn(0, 100)
+        invalidate()
+    }
+
+    /** Kernel decimal SoC in hundredths (5270 = 52.70%). 0 shows the integer level. */
+    fun setBatteryLevelCenti(centi: Int) {
+        if (levelCenti == centi) {
+            return
+        }
+        levelCenti = centi
         invalidate()
     }
 
@@ -145,6 +161,15 @@ class ChargingVfxBrandingView @JvmOverloads constructor(
             return
         }
         sourceLabel = label
+        invalidate()
+    }
+
+    /** "Full in 25 min" between the number and the mark row. Null clears it. */
+    fun setTimeToFull(label: String?) {
+        if (timeToFull == label) {
+            return
+        }
+        timeToFull = label
         invalidate()
     }
 
@@ -232,7 +257,11 @@ class ChargingVfxBrandingView @JvmOverloads constructor(
         percentPaint.alpha = 255
         percentPaint.textSize = pctSize
 
-        val levelText = batteryLevel.toString()
+        val levelText = if (levelCenti > 0 && batteryLevel < 100) {
+            "${levelCenti / 100}.${(levelCenti % 100).toString().padStart(2, '0')}"
+        } else {
+            batteryLevel.toString()
+        }
         levelPaint.getTextBounds(levelText, 0, levelText.length, levelBounds)
         val levelWidth = levelPaint.measureText(levelText)
         val pctWidth = percentPaint.measureText("%")
@@ -264,12 +293,13 @@ class ChargingVfxBrandingView @JvmOverloads constructor(
             drawBoostTip(canvas, cx, levelY + levelPaint.ascent())
         }
 
-        val rowTop = levelY + levelPaint.descent() + dp(ROW_GAP_DP)
+        var rowTop = levelY + levelPaint.descent() + dp(ROW_GAP_DP)
         val status = statusLabel
         if (!status.isNullOrEmpty()) {
             drawStatusLabel(canvas, cx, rowTop, status)
             return
         }
+        rowTop = drawTimeToFull(canvas, cx, rowTop)
         if (showLogo || ratedWatts > 0) {
             drawMarkAndWatts(canvas, cx, rowTop)
             return
@@ -278,6 +308,18 @@ class ChargingVfxBrandingView @JvmOverloads constructor(
         if (!source.isNullOrEmpty()) {
             drawSource(canvas, cx, rowTop, source)
         }
+    }
+
+    /** Draws the time line at [top]; returns where the mark row starts. */
+    private fun drawTimeToFull(canvas: Canvas, cx: Float, top: Float): Float {
+        val text = timeToFull
+        if (text.isNullOrEmpty()) {
+            return top
+        }
+        timeToFullPaint.textSize = dp(TTF_DP)
+        timeToFullPaint.alpha = TTF_ALPHA
+        canvas.drawText(text, cx, top - timeToFullPaint.ascent(), timeToFullPaint)
+        return top + timeToFullPaint.descent() - timeToFullPaint.ascent() + dp(TTF_GAP_DP)
     }
 
     /**
@@ -448,6 +490,9 @@ class ChargingVfxBrandingView @JvmOverloads constructor(
         private const val TIP_GAP_DP = 12f
         private const val STATUS_DP = 16f
         private const val SOURCE_DP = 16f
+        private const val TTF_DP = 14f
+        private const val TTF_GAP_DP = 8f
+        private const val TTF_ALPHA = 204
         // GradientColorTextView mint `#8AFFA4` / -7667804.
         private val SPEED_UP_MINT = Color.parseColor("#8AFFA4")
     }
