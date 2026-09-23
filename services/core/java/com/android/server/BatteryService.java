@@ -1187,10 +1187,6 @@ public final class BatteryService extends SystemService {
         if (sid == 0x69006413L) {
             return 100;
         }
-        // OnePlus 13 (dodge) 100W NA adapter, Type-C / 12A path
-        if (sid == 0x650A0013L) {
-            return 100;
-        }
         // OnePlus 13 (dodge): measured 53.9W at 55% SoC. Same sid on stock ColorOS.
         if (sid == 0x65005013L) {
             return 100;
