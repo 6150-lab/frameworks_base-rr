@@ -76,6 +76,7 @@ import com.android.systemui.navigationbar.views.buttons.NearestTouchFrame;
 import com.android.systemui.recents.Recents;
 import com.android.systemui.res.R;
 import com.android.systemui.rotation.RotationPolicyWrapper;
+import com.android.systemui.rr.pulse.PulseRenderer;
 import com.android.systemui.settings.DisplayTracker;
 import com.android.systemui.shade.ShadeViewController;
 import com.android.systemui.shade.domain.interactor.PanelExpansionInteractor;
@@ -862,6 +863,8 @@ public class NavigationBarView extends FrameLayout {
     @Override
     protected void onDraw(Canvas canvas) {
         mDeadZone.onDraw(canvas);
+        // Behind the buttons. A child view would sit in the touch path.
+        PulseRenderer.draw(this, canvas);
         super.onDraw(canvas);
     }
 

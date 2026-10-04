@@ -7145,6 +7145,53 @@ public final class Settings {
          */
         public static final String AUTO_LAUNCH_MEDIA_CONTROLS = "auto_launch_media_controls";
 
+        /**
+         * Whether the quick settings header image is enabled. 0 off, 1 on.
+         * @hide
+         */
+        public static final String STATUS_BAR_CUSTOM_HEADER = "status_bar_custom_header";
+
+        /**
+         * Header image shadow, 0 for none through 200.
+         * @hide
+         */
+        public static final String STATUS_BAR_CUSTOM_HEADER_SHADOW =
+                "status_bar_custom_header_shadow";
+
+        /**
+         * Daylight header pack, as a package name or package/class.
+         * @hide
+         */
+        public static final String STATUS_BAR_DAYLIGHT_HEADER_PACK =
+                "status_bar_daylight_header_pack";
+
+        /**
+         * Header image height in dp. Evolution uses 100 through 200, default 142.
+         * @hide
+         */
+        public static final String STATUS_BAR_CUSTOM_HEADER_HEIGHT =
+                "status_bar_custom_header_height";
+
+        /**
+         * Current header provider: "daylight", "static", or "file".
+         * @hide
+         */
+        public static final String STATUS_BAR_CUSTOM_HEADER_PROVIDER =
+                "status_bar_custom_header_provider";
+
+        /**
+         * Static header image, as package/resource, chosen by OmniStyle.
+         * @hide
+         */
+        public static final String STATUS_BAR_CUSTOM_HEADER_IMAGE =
+                "status_bar_custom_header_image";
+
+        /**
+         * File header image URI chosen by OmniStyle.
+         * @hide
+         */
+        public static final String STATUS_BAR_FILE_HEADER_IMAGE = "status_bar_file_header_image";
+
         // Settings moved to Settings.Secure
 
         /**

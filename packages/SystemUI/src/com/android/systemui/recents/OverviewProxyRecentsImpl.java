@@ -24,6 +24,7 @@ import android.util.Log;
 import com.android.systemui.LauncherProxyService;
 import com.android.systemui.dagger.SysUISingleton;
 import com.android.systemui.plugins.ActivityStarter;
+import com.android.systemui.rr.slim.SlimRecents;
 import com.android.systemui.shared.recents.ILauncherProxy;
 import com.android.systemui.statusbar.policy.KeyguardStateController;
 
@@ -37,6 +38,7 @@ public class OverviewProxyRecentsImpl implements RecentsImplementation {
 
     private final static String TAG = "OverviewProxyRecentsImpl";
     private Handler mHandler;
+    private Context mContext;
     private final LauncherProxyService mLauncherProxyService;
     private final ActivityStarter mActivityStarter;
     private final KeyguardStateController mKeyguardStateController;
@@ -55,10 +57,16 @@ public class OverviewProxyRecentsImpl implements RecentsImplementation {
     @Override
     public void onStart(Context context) {
         mHandler = new Handler();
+        mContext = context;
     }
 
     @Override
     public void showRecentApps(boolean triggeredFromAltTab) {
+        // Alt-tab and the legacy show path. Gesture overview does not come through here.
+        if (slimEnabled() && !mKeyguardStateController.isShowing()
+                && SlimRecents.show(mContext)) {
+            return;
+        }
         ILauncherProxy launcherProxy = mLauncherProxyService.getProxy();
         if (launcherProxy != null) {
             try {
@@ -71,6 +79,10 @@ public class OverviewProxyRecentsImpl implements RecentsImplementation {
 
     @Override
     public void hideRecentApps(boolean triggeredFromAltTab, boolean triggeredFromHomeKey) {
+        if (slimEnabled()) {
+            SlimRecents.hide();
+        }
+        // Home still has to close a launcher overview opened with a gesture.
         ILauncherProxy launcherProxy = mLauncherProxyService.getProxy();
         if (launcherProxy != null) {
             try {
@@ -83,6 +95,35 @@ public class OverviewProxyRecentsImpl implements RecentsImplementation {
 
     @Override
     public void toggleRecentApps() {
+        if (slimEnabled()) {
+            toggleSlim();
+            return;
+        }
+        toggleLauncher();
+    }
+
+    private boolean slimEnabled() {
+        return mContext != null && SlimRecents.enabled(mContext);
+    }
+
+    /** Recents button. Wait until the keyguard is gone so the list is not shown over the lock. */
+    private void toggleSlim() {
+        final Runnable toggleSlim = () -> {
+            if (mContext == null || !SlimRecents.toggle(mContext)) {
+                toggleLauncher();
+            }
+        };
+        if (mKeyguardStateController.isShowing()) {
+            mActivityStarter.executeRunnableDismissingKeyguard(
+                    () -> mHandler.post(toggleSlim), null, true /* dismissShade */,
+                    true /* afterKeyguardGone */,
+                    true /* deferred */);
+        } else {
+            toggleSlim.run();
+        }
+    }
+
+    private void toggleLauncher() {
         // If connected to launcher service, let it handle the toggle logic
         ILauncherProxy launcherProxy = mLauncherProxyService.getProxy();
         if (launcherProxy != null) {
