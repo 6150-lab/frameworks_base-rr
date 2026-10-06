@@ -23,6 +23,8 @@ public final class CategoryKey {
     // Activities in this category shows up in Settings homepage.
     public static final String CATEGORY_HOMEPAGE = "com.android.settings.category.ia.homepage";
 
+    public static final String CATEGORY_REMIXER = "com.android.settings.category.ia.remixer";
+
     // Top level category.
     public static final String CATEGORY_NETWORK = "com.android.settings.category.ia.wireless";
     public static final String CATEGORY_CONNECT = "com.android.settings.category.ia.connect";
