@@ -62,7 +62,6 @@ public class OverviewProxyRecentsImpl implements RecentsImplementation {
 
     @Override
     public void showRecentApps(boolean triggeredFromAltTab) {
-        // Alt-tab and the legacy show path. Gesture overview does not come through here.
         if (slimEnabled() && !mKeyguardStateController.isShowing()
                 && SlimRecents.show(mContext)) {
             return;
@@ -106,7 +105,7 @@ public class OverviewProxyRecentsImpl implements RecentsImplementation {
         return mContext != null && SlimRecents.enabled(mContext);
     }
 
-    /** Recents button. Wait until the keyguard is gone so the list is not shown over the lock. */
+    /** Recents button. Wait until the keyguard is gone so the wheel is not shown over the lock. */
     private void toggleSlim() {
         final Runnable toggleSlim = () -> {
             if (mContext == null || !SlimRecents.toggle(mContext)) {

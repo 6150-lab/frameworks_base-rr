@@ -526,6 +526,12 @@ public class LauncherProxyService implements CallbackController<LauncherProxyLis
             });
         }
 
+        @Override
+        public void showSlimRecents() {
+            verifyCallerAndClearCallingIdentityPostMain("showSlimRecents", () ->
+                    mCommandQueue.showRecentApps(false /* triggeredFromAltTab */));
+        }
+
         private boolean verifyCaller(String reason) {
             final int callerId = Binder.getCallingUserHandle().getIdentifier();
             if (callerId != mCurrentBoundedUserId || mLauncherProxy == null) {
