@@ -89,8 +89,12 @@ import com.android.systemui.user.utils.UserScopedService;
 import com.android.systemui.util.kotlin.JavaAdapter;
 import com.android.systemui.util.settings.SecureSettings;
 
+import com.google.ux.material.libmonet.contrast.Contrast;
 import com.google.ux.material.libmonet.dynamiccolor.DynamicColor;
+import com.google.ux.material.libmonet.dynamiccolor.DynamicScheme;
 import com.google.ux.material.libmonet.dynamiccolor.MaterialDynamicColors;
+import com.google.ux.material.libmonet.hct.Hct;
+import com.google.ux.material.libmonet.palettes.TonalPalette;
 
 import kotlinx.coroutines.flow.Flow;
 import kotlinx.coroutines.flow.StateFlow;
@@ -160,6 +164,11 @@ public class ThemeOverlayController implements CoreStartable, Dumpable {
     protected int mMainWallpaperColor = Color.TRANSPARENT;
     // UI contrast as reported by UiModeManager
     private double mContrast = 0.0;
+    // RR: Remixer accent shade, -SHADE_MAX (darker) to SHADE_MAX (lighter)
+    private static final String ACCENT_SHADE = "rr_accent_shade";
+    private static final int SHADE_MAX = 5;
+    private static final double SHADE_STEP = 0.2;
+    private double mShadeGamma = 1.0;
     // Theme variant: Vibrant, Tonal, Expressive, etc
     @VisibleForTesting
     @ThemeStyle.Type
@@ -547,6 +556,22 @@ public class ThemeOverlayController implements CoreStartable, Dumpable {
                 },
                 UserHandle.USER_ALL);
 
+        mSecureSettings.registerContentObserverForUserSync(
+                ACCENT_SHADE,
+                false,
+                new ContentObserver(mBgHandler) {
+                    @Override
+                    public void onChange(boolean selfChange, Collection<Uri> collection, int flags,
+                            int userId) {
+                        if (mUserTracker.getUserId() != userId
+                                || !mDeviceProvisionedController.isUserSetup(userId)) {
+                            return;
+                        }
+                        reevaluateSystemTheme(true /* forceReload */);
+                    }
+                },
+                UserHandle.USER_ALL);
+
         // All wallpaper color and keyguard logic only applies when Monet is enabled.
         if (!mIsMonetEnabled) {
             return;
@@ -712,6 +737,8 @@ public class ThemeOverlayController implements CoreStartable, Dumpable {
         mDarkColorScheme = new ColorScheme(color, true /* isDark */, mThemeStyle, mContrast);
         mLightColorScheme = new ColorScheme(color, false /* isDark */, mThemeStyle, mContrast);
         mColorScheme = isNightMode() ? mDarkColorScheme : mLightColorScheme;
+        int shade = mSecureSettings.getIntForUser(ACCENT_SHADE, 0, mUserTracker.getUserId());
+        mShadeGamma = Math.pow(2, -Math.max(-SHADE_MAX, Math.min(SHADE_MAX, shade)) * SHADE_STEP);
 
         mAccentOverlay = newFabricatedOverlay("accent");
         assignColorsToOverlay(mAccentOverlay, DynamicColors.getAllAccentPalette());
@@ -734,10 +761,55 @@ public class ThemeOverlayController implements CoreStartable, Dumpable {
             String prefix = "android:color/system_" + p.first;
 
             overlay.setResourceValue(prefix + "_light", TYPE_INT_COLOR_ARGB8,
-                    p.second.getArgb(mLightColorScheme.getMaterialScheme()), null);
+                    shadedArgb(p.second, mLightColorScheme.getMaterialScheme()), null);
             overlay.setResourceValue(prefix + "_dark", TYPE_INT_COLOR_ARGB8,
-                    p.second.getArgb(mDarkColorScheme.getMaterialScheme()), null);
+                    shadedArgb(p.second, mDarkColorScheme.getMaterialScheme()), null);
         });
+    }
+
+    /**
+     * Applies the accent shade as a tone curve on the accent palettes. Foregrounds on accent
+     * backgrounds keep their original contrast.
+     */
+    private int shadedArgb(DynamicColor color, DynamicScheme scheme) {
+        int argb = color.getArgb(scheme);
+        if (mShadeGamma == 1.0) {
+            return argb;
+        }
+        double tone = color.getTone(scheme);
+        DynamicColor background = color.isBackground || color.background == null
+                ? null : color.background.apply(scheme);
+        double shaded;
+        if (background != null && isAccent(background, scheme)) {
+            double backgroundTone = background.getTone(scheme);
+            double target = Math.min(Contrast.RATIO_45,
+                    Contrast.ratioOfTones(tone, backgroundTone));
+            double shadedBackground = shadeTone(backgroundTone);
+            shaded = Contrast.ratioOfTones(tone, shadedBackground) >= target
+                    ? tone : DynamicColor.foregroundTone(shadedBackground, target);
+        } else if (isAccent(color, scheme)) {
+            shaded = shadeTone(tone);
+        } else {
+            return argb;
+        }
+        if (shaded == tone) {
+            return argb;
+        }
+        TonalPalette palette = color.palette.apply(scheme);
+        double chroma = palette.getChroma()
+                * (color.chromaMultiplier == null ? 1 : color.chromaMultiplier.apply(scheme));
+        return (Hct.from(palette.getHue(), chroma, shaded).toInt() & 0x00FFFFFF)
+                | (argb & 0xFF000000);
+    }
+
+    private double shadeTone(double tone) {
+        return 100.0 * Math.pow(Math.max(0, Math.min(100, tone)) / 100.0, mShadeGamma);
+    }
+
+    private static boolean isAccent(DynamicColor color, DynamicScheme scheme) {
+        TonalPalette palette = color.palette.apply(scheme);
+        return palette == scheme.primaryPalette || palette == scheme.secondaryPalette
+                || palette == scheme.tertiaryPalette;
     }
 
     /**
@@ -1020,5 +1092,6 @@ public class ThemeOverlayController implements CoreStartable, Dumpable {
         pw.println("mAcceptColorEvents=" + mAcceptColorEvents);
         pw.println("mDeferredThemeEvaluation=" + mDeferredThemeEvaluation);
         pw.println("mThemeStyle=" + mThemeStyle);
+        pw.println("mShadeGamma=" + mShadeGamma);
     }
 }
