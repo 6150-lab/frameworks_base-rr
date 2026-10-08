@@ -734,8 +734,14 @@ public class ThemeOverlayController implements CoreStartable, Dumpable {
     }
 
     private void createOverlays(int color) {
-        mDarkColorScheme = new ColorScheme(color, true /* isDark */, mThemeStyle, mContrast);
-        mLightColorScheme = new ColorScheme(color, false /* isDark */, mThemeStyle, mContrast);
+        // RR: Remixer presets store CONTENT; render them as tonal spot at the seed's chroma.
+        if (mThemeStyle == ThemeStyle.CONTENT) {
+            mDarkColorScheme = new ColorScheme(color, true /* isDark */, mContrast, true);
+            mLightColorScheme = new ColorScheme(color, false /* isDark */, mContrast, true);
+        } else {
+            mDarkColorScheme = new ColorScheme(color, true /* isDark */, mThemeStyle, mContrast);
+            mLightColorScheme = new ColorScheme(color, false /* isDark */, mThemeStyle, mContrast);
+        }
         mColorScheme = isNightMode() ? mDarkColorScheme : mLightColorScheme;
         int shade = mSecureSettings.getIntForUser(ACCENT_SHADE, 0, mUserTracker.getUserId());
         mShadeGamma = Math.pow(2, -Math.max(-SHADE_MAX, Math.min(SHADE_MAX, shade)) * SHADE_STEP);
@@ -964,8 +970,8 @@ public class ThemeOverlayController implements CoreStartable, Dumpable {
     private int fetchThemeStyleFromSetting() {
         // Allow-list of Style objects that can be created from a setting string, i.e. can be
         // used as a system-wide theme.
-        // - Content is allowed for Remixer accent presets: it keeps the seed's chroma, so
-        //   presets with close hues stay distinct.
+        // - Content marks Remixer accent presets; createOverlays renders it as tonal spot at
+        //   the seed's chroma, so presets with close hues stay distinct.
         @ThemeStyle.Type List<Integer> validStyles = new ArrayList<>(
                 Arrays.asList(ThemeStyle.EXPRESSIVE,
                         ThemeStyle.SPRITZ, ThemeStyle.TONAL_SPOT, ThemeStyle.FRUIT_SALAD,
