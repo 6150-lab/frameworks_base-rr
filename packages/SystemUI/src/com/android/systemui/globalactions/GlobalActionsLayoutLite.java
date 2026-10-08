@@ -36,6 +36,7 @@ import com.android.systemui.res.R;
 public class GlobalActionsLayoutLite extends GlobalActionsLayout {
     private View mLastView;
     private final Set<Integer> mCurrentIds = new HashSet<>();
+    private boolean mSingleColumn;
 
     public GlobalActionsLayoutLite(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -54,10 +55,15 @@ public class GlobalActionsLayoutLite extends GlobalActionsLayout {
         return null;
     }
 
+    /** One action per row, for the restart options panel. */
+    public void setSingleColumn(boolean singleColumn) {
+        mSingleColumn = singleColumn;
+    }
+
     @Override
     public void onUpdateList() {
         super.onUpdateList();
-        int nElementsWrap = getResources().getInteger(
+        int nElementsWrap = mSingleColumn ? 1 : getResources().getInteger(
                 com.android.systemui.res.R.integer.power_menu_lite_max_columns);
         int nChildren = getListView().getChildCount() - 1; // don't count flow element
 

@@ -65,6 +65,8 @@ import android.graphics.Shader;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.RippleDrawable;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -813,6 +815,9 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
                 addIfShouldShowAction(mRestartItems, fbAction);
             }
         }
+        if (!mRestartItems.isEmpty()) {
+            mRestartItems.add(0, new RestartHeaderAction());
+        }
 
         for (int i = 0; i < actionTypes.size(); i++) {
             GlobalActionType actionType = actionTypes.get(i);
@@ -1264,6 +1269,13 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
         }
 
         @Override
+        public View create(
+                Context context, View convertView, ViewGroup parent, LayoutInflater inflater) {
+            return createRestartRow(this, context, parent, inflater,
+                    com.android.systemui.res.R.string.global_action_restart_system_summary, true);
+        }
+
+        @Override
         public boolean onLongPress() {
             if (!mUserManager.hasUserRestrictionForUser(UserManager.DISALLOW_SAFE_BOOT,
                     mUserTracker.getUserHandle())) {
@@ -1279,34 +1291,134 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
     }
 
     private abstract class RestartReasonAction extends SinglePressAction {
-        RestartReasonAction(int icon, int label) { super(icon, label); }
+        private final int mSummaryResId;
+        RestartReasonAction(int icon, int label, int summary) {
+            super(icon, label);
+            mSummaryResId = summary;
+        }
         @Override public boolean showDuringKeyguard() { return true; }
         @Override public boolean showBeforeProvisioning() { return true; }
         abstract String getReason();
         @Override public void onPress() { mWindowManagerFuncs.reboot(false, getReason()); }
+        @Override
+        public View create(
+                Context context, View convertView, ViewGroup parent, LayoutInflater inflater) {
+            return createRestartRow(this, context, parent, inflater, mSummaryResId, false);
+        }
+    }
+
+    /** Title row of the restart panel; tapping it goes back to the power menu. */
+    private final class RestartHeaderAction extends SinglePressAction {
+        RestartHeaderAction() {
+            super(R.drawable.ic_restart,
+                    com.android.systemui.res.R.string.global_action_restart_title);
+        }
+        @Override public boolean showDuringKeyguard() { return true; }
+        @Override public boolean showBeforeProvisioning() { return true; }
+        @Override
+        public void onPress() {
+            if (mDelegate != null) {
+                mDelegate.showRestartOptions(false);
+            }
+        }
+        @Override
+        public View create(
+                Context context, View convertView, ViewGroup parent, LayoutInflater inflater) {
+            View v = inflater.inflate(
+                    com.android.systemui.res.R.layout.global_actions_restart_header, parent, false);
+            v.setId(View.generateViewId());
+            animateRestartRow(v, 0);
+            return v;
+        }
+    }
+
+    private View createRestartRow(SinglePressAction action, Context context, ViewGroup parent,
+            LayoutInflater inflater, int summaryResId, boolean primary) {
+        View v = inflater.inflate(
+                com.android.systemui.res.R.layout.global_actions_restart_row, parent, false);
+        v.setId(View.generateViewId());
+        ImageView icon = v.findViewById(com.android.systemui.res.R.id.restart_icon);
+        TextView title = v.findViewById(com.android.systemui.res.R.id.restart_title);
+        TextView summary = v.findViewById(com.android.systemui.res.R.id.restart_summary);
+        title.setText(action.getMessageResId());
+        title.setTypeface(Typeface.create(FontStyles.GSF_LABEL_LARGE_EMPHASIZED, Typeface.NORMAL));
+        summary.setText(summaryResId);
+
+        int rowColor = context.getColor(primary
+                ? com.android.systemui.res.R.color.materialColorPrimaryContainer
+                : com.android.systemui.res.R.color.materialColorSurfaceContainerHigh);
+        int iconColor = context.getColor(primary
+                ? com.android.systemui.res.R.color.materialColorPrimary
+                : com.android.systemui.res.R.color.materialColorSurfaceContainerHighest);
+        int glyphColor = context.getColor(primary
+                ? com.android.systemui.res.R.color.materialColorOnPrimary
+                : com.android.systemui.res.R.color.materialColorOnSurface);
+        if (primary) {
+            int onRow = context.getColor(
+                    com.android.systemui.res.R.color.materialColorOnPrimaryContainer);
+            title.setTextColor(onRow);
+            summary.setTextColor(onRow);
+        }
+
+        float radius = context.getResources().getDimension(
+                com.android.systemui.res.R.dimen.global_actions_corner_radius) * 0.75f;
+        GradientDrawable shape = new GradientDrawable();
+        shape.setCornerRadius(radius);
+        shape.setColor(rowColor);
+        GradientDrawable mask = new GradientDrawable();
+        mask.setCornerRadius(radius);
+        mask.setColor(Color.WHITE);
+        v.setBackground(new RippleDrawable(
+                ColorStateList.valueOf(glyphColor & 0x33FFFFFF), shape, mask));
+
+        GradientDrawable dot = new GradientDrawable();
+        dot.setShape(GradientDrawable.OVAL);
+        dot.setColor(iconColor);
+        icon.setBackground(dot);
+        icon.setImageDrawable(action.getIcon(context));
+        icon.setImageTintList(ColorStateList.valueOf(glyphColor));
+
+        animateRestartRow(v, Math.max(0, mRestartItems.indexOf(action)));
+        return v;
+    }
+
+    private static void animateRestartRow(View v, int index) {
+        v.setAlpha(0f);
+        v.setTranslationY(v.getResources().getDisplayMetrics().density * 16f);
+        v.animate()
+                .alpha(1f)
+                .translationY(0f)
+                .setStartDelay(index * 40L)
+                .setDuration(240)
+                .setInterpolator(new android.view.animation.DecelerateInterpolator())
+                .start();
     }
 
     private final class RestartRecoveryAction extends RestartReasonAction {
         RestartRecoveryAction() { super(com.android.systemui.res.R.drawable.ic_lock_restart_recovery,
-                com.android.systemui.res.R.string.global_action_restart_recovery); }
+                com.android.systemui.res.R.string.global_action_restart_recovery,
+                com.android.systemui.res.R.string.global_action_restart_recovery_summary); }
         @Override String getReason() { return PowerManager.REBOOT_RECOVERY; }
     }
 
     private final class RestartBootloaderAction extends RestartReasonAction {
         RestartBootloaderAction() { super(com.android.systemui.res.R.drawable.ic_lock_restart_bootloader,
-                com.android.systemui.res.R.string.global_action_restart_bootloader); }
+                com.android.systemui.res.R.string.global_action_restart_bootloader,
+                com.android.systemui.res.R.string.global_action_restart_bootloader_summary); }
         @Override String getReason() { return PowerManager.REBOOT_BOOTLOADER; }
     }
 
     private final class RestartFastbootAction extends RestartReasonAction {
         RestartFastbootAction() { super(com.android.systemui.res.R.drawable.ic_lock_restart_fastboot,
-                com.android.systemui.res.R.string.global_action_restart_fastboot); }
+                com.android.systemui.res.R.string.global_action_restart_fastboot,
+                com.android.systemui.res.R.string.global_action_restart_fastboot_summary); }
         @Override String getReason() { return PowerManager.REBOOT_FASTBOOT; }
     }
 
     private final class RestartDownloadAction extends RestartReasonAction {
         RestartDownloadAction() { super(com.android.systemui.res.R.drawable.ic_lock_restart_bootloader,
-                com.android.systemui.res.R.string.global_action_restart_download); }
+                com.android.systemui.res.R.string.global_action_restart_download,
+                com.android.systemui.res.R.string.global_action_restart_download_summary); }
         @Override String getReason() { return PowerManager.REBOOT_DOWNLOAD; }
     }
 
@@ -1972,6 +2084,7 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
                     // don't dismiss the dialog if we're opening the power options menu
                     if (!(item instanceof PowerOptionsAction)
                             && !(item instanceof RestartAction && shouldShowRestartSubmenu())
+                            && !(item instanceof RestartHeaderAction)
                             && !(item instanceof UsersAction)) {
                         // Usually clicking an item shuts down the phone, locks, or starts an
                         // activity. We don't want to animate back into the power button when that
@@ -3038,8 +3151,7 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
             mOnBackInvokedCallback = () -> {
                 logOnBackInvocation();
                 if (mAdapter.isShowingRestartOptions()) {
-                    mAdapter.setShowingRestartOptions(false);
-                    mGlobalActionsLayout.updateList();
+                    showRestartOptions(false);
                 } else {
                     dismiss();
                 }
@@ -3124,7 +3236,12 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
         }
 
         public void showRestartOptionsMenu() {
-            mAdapter.setShowingRestartOptions(true);
+            showRestartOptions(true);
+        }
+
+        void showRestartOptions(boolean show) {
+            mAdapter.setShowingRestartOptions(show);
+            mGlobalActionsLayout.setSingleColumn(show);
             mGlobalActionsLayout.updateList();
         }
 
