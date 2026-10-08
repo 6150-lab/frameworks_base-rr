@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.systemui.rr.slim;
+package com.android.systemui.rr.spin;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -32,7 +32,6 @@ import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ParceledListSlice;
-import android.database.ContentObserver;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -50,7 +49,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.RemoteException;
 import android.os.UserHandle;
-import android.provider.Settings;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.Log;
@@ -91,19 +89,16 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * Turn wheel of recent tasks for the recents key and the Launcher3 swipe-up overview.
- * Remixer writes the same Settings.System name, {@code slim_recents_enabled}.
+ * Spin recents: a turn wheel of recent tasks for the recents key and the Launcher3 swipe-up
+ * overview, picked with {@link com.android.systemui.rr.RecentsStyle#SPIN}.
  */
-public final class SlimRecents {
-    private static final String TAG = "RrSlimRecents";
-
-    /** Settings.System int. 1 shows the wheel instead of the launcher overview. */
-    public static final String KEY = "slim_recents_enabled";
+public final class SpinRecents {
+    private static final String TAG = "RrSpinRecents";
 
     private static final int MAX_TASKS = 20;
     private static final Handler MAIN = new Handler(Looper.getMainLooper());
     private static final ExecutorService EXEC = Executors.newSingleThreadExecutor(runnable -> {
-        Thread thread = new Thread(runnable, "rr-slim");
+        Thread thread = new Thread(runnable, "rr-spin");
         thread.setDaemon(true);
         return thread;
     });
@@ -116,34 +111,10 @@ public final class SlimRecents {
     private static final TimeInterpolator DETENT = new OvershootInterpolator(1.6f);
     private static final TimeInterpolator SPIN_DOWN = new DecelerateInterpolator(1.5f);
 
-    private static int sUser = UserHandle.USER_NULL;
-    private static int sEnabled = -1;
-    private static boolean sWatching;
-    private static boolean sWatchFailed;
-    private static Context sWatchContext;
     private static int sGeneration;
     private static Wheel sWheel;
 
-    private SlimRecents() {}
-
-    public static boolean enabled(Context context) {
-        if (context == null) {
-            return false;
-        }
-        try {
-            watch(context);
-            int user = ActivityManager.getCurrentUser();
-            if (!sWatching || sEnabled < 0 || user != sUser) {
-                sUser = user;
-                sEnabled = Settings.System.getIntForUser(
-                        context.getContentResolver(), KEY, 0, user);
-            }
-            return sEnabled == 1;
-        } catch (RuntimeException e) {
-            Log.w(TAG, "Slim recents setting is not readable yet", e);
-            return false;
-        }
-    }
+    private SpinRecents() {}
 
     /**
      * @return false when the wheel could not be shown, so the caller can open the launcher
@@ -181,7 +152,7 @@ public final class SlimRecents {
             sWheel.reload();
             return true;
         } catch (RuntimeException e) {
-            Log.e(TAG, "Unable to show slim recents", e);
+            Log.e(TAG, "Unable to show spin recents", e);
             hide();
             return false;
         }
@@ -189,7 +160,7 @@ public final class SlimRecents {
 
     public static void hide() {
         if (Looper.myLooper() != Looper.getMainLooper()) {
-            MAIN.post(SlimRecents::hide);
+            MAIN.post(SpinRecents::hide);
             return;
         }
         sGeneration++;
@@ -197,31 +168,6 @@ public final class SlimRecents {
         sWheel = null;
         if (wheel != null) {
             wheel.exit(false);
-        }
-    }
-
-    private static void watch(Context context) {
-        if (sWatching || sWatchFailed) {
-            return;
-        }
-        Context app = context.getApplicationContext();
-        sWatchContext = app != null ? app : context;
-        ContentObserver observer = new ContentObserver(MAIN) {
-            @Override
-            public void onChange(boolean selfChange) {
-                sEnabled = -1;
-                if (sWatchContext != null && !enabled(sWatchContext) && sWheel != null) {
-                    hide();
-                }
-            }
-        };
-        try {
-            sWatchContext.getContentResolver().registerContentObserver(
-                    Settings.System.getUriFor(KEY), false, observer, UserHandle.USER_ALL);
-            sWatching = true;
-        } catch (RuntimeException e) {
-            sWatchFailed = true;
-            Log.w(TAG, "Not watching slim recents setting", e);
         }
     }
 
@@ -240,7 +186,7 @@ public final class SlimRecents {
         lp.setTrustedOverlay();
         lp.softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING;
         lp.token = new Binder();
-        lp.setTitle("RRSlimRecents");
+        lp.setTitle("RRSpinRecents");
         lp.windowAnimations = 0;
         return lp;
     }
@@ -415,6 +361,8 @@ public final class SlimRecents {
         private static final float ICON_MIN_DP = 30f;
         private static final float ICON_MAX_DP = 56f;
         private static final float CARD_SLIDE = 0.42f;
+        /** Ring geometry scale. Touch margins and the hub label keep their full size. */
+        private static final float RING_SCALE = 0.5f;
         private static final int SCRIM_ALPHA = 0xC4;
         private static final String EMPTY = "No recent apps";
 
@@ -645,7 +593,7 @@ public final class SlimRecents {
                     mWindowManager.updateViewLayout(this, lp);
                 }
             } catch (RuntimeException e) {
-                Log.w(TAG, "Could not release slim recents input", e);
+                Log.w(TAG, "Could not release spin recents input", e);
             }
             if (mShowAnim != null) {
                 mShowAnim.cancel();
@@ -663,7 +611,7 @@ public final class SlimRecents {
                     try {
                         mWindowManager.removeView(Wheel.this);
                     } catch (IllegalArgumentException e) {
-                        Log.w(TAG, "Slim recents was already removed", e);
+                        Log.w(TAG, "Spin recents was already removed", e);
                     }
                 }
             });
@@ -803,12 +751,13 @@ public final class SlimRecents {
             boolean portrait = height >= width;
             boolean rtl = getLayoutDirection() == LAYOUT_DIRECTION_RTL;
             mDir = rtl ? -1 : 1;
-            mRadius = portrait
+            mRadius = RING_SCALE * (portrait
                     ? Math.min(width * 0.34f, height * 0.2f)
-                    : Math.min(height * 0.33f, width * 0.2f);
-            float lens = dp(ICON_MAX_DP) * SELECTED / 2f;
-            float outer = mRadius + lens + dp(8);
-            mHub = clamp(mRadius - lens - dp(14), dp(28), dp(46));
+                    : Math.min(height * 0.33f, width * 0.2f));
+            float lens = rdp(ICON_MAX_DP) * SELECTED / 2f;
+            float outer = mRadius + lens + rdp(8);
+            // Wide enough for the "Clear all" label at its normal size.
+            mHub = clamp(mRadius - lens - rdp(14), dp(28), dp(38));
             if (portrait) {
                 mCx = left + width / 2f;
                 mCy = bottom - outer - margin;
@@ -852,7 +801,7 @@ public final class SlimRecents {
 
         private float iconSize() {
             float arc = mRadius * step();
-            return clamp(arc * 0.7f, dp(ICON_MIN_DP), dp(ICON_MAX_DP));
+            return clamp(arc * 0.7f, rdp(ICON_MIN_DP), rdp(ICON_MAX_DP));
         }
 
         private float spin() {
@@ -991,7 +940,7 @@ public final class SlimRecents {
             float step = step();
             float spin = spin();
 
-            mBand.setStrokeWidth(icon + dp(24));
+            mBand.setStrokeWidth(icon + rdp(24));
             mBand.setAlpha(alpha(0x17, fade));
             canvas.drawCircle(mCx, mCy, r, mBand);
             if (n > 1) {
@@ -1003,19 +952,19 @@ public final class SlimRecents {
                 }
             }
 
-            float lens = icon * SELECTED / 2f + dp(8);
+            float lens = icon * SELECTED / 2f + rdp(8);
             float cos = (float) Math.cos(mSelAngle);
             float sin = (float) Math.sin(mSelAngle);
             mAccent.setAlpha(alpha(0x3D, fade));
             canvas.drawCircle(mCx + r * cos, mCy + r * sin, lens, mAccent);
             mLensEdge.setAlpha(alpha(0xE6, fade));
             canvas.drawCircle(mCx + r * cos, mCy + r * sin, lens, mLensEdge);
-            float px = mCx + (r + lens + dp(9)) * cos;
-            float py = mCy + (r + lens + dp(9)) * sin;
+            float px = mCx + (r + lens + rdp(9)) * cos;
+            float py = mCy + (r + lens + rdp(9)) * sin;
             mPath.reset();
-            mPath.moveTo(px + cos * dp(6), py + sin * dp(6));
-            mPath.lineTo(px - sin * dp(7), py + cos * dp(7));
-            mPath.lineTo(px + sin * dp(7), py - cos * dp(7));
+            mPath.moveTo(px + cos * rdp(6), py + sin * rdp(6));
+            mPath.lineTo(px - sin * rdp(7), py + cos * rdp(7));
+            mPath.lineTo(px + sin * rdp(7), py - cos * rdp(7));
             mPath.close();
             mAccent.setAlpha(alpha(0xE6, fade));
             canvas.drawPath(mPath, mAccent);
@@ -1063,7 +1012,7 @@ public final class SlimRecents {
                 float dx = x - mCx;
                 float dy = y - mCy;
                 float length = Math.max(1f, (float) Math.hypot(dx, dy));
-                float out = size / 2f + dp(6);
+                float out = size / 2f + rdp(6);
                 mAccent.setAlpha(a);
                 canvas.drawCircle(x + dx / length * out, y + dy / length * out, dp(2.5f),
                         mAccent);
@@ -1590,6 +1539,11 @@ public final class SlimRecents {
 
         private float dp(float value) {
             return value * mDensity;
+        }
+
+        /** dp for the ring itself, see {@link #RING_SCALE}. */
+        private float rdp(float value) {
+            return dp(value) * RING_SCALE;
         }
 
         private float sp(float value) {

@@ -527,8 +527,8 @@ public class LauncherProxyService implements CallbackController<LauncherProxyLis
         }
 
         @Override
-        public void showSlimRecents() {
-            verifyCallerAndClearCallingIdentityPostMain("showSlimRecents", () ->
+        public void showCustomRecents() {
+            verifyCallerAndClearCallingIdentityPostMain("showCustomRecents", () ->
                     mCommandQueue.showRecentApps(false /* triggeredFromAltTab */));
         }
 

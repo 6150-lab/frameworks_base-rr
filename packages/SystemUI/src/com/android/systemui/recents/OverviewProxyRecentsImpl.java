@@ -16,7 +16,11 @@
 
 package com.android.systemui.recents;
 
+import static com.android.wm.shell.shared.split.SplitScreenConstants.SNAP_TO_2_50_50;
+import static com.android.wm.shell.shared.split.SplitScreenConstants.SPLIT_POSITION_TOP_OR_LEFT;
+
 import android.content.Context;
+import android.content.res.Configuration;
 import android.os.Handler;
 import android.os.RemoteException;
 import android.util.Log;
@@ -24,9 +28,16 @@ import android.util.Log;
 import com.android.systemui.LauncherProxyService;
 import com.android.systemui.dagger.SysUISingleton;
 import com.android.systemui.plugins.ActivityStarter;
-import com.android.systemui.rr.slim.SlimRecents;
+import com.android.systemui.rr.RecentsStyle;
+import com.android.systemui.rr.spin.SpinRecents;
 import com.android.systemui.shared.recents.ILauncherProxy;
+import com.android.systemui.slimrecent.RecentController;
 import com.android.systemui.statusbar.policy.KeyguardStateController;
+import com.android.wm.shell.splitscreen.SplitScreen;
+
+import dagger.Lazy;
+
+import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -42,29 +53,76 @@ public class OverviewProxyRecentsImpl implements RecentsImplementation {
     private final LauncherProxyService mLauncherProxyService;
     private final ActivityStarter mActivityStarter;
     private final KeyguardStateController mKeyguardStateController;
+    private final Lazy<ScreenPinningRequest> mScreenPinningRequest;
+    private final Optional<SplitScreen> mSplitScreen;
+    private RecentController mSlimRecents;
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     @Inject
     public OverviewProxyRecentsImpl(
             LauncherProxyService launcherProxyService,
             ActivityStarter activityStarter,
-            KeyguardStateController keyguardStateController) {
+            KeyguardStateController keyguardStateController,
+            Lazy<ScreenPinningRequest> screenPinningRequest,
+            Optional<SplitScreen> splitScreen) {
         mLauncherProxyService = launcherProxyService;
         mActivityStarter = activityStarter;
         mKeyguardStateController = keyguardStateController;
+        mScreenPinningRequest = screenPinningRequest;
+        mSplitScreen = splitScreen;
     }
 
     @Override
     public void onStart(Context context) {
         mHandler = new Handler();
         mContext = context;
+        RecentsStyle.setOnChange(() -> {
+            int style = style();
+            if (style != RecentsStyle.SPIN) {
+                SpinRecents.hide();
+            }
+            if (style != RecentsStyle.SLIM && mSlimRecents != null) {
+                mSlimRecents.hideRecents(false);
+            }
+        });
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        if (mSlimRecents != null) {
+            mSlimRecents.onConfigurationChanged(newConfig);
+        }
+    }
+
+    @Override
+    public void preloadRecentApps() {
+        if (style() == RecentsStyle.SLIM && !mKeyguardStateController.isShowing()) {
+            slimRecents().preloadRecentApps();
+        }
+    }
+
+    @Override
+    public void cancelPreloadRecentApps() {
+        if (mSlimRecents != null) {
+            mSlimRecents.cancelPreloadRecentApps();
+        }
     }
 
     @Override
     public void showRecentApps(boolean triggeredFromAltTab) {
-        if (slimEnabled() && !mKeyguardStateController.isShowing()
-                && SlimRecents.show(mContext)) {
-            return;
+        if (!mKeyguardStateController.isShowing()) {
+            switch (style()) {
+                case RecentsStyle.SPIN:
+                    if (SpinRecents.show(mContext)) {
+                        return;
+                    }
+                    break;
+                case RecentsStyle.SLIM:
+                    slimRecents().showRecentApps();
+                    return;
+                default:
+                    break;
+            }
         }
         ILauncherProxy launcherProxy = mLauncherProxyService.getProxy();
         if (launcherProxy != null) {
@@ -78,8 +136,9 @@ public class OverviewProxyRecentsImpl implements RecentsImplementation {
 
     @Override
     public void hideRecentApps(boolean triggeredFromAltTab, boolean triggeredFromHomeKey) {
-        if (slimEnabled()) {
-            SlimRecents.hide();
+        SpinRecents.hide();
+        if (mSlimRecents != null) {
+            mSlimRecents.hideRecentApps(triggeredFromAltTab, triggeredFromHomeKey);
         }
         // Home still has to close a launcher overview opened with a gesture.
         ILauncherProxy launcherProxy = mLauncherProxyService.getProxy();
@@ -94,31 +153,57 @@ public class OverviewProxyRecentsImpl implements RecentsImplementation {
 
     @Override
     public void toggleRecentApps() {
-        if (slimEnabled()) {
-            toggleSlim();
-            return;
-        }
-        toggleLauncher();
-    }
-
-    private boolean slimEnabled() {
-        return mContext != null && SlimRecents.enabled(mContext);
-    }
-
-    /** Recents button. Wait until the keyguard is gone so the wheel is not shown over the lock. */
-    private void toggleSlim() {
-        final Runnable toggleSlim = () -> {
-            if (mContext == null || !SlimRecents.toggle(mContext)) {
+        switch (style()) {
+            case RecentsStyle.SPIN:
+                afterKeyguard(() -> {
+                    if (mContext == null || !SpinRecents.toggle(mContext)) {
+                        toggleLauncher();
+                    }
+                });
+                return;
+            case RecentsStyle.SLIM:
+                afterKeyguard(() -> slimRecents().toggleRecentApps());
+                return;
+            default:
                 toggleLauncher();
-            }
-        };
+        }
+    }
+
+    private int style() {
+        return RecentsStyle.get(mContext);
+    }
+
+    private RecentController slimRecents() {
+        if (mSlimRecents == null) {
+            mSlimRecents = new RecentController(mContext, new RecentController.Host() {
+                @Override
+                public void pinTask(int taskId) {
+                    mScreenPinningRequest.get().showPrompt(taskId, false /* allowCancel */);
+                }
+
+                @Override
+                public boolean splitTasks(int topTaskId, int bottomTaskId) {
+                    if (mSplitScreen.isEmpty()) {
+                        return false;
+                    }
+                    mSplitScreen.get().startTasks(topTaskId, null, bottomTaskId, null,
+                            SPLIT_POSITION_TOP_OR_LEFT, SNAP_TO_2_50_50, null, null);
+                    return true;
+                }
+            });
+        }
+        return mSlimRecents;
+    }
+
+    /** Recents button. Wait until the keyguard is gone so recents are not shown over the lock. */
+    private void afterKeyguard(Runnable runnable) {
         if (mKeyguardStateController.isShowing()) {
             mActivityStarter.executeRunnableDismissingKeyguard(
-                    () -> mHandler.post(toggleSlim), null, true /* dismissShade */,
+                    () -> mHandler.post(runnable), null, true /* dismissShade */,
                     true /* afterKeyguardGone */,
                     true /* deferred */);
         } else {
-            toggleSlim.run();
+            runnable.run();
         }
     }
 

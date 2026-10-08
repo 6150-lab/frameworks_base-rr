@@ -213,10 +213,11 @@ interface ISystemUiProxy {
     oneway void onSleepEvent(in MotionEvent event) = 63;
 
     /**
-     * Shows slim recents in place of the launcher overview. SystemUI opens the launcher overview
-     * instead when slim recents is off or cannot be shown.
+     * Shows the slim or spin recents picked in Launcher3 settings in place of the launcher
+     * overview. SystemUI opens the launcher overview instead when neither is picked or it cannot
+     * be shown.
      */
-    oneway void showSlimRecents() = 64;
+    oneway void showCustomRecents() = 64;
 
     // Next id = 65
 }
