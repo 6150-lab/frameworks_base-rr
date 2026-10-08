@@ -19,31 +19,31 @@ import android.content.Context;
 
 import com.android.server.am.*;
 import com.android.server.pm.*;
-import com.android.server.spoof.AxSpoofManager;
-import com.android.server.spoof.IAxSpoofManager;
+import com.android.server.spoof.RrSpoofManager;
+import com.android.server.spoof.IRrSpoofManager;
 import com.android.server.wm.WindowManagerService;
 
-public class AxExtServiceFactory {
-    private static AxExtServiceFactory sInstance = null;
+public class RrExtServiceFactory {
+    private static RrExtServiceFactory sInstance = null;
 
     private static final Object sLock = new Object();
     
-    private static volatile IAxSpoofManager sAxSpoofManager;
+    private static volatile IRrSpoofManager sRrSpoofManager;
 
-    private AxExtServiceFactory(Context context) {
+    private RrExtServiceFactory(Context context) {
         NtServiceInjector.get().setCtx(context);
     }
 
-    public static synchronized AxExtServiceFactory init(Context context) {
+    public static synchronized RrExtServiceFactory init(Context context) {
         if (sInstance == null) {
-            sInstance = new AxExtServiceFactory(context);
+            sInstance = new RrExtServiceFactory(context);
         }
         return sInstance;
     }
 
-    public static AxExtServiceFactory get() {
+    public static RrExtServiceFactory get() {
         if (sInstance == null) {
-            throw new IllegalStateException("AxExtServiceFactory not initialized");
+            throw new IllegalStateException("RrExtServiceFactory not initialized");
         }
         return sInstance;
     }
@@ -61,18 +61,18 @@ public class AxExtServiceFactory {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> T getOrCreate(IAxExtServiceFactory.ExtType type) {
+    public static <T> T getOrCreate(IRrExtServiceFactory.ExtType type) {
         Object instance;
         switch (type) {
-            case AX_SPOOF_MANAGER:
-                if (sAxSpoofManager == null) {
+            case RR_SPOOF_MANAGER:
+                if (sRrSpoofManager == null) {
                     synchronized (sLock) {
-                        if (sAxSpoofManager == null) {
-                            sAxSpoofManager = new AxSpoofManager();
+                        if (sRrSpoofManager == null) {
+                            sRrSpoofManager = new RrSpoofManager();
                         }
                     }
                 }
-                instance = sAxSpoofManager;
+                instance = sRrSpoofManager;
                 break;
 
             default:
@@ -89,7 +89,7 @@ public class AxExtServiceFactory {
     public static void onLateSystemReady() {
     }
     
-    public static IAxSpoofManager getSpoofManager() {
-        return getOrCreate(IAxExtServiceFactory.ExtType.AX_SPOOF_MANAGER);
+    public static IRrSpoofManager getSpoofManager() {
+        return getOrCreate(IRrExtServiceFactory.ExtType.RR_SPOOF_MANAGER);
     }
 }

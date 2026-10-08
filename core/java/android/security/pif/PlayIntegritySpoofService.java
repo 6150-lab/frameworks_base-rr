@@ -233,7 +233,7 @@ public final class PlayIntegritySpoofService {
                 mSpoofBuild = "1".equals(value) || "true".equalsIgnoreCase(value);
                 break;
             case "spoofProps":
-                // Read by AxSpoofManager, which stages the prop overrides for bionic.
+                // Read by RrSpoofManager, which stages the prop overrides for bionic.
                 break;
             case "spoofProvider":
                 mSpoofProvider = "1".equals(value) || "true".equalsIgnoreCase(value);
@@ -261,7 +261,7 @@ public final class PlayIntegritySpoofService {
                 mDebug = "1".equals(value) || "true".equalsIgnoreCase(value);
                 break;
             default:
-                // "*.build.id" style keys are system prop overrides. AxSpoofManager
+                // "*.build.id" style keys are system prop overrides. RrSpoofManager
                 // stages those for bionic, they are not Build fields.
                 if (!key.contains(".") && !key.startsWith("*")) {
                     mBuildFields.put(key, value);

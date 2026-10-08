@@ -16,11 +16,11 @@
 package com.android.server;
 
 import com.android.server.am.*;
-import com.android.server.spoof.IAxSpoofManager;
+import com.android.server.spoof.IRrSpoofManager;
 
-public interface IAxExtServiceFactory {
+public interface IRrExtServiceFactory {
     enum ExtType {
-        AX_SPOOF_MANAGER(IAxSpoofManager.class);
+        RR_SPOOF_MANAGER(IRrSpoofManager.class);
         private final Class<?> clazz;
 
         ExtType(Class<?> clazz) {

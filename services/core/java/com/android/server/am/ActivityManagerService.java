@@ -496,7 +496,7 @@ import com.android.internal.util.NamedLock;
 import com.android.internal.util.Preconditions;
 import com.android.internal.util.function.pooled.PooledLambda;
 import com.android.server.AlarmManagerInternal;
-import com.android.server.AxExtServiceFactory;
+import com.android.server.RrExtServiceFactory;
 import com.android.server.BootReceiver;
 import com.android.server.DeviceIdleInternal;
 import com.android.server.DisplayThread;
@@ -5996,7 +5996,7 @@ public class ActivityManagerService extends IActivityManager.Stub
             ProcessList.startPsiMonitoringAfterBoot();
 
             mHandler.postDelayed(() -> {
-                AxExtServiceFactory.onLateSystemReady();
+                RrExtServiceFactory.onLateSystemReady();
             }, 5000);
 
             mUserController.onBootComplete(
@@ -6991,7 +6991,7 @@ public class ActivityManagerService extends IActivityManager.Stub
     void enforceCallingPermission(@PermissionName String permission, String func) {
         if (checkCallingPermission(permission)
                 == PackageManager.PERMISSION_GRANTED
-           || com.android.internal.util.evolution.PixelPropsUtils.shouldBypassTaskPermission(Binder.getCallingUid())) {
+           || com.android.internal.util.rr.PixelPropsUtils.shouldBypassTaskPermission(Binder.getCallingUid())) {
             return;
         }
 
@@ -9901,7 +9901,7 @@ public class ActivityManagerService extends IActivityManager.Stub
                     mConstants.mComponentAliasOverrides);
             t.traceEnd(); // componentAlias
             
-            AxExtServiceFactory.systemReady();
+            RrExtServiceFactory.systemReady();
 
             t.traceEnd(); // PhaseActivityManagerReady
         }
@@ -20958,27 +20958,27 @@ public class ActivityManagerService extends IActivityManager.Stub
 
     @Override
     public String getSpoofPifConfig() {
-        return AxExtServiceFactory.getSpoofManager().getPifConfig();
+        return RrExtServiceFactory.getSpoofManager().getPifConfig();
     }
 
     @Override
     public String getSpoofGamePropsConfig() {
-        return AxExtServiceFactory.getSpoofManager().getGamePropsConfig();
+        return RrExtServiceFactory.getSpoofManager().getGamePropsConfig();
     }
 
     @Override
     public String getSpoofTrickyStoreTarget() {
-        return AxExtServiceFactory.getSpoofManager().getTrickyStoreTarget();
+        return RrExtServiceFactory.getSpoofManager().getTrickyStoreTarget();
     }
 
     @Override
     public String getSpoofTrickyStoreKeyBox() {
-        return AxExtServiceFactory.getSpoofManager().getTrickyStoreKeyBox();
+        return RrExtServiceFactory.getSpoofManager().getTrickyStoreKeyBox();
     }
 
     @Override
     public String getSpoofTrickyStorePatch() {
-        return AxExtServiceFactory.getSpoofManager().getTrickyStorePatch();
+        return RrExtServiceFactory.getSpoofManager().getTrickyStorePatch();
     }
 
     // Set of IntentCreatorToken objects that are currently active.

@@ -35,7 +35,7 @@ import android.security.trickystore.TrickyStoreService;
 import android.util.Base64;
 import android.util.Log;
 
-import com.android.internal.util.evolution.PixelDeviceRepository;
+import com.android.internal.util.rr.PixelDeviceRepository;
 import com.android.server.NtServiceInjector;
 
 import java.net.HttpURLConnection;
@@ -55,8 +55,8 @@ import java.util.regex.Pattern;
 
 import org.json.JSONObject;
 
-public class AxSpoofManager implements IAxSpoofManager {
-    private static final String TAG = "AxSpoofManager";
+public class RrSpoofManager implements IRrSpoofManager {
+    private static final String TAG = "RrSpoofManager";
 
     private static final String[] WATCHED_KEYS = {
             Settings.Secure.SPOOF_PIF_CONFIG,
@@ -162,8 +162,8 @@ public class AxSpoofManager implements IAxSpoofManager {
     private ContentObserver mObserver;
     private volatile boolean mReady = false;
 
-    public AxSpoofManager() {
-        mHandlerThread = new HandlerThread("AxSpoofManager");
+    public RrSpoofManager() {
+        mHandlerThread = new HandlerThread("RrSpoofManager");
         mHandlerThread.start();
         mHandler = new Handler(mHandlerThread.getLooper());
     }
@@ -229,7 +229,7 @@ public class AxSpoofManager implements IAxSpoofManager {
         if (mActivated) scheduleFirstRefresh();
 
         mReady = true;
-        Log.i(TAG, "AxSpoofManager ready");
+        Log.i(TAG, "RrSpoofManager ready");
     }
 
     private void scheduleFirstRefresh() {
@@ -312,7 +312,7 @@ public class AxSpoofManager implements IAxSpoofManager {
      * stop the GMS family so it stops running on the old fingerprint, then
      * refresh shortly after so the device isn't left without a fingerprint until
      * the next hourly tick. A non-empty config is staged as it stands, so a
-     * manual import or an Evolver edit reaches bionic the same way a refresh does.
+     * manual import or a Remixer edit reaches bionic the same way a refresh does.
      */
     private void onPifConfigChanged() {
         final String config = getCached(Settings.Secure.SPOOF_PIF_CONFIG);
@@ -350,7 +350,7 @@ public class AxSpoofManager implements IAxSpoofManager {
 
     /**
      * Writes the default target list into a target setting that was never set,
-     * so a fresh install attests GMS and friends without anyone opening Evolver
+     * so a fresh install attests GMS and friends without anyone opening Remixer
      * (TrickyStoreService ignores any package that isn't listed). Only a null
      * value is seeded: an empty string means the user cleared the list on
      * purpose and is left alone.
@@ -373,7 +373,7 @@ public class AxSpoofManager implements IAxSpoofManager {
      * inotify-driven auto-target, sourced from a live PACKAGE_ADDED broadcast
      * instead of a native watcher since this already runs in system_server.
      *
-     * Does nothing while the list is empty: Evolver seeds the default targets
+     * Does nothing while the list is empty: Remixer seeds the default targets
      * (GMS and friends) only when the list is empty, so writing a lone package
      * here would leave those defaults unseeded. A JSON list can't be appended
      * to as text either.
@@ -543,7 +543,7 @@ public class AxSpoofManager implements IAxSpoofManager {
         toSave.put("SECURITY_PATCH", matched.securityPatch);
         toSave.put("DEVICE_INITIAL_SDK_INT", PIF_DEVICE_INITIAL_SDK);
         toSave.put("manually_imported", false);
-        // Same canary metadata Evolver writes, so the refetch window above can
+        // Same canary metadata Remixer writes, so the refetch window above can
         // work out how long this fingerprint has left instead of always seeing
         // "unknown" and refetching daily.
         if (matched.isCanary) {
@@ -604,7 +604,7 @@ public class AxSpoofManager implements IAxSpoofManager {
             return;
         }
 
-        // The stored value is Base64 (that's how Evolver writes it) while the
+        // The stored value is Base64 (that's how Remixer writes it) while the
         // download is raw XML, so compare decoded XML with decoded XML.
         String currentXml = decodeKeyboxXml(getCached(Settings.Secure.SPOOF_TRICKYSTORE_KEYBOX));
         if (currentXml != null && sha256(currentXml).equals(sha256(xml))) {
@@ -642,7 +642,7 @@ public class AxSpoofManager implements IAxSpoofManager {
      * Keeps the TrickyStore attestation patch level in step with the fingerprint
      * that was just saved. With no patch set, attestation reports the device's
      * real patch while PIF spoofs the fingerprint's, and the two disagree. Same
-     * rule as Evolver's updatePatchDateIfSimple: only touch an empty value or a
+     * rule as Remixer's updatePatchDateIfSimple: only touch an empty value or a
      * plain YYYY-MM-DD one, never a per-package block the user wrote.
      */
     private void updatePatchIfSimple(String patch) {
@@ -698,7 +698,7 @@ public class AxSpoofManager implements IAxSpoofManager {
      * getprop (rather than the Build class) would see the real device.
      *
      * The config is the source of truth whichever path wrote it (auto-refresh,
-     * manual import, Evolver). A field the config doesn't carry is staged empty,
+     * manual import, Remixer). A field the config doesn't carry is staged empty,
      * which bionic treats as unset, so it never keeps a value from an older
      * config. Like PIFork, an explicit *.build.id, *.security_patch or
      * *api_level entry wins over the matching Build field; the build id falls

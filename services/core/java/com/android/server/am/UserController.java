@@ -3677,7 +3677,7 @@ class UserController implements Handler.Callback {
     }
 
     private void checkGetCurrentUserPermissions() {
-        if (com.android.internal.util.evolution.PixelPropsUtils.isSystemLauncher(Binder.getCallingUid())) {
+        if (com.android.internal.util.rr.PixelPropsUtils.isSystemLauncher(Binder.getCallingUid())) {
             return;
         }
         if ((mInjector.checkCallingPermission(INTERACT_ACROSS_USERS)

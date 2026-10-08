@@ -16,7 +16,7 @@
 
 package com.android.server.spoof;
 
-public interface IAxSpoofManager {
+public interface IRrSpoofManager {
     default void systemReady() {
     }
 
