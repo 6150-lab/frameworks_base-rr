@@ -18,15 +18,26 @@ package com.android.systemui.rr.pulse;
 
 import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Configuration;
 import android.database.ContentObserver;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.LinearGradient;
 import android.graphics.Paint;
+import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
+import android.graphics.RectF;
+import android.graphics.Shader;
+import android.hardware.display.DisplayManager;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
+import android.media.AudioPlaybackConfiguration;
 import android.media.audiofx.Visualizer;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -37,454 +48,558 @@ import android.os.UserHandle;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.Display;
+import android.view.Gravity;
+import android.view.View;
+import android.view.WindowInsets;
+import android.view.WindowManager;
 
-import com.android.systemui.navigationbar.views.NavigationBarView;
+import com.android.systemui.CoreStartable;
+import com.android.systemui.dagger.SysUISingleton;
+import com.android.systemui.statusbar.policy.KeyguardStateController;
 
-import java.lang.ref.WeakReference;
 import java.util.Arrays;
-import java.util.WeakHashMap;
+import java.util.List;
+
+import javax.inject.Inject;
 
 /**
- * Navbar music bars for the default display. Drawn from {@link NavigationBarView#onDraw}
- * so the bars stay behind the buttons and never take touches.
+ * Music bars along the bottom of the default display while media plays. Drawn in an
+ * untouchable overlay so it works with gesture nav and the launcher taskbar alike.
  *
- * <p>Remixer writes the same Settings.System names: {@code pulse_navbar_enabled} and
- * {@code pulse_style} (0 solid lines, 1 fading blocks).
+ * <p>Remixer's Pulse page writes the {@code pulse_*} Settings.System keys below.
  */
-public final class PulseRenderer {
+@SysUISingleton
+public final class PulseRenderer implements CoreStartable {
     private static final String TAG = "RrPulse";
 
-    /** Settings.System int. 1 draws bars while audio is playing. */
     public static final String KEY_ENABLED = "pulse_navbar_enabled";
-    /** Settings.System int. 0 solid lines, 1 fading blocks. */
+    /** 0 lines, 1 fading, 2 blocks, 3 mirror. */
     public static final String KEY_STYLE = "pulse_style";
+    /** 0 custom color, 1 system accent, 2 gradient. */
+    public static final String KEY_COLOR_MODE = "pulse_color_mode";
+    public static final String KEY_COLOR = "pulse_color";
+    public static final String KEY_BARS = "pulse_bar_count";
+    /** dp. */
+    public static final String KEY_HEIGHT = "pulse_height";
+    /** Percent. */
+    public static final String KEY_OPACITY = "pulse_opacity";
+    public static final String KEY_LOCKSCREEN = "pulse_lockscreen";
 
-    private static final int BARS = 28;
+    private static final String[] KEYS = {KEY_ENABLED, KEY_STYLE, KEY_COLOR_MODE, KEY_COLOR,
+            KEY_BARS, KEY_HEIGHT, KEY_OPACITY, KEY_LOCKSCREEN};
+
+    private static final int STYLE_LINES = 0;
     private static final int STYLE_FADING = 1;
-    private static final int COLOR = 0xFFE02437;
+    private static final int STYLE_BLOCKS = 2;
+    private static final int STYLE_MIRROR = 3;
+    private static final int COLOR_CUSTOM = 0;
+    private static final int COLOR_ACCENT = 1;
+    private static final int COLOR_GRADIENT = 2;
+
+    private static final int DEFAULT_COLOR = 0xFFE02437;
+    private static final int DEFAULT_BARS = 28;
+    private static final int MIN_BARS = 12;
+    private static final int MAX_BARS = 48;
+    private static final int DEFAULT_HEIGHT_DP = 48;
+    private static final int MIN_HEIGHT_DP = 24;
+    private static final int MAX_HEIGHT_DP = 120;
+    private static final int DEFAULT_OPACITY = 90;
+    private static final int[] GRADIENT = {0xFFFF3B5C, 0xFFFF9F1C, 0xFFFFE14D, 0xFF3DDC97,
+            0xFF2EC4F1, 0xFF7B61FF, 0xFFFF3B9A};
+
     private static final int FRAME_MS = 25;
     private static final int TRAIL_FRAMES = 10;
+    private static final int SILENCE_MS = 400;
 
-    private static final WeakHashMap<NavigationBarView, Session> SESSIONS = new WeakHashMap<>();
-    private static HandlerThread sThread;
-    private static Handler sAudio;
+    private final Context mContext;
+    private final KeyguardStateController mKeyguard;
+    private final Handler mMain = new Handler(Looper.getMainLooper());
+    private final Object mLock = new Object();
 
-    private PulseRenderer() {}
+    private Handler mAudio;
+    private Context mWindowContext;
+    private WindowManager mWindowManager;
+    private PulseView mView;
 
-    public static void attach(NavigationBarView view) {
-        if (view == null) {
-            return;
-        }
-        Display display = view.getDisplay();
-        if (display != null && display.getDisplayId() != Display.DEFAULT_DISPLAY) {
-            return;
-        }
-        detach(view);
-        Session session = new Session(view);
-        SESSIONS.put(view, session);
-        session.start();
-    }
+    private boolean mEnabled;
+    private boolean mLockscreen = true;
+    private boolean mScreenOn = true;
+    private boolean mPowerSave;
+    private boolean mPlaying;
+    private int mStyle;
+    private int mColorMode;
+    private int mColor = DEFAULT_COLOR;
+    private int mHeightDp = DEFAULT_HEIGHT_DP;
+    private int mOpacity = DEFAULT_OPACITY;
 
-    public static void detach(NavigationBarView view) {
-        if (view == null) {
-            return;
-        }
-        Session session = SESSIONS.remove(view);
-        if (session != null) {
-            session.stop();
-        }
-    }
+    // Guarded by mLock; written by the audio thread, read while drawing.
+    private float[] mTargets = new float[DEFAULT_BARS];
+    private long mLastFft;
+    // Audio thread only.
+    private Visualizer mVisualizer;
 
-    /** Called from {@link NavigationBarView#onDraw} between the dead zone and the buttons. */
-    public static void draw(NavigationBarView view, Canvas canvas) {
-        Session session = SESSIONS.get(view);
-        if (session == null) {
-            return;
-        }
-        session.draw(view, canvas);
-    }
-
-    private static Handler audioThread() {
-        synchronized (PulseRenderer.class) {
-            if (sAudio == null) {
-                sThread = new HandlerThread("rr-pulse");
-                sThread.start();
-                sAudio = new Handler(sThread.getLooper());
+    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (Intent.ACTION_SCREEN_OFF.equals(action)) {
+                mScreenOn = false;
+            } else if (Intent.ACTION_SCREEN_ON.equals(action)) {
+                mScreenOn = true;
+            } else if (PowerManager.ACTION_POWER_SAVE_MODE_CHANGED.equals(action)) {
+                PowerManager power = mContext.getSystemService(PowerManager.class);
+                mPowerSave = power != null && power.isPowerSaveMode();
+            } else if (Intent.ACTION_USER_SWITCHED.equals(action)) {
+                readSettings();
             }
-            return sAudio;
+            update();
         }
+    };
+
+    @Inject
+    public PulseRenderer(Context context, KeyguardStateController keyguard) {
+        mContext = context;
+        mKeyguard = keyguard;
     }
 
-    private static final class Session {
-        private final WeakReference<NavigationBarView> mView;
-        private final Context mContext;
-        private final Object mLock = new Object();
-        private final float[] mLevels = new float[BARS];
-        private final float[] mTargets = new float[BARS];
-        private final Paint mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        private final Paint mFadePaint = new Paint();
-        private final Handler mMain = new Handler(Looper.getMainLooper());
+    @Override
+    public void start() {
+        Display display = mContext.getSystemService(DisplayManager.class)
+                .getDisplay(Display.DEFAULT_DISPLAY);
+        mWindowContext = mContext.createWindowContext(display,
+                WindowManager.LayoutParams.TYPE_NAVIGATION_BAR_PANEL, null);
+        mWindowManager = mWindowContext.getSystemService(WindowManager.class);
+        HandlerThread thread = new HandlerThread("rr-pulse");
+        thread.start();
+        mAudio = new Handler(thread.getLooper());
 
-        private ContentObserver mObserver;
-        private boolean mReceiverRegistered;
-        private boolean mReleased;
-        private boolean mLinking;
-        private boolean mDrawForced;
-        private boolean mEnabled;
-        private boolean mScreenOn = true;
-        private boolean mPowerSave;
-        private int mStyle;
-        private int mTrail;
-        private long mLastDraw;
-        private long mLastFft;
-        private Visualizer mVisualizer;
-        private Bitmap mBitmap;
-        private Canvas mBitmapCanvas;
+        PowerManager power = mContext.getSystemService(PowerManager.class);
+        mScreenOn = power == null || power.isInteractive();
+        mPowerSave = power != null && power.isPowerSaveMode();
 
-        private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        ContentObserver observer = new ContentObserver(mMain) {
             @Override
-            public void onReceive(Context context, Intent intent) {
-                if (mReleased || intent == null) {
-                    return;
-                }
-                String action = intent.getAction();
-                if (Intent.ACTION_SCREEN_OFF.equals(action)) {
-                    mScreenOn = false;
-                } else if (Intent.ACTION_SCREEN_ON.equals(action)) {
-                    mScreenOn = true;
-                } else if (PowerManager.ACTION_POWER_SAVE_MODE_CHANGED.equals(action)) {
-                    PowerManager power = mContext.getSystemService(PowerManager.class);
-                    mPowerSave = power != null && power.isPowerSaveMode();
-                }
-                syncLink();
+            public void onChange(boolean selfChange) {
+                readSettings();
+                update();
             }
         };
-
-        Session(NavigationBarView view) {
-            mView = new WeakReference<>(view);
-            mContext = view.getContext();
-            mPaint.setColor(COLOR);
-            mPaint.setStrokeCap(Paint.Cap.ROUND);
-            mFadePaint.setColor(0xE6FFFFFF);
-            mFadePaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.MULTIPLY));
+        ContentResolver resolver = mContext.getContentResolver();
+        for (String key : KEYS) {
+            resolver.registerContentObserver(Settings.System.getUriFor(key), false, observer,
+                    UserHandle.USER_ALL);
         }
 
-        void start() {
-            PowerManager power = mContext.getSystemService(PowerManager.class);
-            mScreenOn = power == null || power.isInteractive();
-            mPowerSave = power != null && power.isPowerSaveMode();
-            mObserver = new ContentObserver(mMain) {
-                @Override
-                public void onChange(boolean selfChange) {
-                    if (!mReleased) {
-                        readSettings();
-                        syncLink();
-                    }
-                }
-            };
-            try {
-                mContext.getContentResolver().registerContentObserver(
-                        Settings.System.getUriFor(KEY_ENABLED), false, mObserver,
-                        UserHandle.USER_ALL);
-                mContext.getContentResolver().registerContentObserver(
-                        Settings.System.getUriFor(KEY_STYLE), false, mObserver,
-                        UserHandle.USER_ALL);
-            } catch (RuntimeException e) {
-                Log.w(TAG, "Not watching pulse settings", e);
-                try {
-                    mContext.getContentResolver().unregisterContentObserver(mObserver);
-                } catch (RuntimeException cleanup) {
-                    Log.w(TAG, "Pulse observer cleanup failed", cleanup);
-                }
-                mObserver = null;
-            }
-            IntentFilter filter = new IntentFilter();
-            filter.addAction(Intent.ACTION_SCREEN_OFF);
-            filter.addAction(Intent.ACTION_SCREEN_ON);
-            filter.addAction(PowerManager.ACTION_POWER_SAVE_MODE_CHANGED);
-            try {
-                mContext.registerReceiver(mReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
-                mReceiverRegistered = true;
-            } catch (RuntimeException e) {
-                Log.w(TAG, "Not watching screen state", e);
-            }
-            readSettings();
-            syncLink();
-        }
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_SCREEN_OFF);
+        filter.addAction(Intent.ACTION_SCREEN_ON);
+        filter.addAction(PowerManager.ACTION_POWER_SAVE_MODE_CHANGED);
+        filter.addAction(Intent.ACTION_USER_SWITCHED);
+        mContext.registerReceiver(mReceiver, filter, null, mMain, Context.RECEIVER_NOT_EXPORTED);
 
-        void stop() {
-            mReleased = true;
-            if (mObserver != null) {
-                try {
-                    mContext.getContentResolver().unregisterContentObserver(mObserver);
-                } catch (RuntimeException e) {
-                    Log.w(TAG, "Pulse observer already gone", e);
+        AudioManager audio = mContext.getSystemService(AudioManager.class);
+        audio.registerAudioPlaybackCallback(new AudioManager.AudioPlaybackCallback() {
+            @Override
+            public void onPlaybackConfigChanged(List<AudioPlaybackConfiguration> configs) {
+                boolean playing = isPlaying(configs);
+                if (playing != mPlaying) {
+                    mPlaying = playing;
+                    update();
                 }
-                mObserver = null;
             }
-            if (mReceiverRegistered) {
-                try {
-                    mContext.unregisterReceiver(mReceiver);
-                } catch (RuntimeException e) {
-                    Log.w(TAG, "Receiver already gone", e);
-                }
-                mReceiverRegistered = false;
+        }, mMain);
+        mPlaying = isPlaying(audio.getActivePlaybackConfigurations());
+
+        mKeyguard.addCallback(new KeyguardStateController.Callback() {
+            @Override
+            public void onKeyguardShowingChanged() {
+                update();
             }
+        });
+
+        readSettings();
+        update();
+    }
+
+    private void readSettings() {
+        ContentResolver resolver = mContext.getContentResolver();
+        int user = ActivityManager.getCurrentUser();
+        mEnabled = Settings.System.getIntForUser(resolver, KEY_ENABLED, 0, user) == 1;
+        mLockscreen = Settings.System.getIntForUser(resolver, KEY_LOCKSCREEN, 1, user) == 1;
+        mStyle = clamp(Settings.System.getIntForUser(resolver, KEY_STYLE, STYLE_LINES, user),
+                STYLE_LINES, STYLE_MIRROR);
+        mColorMode = clamp(Settings.System.getIntForUser(resolver, KEY_COLOR_MODE,
+                COLOR_CUSTOM, user), COLOR_CUSTOM, COLOR_GRADIENT);
+        mColor = Settings.System.getIntForUser(resolver, KEY_COLOR, DEFAULT_COLOR, user)
+                | 0xFF000000;
+        mHeightDp = clamp(Settings.System.getIntForUser(resolver, KEY_HEIGHT,
+                DEFAULT_HEIGHT_DP, user), MIN_HEIGHT_DP, MAX_HEIGHT_DP);
+        mOpacity = clamp(Settings.System.getIntForUser(resolver, KEY_OPACITY,
+                DEFAULT_OPACITY, user), 10, 100);
+        int bars = clamp(Settings.System.getIntForUser(resolver, KEY_BARS, DEFAULT_BARS, user),
+                MIN_BARS, MAX_BARS);
+        synchronized (mLock) {
+            if (mTargets.length != bars) {
+                mTargets = new float[bars];
+            }
+        }
+        if (mView != null) {
+            mView.applySettings();
+        }
+    }
+
+    private void update() {
+        boolean show = mEnabled && mScreenOn && !mPowerSave && mPlaying
+                && (mLockscreen || !mKeyguard.isShowing());
+        if (show) {
+            showWindow();
+            mAudio.post(this::linkVisualizer);
+        } else {
+            mAudio.post(this::releaseVisualizer);
             synchronized (mLock) {
                 Arrays.fill(mTargets, 0f);
-                Arrays.fill(mLevels, 0f);
             }
-            recycleBitmap();
-            setDrawing(false);
-            mView.clear();
-            audioThread().post(this::releaseVisualizer);
+            hideWindow();
+        }
+    }
+
+    private void showWindow() {
+        int height = Math.round(mHeightDp * mWindowContext.getResources()
+                .getDisplayMetrics().density);
+        if (mView == null) {
+            WindowManager.LayoutParams lp = new WindowManager.LayoutParams(
+                    WindowManager.LayoutParams.MATCH_PARENT, height,
+                    WindowManager.LayoutParams.TYPE_NAVIGATION_BAR_PANEL,
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+                            | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+                            | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
+                            | WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
+                    PixelFormat.TRANSLUCENT);
+            lp.gravity = Gravity.BOTTOM;
+            lp.setFitInsetsTypes(0);
+            lp.layoutInDisplayCutoutMode =
+                    WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS;
+            lp.setTrustedOverlay();
+            lp.setTitle("RRPulse");
+            mView = new PulseView(mWindowContext);
+            try {
+                mWindowManager.addView(mView, lp);
+            } catch (RuntimeException e) {
+                Log.w(TAG, "Pulse window not added", e);
+                mView = null;
+            }
+            return;
+        }
+        WindowManager.LayoutParams lp = (WindowManager.LayoutParams) mView.getLayoutParams();
+        if (lp.height != height) {
+            lp.height = height;
+            mWindowManager.updateViewLayout(mView, lp);
+        }
+        mView.poke();
+    }
+
+    private void hideWindow() {
+        if (mView == null) {
+            return;
+        }
+        try {
+            mWindowManager.removeView(mView);
+        } catch (RuntimeException e) {
+            Log.w(TAG, "Pulse window already gone", e);
+        }
+        mView = null;
+    }
+
+    private void linkVisualizer() {
+        if (mVisualizer != null) {
+            return;
+        }
+        Visualizer created = null;
+        try {
+            created = new Visualizer(0);
+            created.setEnabled(false);
+            int[] range = Visualizer.getCaptureSizeRange();
+            created.setCaptureSize(range[1]);
+            int maxRate = Visualizer.getMaxCaptureRate();
+            int rate = maxRate > 0 ? (int) (maxRate * 0.75f) : 10000;
+            int status = created.setDataCaptureListener(new Visualizer.OnDataCaptureListener() {
+                @Override
+                public void onWaveFormDataCapture(Visualizer v, byte[] waveform, int rate) {
+                }
+
+                @Override
+                public void onFftDataCapture(Visualizer v, byte[] fft, int rate) {
+                    onFft(fft);
+                }
+            }, rate, false /* waveform */, true /* fft */);
+            if (status != Visualizer.SUCCESS) {
+                throw new IllegalStateException("capture listener " + status);
+            }
+            created.setEnabled(true);
+            mVisualizer = created;
+        } catch (RuntimeException e) {
+            Log.w(TAG, "Visualizer unavailable", e);
+            if (created != null) {
+                created.release();
+            }
+        }
+    }
+
+    private void releaseVisualizer() {
+        Visualizer viz = mVisualizer;
+        mVisualizer = null;
+        if (viz == null) {
+            return;
+        }
+        try {
+            viz.setEnabled(false);
+            viz.release();
+        } catch (RuntimeException e) {
+            Log.w(TAG, "Visualizer release failed", e);
+        }
+    }
+
+    private void onFft(byte[] fft) {
+        int bars;
+        synchronized (mLock) {
+            bars = mTargets.length;
+        }
+        float[] next = new float[bars];
+        decode(fft, next);
+        synchronized (mLock) {
+            if (next.length != mTargets.length) {
+                return;
+            }
+            System.arraycopy(next, 0, mTargets, 0, next.length);
+            mLastFft = SystemClock.uptimeMillis();
+        }
+        mMain.post(() -> {
+            if (mView != null) {
+                mView.poke();
+            }
+        });
+    }
+
+    private static boolean isPlaying(List<AudioPlaybackConfiguration> configs) {
+        if (configs == null) {
+            return false;
+        }
+        for (AudioPlaybackConfiguration config : configs) {
+            int usage = config.getAudioAttributes().getUsage();
+            if (config.isActive() && (usage == AudioAttributes.USAGE_MEDIA
+                    || usage == AudioAttributes.USAGE_GAME
+                    || usage == AudioAttributes.USAGE_UNKNOWN)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** Log-spaced bands over the lower two thirds of the FFT, tilted up for the treble. */
+    private static void decode(byte[] fft, float[] out) {
+        Arrays.fill(out, 0f);
+        if (fft == null || fft.length < 8) {
+            return;
+        }
+        int bins = fft.length / 2 - 1;
+        int used = Math.min(bins, Math.max(out.length, bins * 2 / 3));
+        int n = out.length;
+        int start = 0;
+        for (int i = 0; i < n; i++) {
+            int end = (int) Math.round(Math.pow(used, (i + 1) / (double) n));
+            end = Math.min(used, Math.max(end, start + 1));
+            float sum = 0f;
+            int count = 0;
+            for (int bin = start; bin < end; bin++) {
+                int idx = 2 + bin * 2;
+                if (idx + 1 >= fft.length) {
+                    break;
+                }
+                sum += (float) Math.hypot(fft[idx], fft[idx + 1]);
+                count++;
+            }
+            start = end;
+            if (count == 0) {
+                continue;
+            }
+            float tilt = 1f + 1.5f * i / n;
+            float norm = (float) Math.sqrt(Math.min(1d, (sum / count) * tilt / 140d));
+            out[i] = norm < 0.08f ? 0f : norm;
+        }
+    }
+
+    private static boolean audible(float[] values) {
+        for (float value : values) {
+            if (value > 0.02f) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static int clamp(int value, int min, int max) {
+        return Math.max(min, Math.min(max, value));
+    }
+
+    private final class PulseView extends View {
+        private final Paint mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final Paint mFade = new Paint();
+        private final RectF mRect = new RectF();
+        private float[] mLevels = new float[0];
+        private Bitmap mBitmap;
+        private Canvas mBitmapCanvas;
+        private LinearGradient mShader;
+        private int mShaderWidth;
+        private int mAccent;
+        private int mDrawnStyle = -1;
+        private int mTrail;
+        private boolean mScheduled;
+        private boolean mNavVisible = true;
+
+        PulseView(Context context) {
+            super(context);
+            mFade.setColor(0xE6FFFFFF);
+            mFade.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.MULTIPLY));
+            mAccent = context.getColor(android.R.color.system_accent1_300);
         }
 
-        private void readSettings() {
-            int user = ActivityManager.getCurrentUser();
-            mEnabled = Settings.System.getIntForUser(
-                    mContext.getContentResolver(), KEY_ENABLED, 0, user) == 1;
-            int style = Settings.System.getIntForUser(
-                    mContext.getContentResolver(), KEY_STYLE, 0, user) == STYLE_FADING
-                    ? STYLE_FADING : 0;
-            if (style != mStyle) {
-                mStyle = style;
+        void applySettings() {
+            if (mDrawnStyle != mStyle) {
                 recycleBitmap();
                 mTrail = 0;
             }
+            poke();
         }
 
-        private void syncLink() {
-            boolean want = mEnabled && mScreenOn && !mPowerSave && !mReleased;
-            if (want) {
-                // FrameLayout skips onDraw unless this is cleared, and only while pulse is on.
-                setDrawing(true);
-                audioThread().post(this::linkVisualizer);
-            } else {
-                audioThread().post(this::releaseVisualizer);
-                synchronized (mLock) {
-                    Arrays.fill(mTargets, 0f);
-                }
-                setDrawing(false);
+        void poke() {
+            if (!mScheduled) {
+                mScheduled = true;
+                postInvalidateOnAnimation();
             }
         }
 
-        private void setDrawing(boolean draw) {
-            NavigationBarView view = mView.get();
-            if (view == null || draw == mDrawForced) {
-                return;
+        @Override
+        public WindowInsets onApplyWindowInsets(WindowInsets insets) {
+            // Fullscreen apps hide the nav bar; stay out of their way.
+            boolean visible = insets.isVisible(WindowInsets.Type.navigationBars());
+            if (visible != mNavVisible) {
+                mNavVisible = visible;
+                poke();
             }
-            mDrawForced = draw;
-            if (draw) {
-                view.setWillNotDraw(false);
-            } else {
-                view.setWillNotDraw(view.getBackground() == null);
-            }
-            view.invalidate();
+            return super.onApplyWindowInsets(insets);
         }
 
-        private void linkVisualizer() {
-            synchronized (mLock) {
-                if (mReleased || mVisualizer != null || mLinking) {
-                    return;
-                }
-                mLinking = true;
-            }
-            Visualizer created = null;
-            try {
-                created = new Visualizer(0);
-                created.setEnabled(false);
-                int[] range = Visualizer.getCaptureSizeRange();
-                if (range == null || range.length < 2) {
-                    throw new IllegalStateException("no capture size");
-                }
-                created.setCaptureSize(range[1]);
-                int maxRate = Visualizer.getMaxCaptureRate();
-                int rate = maxRate > 0 ? (int) (maxRate * 0.75f) : 10000;
-                int status = created.setDataCaptureListener(new Visualizer.OnDataCaptureListener() {
-                    @Override
-                    public void onWaveFormDataCapture(
-                            Visualizer visualizer, byte[] waveform, int samplingRate) {
-                    }
-
-                    @Override
-                    public void onFftDataCapture(
-                            Visualizer visualizer, byte[] fft, int samplingRate) {
-                        onFft(fft);
-                    }
-                }, rate, false /* waveform */, true /* fft */);
-                if (status != Visualizer.SUCCESS) {
-                    throw new IllegalStateException("capture listener " + status);
-                }
-                created.setEnabled(true);
-            } catch (RuntimeException e) {
-                Log.w(TAG, "Visualizer unavailable", e);
-                if (created != null) {
-                    try {
-                        created.release();
-                    } catch (RuntimeException ignored) {
-                    }
-                    created = null;
-                }
-            }
-            final Visualizer viz = created;
-            synchronized (mLock) {
-                mLinking = false;
-                if (viz == null) {
-                    return;
-                }
-                if (mReleased || mVisualizer != null) {
-                    try {
-                        viz.release();
-                    } catch (RuntimeException ignored) {
-                    }
-                    return;
-                }
-                mVisualizer = viz;
-            }
-            NavigationBarView view = mView.get();
-            if (view != null) {
-                view.post(() -> view.invalidate());
-            }
+        @Override
+        protected void onConfigurationChanged(Configuration newConfig) {
+            super.onConfigurationChanged(newConfig);
+            mAccent = getContext().getColor(android.R.color.system_accent1_300);
+            poke();
         }
 
-        private void releaseVisualizer() {
-            Visualizer viz;
-            synchronized (mLock) {
-                viz = mVisualizer;
-                mVisualizer = null;
-            }
-            if (viz == null) {
-                return;
-            }
-            try {
-                viz.setDataCaptureListener(null, 0, false, false);
-                viz.setEnabled(false);
-                viz.release();
-            } catch (RuntimeException e) {
-                Log.w(TAG, "Visualizer release failed", e);
-            }
+        @Override
+        protected void onDetachedFromWindow() {
+            super.onDetachedFromWindow();
+            recycleBitmap();
         }
 
-        private void onFft(byte[] fft) {
-            float[] next = new float[BARS];
-            decode(fft, next);
-            boolean poke = false;
-            synchronized (mLock) {
-                if (mReleased) {
-                    return;
-                }
-                mLastFft = SystemClock.uptimeMillis();
-                System.arraycopy(next, 0, mTargets, 0, BARS);
-                poke = audible(next) || audible(mLevels);
-            }
-            NavigationBarView view = mView.get();
-            if (poke && view != null) {
-                view.postInvalidateOnAnimation();
-            }
-        }
-
-        void draw(NavigationBarView view, Canvas canvas) {
-            if (mReleased || !view.isAttachedToWindow()) {
-                return;
-            }
-            int width = view.getWidth();
-            int height = view.getHeight();
+        @Override
+        protected void onDraw(Canvas canvas) {
+            mScheduled = false;
+            int width = getWidth();
+            int height = getHeight();
             if (width <= 0 || height <= 0) {
                 return;
             }
-            int style;
-            boolean pending;
+            float[] levels;
             synchronized (mLock) {
-                if (mLastFft != 0 && SystemClock.uptimeMillis() - mLastFft > 400) {
+                if (mLastFft != 0 && SystemClock.uptimeMillis() - mLastFft > SILENCE_MS) {
                     Arrays.fill(mTargets, 0f);
                 }
-                style = mStyle;
-                pending = audible(mTargets) || audible(mLevels);
-            }
-            if (!pending && (style != STYLE_FADING || mTrail <= 0)) {
-                recycleBitmap();
-                return;
-            }
-            long now = SystemClock.uptimeMillis();
-            if (mLastDraw != 0 && now - mLastDraw < FRAME_MS) {
-                view.postInvalidateDelayed(FRAME_MS - (now - mLastDraw));
-                return;
-            }
-            mLastDraw = now;
-            float[] levels = new float[BARS];
-            synchronized (mLock) {
-                for (int i = 0; i < BARS; i++) {
+                if (mLevels.length != mTargets.length) {
+                    mLevels = new float[mTargets.length];
+                }
+                for (int i = 0; i < mLevels.length; i++) {
                     mLevels[i] += (mTargets[i] - mLevels[i]) * 0.45f;
                     if (mLevels[i] < 0.012f && mTargets[i] < 0.012f) {
                         mLevels[i] = 0f;
                     }
-                    levels[i] = mLevels[i];
                 }
+                levels = mLevels.clone();
             }
+            int style = mStyle;
+            mDrawnStyle = style;
             boolean moving = audible(levels);
             if (style == STYLE_FADING) {
-                if (moving) {
-                    mTrail = TRAIL_FRAMES;
-                } else if (mTrail > 0) {
-                    mTrail--;
-                }
+                mTrail = moving ? TRAIL_FRAMES : Math.max(0, mTrail - 1);
+            } else {
+                mTrail = 0;
             }
-            boolean fromLeft = growsFromLeft(view);
-            try {
-                if (style == STYLE_FADING) {
-                    drawFading(canvas, levels, width, height, fromLeft);
-                } else {
-                    drawBars(canvas, levels, width, height, fromLeft);
-                }
-            } catch (RuntimeException e) {
-                Log.w(TAG, "Pulse draw failed", e);
+            if (!mNavVisible || (!moving && mTrail == 0)) {
                 recycleBitmap();
                 return;
             }
-            view.postInvalidateDelayed(FRAME_MS);
+            preparePaint(width);
+            if (style == STYLE_FADING) {
+                if (mBitmap == null || mBitmap.getWidth() != width
+                        || mBitmap.getHeight() != height) {
+                    recycleBitmap();
+                    mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+                    mBitmapCanvas = new Canvas(mBitmap);
+                }
+                mBitmapCanvas.drawPaint(mFade);
+                drawBars(mBitmapCanvas, levels, width, height, STYLE_LINES);
+                canvas.drawBitmap(mBitmap, 0f, 0f, null);
+            } else {
+                drawBars(canvas, levels, width, height, style);
+            }
+            mScheduled = true;
+            postInvalidateDelayed(FRAME_MS);
         }
 
-        private void drawFading(Canvas canvas, float[] levels, int width, int height,
-                boolean fromLeft) {
-            if (mBitmap == null
-                    || mBitmap.getWidth() != width
-                    || mBitmap.getHeight() != height) {
-                recycleBitmap();
-                mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-                mBitmap.setDensity(Bitmap.DENSITY_NONE);
-                mBitmapCanvas = new Canvas(mBitmap);
+        private void preparePaint(int width) {
+            if (mColorMode == COLOR_GRADIENT) {
+                if (mShader == null || mShaderWidth != width) {
+                    mShader = new LinearGradient(0f, 0f, width, 0f, GRADIENT, null,
+                            Shader.TileMode.CLAMP);
+                    mShaderWidth = width;
+                }
+                mPaint.setShader(mShader);
+                mPaint.setColor(Color.WHITE);
+            } else {
+                mPaint.setShader(null);
+                mPaint.setColor(mColorMode == COLOR_ACCENT ? mAccent : mColor);
             }
-            mBitmapCanvas.drawPaint(mFadePaint);
-            drawBars(mBitmapCanvas, levels, width, height, fromLeft);
-            canvas.drawBitmap(mBitmap, 0f, 0f, null);
+            mPaint.setAlpha(Math.round(255 * mOpacity / 100f));
         }
 
-        private void drawBars(Canvas canvas, float[] levels, int width, int height,
-                boolean fromLeft) {
-            boolean vertical = height > width;
-            float span = vertical ? height : width;
-            float depth = vertical ? width : height;
-            float gap = Math.max(1f, span / (BARS * 8f));
-            float thick = (span - gap * (BARS + 1)) / BARS;
-            if (thick < 1f) {
-                thick = 1f;
-            }
-            mPaint.setStrokeWidth(Math.max(2f, thick * 0.72f));
-            for (int i = 0; i < BARS; i++) {
-                float amp = levels[i] * Math.max(0f, depth - 4f);
+        private void drawBars(Canvas canvas, float[] levels, int width, int height, int style) {
+            int n = levels.length;
+            float gap = Math.max(2f, width / (n * 6f));
+            float thick = Math.max(2f, (width - gap * (n + 1)) / n);
+            float radius = thick / 2f;
+            float bottom = height - 2f;
+            for (int i = 0; i < n; i++) {
+                float amp = levels[i] * (height - 4f);
                 if (amp < 1f) {
                     continue;
                 }
-                float across = gap + i * (thick + gap) + thick / 2f;
-                if (vertical) {
-                    if (fromLeft) {
-                        canvas.drawLine(2f, across, 2f + amp, across, mPaint);
-                    } else {
-                        canvas.drawLine(width - 2f, across, width - 2f - amp, across, mPaint);
+                float left = gap + i * (thick + gap);
+                if (style == STYLE_BLOCKS) {
+                    float block = Math.max(3f, Math.min(thick, height / 8f));
+                    float step = block + Math.max(2f, block * 0.35f);
+                    int count = Math.max(1, Math.round(amp / step));
+                    for (int k = 0; k < count; k++) {
+                        float top = bottom - k * step - block;
+                        mRect.set(left, top, left + thick, top + block);
+                        canvas.drawRoundRect(mRect, block * 0.3f, block * 0.3f, mPaint);
                     }
+                } else if (style == STYLE_MIRROR) {
+                    float center = height / 2f;
+                    mRect.set(left, center - amp / 2f, left + thick, center + amp / 2f);
+                    canvas.drawRoundRect(mRect, radius, radius, mPaint);
                 } else {
-                    canvas.drawLine(across, height - 2f, across, height - 2f - amp, mPaint);
+                    mRect.set(left, bottom - amp, left + thick, bottom);
+                    canvas.drawRoundRect(mRect, radius, radius, mPaint);
                 }
             }
         }
@@ -494,59 +609,6 @@ public final class PulseRenderer {
                 mBitmap.recycle();
                 mBitmap = null;
                 mBitmapCanvas = null;
-            }
-        }
-
-        private static boolean growsFromLeft(NavigationBarView view) {
-            try {
-                int[] xy = new int[2];
-                view.getLocationOnScreen(xy);
-                int screen = view.getResources().getDisplayMetrics().widthPixels;
-                return xy[0] + view.getWidth() / 2 < screen / 2;
-            } catch (RuntimeException e) {
-                Log.w(TAG, "Nav bar location unavailable", e);
-                return false;
-            }
-        }
-
-        private static boolean audible(float[] values) {
-            for (float value : values) {
-                if (value > 0.02f) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        /** Lower two thirds of the FFT, split evenly. Signed bytes are fine for hypot. */
-        private static void decode(byte[] fft, float[] out) {
-            Arrays.fill(out, 0f);
-            if (fft == null || fft.length < 8) {
-                return;
-            }
-            int complexBins = fft.length / 2 - 1;
-            int used = Math.max(BARS, (complexBins * 2) / 3);
-            if (used > complexBins) {
-                used = complexBins;
-            }
-            int per = Math.max(1, used / out.length);
-            for (int i = 0; i < out.length; i++) {
-                int start = i * per;
-                float sum = 0f;
-                int count = 0;
-                for (int bin = start; bin < start + per && bin < used; bin++) {
-                    int idx = 2 + bin * 2;
-                    if (idx + 1 >= fft.length) {
-                        break;
-                    }
-                    sum += (float) Math.hypot(fft[idx], fft[idx + 1]);
-                    count++;
-                }
-                if (count == 0) {
-                    continue;
-                }
-                float norm = (float) Math.sqrt(Math.min(1d, (sum / count) / 140d));
-                out[i] = norm < 0.08f ? 0f : norm;
             }
         }
     }

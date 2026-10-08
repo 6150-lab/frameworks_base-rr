@@ -132,7 +132,6 @@ import com.android.systemui.plugins.statusbar.StatusBarStateController;
 import com.android.systemui.recents.Recents;
 import com.android.systemui.res.R;
 import com.android.systemui.rotation.RotationPolicyWrapper;
-import com.android.systemui.rr.pulse.PulseRenderer;
 import com.android.systemui.settings.DisplayTracker;
 import com.android.systemui.settings.UserContextProvider;
 import com.android.systemui.settings.UserTracker;
@@ -866,12 +865,10 @@ public class NavigationBar extends ViewController<NavigationBarView> implements 
         AutoHideController autoHideController = mAutoHideControllerStore.forDisplay(mDisplayId);
         setAutoHideController(autoHideController);
         restoreAppearanceAndTransientState();
-        PulseRenderer.attach(mView);
     }
 
     @Override
     public void onViewDetached() {
-        PulseRenderer.detach(mView);
         mView.setUpdateActiveTouchRegionsCallback(null);
         getBarTransitions().destroy();
         mLauncherProxyService.removeCallback(mLauncherProxyListener);
