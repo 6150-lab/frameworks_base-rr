@@ -16,14 +16,12 @@
  *
  */
 
-package com.android.systemui.android.header;
+package com.android.systemui.rr.header;
 
 import android.content.Context;
 import android.content.res.Resources;
 import android.database.ContentObserver;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
+import android.graphics.ImageDecoder;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.util.Log;
@@ -37,7 +35,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Calendar;
 
-import com.android.systemui.res.R;
 
 public class FileHeaderProvider implements
         StatusBarHeaderMachine.IStatusBarHeaderProvider {
@@ -73,6 +70,9 @@ public class FileHeaderProvider implements
                 saveHeaderImage(Uri.parse(imageUri));
             }
         }
+        if (mImage != null) {
+            mImage = null;
+        }
         if (customHeader) {
             loadHeaderImage();
         }
@@ -88,14 +88,21 @@ public class FileHeaderProvider implements
     }
 
     private void saveHeaderImage(Uri imageUri) {
-        if (DEBUG) Log.i(TAG, "Save header image " + " " + imageUri);
-        try {
-            final InputStream imageStream = mContext.getContentResolver().openInputStream(imageUri);
-            File file = new File(mContext.getFilesDir(), HEADER_FILE_NAME);
-            if (file.exists()) {
-                file.delete();
+        if (DEBUG) Log.i(TAG, "Save header image " + imageUri);
+
+        if (imageUri == null) {
+            Log.e(TAG, "Image URI is null");
+            return;
+        }
+
+        File file = new File(mContext.getFilesDir(), HEADER_FILE_NAME);
+        try (InputStream imageStream = mContext.getContentResolver().openInputStream(imageUri);
+             FileOutputStream output = new FileOutputStream(file)) {
+
+            if (imageStream == null) {
+                Log.e(TAG, "Unable to open input stream for URI: " + imageUri);
+                return;
             }
-            FileOutputStream output = new FileOutputStream(file);
             byte[] buffer = new byte[8 * 1024];
             int read;
 
@@ -103,19 +110,24 @@ public class FileHeaderProvider implements
                 output.write(buffer, 0, read);
             }
             output.flush();
-            if (DEBUG) Log.i(TAG, "Saved header image " + " " + file.getAbsolutePath());
+            if (DEBUG) Log.i(TAG, "Saved header image " + file.getAbsolutePath());
         } catch (IOException e) {
-            Log.e(TAG, "Save header image failed " + " " + imageUri);
+            Log.e(TAG, "Save header image failed for URI: " + imageUri, e);
         }
     }
 
     private void loadHeaderImage() {
-        mImage = null;
         File file = new File(mContext.getFilesDir(), HEADER_FILE_NAME);
         if (file.exists()) {
             if (DEBUG) Log.i(TAG, "Load header image");
-            final Bitmap image = BitmapFactory.decodeFile(file.getAbsolutePath());
-            mImage = new BitmapDrawable(mContext.getResources(), image);
+            try {
+                ImageDecoder.Source source = ImageDecoder.createSource(file);
+                mImage = ImageDecoder.decodeDrawable(source, (decoder, info, s) -> {
+                    decoder.setAllocator(ImageDecoder.ALLOCATOR_SOFTWARE);
+                });
+            } catch (IOException e) {
+                Log.e(TAG, "Failed to decode header image", e);
+            }
         }
     }
 

@@ -25,6 +25,14 @@
     android:layout_height="match_parent"
     android:background="@android:color/transparent">
 
+    <com.android.systemui.rr.header.QsHeaderImageView
+        android:id="@+id/qs_header_image"
+        android:layout_width="match_parent"
+        android:layout_height="142dp"
+        android:scaleType="centerCrop"
+        android:importantForAccessibility="no"
+        android:visibility="gone" />
+
     <com.android.systemui.deviceentry.ui.view.UdfpsAccessibilityOverlayOverlappingTouchHandlingView
         android:id="@+id/keyguard_long_press"
         android:layout_width="match_parent"

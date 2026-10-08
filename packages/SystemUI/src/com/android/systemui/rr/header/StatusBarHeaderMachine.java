@@ -16,7 +16,7 @@
  *
  */
 
-package com.android.systemui.android.header;
+package com.android.systemui.rr.header;
 
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -74,9 +74,10 @@ public class StatusBarHeaderMachine {
     private boolean mScreenOn = true;
     private String mDefaultProviderName;
     private String mCurrentProviderName;
+    private Drawable mCurrentHeader;
 
     // broadcast providers sent when they update the header image
-    public static final String STATUS_BAR_HEADER_UPDATE_ACTION = "com.android.systemui.android.header.STATUS_BAR_HEADER_UPDATE";
+    public static final String STATUS_BAR_HEADER_UPDATE_ACTION = "com.android.systemui.rr.header.STATUS_BAR_HEADER_UPDATE";
 
     private final BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -94,7 +95,7 @@ public class StatusBarHeaderMachine {
                 if (!mScreenOn) {
                     if (DEBUG) Log.i(TAG, "status bar header background SCREEN_ON triggered");
                     mScreenOn = true;
-                    doUpdateStatusHeaderObservers(true);
+                    doUpdateStatusHeaderObservers(false);
                 }
             }
         }
@@ -126,6 +127,10 @@ public class StatusBarHeaderMachine {
                     false, this, UserHandle.USER_ALL);
         }
 
+        void unobserve() {
+            mContext.getContentResolver().unregisterContentObserver(this);
+        }
+
         @Override
         public void onChange(boolean selfChange, Uri uri) {
             final boolean customHeader = Settings.System.getIntForUser(mContext.getContentResolver(),
@@ -149,7 +154,7 @@ public class StatusBarHeaderMachine {
         }
     }
 
-    private SettingsObserver mSettingsObserver = new SettingsObserver(mHandler);
+    private SettingsObserver mSettingsObserver = new SettingsObserver(null);
 
     public StatusBarHeaderMachine(Context context) {
         mContext = context;
@@ -196,12 +201,17 @@ public class StatusBarHeaderMachine {
 
     private void doUpdateStatusHeaderObservers(final boolean force) {
         if (DEBUG) Log.i(TAG, "updateHeader");
+        final Drawable header = getCurrent();
+        if (!force && header == mCurrentHeader) {
+            return;
+        }
+        mCurrentHeader = header;
         Iterator<IStatusBarHeaderMachineObserver> nextObserver = mObservers
                 .iterator();
         while (nextObserver.hasNext()) {
             IStatusBarHeaderMachineObserver observer = nextObserver.next();
             try {
-                observer.updateHeader(getCurrent(), force);
+                observer.updateHeader(header, force);
             } catch (Exception e) {
                 // just in case
             }
@@ -209,6 +219,7 @@ public class StatusBarHeaderMachine {
     }
 
     private void doDisableStatusHeaderObservers() {
+        mCurrentHeader = null;
         Iterator<IStatusBarHeaderMachineObserver> nextObserver = mObservers
                 .iterator();
         while (nextObserver.hasNext()) {

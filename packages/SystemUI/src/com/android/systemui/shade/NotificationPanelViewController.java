@@ -146,6 +146,7 @@ import com.android.systemui.plugins.statusbar.StatusBarStateController.StateList
 import com.android.systemui.power.domain.interactor.PowerInteractor;
 import com.android.systemui.power.shared.model.WakefulnessModel;
 import com.android.systemui.res.R;
+import com.android.systemui.rr.header.QsHeaderImageController;
 import com.android.systemui.scene.shared.flag.SceneContainerFlag;
 import com.android.systemui.shade.data.repository.FlingInfo;
 import com.android.systemui.shade.data.repository.ShadeDisplaysRepository;
@@ -320,6 +321,7 @@ public final class NotificationPanelViewController implements
     private final LockscreenShadeTransitionController mLockscreenShadeTransitionController;
     private final TapAgainViewController mTapAgainViewController;
     private final ShadeHeaderController mShadeHeaderController;
+    private QsHeaderImageController mQsHeaderImage;
     private final boolean mVibrateOnOpening;
     private final VelocityTracker mVelocityTracker = VelocityTracker.obtain();
     private final FlingAnimationUtils mFlingAnimationUtilsClosing;
@@ -937,6 +939,7 @@ public final class NotificationPanelViewController implements
 
         mTapAgainViewController.init();
         mShadeHeaderController.init();
+        mQsHeaderImage = new QsHeaderImageController(mView);
         mShadeHeaderController.setShadeCollapseAction(
                 () -> collapse(/* delayed= */ false , /* speedUpFactor= */ 1.0f));
 
@@ -1931,6 +1934,7 @@ public final class NotificationPanelViewController implements
         }
         updateExpandedHeight(expandedHeight);
         updateHeader();
+        mQsHeaderImage.update(mShadeHeaderController.getShadeExpandedFraction());
         updatePanelExpanded();
         updateGestureExclusionRect();
         if (DEBUG_DRAWABLE) {
@@ -3537,6 +3541,7 @@ public final class NotificationPanelViewController implements
         @Override
         public void onConfigChanged(Configuration newConfig) {
             updateResources();
+            mQsHeaderImage.update(mShadeHeaderController.getShadeExpandedFraction());
         }
 
         @Override
@@ -3691,6 +3696,7 @@ public final class NotificationPanelViewController implements
             mConfigurationListener.onThemeChanged();
             mFalsingManager.addTapListener(mFalsingTapListener);
             mKeyguardIndicationController.init();
+            mQsHeaderImage.attach();
         }
 
         @Override
@@ -3701,6 +3707,7 @@ public final class NotificationPanelViewController implements
             mStatusBarStateController.removeCallback(mStatusBarStateListener);
             mConfigurationController.removeCallback(mConfigurationListener);
             mFalsingManager.removeTapListener(mFalsingTapListener);
+            mQsHeaderImage.detach();
         }
     }
 
@@ -3723,6 +3730,7 @@ public final class NotificationPanelViewController implements
             mQsController.handleShadeLayoutChanged(oldMaxHeight);
             updateExpandedHeight(getExpandedHeight());
             updateHeader();
+            mQsHeaderImage.update(mShadeHeaderController.getShadeExpandedFraction());
 
             // If we are running a size change animation, the animation takes care of the height
             // of the container. However, if we are not animating, we always need to make the QS
