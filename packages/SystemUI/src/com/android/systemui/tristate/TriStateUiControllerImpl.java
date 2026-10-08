@@ -45,6 +45,7 @@ import android.util.DisplayUtils;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.Display;
+import android.view.DisplayInfo;
 import android.view.OrientationEventListener;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -630,7 +631,7 @@ public class TriStateUiControllerImpl implements TriStateUiController,
                     mDialogPosition = positionY2;
                 }
 
-                final float scaleFactor = DisplayUtils.getScaleFactor(mContext);
+                final float scaleFactor = getScaleFactor();
 
                 positionY = res.getDimensionPixelSize(R.dimen.tri_state_dialog_padding);
                 mWindowLayoutParams.gravity = gravity;
@@ -640,6 +641,15 @@ public class TriStateUiControllerImpl implements TriStateUiController,
                 mHandler.sendEmptyMessageDelayed(MSG_RESET_SCHEDULE, DIALOG_TIMEOUT);
             }
         }
+    }
+
+    // Current resolution vs. the panel's maximum, which the dialog positions are in.
+    private float getScaleFactor() {
+        DisplayInfo info = new DisplayInfo();
+        mContext.getDisplay().getDisplayInfo(info);
+        Display.Mode max = DisplayUtils.getMaximumResolutionDisplayMode(info.supportedModes);
+        return DisplayUtils.getPhysicalPixelDisplaySizeRatio(max.getPhysicalWidth(),
+                max.getPhysicalHeight(), info.getNaturalWidth(), info.getNaturalHeight());
     }
 
     private void handleShow() {
