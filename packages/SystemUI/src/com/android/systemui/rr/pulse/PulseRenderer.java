@@ -51,10 +51,15 @@ import android.view.Display;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowInsets;
+import android.view.WindowInsetsController.Appearance;
+import android.view.WindowInsetsController.Behavior;
 import android.view.WindowManager;
 
+import com.android.internal.statusbar.LetterboxDetails;
+import com.android.internal.view.AppearanceRegion;
 import com.android.systemui.CoreStartable;
 import com.android.systemui.dagger.SysUISingleton;
+import com.android.systemui.statusbar.CommandQueue;
 import com.android.systemui.statusbar.policy.KeyguardStateController;
 
 import java.util.Arrays;
@@ -113,6 +118,7 @@ public final class PulseRenderer implements CoreStartable {
 
     private final Context mContext;
     private final KeyguardStateController mKeyguard;
+    private final CommandQueue mCommandQueue;
     private final Handler mMain = new Handler(Looper.getMainLooper());
     private final Object mLock = new Object();
 
@@ -126,6 +132,9 @@ public final class PulseRenderer implements CoreStartable {
     private boolean mScreenOn = true;
     private boolean mPowerSave;
     private boolean mPlaying;
+    // The top app hid the nav bar (immersive). The overlay sits above the nav bar window, so
+    // its own insets never carry a nav bar source; CommandQueue does.
+    private boolean mNavHidden;
     private int mStyle;
     private int mColorMode;
     private int mColor = DEFAULT_COLOR;
@@ -157,9 +166,11 @@ public final class PulseRenderer implements CoreStartable {
     };
 
     @Inject
-    public PulseRenderer(Context context, KeyguardStateController keyguard) {
+    public PulseRenderer(Context context, KeyguardStateController keyguard,
+            CommandQueue commandQueue) {
         mContext = context;
         mKeyguard = keyguard;
+        mCommandQueue = commandQueue;
     }
 
     @Override
@@ -214,6 +225,25 @@ public final class PulseRenderer implements CoreStartable {
             @Override
             public void onKeyguardShowingChanged() {
                 update();
+            }
+        });
+
+        mCommandQueue.addCallback(new CommandQueue.Callbacks() {
+            @Override
+            public void onSystemBarAttributesChanged(int displayId, @Appearance int appearance,
+                    AppearanceRegion[] appearanceRegions, boolean navbarColorManagedByIme,
+                    @Behavior int behavior, @WindowInsets.Type.InsetsType int requestedVisibleTypes,
+                    String packageName, LetterboxDetails[] letterboxDetails) {
+                if (displayId != Display.DEFAULT_DISPLAY) {
+                    return;
+                }
+                boolean hidden = (requestedVisibleTypes & WindowInsets.Type.navigationBars()) == 0;
+                if (hidden != mNavHidden) {
+                    mNavHidden = hidden;
+                    if (mView != null) {
+                        mView.poke();
+                    }
+                }
             }
         });
 
@@ -454,7 +484,6 @@ public final class PulseRenderer implements CoreStartable {
         private int mDrawnStyle = -1;
         private int mTrail;
         private boolean mScheduled;
-        private boolean mNavVisible = true;
 
         PulseView(Context context) {
             super(context);
@@ -476,17 +505,6 @@ public final class PulseRenderer implements CoreStartable {
                 mScheduled = true;
                 postInvalidateOnAnimation();
             }
-        }
-
-        @Override
-        public WindowInsets onApplyWindowInsets(WindowInsets insets) {
-            // Fullscreen apps hide the nav bar; stay out of their way.
-            boolean visible = insets.isVisible(WindowInsets.Type.navigationBars());
-            if (visible != mNavVisible) {
-                mNavVisible = visible;
-                poke();
-            }
-            return super.onApplyWindowInsets(insets);
         }
 
         @Override
@@ -534,7 +552,7 @@ public final class PulseRenderer implements CoreStartable {
             } else {
                 mTrail = 0;
             }
-            if (!mNavVisible || (!moving && mTrail == 0)) {
+            if (mNavHidden || (!moving && mTrail == 0)) {
                 recycleBitmap();
                 return;
             }
