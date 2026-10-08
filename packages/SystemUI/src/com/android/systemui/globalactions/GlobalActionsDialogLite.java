@@ -1345,17 +1345,17 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
         summary.setText(summaryResId);
 
         int rowColor = context.getColor(primary
-                ? com.android.systemui.res.R.color.materialColorPrimaryContainer
-                : com.android.systemui.res.R.color.materialColorSurfaceContainerHigh);
+                ? R.color.materialColorPrimaryContainer
+                : R.color.materialColorSurfaceContainerHigh);
         int iconColor = context.getColor(primary
-                ? com.android.systemui.res.R.color.materialColorPrimary
-                : com.android.systemui.res.R.color.materialColorSurfaceContainerHighest);
+                ? R.color.materialColorPrimary
+                : R.color.materialColorSurfaceContainerHighest);
         int glyphColor = context.getColor(primary
-                ? com.android.systemui.res.R.color.materialColorOnPrimary
-                : com.android.systemui.res.R.color.materialColorOnSurface);
+                ? R.color.materialColorOnPrimary
+                : R.color.materialColorOnSurface);
         if (primary) {
             int onRow = context.getColor(
-                    com.android.systemui.res.R.color.materialColorOnPrimaryContainer);
+                    R.color.materialColorOnPrimaryContainer);
             title.setTextColor(onRow);
             summary.setTextColor(onRow);
         }
