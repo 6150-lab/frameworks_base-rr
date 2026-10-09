@@ -19,6 +19,7 @@ package com.android.systemui.qs.panels.domain.interactor
 import com.android.systemui.dagger.SysUISingleton
 import com.android.systemui.dagger.qualifiers.Background
 import com.android.systemui.qs.panels.data.repository.QSColumnsRepository
+import com.android.systemui.qs.panels.data.repository.QsStyleRepository
 import com.android.systemui.shade.domain.interactor.ShadeModeInteractor
 import com.android.systemui.shade.shared.model.ShadeMode
 import javax.inject.Inject
@@ -26,6 +27,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 
@@ -37,6 +39,7 @@ constructor(
     @Background scope: CoroutineScope,
     repo: QSColumnsRepository,
     shadeModeInteractor: ShadeModeInteractor,
+    qsStyleRepository: QsStyleRepository,
 ) {
     val columns: StateFlow<Int> =
         shadeModeInteractor.shadeMode
@@ -47,5 +50,6 @@ constructor(
                     ShadeMode.Single -> repo.columns
                 }
             }
+            .combine(qsStyleRepository.style) { columns, style -> style.columns(columns) }
             .stateIn(scope, SharingStarted.WhileSubscribed(), repo.defaultColumns)
 }

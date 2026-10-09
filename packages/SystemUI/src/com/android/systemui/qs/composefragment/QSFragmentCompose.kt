@@ -145,7 +145,10 @@ import com.android.systemui.qs.composefragment.ui.quickQuickSettingsToQuickSetti
 import com.android.systemui.qs.composefragment.ui.toEditMode
 import com.android.systemui.qs.composefragment.viewmodel.QSFragmentComposeViewModel
 import com.android.systemui.qs.footer.ui.compose.FooterActions
+import com.android.systemui.qs.panels.data.repository.QsStyleRepository
+import com.android.systemui.qs.panels.shared.model.LocalQsStyle
 import com.android.systemui.qs.panels.shared.model.QSFragmentComposeClippingTableLog
+import com.android.systemui.qs.panels.ui.compose.QsStyleSliderFrame
 import com.android.systemui.qs.panels.ui.compose.EditMode
 import com.android.systemui.qs.panels.ui.compose.QuickQuickSettings
 import com.android.systemui.qs.panels.ui.compose.TileGrid
@@ -186,6 +189,7 @@ constructor(
     private val dumpManager: DumpManager,
     @Background private val backgroundDispatcher: CoroutineDispatcher,
     @ShadeDisplayAware private val configurationController: ConfigurationController,
+    private val qsStyleRepository: QsStyleRepository,
 ) : LifecycleFragment(), QS, Dumpable {
 
     private val scrollListener = MutableStateFlow<QS.ScrollListener?>(null)
@@ -277,36 +281,39 @@ constructor(
 
     @Composable
     private fun Content(modifier: Modifier = Modifier) {
+        val qsStyle by qsStyleRepository.style.collectAsStateWithLifecycle()
         PlatformTheme(isDarkTheme = if (notificationShadeBlur()) isSystemInDarkTheme() else true) {
-            ProvideShortcutHelperIndication(interactionsConfig = interactionsConfig()) {
-                Box(
-                    modifier =
-                        modifier
-                            .layout { measurable, constraints ->
-                                measurable.measure(constraints).run {
-                                    layout(width, height) {
-                                        if (viewModel.isQsVisibleAndAnyShadeExpanded) {
-                                            place(0, 0)
+            CompositionLocalProvider(LocalQsStyle provides qsStyle) {
+                ProvideShortcutHelperIndication(interactionsConfig = interactionsConfig()) {
+                    Box(
+                        modifier =
+                            modifier
+                                .layout { measurable, constraints ->
+                                    measurable.measure(constraints).run {
+                                        layout(width, height) {
+                                            if (viewModel.isQsVisibleAndAnyShadeExpanded) {
+                                                place(0, 0)
+                                            }
                                         }
                                     }
                                 }
-                            }
-                            .graphicsLayer { alpha = viewModel.viewAlpha }
-                            .thenIf(!Flags.notificationShadeBlur()) {
-                                Modifier.offset {
-                                    IntOffset(
-                                        x = 0,
-                                        y = viewModel.viewTranslationY.fastRoundToInt(),
-                                    )
+                                .graphicsLayer { alpha = viewModel.viewAlpha }
+                                .thenIf(!Flags.notificationShadeBlur()) {
+                                    Modifier.offset {
+                                        IntOffset(
+                                            x = 0,
+                                            y = viewModel.viewTranslationY.fastRoundToInt(),
+                                        )
+                                    }
                                 }
-                            }
-                            // Disable touches in the whole composable while the mirror is
-                            // showing. While the mirror is showing, an ancestor of the
-                            // ComposeView is made alpha 0, but touches are still being captured
-                            // by the composables.
-                            .thenIf(viewModel.showingMirror) { Modifier.gesturesDisabled() }
-                ) {
-                    CollapsableQuickSettingsSTL()
+                                // Disable touches in the whole composable while the mirror is
+                                // showing. While the mirror is showing, an ancestor of the
+                                // ComposeView is made alpha 0, but touches are still being captured
+                                // by the composables.
+                                .thenIf(viewModel.showingMirror) { Modifier.gesturesDisabled() }
+                    ) {
+                        CollapsableQuickSettingsSTL()
+                    }
                 }
             }
         }
@@ -950,16 +957,18 @@ constructor(
             )
         ) {
             AlwaysDarkMode {
-                BrightnessSliderContainer(
-                    viewModel =
-                        viewModel.containerViewModel.brightnessSliderViewModel,
-                    containerColors =
-                        ContainerColors(
-                            Color.Transparent,
-                            ContainerColors.defaultContainerColor,
-                        ),
-                    modifier = Modifier.fillMaxWidth(),
-                )
+                QsStyleSliderFrame(LocalQsStyle.current) {
+                    BrightnessSliderContainer(
+                        viewModel =
+                            viewModel.containerViewModel.brightnessSliderViewModel,
+                        containerColors =
+                            ContainerColors(
+                                Color.Transparent,
+                                ContainerColors.defaultContainerColor,
+                            ),
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
             }
         }
     }

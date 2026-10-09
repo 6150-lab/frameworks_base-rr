@@ -109,6 +109,9 @@ import com.android.systemui.brightness.ui.compose.InternalDimensions.ThumbTrackG
 import com.android.systemui.brightness.ui.viewmodel.BrightnessSliderViewModel
 import com.android.systemui.brightness.ui.viewmodel.Drag
 import com.android.systemui.common.shared.colors.SystemUISliderColors
+import com.android.systemui.qs.panels.shared.model.LocalQsStyle
+import com.android.systemui.qs.panels.ui.compose.qsStyleSliderColors
+import com.android.systemui.qs.panels.ui.compose.qsStyleSliderDimensions
 import com.android.systemui.common.shared.model.Icon
 import com.android.systemui.compose.modifiers.sysuiResTag
 import com.android.systemui.haptics.slider.SeekableSliderTrackerConfig
@@ -162,7 +165,7 @@ fun BrightnessSlider(
                 SeekableSliderTrackerConfig(),
             )
         }
-    val colors = SystemUISliderColors.Defaults
+    val colors = qsStyleSliderColors(LocalQsStyle.current) ?: SystemUISliderColors.Defaults
 
     // The value state is recreated every time gammaValue changes, so we recreate this derivedState
     // We have to use value as that's the value that changes when the user is dragging (gammaValue
@@ -460,6 +463,7 @@ fun BrightnessSliderContainer(
     containerColors: ContainerColors,
     dimensions: BrightnessSliderDimensions = BrightnessSliderDimensions.Default,
 ) {
+    val styled = qsStyleSliderDimensions(LocalQsStyle.current, dimensions)
     val gamma = viewModel.currentBrightness.value
     if (gamma == BrightnessSliderViewModel.initialValue.value) { // Ignore initial negative value.
         return
@@ -500,7 +504,7 @@ fun BrightnessSliderContainer(
     Box(
         modifier =
             modifier
-                .padding(vertical = { dimensions.verticalPadding.roundToPx() })
+                .padding(vertical = { styled.verticalPadding.roundToPx() })
                 .fillMaxWidth()
                 .sysuiResTag("brightness_slider")
     ) {
@@ -531,8 +535,8 @@ fun BrightnessSliderContainer(
                     )
                     .then(if (viewModel.showMirror) Modifier.drawInOverlay() else Modifier)
                     .sliderBackground(
-                        DpSize(dimensions.backgroundFrameWidth, dimensions.backgroundFrameHeight),
-                        dimensions.backgroundRoundedCorner,
+                        DpSize(styled.backgroundFrameWidth, styled.backgroundFrameHeight),
+                        styled.backgroundRoundedCorner,
                         containerColor,
                     )
                     .fillMaxWidth()
@@ -553,7 +557,7 @@ fun BrightnessSliderContainer(
                     com.android.internal.R.string.brightness_unable_adjust_msg,
                 )
             },
-            dimensions = dimensions,
+            dimensions = styled,
         )
     }
 }

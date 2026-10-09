@@ -39,6 +39,7 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -86,6 +87,8 @@ import com.android.systemui.compose.modifiers.sysuiResTag
 import com.android.systemui.haptics.msdl.qs.TileHapticsViewModel
 import com.android.systemui.lifecycle.rememberViewModel
 import com.android.systemui.qs.flags.QsDetailedView
+import com.android.systemui.qs.panels.shared.model.LocalQsStyle
+import com.android.systemui.qs.panels.shared.model.QsStyle
 import com.android.systemui.qs.panels.ui.compose.BounceableInfo
 import com.android.systemui.qs.panels.ui.compose.Tooltip
 import com.android.systemui.qs.panels.ui.compose.infinitegrid.CommonTileDefaults.ActiveIconCornerRadius
@@ -169,14 +172,25 @@ fun ContentScope.Tile(
                 tile.state.collect { value = it.toIconProvider() }
             }
 
-        val colors = TileDefaults.getColorForState(uiState, iconOnly)
+        val style = LocalQsStyle.current
+        val look = tileLook(style)
+        val active = uiState.visualState == STATE_ACTIVE
+        val colors = TileDefaults.getColorForState(uiState, iconOnly, style)
         val hapticsViewModel: TileHapticsViewModel =
             rememberViewModel(traceName = "TileHapticsViewModel") {
                 tileHapticsViewModelFactory.create(tile)
             }
 
         // TODO(b/361789146): Draw the shapes instead of clipping
-        val tileShape by TileDefaults.animateTileShapeAsState(uiState)
+        val tileShape by TileDefaults.animateTileShapeAsState(uiState, look)
+        val styleModifier =
+            if (style == QsStyle.GLASS) Modifier.glassGlow(active, look.activeRadius) else Modifier
+        val fillModifier =
+            when (style) {
+                QsStyle.REMIX -> Modifier.remixFill(active)
+                QsStyle.GLASS -> Modifier.glassBorder(active, tileShape)
+                else -> Modifier
+            }
         val animatedColor by animateColorAsState(colors.background, label = "QSTileBackgroundColor")
         val isDualTarget = uiState.handlesToggleClick
         val interactionSource = remember { MutableInteractionSource() }
@@ -187,7 +201,7 @@ fun ContentScope.Tile(
             val marginBottom =
                 with(LocalDensity.current) { QuickSettingsShade.Dimensions.VerticalPadding.toPx() }
 
-            val animatedCornerRadius by animateDpAsState(TileDefaults.tileRadius(uiState))
+            val animatedCornerRadius by animateDpAsState(TileDefaults.tileRadius(uiState, look))
 
             val inactiveCornerRadius = InactiveIconCornerRadius
             surfaceRevealModifier =
@@ -227,6 +241,7 @@ fun ContentScope.Tile(
                 modifier =
                     modifier
                         .then(surfaceRevealModifier)
+                        .then(styleModifier)
                         .borderOnFocus(
                             color = MaterialTheme.colorScheme.secondary,
                             tileShape.topEnd,
@@ -306,20 +321,47 @@ fun ContentScope.Tile(
                     accessibilityUiState = uiState.accessibilityUiState,
                     iconOnly = iconOnly,
                     isDualTarget = isDualTarget,
-                    modifier = contentRevealModifier,
+                    height = look.height,
+                    modifier = fillModifier.then(contentRevealModifier),
                 ) {
                     val iconProvider: Context.() -> Icon = { getTileIcon(icon = icon) }
-                    if (iconOnly) {
+                    val iconBounce =
+                        Modifier.bounceScale { currentBounceableInfo.bounceable.iconBounceScale }
+                    if (style == QsStyle.CLASSIC) {
+                        ClassicTileContent(
+                            label = uiState.label,
+                            iconProvider = iconProvider,
+                            colors = colors,
+                            iconSize = look.smallIconSize,
+                            iconModifier = iconBounce,
+                        )
+                    } else if (style == QsStyle.CARDS) {
+                        CardTileContent(
+                            label = uiState.label,
+                            secondaryLabel = uiState.secondaryLabel,
+                            iconProvider = iconProvider,
+                            colors = colors,
+                            look = look,
+                            iconModifier = iconBounce,
+                        )
+                    } else if (style == QsStyle.CIRCLES && iconOnly) {
+                        CircleTileContent(
+                            label = uiState.label,
+                            iconProvider = iconProvider,
+                            colors = colors,
+                            iconSize = look.smallIconSize,
+                            iconModifier = iconBounce,
+                        )
+                    } else if (iconOnly) {
                         SmallTileContent(
                             iconProvider = iconProvider,
                             color = colors.icon,
-                            modifier =
-                                Modifier.align(Alignment.Center).bounceScale {
-                                    currentBounceableInfo.bounceable.iconBounceScale
-                                },
+                            size = { look.smallIconSize },
+                            modifier = Modifier.align(Alignment.Center).then(iconBounce),
                         )
                     } else {
-                        val iconShape by TileDefaults.animateIconShapeAsState(uiState)
+                        val stockIconShape by TileDefaults.animateIconShapeAsState(uiState)
+                        val iconShape = if (style == QsStyle.STOCK) stockIconShape else CircleShape
                         val secondaryClick: (() -> Unit)? =
                             {
                                     hapticsViewModel.setTileInteractionState(
@@ -341,6 +383,11 @@ fun ContentScope.Tile(
                             squishiness = squishiness,
                             isVisible = isVisible,
                             textScale = { currentBounceableInfo.bounceable.textBounceScale },
+                            toggleSize = look.toggleSize,
+                            iconSize = look.largeIconSize,
+                            labelStyle = look.labelStyle,
+                            secondaryLabelStyle = look.secondaryLabelStyle,
+                            showChevron = style == QsStyle.CIRCLES && isDualTarget,
                             modifier =
                                 Modifier.largeTilePadding(
                                     isDualTarget = uiState.handlesSettingsClick
@@ -386,12 +433,13 @@ fun TileContainer(
     isDualTarget: Boolean,
     interactionSource: MutableInteractionSource?,
     modifier: Modifier = Modifier,
+    height: Dp = TileHeight,
     content: @Composable BoxScope.() -> Unit,
 ) {
     Box(
         modifier =
             modifier
-                .height(TileHeight)
+                .height(height)
                 .fillMaxWidth()
                 .tileCombinedClickable(
                     onClick = onClick ?: {},
@@ -585,7 +633,14 @@ private object TileDefaults {
 
     @Composable
     @ReadOnlyComposable
-    fun getColorForState(uiState: TileUiState, iconOnly: Boolean): TileColors {
+    fun getColorForState(
+        uiState: TileUiState,
+        iconOnly: Boolean,
+        style: QsStyle = QsStyle.STOCK,
+    ): TileColors {
+        styledTileColors(style, uiState, iconOnly)?.let {
+            return it
+        }
         return when (uiState.visualState) {
             STATE_ACTIVE -> {
                 if (uiState.handlesToggleClick && !iconOnly) {
@@ -617,11 +672,11 @@ private object TileDefaults {
     }
 
     @Composable
-    fun tileRadius(uiState: TileUiState): Dp {
+    fun tileRadius(uiState: TileUiState, look: TileLook? = null): Dp {
         return when (uiState.visualState) {
-            STATE_ACTIVE -> ActiveTileCornerRadius
-            STATE_INACTIVE -> InactiveTileCornerRadius
-            else -> InactiveTileCornerRadius
+            STATE_ACTIVE -> look?.activeRadius ?: ActiveTileCornerRadius
+            STATE_INACTIVE -> look?.inactiveRadius ?: InactiveTileCornerRadius
+            else -> look?.inactiveRadius ?: InactiveTileCornerRadius
         }
     }
 
@@ -634,8 +689,14 @@ private object TileDefaults {
     }
 
     @Composable
-    fun animateTileShapeAsState(uiState: TileUiState): State<RoundedCornerShape> {
-        return animateShapeAsState(targetValue = tileRadius(uiState), label = "QSTileCornerRadius")
+    fun animateTileShapeAsState(
+        uiState: TileUiState,
+        look: TileLook? = null,
+    ): State<RoundedCornerShape> {
+        return animateShapeAsState(
+            targetValue = tileRadius(uiState, look),
+            label = "QSTileCornerRadius",
+        )
     }
 
     @Composable

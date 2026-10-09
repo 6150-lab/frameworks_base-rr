@@ -76,6 +76,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -130,6 +131,11 @@ fun LargeTileContent(
     textScale: () -> Float = { 1f },
     toggleClick: (() -> Unit)? = null,
     onLongClick: (() -> Unit)? = null,
+    toggleSize: Dp = CommonTileDefaults.ToggleTargetSize,
+    iconSize: Dp = CommonTileDefaults.LargeTileIconSize,
+    labelStyle: TextStyle? = null,
+    secondaryLabelStyle: TextStyle? = null,
+    showChevron: Boolean = false,
 ) {
     val isDualTarget = toggleClick != null
     Row(
@@ -144,7 +150,7 @@ fun LargeTileContent(
         val focusBorderColor = MaterialTheme.colorScheme.secondary
         Box(
             modifier =
-                Modifier.size(CommonTileDefaults.ToggleTargetSize).thenIf(isDualTarget) {
+                Modifier.size(toggleSize).thenIf(isDualTarget) {
                     Modifier.borderOnFocus(color = focusBorderColor, iconShape.topEnd)
                         .clip(iconShape)
                         .drawBehind { drawRect(animatedBackgroundColor) }
@@ -173,7 +179,7 @@ fun LargeTileContent(
             SmallTileContent(
                 iconProvider = iconProvider,
                 color = colors.icon,
-                size = { CommonTileDefaults.LargeTileIconSize },
+                size = { iconSize },
                 modifier = Modifier.align(Alignment.Center),
             )
         }
@@ -185,8 +191,19 @@ fun LargeTileContent(
             colors = colors,
             accessibilityUiState = accessibilityUiState,
             isVisible = isVisible,
+            labelStyle = labelStyle,
+            secondaryLabelStyle = secondaryLabelStyle,
             modifier = Modifier.weight(1f).bounceScale(TransformOrigin(0f, .5f), textScale),
         )
+
+        if (showChevron) {
+            Image(
+                painter = painterResource(R.drawable.ic_chevron_right),
+                contentDescription = null,
+                colorFilter = ColorFilter.tint(colors.label.copy(alpha = .6f)),
+                modifier = Modifier.size(CommonTileDefaults.ChevronSize),
+            )
+        }
 
         if (sideDrawable != null) {
             Image(
@@ -207,6 +224,8 @@ fun LargeTileLabels(
     modifier: Modifier = Modifier,
     isVisible: () -> Boolean = { true },
     accessibilityUiState: AccessibilityUiState? = null,
+    labelStyle: TextStyle? = null,
+    secondaryLabelStyle: TextStyle? = null,
 ) {
     val animatedLabelColor by animateColorAsState(colors.label, label = "QSTileLabelColor")
     val animatedSecondaryLabelColor by
@@ -214,7 +233,7 @@ fun LargeTileLabels(
     Column(verticalArrangement = Arrangement.Center, modifier = modifier.fillMaxHeight()) {
         TileLabel(
             text = label,
-            style = MaterialTheme.typography.titleSmallEmphasized,
+            style = labelStyle ?: MaterialTheme.typography.titleSmallEmphasized,
             color = { animatedLabelColor },
             isVisible = isVisible,
         )
@@ -222,7 +241,7 @@ fun LargeTileLabels(
             TileLabel(
                 secondaryLabel ?: "",
                 color = { animatedSecondaryLabelColor },
-                style = MaterialTheme.typography.labelMedium,
+                style = secondaryLabelStyle ?: MaterialTheme.typography.labelMedium,
                 isVisible = isVisible,
                 modifier =
                     Modifier.thenIf(

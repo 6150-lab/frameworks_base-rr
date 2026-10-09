@@ -24,6 +24,7 @@ import com.android.systemui.lifecycle.HydratedActivatable
 import com.android.systemui.media.controls.ui.controller.MediaHierarchyManager.Companion.LOCATION_QQS
 import com.android.systemui.media.remedia.ui.compose.MediaUiBehavior
 import com.android.systemui.media.remedia.ui.viewmodel.MediaCarouselVisibility
+import com.android.systemui.qs.panels.data.repository.QsStyleRepository
 import com.android.systemui.qs.panels.domain.interactor.QuickQuickSettingsRowInteractor
 import com.android.systemui.qs.panels.shared.model.SizedTileImpl
 import com.android.systemui.qs.panels.shared.model.splitInRowsSequence
@@ -44,7 +45,10 @@ constructor(
     val squishinessViewModel: TileSquishinessViewModel,
     iconTilesViewModel: IconTilesViewModel,
     val tileHapticsViewModelFactory: TileHapticsViewModel.Factory,
+    qsStyleRepository: QsStyleRepository,
 ) : HydratedActivatable() {
+
+    private val style by qsStyleRepository.style.hydratedStateOf()
 
     private val qsColumnsViewModel = qsColumnsViewModelFactory.create(LOCATION_QQS, mediaUiBehavior)
     private val mediaInRowViewModel =
@@ -91,7 +95,8 @@ constructor(
         fun create(): QuickQuickSettingsViewModel
     }
 
-    private fun TileSpec.width(): Int = if (largeTiles.contains(this)) largeTilesSpan else 1
+    private fun TileSpec.width(): Int =
+        if (!style.uniformTiles && largeTiles.contains(this)) largeTilesSpan else 1
 
     companion object {
         /** Behavior of the media carousel in quick quick settings */
