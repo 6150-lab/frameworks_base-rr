@@ -15,7 +15,15 @@
      limitations under the License.
 -->
 <resources>
-    <dimen name="global_actions_restart_row_width">296dp</dimen>
+    <!-- Power menu -->
+    <dimen name="global_actions_restart_row_width">326dp</dimen>
+    <dimen name="rr_power_panel_width">350dp</dimen>
+    <dimen name="rr_power_panel_padding">12dp</dimen>
+    <dimen name="rr_power_gap">10dp</dimen>
+    <dimen name="rr_power_row_gap">8dp</dimen>
+    <dimen name="rr_power_tile_width">158dp</dimen>
+    <dimen name="rr_power_tile_height">62dp</dimen>
+    <dimen name="rr_power_tile_wide_width">326dp</dimen>
 
     <!-- Tri-state UI -->
     <dimen name="tri_state_down_dialog_position">850.0px</dimen>

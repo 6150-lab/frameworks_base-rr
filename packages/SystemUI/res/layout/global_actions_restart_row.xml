@@ -18,24 +18,25 @@
     android:layout_width="@dimen/global_actions_restart_row_width"
     android:layout_height="wrap_content"
     android:gravity="center_vertical"
-    android:minHeight="72dp"
+    android:minHeight="70dp"
+    android:layoutDirection="locale"
     android:orientation="horizontal"
-    android:paddingVertical="12dp"
+    android:paddingVertical="10dp"
     android:paddingStart="12dp"
-    android:paddingEnd="20dp">
+    android:paddingEnd="14dp">
 
     <ImageView
         android:id="@+id/restart_icon"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
         android:importantForAccessibility="no"
-        android:padding="12dp"
+        android:padding="11dp"
         android:scaleType="centerInside" />
 
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
+        android:layout_marginStart="12dp"
         android:layout_weight="1"
         android:orientation="vertical">
 
@@ -46,7 +47,7 @@
             android:ellipsize="end"
             android:singleLine="true"
             android:textColor="@color/materialColorOnSurface"
-            android:textSize="16sp" />
+            android:textSize="15sp" />
 
         <TextView
             android:id="@+id/restart_summary"
@@ -56,6 +57,15 @@
             android:ellipsize="end"
             android:maxLines="2"
             android:textColor="@color/materialColorOnSurfaceVariant"
-            android:textSize="13sp" />
+            android:textSize="12.5sp" />
     </LinearLayout>
+
+    <ImageView
+        android:id="@+id/restart_chevron"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_marginStart="8dp"
+        android:importantForAccessibility="no"
+        android:src="@drawable/ic_chevron_right"
+        android:tint="@color/materialColorOnSurfaceVariant" />
 </LinearLayout>

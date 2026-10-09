@@ -16,6 +16,12 @@
 -->
 <resources>
     <!-- Advanced restart panel -->
+    <string name="rr_power_title">Power</string>
+    <string name="rr_power_status">Up %1$s · %2$s battery</string>
+    <string name="rr_power_status_uptime">Up %1$s</string>
+    <string name="rr_power_tile_on">On</string>
+    <string name="rr_power_tile_off">Off</string>
+    <string name="rr_power_back">Back to power menu</string>
     <string name="global_action_restart_title">Restart</string>
     <string name="global_action_restart_subtitle">Choose how the phone starts up again</string>
     <string name="global_action_restart_system_summary">Restart Android. Long press for safe mode</string>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: The Resurrected Remix Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="26dp" />
+            <gradient
+                android:angle="315"
+                android:startColor="@android:color/system_accent1_800"
+                android:endColor="@android:color/system_accent1_1000" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="26dp" />
+            <gradient
+                android:type="radial"
+                android:centerX="0.15"
+                android:centerY="0"
+                android:gradientRadius="110%"
+                android:startColor="@color/rr_power_hero_glow"
+                android:endColor="@color/rr_power_hero_glow_end" />
+        </shape>
+    </item>
+</layer-list>

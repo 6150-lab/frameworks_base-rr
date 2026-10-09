@@ -321,6 +321,11 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
     final ArrayList<Action> mPowerItems = new ArrayList<>();
     @VisibleForTesting
     final ArrayList<Action> mRestartItems = new ArrayList<>();
+    /** Power off and Restart, shown as the hero card buttons instead of tiles. */
+    @Nullable
+    private Action mHeroPower;
+    @Nullable
+    private Action mHeroRestart;
     @VisibleForTesting
     final ArrayList<Action> mUsersItems = new ArrayList<>();
 
@@ -792,7 +797,7 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
         CurrentUserProvider currentUser = new CurrentUserProvider();
         final UserInfo currentUserInfo = currentUser.get();
 
-        // Make sure emergency affordance action is first
+        // The emergency affordance replaces the emergency dialer action
         boolean handledEmergencyAffordance = false;
         if (mEmergencyAffordanceManager.needsEmergencyAffordance()) {
             addIfShouldShowAction(tempActions, new EmergencyAffordanceAction());
@@ -815,10 +820,6 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
                 addIfShouldShowAction(mRestartItems, fbAction);
             }
         }
-        if (!mRestartItems.isEmpty()) {
-            mRestartItems.add(0, new RestartHeaderAction());
-        }
-
         for (int i = 0; i < actionTypes.size(); i++) {
             GlobalActionType actionType = actionTypes.get(i);
             switch (actionType) {
@@ -906,24 +907,22 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
             }
         }
 
-        // replace power and restart with a single power options action, if needed
-        if (tempActions.contains(shutdownAction) && tempActions.contains(restartAction)
-                && tempActions.size() > getMaxShownPowerItems()) {
-            // transfer shutdown and restart to their own list of power actions
-            int powerOptionsIndex = Math.min(tempActions.indexOf(restartAction),
-                    tempActions.indexOf(shutdownAction));
-            tempActions.remove(shutdownAction);
-            tempActions.remove(restartAction);
-            mPowerItems.add(shutdownAction);
-            mPowerItems.add(restartAction);
-
-            // add the PowerOptionsAction after Emergency, if present
-            tempActions.add(powerOptionsIndex, new PowerOptionsAction());
+        // Power off and Restart live on the hero card. Emergency goes last, full width, and never
+        // into the overflow.
+        mHeroPower = tempActions.remove(shutdownAction) ? shutdownAction : null;
+        mHeroRestart = tempActions.remove(restartAction) ? restartAction : null;
+        List<Action> emergency = new ArrayList<>();
+        for (Action action : tempActions) {
+            if (action instanceof EmergencyAction) {
+                emergency.add(action);
+            }
         }
+        tempActions.removeAll(emergency);
 
         for (int i = 0; i < tempActions.size(); i++) {
             addActionItem(tempActions.get(i));
         }
+        mItems.addAll(emergency);
     }
 
     private void onRefresh() {
@@ -1133,16 +1132,22 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
         public View create(
                 Context context, View convertView, ViewGroup parent, LayoutInflater inflater) {
             View v = super.create(context, convertView, parent, inflater);
-            int textColor = getEmergencyTextColor(context);
-            int iconColor = getEmergencyIconColor(context);
-            int backgroundColor = getEmergencyBackgroundColor(context);
+            ViewGroup.LayoutParams lp = v.getLayoutParams();
+            if (lp != null) {
+                lp.width = context.getResources().getDimensionPixelSize(
+                        com.android.systemui.res.R.dimen.rr_power_tile_wide_width);
+                v.setLayoutParams(lp);
+            }
             TextView messageView = v.findViewById(R.id.message);
-            messageView.setTextColor(textColor);
+            messageView.setTextColor(context.getColor(R.color.materialColorOnErrorContainer));
             messageView.setSelected(true); // necessary for marquee to work
             ImageView icon = v.findViewById(R.id.icon);
-            icon.getDrawable().setTint(iconColor);
-            icon.setBackgroundTintList(ColorStateList.valueOf(backgroundColor));
-            v.setBackgroundTintList(ColorStateList.valueOf(backgroundColor));
+            icon.setImageTintList(ColorStateList.valueOf(
+                    context.getColor(R.color.materialColorOnError)));
+            icon.setBackgroundTintList(ColorStateList.valueOf(
+                    context.getColor(R.color.materialColorError)));
+            v.setBackgroundTintList(ColorStateList.valueOf(
+                    context.getColor(R.color.materialColorErrorContainer)));
             return v;
         }
 
@@ -1155,22 +1160,6 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
         public boolean showBeforeProvisioning() {
             return true;
         }
-    }
-
-    private int getEmergencyTextColor(Context context) {
-        return context.getResources().getColor(R.color.materialColorOnSurface);
-    }
-
-    private int getEmergencyIconColor(Context context) {
-        return context.getResources()
-                .getColor(com.android.systemui.res.R.color.global_actions_lite_emergency_icon);
-
-    }
-
-    private int getEmergencyBackgroundColor(Context context) {
-        return context.getResources().getColor(
-                com.android.systemui.res.R.color.global_actions_lite_emergency_background
-        );
     }
 
     private class EmergencyAffordanceAction extends EmergencyAction {
@@ -1307,31 +1296,6 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
         }
     }
 
-    /** Title row of the restart panel; tapping it goes back to the power menu. */
-    private final class RestartHeaderAction extends SinglePressAction {
-        RestartHeaderAction() {
-            super(R.drawable.ic_restart,
-                    com.android.systemui.res.R.string.global_action_restart_title);
-        }
-        @Override public boolean showDuringKeyguard() { return true; }
-        @Override public boolean showBeforeProvisioning() { return true; }
-        @Override
-        public void onPress() {
-            if (mDelegate != null) {
-                mDelegate.showRestartOptions(false);
-            }
-        }
-        @Override
-        public View create(
-                Context context, View convertView, ViewGroup parent, LayoutInflater inflater) {
-            View v = inflater.inflate(
-                    com.android.systemui.res.R.layout.global_actions_restart_header, parent, false);
-            v.setId(View.generateViewId());
-            animateRestartRow(v, 0);
-            return v;
-        }
-    }
-
     private View createRestartRow(SinglePressAction action, Context context, ViewGroup parent,
             LayoutInflater inflater, int summaryResId, boolean primary) {
         View v = inflater.inflate(
@@ -1349,15 +1313,17 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
                 : R.color.materialColorSurfaceContainerHigh);
         int iconColor = context.getColor(primary
                 ? R.color.materialColorPrimary
-                : R.color.materialColorSurfaceContainerHighest);
+                : R.color.materialColorPrimaryContainer);
         int glyphColor = context.getColor(primary
                 ? R.color.materialColorOnPrimary
-                : R.color.materialColorOnSurface);
+                : R.color.materialColorOnPrimaryContainer);
         if (primary) {
             int onRow = context.getColor(
                     R.color.materialColorOnPrimaryContainer);
             title.setTextColor(onRow);
             summary.setTextColor(onRow);
+            ((ImageView) v.findViewById(com.android.systemui.res.R.id.restart_chevron))
+                    .setImageTintList(ColorStateList.valueOf(onRow));
         }
 
         float radius = context.getResources().getDimension(
@@ -2084,7 +2050,6 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
                     // don't dismiss the dialog if we're opening the power options menu
                     if (!(item instanceof PowerOptionsAction)
                             && !(item instanceof RestartAction && shouldShowRestartSubmenu())
-                            && !(item instanceof RestartHeaderAction)
                             && !(item instanceof UsersAction)) {
                         // Usually clicking an item shuts down the phone, locks, or starts an
                         // activity. We don't want to animate back into the power button when that
@@ -2101,6 +2066,42 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
         @Override
         public boolean shouldBeSeparated(int position) {
             return getItem(position).shouldBeSeparated();
+        }
+
+        @Nullable
+        Action getHeroPower() {
+            return mHeroPower;
+        }
+
+        @Nullable
+        Action getHeroRestart() {
+            return mHeroRestart;
+        }
+
+        boolean heroRestartOpensMenu() {
+            return shouldShowRestartSubmenu() && !mRestartItems.isEmpty();
+        }
+
+        /** Click on a hero card button, handled like the tile it replaces. */
+        void onClickHero(Action action) {
+            if (mDelegate != null) {
+                if (!(action instanceof RestartAction && shouldShowRestartSubmenu())) {
+                    mDelegate.dismissWithoutAnimation();
+                }
+            } else {
+                Log.w(TAG, "Hero action clicked while mDialog is null.");
+            }
+            action.onPress();
+        }
+
+        boolean onLongClickHero(Action action) {
+            if (!(action instanceof LongPressAction)) {
+                return false;
+            }
+            if (mDelegate != null) {
+                mDelegate.dismissWithoutAnimation();
+            }
+            return ((LongPressAction) action).onLongPress();
         }
     }
 
@@ -2596,17 +2597,41 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
 
             final boolean enabled = isEnabled();
 
+            final boolean on = isOn();
             if (messageView != null) {
                 messageView.setTypeface(
                         Typeface.create(FontStyles.GSF_LABEL_LARGE_EMPHASIZED, Typeface.NORMAL));
-                messageView.setText(getMessageResId());
+                messageView.setText(mMessageResId);
                 messageView.setEnabled(enabled);
                 messageView.setSelected(true); // necessary for marquee to work
+            }
+            TextView stateView = v.findViewById(com.android.systemui.res.R.id.rr_power_tile_state);
+            if (stateView != null) {
+                stateView.setVisibility(View.VISIBLE);
+                stateView.setText(on ? com.android.systemui.res.R.string.rr_power_tile_on
+                        : com.android.systemui.res.R.string.rr_power_tile_off);
             }
 
             if (icon != null) {
                 icon.setImageDrawable(context.getDrawable(getIconResId()));
                 icon.setEnabled(enabled);
+            }
+
+            if (on) {
+                int onPrimary = context.getColor(R.color.materialColorOnPrimary);
+                v.setBackgroundTintList(ColorStateList.valueOf(
+                        context.getColor(R.color.materialColorPrimary)));
+                if (messageView != null) {
+                    messageView.setTextColor(onPrimary);
+                }
+                if (stateView != null) {
+                    stateView.setTextColor(onPrimary);
+                    stateView.setAlpha(0.8f);
+                }
+                if (icon != null) {
+                    icon.setImageTintList(ColorStateList.valueOf(onPrimary));
+                    icon.setBackgroundTintList(ColorStateList.valueOf(onPrimary & 0x38FFFFFF));
+                }
             }
 
             v.setEnabled(enabled);
@@ -3037,6 +3062,7 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
         @Nullable
         SystemUIDialog mCurrentDialog;
         private GlobalActionsLayoutLite mGlobalActionsLayout;
+        private GlobalActionsHeroView mHero;
         @Nullable
         private ScrimDrawable mBackgroundDrawable;
         @Nullable
@@ -3241,8 +3267,25 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
 
         void showRestartOptions(boolean show) {
             mAdapter.setShowingRestartOptions(show);
+            mHero.setRestartMode(show);
             mGlobalActionsLayout.setSingleColumn(show);
             mGlobalActionsLayout.updateList();
+        }
+
+        private void bindHero() {
+            mHero.bind(mAdapter.getHeroPower(), mAdapter.getHeroRestart(),
+                    mAdapter.heroRestartOpensMenu(), new GlobalActionsHeroView.Listener() {
+                        @Override
+                        public void onClick(Action action) {
+                            mAdapter.onClickHero(action);
+                        }
+
+                        @Override
+                        public boolean onLongClick(Action action) {
+                            return mAdapter.onLongClickHero(action);
+                        }
+                    });
+            mHero.setRestartMode(mAdapter.isShowingRestartOptions());
         }
 
         public void showUsersMenu() {
@@ -3273,6 +3316,8 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
             mGlobalActionsLayout.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
             mGlobalActionsLayout.setRotationListener(this::onRotate);
             mGlobalActionsLayout.setAdapter(mAdapter);
+            mHero = dialog.findViewById(com.android.systemui.res.R.id.rr_power_hero);
+            mHero.setOnBackListener(v -> showRestartOptions(false));
             final WindowRootViewBlurInteractor blurInteractor = dialog.getBlurInteractor();
             collectFlow(mGlobalActionsLayout, blurInteractor.isBlurCurrentlySupported(),
                     mGlobalActionsLayout::setIsBlurSupported);
@@ -3357,6 +3402,7 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
 
         @Override
         public void onStart(@NonNull SystemUIDialog dialog) {
+            bindHero();
             mGlobalActionsLayout.updateList();
             mLightBarController.setGlobalActionsVisible(true);
 

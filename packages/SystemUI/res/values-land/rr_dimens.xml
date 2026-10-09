@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: The Resurrected Remix Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <!-- Power menu: four tile columns -->
+    <dimen name="rr_power_panel_width">686dp</dimen>
+    <dimen name="rr_power_tile_wide_width">662dp</dimen>
+    <dimen name="global_actions_restart_row_width">662dp</dimen>
+</resources>

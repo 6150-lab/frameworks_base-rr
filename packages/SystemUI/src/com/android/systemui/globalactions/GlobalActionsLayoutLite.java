@@ -65,7 +65,7 @@ public class GlobalActionsLayoutLite extends GlobalActionsLayout {
         super.onUpdateList();
         int nElementsWrap = mSingleColumn ? 1 : getResources().getInteger(
                 com.android.systemui.res.R.integer.power_menu_lite_max_columns);
-        int nChildren = getListView().getChildCount() - 1; // don't count flow element
+        int nChildren = getListView().getChildCount() - 2; // don't count flow and hero card
 
         // Avoid having just one action on the last row if there are more than 2 columns because
         // it looks unbalanced. Instead, bring the column size down to balance better.
@@ -74,6 +74,8 @@ public class GlobalActionsLayoutLite extends GlobalActionsLayout {
         }
         Flow flow = findViewById(R.id.list_flow);
         flow.setMaxElementsWrap(nElementsWrap);
+        flow.setVerticalGap(getResources().getDimensionPixelSize(mSingleColumn
+                ? R.dimen.rr_power_row_gap : R.dimen.rr_power_gap));
     }
 
     @Override
@@ -97,9 +99,13 @@ public class GlobalActionsLayoutLite extends GlobalActionsLayout {
     @Override
     protected void removeAllListViews() {
         View flow = findViewById(R.id.list_flow);
+        View hero = findViewById(R.id.rr_power_hero);
         super.removeAllListViews();
 
-        // Add flow element back after clearing the list view
+        // Add the hero card and flow element back after clearing the list view
+        if (hero != null) {
+            super.addToListView(hero, false);
+        }
         super.addToListView(flow, false);
         mLastView = null;
         mCurrentIds.clear();
