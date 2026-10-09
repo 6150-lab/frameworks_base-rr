@@ -394,11 +394,8 @@ constructor(
         val isBypassNotEnabled = !bypassController.bypassEnabled
         val useSplitShade = useSplitShade
         val shouldBeVisibleForSplitShade = shouldBeVisibleForSplitShade()
-        visible =
-            isMediaHostVisible &&
-                isBypassNotEnabled &&
-                keyguardOrUserSwitcher &&
-                shouldBeVisibleForSplitShade
+        // RR: keep the player with face unlock bypass on too; the card is styled for it.
+        visible = isMediaHostVisible && keyguardOrUserSwitcher && shouldBeVisibleForSplitShade
         logger.logRefreshMediaPosition(
             reason = reason,
             visible = visible,
