@@ -35,7 +35,6 @@ import android.hardware.fingerprint.FingerprintSensorPropertiesInternal;
 import android.os.UserHandle;
 import android.provider.Settings;
 import android.util.AttributeSet;
-import android.util.DisplayUtils;
 import android.util.Log;
 import android.util.MathUtils;
 import android.view.Gravity;
@@ -202,7 +201,7 @@ public class UdfpsAnimation extends ImageView {
     }
 
     private float getDisplayFactor() {
-        return DisplayUtils.getScaleFactor(mContext);
+        return mAuthController.getScaleFactor();
     }
 
     public void updatePosition() {
