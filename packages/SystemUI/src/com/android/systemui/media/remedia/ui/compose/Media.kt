@@ -311,7 +311,8 @@ private fun CardCarouselContent(
         remember(behavior.isCarouselScrollFalseTouch) { mutableStateOf(false) }
     val isSwipingEnabled = behavior.isCarouselScrollingEnabled && !isFalseTouchDetected
 
-    val roundedCornerShape = remember { RoundedCornerShape(32.dp) }
+    val cardRadius = mediaCardLook()?.radius ?: 32.dp
+    val roundedCornerShape = remember(cardRadius) { RoundedCornerShape(cardRadius) }
 
     Box(
         modifier =
@@ -434,15 +435,21 @@ private fun Card(
         stlState.setTargetScene(targetScene = cardStyle.toScene(), animationScope = this)
     }
 
+    val look = mediaCardLook()
     Box(modifier) {
-        if (carouselStyle != MediaPresentationStyle.Compact) {
+        if (look != null && cardStyle != MediaPresentationStyle.Thumbnail) {
+            StyledCardBackground(
+                look = look,
+                modifier = Modifier.matchParentSize().sysuiResTag(MediaRes.BACKGROUND),
+            )
+        } else if (carouselStyle != MediaPresentationStyle.Compact) {
             CardBackground(
                 image = viewModel.background,
                 colorScheme = colorScheme,
                 modifier =
                     Modifier.matchParentSize()
                         .sysuiResTag(MediaRes.BACKGROUND)
-                        .clip(RoundedCornerShape(32.dp)),
+                        .clip(RoundedCornerShape(look?.radius ?: 32.dp)),
             )
         }
 
@@ -654,6 +661,12 @@ private fun ContentScope.CardForegroundContent(
     modifier: Modifier = Modifier,
 ) {
     val viewModel = mediaViewModel.cards[cardIndex]
+    val look = mediaCardLook()
+    val accent = look?.accent ?: colorScheme.primary
+    val onAccent = look?.onAccent ?: colorScheme.onPrimary
+    val textColor = look?.text ?: Color.White
+    val playButton = look?.playButton ?: colorScheme.primary
+    val playBorder = look?.playBorder
     Column(
         modifier =
             modifier
@@ -669,7 +682,7 @@ private fun ContentScope.CardForegroundContent(
             Element(key = Media.Elements.AppIcon, modifier = modifier) {
                 Icon(
                     icon = viewModel.icon,
-                    tint = colorScheme.primary,
+                    tint = accent,
                     modifier =
                         Modifier.align(Alignment.TopStart)
                             .padding(top = 16.dp, start = 16.dp)
@@ -715,8 +728,8 @@ private fun ContentScope.CardForegroundContent(
                                 style =
                                     DeviceChipStyle(
                                         fillColor = Color.Transparent,
-                                        contentColor = colorScheme.primary,
-                                        borderColor = colorScheme.primary,
+                                        contentColor = accent,
+                                        borderColor = accent,
                                     ),
                                 modifier =
                                     Modifier.fractionalMaxWidth(
@@ -734,13 +747,13 @@ private fun ContentScope.CardForegroundContent(
                             if (viewModel.outputSwitcherChip.text.isNullOrBlank()) {
                                 DeviceChipStyle(
                                     fillColor = Color.Transparent,
-                                    contentColor = colorScheme.primary,
-                                    borderColor = colorScheme.primary,
+                                    contentColor = accent,
+                                    borderColor = accent,
                                 )
                             } else {
                                 DeviceChipStyle(
-                                    fillColor = colorScheme.primary,
-                                    contentColor = colorScheme.onPrimary,
+                                    fillColor = accent,
+                                    contentColor = onAccent,
                                 )
                             },
                         modifier =
@@ -777,11 +790,19 @@ private fun ContentScope.CardForegroundContent(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(start = 16.dp, end = 16.dp).heightIn(min = 48.dp),
             ) {
+                if (look != null) {
+                    ArtThumbnail(
+                        image = viewModel.background,
+                        shape = look.artShape,
+                        size = 48.dp,
+                        modifier = Modifier.padding(end = 12.dp),
+                    )
+                }
                 Metadata(
                     title = viewModel.title,
                     subtitle = viewModel.subtitle,
                     isExplicit = viewModel.isExplicit,
-                    color = Color.White,
+                    color = textColor,
                     modifier = Modifier.weight(1f).padding(end = 8.dp).animateContentSize(),
                 )
 
@@ -789,9 +810,10 @@ private fun ContentScope.CardForegroundContent(
                     AnimatedVisibility(visible = viewModel.playPauseAction != null) {
                         PlayPauseAction(
                             viewModel = viewModel.playPauseAction,
-                            buttonColor = colorScheme.primary,
-                            iconColor = colorScheme.onPrimary,
+                            buttonColor = playButton,
+                            iconColor = look?.playIcon ?: colorScheme.onPrimary,
                             buttonCornerRadius = { isPlaying -> if (isPlaying) 16.dp else 48.dp },
+                            borderColor = playBorder,
                         )
                     }
                 } else {
@@ -833,11 +855,19 @@ private fun ContentScope.CardForegroundContent(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
             ) {
+                if (look != null) {
+                    ArtThumbnail(
+                        image = viewModel.background,
+                        shape = look.artShape,
+                        size = 48.dp,
+                        modifier = Modifier.padding(end = 12.dp),
+                    )
+                }
                 Metadata(
                     title = viewModel.title,
                     subtitle = viewModel.subtitle,
                     isExplicit = viewModel.isExplicit,
-                    color = Color.White,
+                    color = textColor,
                     modifier = Modifier.weight(1f).padding(end = 8.dp).animateContentSize(),
                 )
 
@@ -874,9 +904,10 @@ private fun ContentScope.CardForegroundContent(
                     AnimatedVisibility(visible = viewModel.playPauseAction != null) {
                         PlayPauseAction(
                             viewModel = viewModel.playPauseAction,
-                            buttonColor = colorScheme.primary,
-                            iconColor = colorScheme.onPrimary,
+                            buttonColor = playButton,
+                            iconColor = look?.playIcon ?: colorScheme.onPrimary,
                             buttonCornerRadius = { isPlaying -> if (isPlaying) 16.dp else 48.dp },
+                            borderColor = playBorder,
                         )
                     }
                 } else {
@@ -1033,11 +1064,12 @@ private fun ContentScope.Navigation(
                 }
 
                 val interactionSource = remember { MutableInteractionSource() }
+                val look = mediaCardLook()
                 val colors =
                     colors(
-                        activeTrackColor = Color.White,
-                        inactiveTrackColor = Color.White.copy(alpha = 0.3f),
-                        thumbColor = Color.White,
+                        activeTrackColor = look?.accent ?: Color.White,
+                        inactiveTrackColor = (look?.text ?: Color.White).copy(alpha = 0.3f),
+                        thumbColor = look?.accent ?: Color.White,
                     )
                 if (isSeekBarVisible) {
                     // To allow the seek bar slider to fade in and out, it's tagged as an element.
@@ -1592,6 +1624,7 @@ private fun ContentScope.PlayPauseAction(
     iconColor: Color,
     buttonCornerRadius: (isPlaying: Boolean) -> Dp,
     modifier: Modifier = Modifier,
+    borderColor: Color? = null,
 ) {
     if (viewModel == null) return
 
@@ -1626,7 +1659,14 @@ private fun ContentScope.PlayPauseAction(
             enabled = viewModel.onClick != null,
             colors = ButtonDefaults.buttonColors(containerColor = buttonColor),
             shape = RoundedCornerShape(cornerRadius),
-            modifier = Modifier.size(buttonSize).scale(scaleAnimatable.value),
+            modifier =
+                Modifier.size(buttonSize).scale(scaleAnimatable.value).let {
+                    if (borderColor != null) {
+                        it.border(1.5.dp, borderColor, RoundedCornerShape(cornerRadius))
+                    } else {
+                        it
+                    }
+                },
         ) {
             when (viewModel.state) {
                 is MediaSessionState.Playing,
