@@ -6900,6 +6900,18 @@ public final class Settings {
         public static final String UDFPS_ICON = "udfps_icon";
 
         /**
+         * Status bar clock font size in sp, 0 for the stock size
+         * @hide
+         */
+        public static final String STATUS_BAR_CLOCK_SIZE = "status_bar_clock_size";
+
+        /**
+         * QS header clock font size in sp, 0 for the stock size
+         * @hide
+         */
+        public static final String QS_HEADER_CLOCK_SIZE = "qs_header_clock_size";
+
+        /**
          * IMPORTANT: If you add a new public settings you also have to add it to
          * PUBLIC_SETTINGS below. If the new setting is hidden you have to add
          * it to PRIVATE_SETTINGS below. Also add a validator that can validate

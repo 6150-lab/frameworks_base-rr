@@ -39,7 +39,9 @@ import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.text.style.CharacterStyle;
 import android.text.style.RelativeSizeSpan;
+import android.provider.Settings;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
 import android.view.Display;
 import android.widget.TextView;
@@ -75,6 +77,10 @@ public class Clock extends TextView implements
         DarkReceiver {
 
     public static final String CLOCK_SECONDS = "clock_seconds";
+    public static final String STATUS_BAR_CLOCK_SIZE =
+            "system:" + Settings.System.STATUS_BAR_CLOCK_SIZE;
+    public static final String QS_HEADER_CLOCK_SIZE =
+            "system:" + Settings.System.QS_HEADER_CLOCK_SIZE;
     private static final String CLOCK_SUPER_PARCELABLE = "clock_super_parcelable";
     private static final String CURRENT_USER_ID = "current_user_id";
     private static final String SHOW_SECONDS = "show_seconds";
@@ -98,6 +104,12 @@ public class Clock extends TextView implements
 
     private int mAmPmStyle = AM_PM_STYLE_GONE;
     private boolean mShowSeconds;
+    /** User clock sizes in sp; 0 keeps the stock size. */
+    private int mClockSize;
+    private int mClockSizeQsHeader;
+    private boolean mIsQsHeader;
+    /** Size the QS header text appearance last set, restored when the user size is 0. */
+    private float mQsHeaderDefaultSizePx;
     private ContentObserver mContentObserver;
     private Handler mSecondsHandler;
 
@@ -206,7 +218,8 @@ public class Clock extends TextView implements
             mBroadcastDispatcher.registerReceiverWithHandler(mIntentReceiver, filter,
                     Dependency.get(Dependency.TIME_TICK_HANDLER), UserHandle.ALL);
             Dependency.get(TunerService.class).addTunable(this, CLOCK_SECONDS,
-                    StatusBarIconController.ICON_HIDE_LIST);
+                    StatusBarIconController.ICON_HIDE_LIST, STATUS_BAR_CLOCK_SIZE,
+                    QS_HEADER_CLOCK_SIZE);
             mContext.getContentResolver().registerContentObserver(
                     LineageSettings.System.getUriFor(LineageSettings.System.STATUS_BAR_AM_PM),
                     false, mContentObserver);
@@ -302,6 +315,43 @@ public class Clock extends TextView implements
         if (CLOCK_SECONDS.equals(key)) {
             mShowSeconds = TunerService.parseIntegerSwitch(newValue, false);
             updateShowSeconds();
+        } else if (STATUS_BAR_CLOCK_SIZE.equals(key)) {
+            mClockSize = parseSize(newValue);
+            updateClockSize();
+        } else if (QS_HEADER_CLOCK_SIZE.equals(key)) {
+            mClockSizeQsHeader = parseSize(newValue);
+            updateClockSize();
+        }
+    }
+
+    /** Marks this as the QS header clock, which follows {@link #QS_HEADER_CLOCK_SIZE}. */
+    public void setQsHeader(boolean qsHeader) {
+        mIsQsHeader = qsHeader;
+        updateClockSize();
+    }
+
+    /** The QS header re-applied its text appearance: keep that as the stock size. */
+    public void onTextAppearanceApplied() {
+        mQsHeaderDefaultSizePx = getTextSize();
+        updateClockSize();
+    }
+
+    private static int parseSize(String value) {
+        try {
+            return value == null ? 0 : Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
+
+    private void updateClockSize() {
+        final int sizeSp = mIsQsHeader ? mClockSizeQsHeader : mClockSize;
+        if (sizeSp > 0) {
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, sizeSp);
+        } else if (!mIsQsHeader) {
+            FontSizeUtils.updateFontSize(this, R.dimen.status_bar_clock_size);
+        } else if (mQsHeaderDefaultSizePx > 0) {
+            setTextSize(TypedValue.COMPLEX_UNIT_PX, mQsHeaderDefaultSizePx);
         }
     }
 
@@ -333,7 +383,7 @@ public class Clock extends TextView implements
     }
 
     private void reloadDimens() {
-        FontSizeUtils.updateFontSize(this, R.dimen.status_bar_clock_size);
+        updateClockSize();
 
         if (mShouldApplyPadding) {
             // Note: The padding for the clock in the shade is controlled by ShadeHeaderController

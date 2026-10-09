@@ -316,6 +316,7 @@ constructor(
 
             override fun onDensityOrFontScaleChanged() {
                 clock.setTextAppearance(R.style.TextAppearance_QS_Status)
+                clock.onTextAppearanceApplied()
                 date.setTextAppearance(R.style.TextAppearance_QS_Status)
                 mShadeCarrierGroup.updateTextAppearanceAndTint(
                     R.style.TextAppearance_QS_Status,
@@ -347,6 +348,7 @@ constructor(
 
     override fun onInit() {
         variableDateViewControllerFactory.create(date as VariableDateView).init()
+        clock.setQsHeader(true)
 
         val fgColor = getFgColor()
         val bgColor = getBgColor()
@@ -497,6 +499,7 @@ constructor(
 
     private fun updateColors() {
         clock.setTextAppearance(R.style.TextAppearance_QS_Status)
+        clock.onTextAppearanceApplied()
         date.setTextAppearance(R.style.TextAppearance_QS_Status)
         mShadeCarrierGroup.updateTextAppearanceAndTint(
             R.style.TextAppearance_QS_Status,

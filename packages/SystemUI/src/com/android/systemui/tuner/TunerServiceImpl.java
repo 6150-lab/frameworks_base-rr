@@ -37,6 +37,7 @@ import android.util.ArraySet;
 import androidx.annotation.WorkerThread;
 
 import com.android.internal.util.ArrayUtils;
+import com.android.systemui.statusbar.policy.Clock;
 import com.android.systemui.DejankUtils;
 import com.android.systemui.dagger.SysUISingleton;
 import com.android.systemui.dagger.qualifiers.Main;
@@ -76,7 +77,9 @@ public class TunerServiceImpl extends TunerService {
             QSHost.TILES_SETTING,
             Settings.Secure.DOUBLE_TAP_TO_WAKE,
             Settings.Secure.DOZE_ALWAYS_ON,
-            Settings.Secure.MEDIA_CONTROLS_RESUME
+            Settings.Secure.MEDIA_CONTROLS_RESUME,
+            Clock.STATUS_BAR_CLOCK_SIZE,
+            Clock.QS_HEADER_CLOCK_SIZE
     };
 
     private final Observer mObserver = new Observer();
