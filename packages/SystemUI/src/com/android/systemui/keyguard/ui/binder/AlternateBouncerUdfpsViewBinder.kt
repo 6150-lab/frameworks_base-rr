@@ -31,7 +31,7 @@ import com.android.systemui.keyguard.ui.viewmodel.AlternateBouncerUdfpsIconViewM
 import com.android.systemui.lifecycle.repeatWhenAttached
 import com.android.systemui.scene.shared.flag.SceneContainerFlag
 import com.android.systemui.tuner.TunerService
-import com.android.internal.util.evolution.Utils
+import com.android.internal.util.rr.Utils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.StateFlow

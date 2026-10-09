@@ -873,18 +873,10 @@ public class UdfpsController implements DozeReceiver, Dumpable {
             mWakefulnessLifecycle.addObserver(mWakefulnessLifecycleObserver);
         }
 
-        if (isUdfpsAnimationsInstalled()) {
+        if (com.android.internal.util.rr.Utils.isPackageInstalled(mContext,
+                "org.evolution.udfps.animations")) {
             updateUdfpsAnimation();
             mConfigurationController.addCallback(mConfigurationListener);
-        }
-    }
-
-    private boolean isUdfpsAnimationsInstalled() {
-        try {
-            mContext.getPackageManager().getPackageInfo("org.evolution.udfps.animations", 0);
-            return true;
-        } catch (android.content.pm.PackageManager.NameNotFoundException e) {
-            return false;
         }
     }
 

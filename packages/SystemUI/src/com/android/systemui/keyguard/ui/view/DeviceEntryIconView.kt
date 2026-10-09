@@ -34,7 +34,7 @@ import android.widget.ImageView
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import com.airbnb.lottie.LottieCompositionFactory
 import com.airbnb.lottie.LottieDrawable
-import com.android.internal.util.evolution.Utils
+import com.android.internal.util.rr.Utils
 import com.android.systemui.Dependency
 import com.android.systemui.biometrics.UdfpsFpIconDrawable
 import com.android.systemui.biometrics.UdfpsIconDrawable
