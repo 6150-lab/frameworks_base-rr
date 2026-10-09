@@ -22,6 +22,7 @@
     <string name="rr_power_tile_on">On</string>
     <string name="rr_power_tile_off">Off</string>
     <string name="rr_power_back">Back to power menu</string>
+    <string name="rr_shutdown_back_soon">Resurrected Remix will be right back</string>
     <string name="global_action_restart_title">Restart</string>
     <string name="global_action_restart_subtitle">Choose how the phone starts up again</string>
     <string name="global_action_restart_system_summary">Restart Android. Long press for safe mode</string>

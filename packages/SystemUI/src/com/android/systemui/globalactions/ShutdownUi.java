@@ -97,7 +97,9 @@ public class ShutdownUi {
         window.setBackgroundDrawable(background);
         window.setWindowAnimations(com.android.systemui.res.R.style.Animation_ShutdownUi);
 
-        d.setContentView(getShutdownDialogContent(isReboot));
+        final int content = getShutdownDialogContent(isReboot);
+        final boolean rrLayout = content == com.android.systemui.res.R.layout.rr_shutdown_dialog;
+        d.setContentView(content);
         d.setCancelable(false);
 
         int color = mContext.getResources().getColor(
@@ -105,7 +107,8 @@ public class ShutdownUi {
                 mContext.getTheme());
 
         ProgressBar bar = d.findViewById(R.id.progress);
-        bar.getIndeterminateDrawable().setTint(color);
+        bar.getIndeterminateDrawable().setTint(rrLayout
+                ? mContext.getColor(android.R.color.system_accent1_200) : color);
 
         TextView reasonView = d.findViewById(R.id.text1);
         TextView messageView = d.findViewById(R.id.text2);
@@ -116,13 +119,26 @@ public class ShutdownUi {
         Typeface typeface = Typeface.create(FontStyles.GSF_LABEL_LARGE_EMPHASIZED,
                 Typeface.NORMAL);
         reasonView.setTypeface(typeface);
-        messageView.setTypeface(typeface);
+        messageView.setTypeface(rrLayout
+                ? Typeface.create(FontStyles.GSF_HEADLINE_SMALL_EMPHASIZED, Typeface.NORMAL)
+                : typeface);
 
-        messageView.setText(getRebootMessage(isReboot, reason, rebootCustom));
+        final int rebootMessage = getRebootMessage(isReboot, reason, rebootCustom);
+        messageView.setText(rebootMessage);
         String rebootReasonMessage = getReasonMessage(reason, rebootCustom);
         if (rebootReasonMessage != null) {
             reasonView.setVisibility(View.VISIBLE);
             reasonView.setText(rebootReasonMessage);
+            if (rrLayout) {
+                ((ViewGroup.MarginLayoutParams) messageView.getLayoutParams()).topMargin =
+                        mContext.getResources().getDimensionPixelSize(
+                                com.android.systemui.res.R.dimen.rr_power_row_gap);
+            }
+        }
+        if (rrLayout && isReboot && rebootReasonMessage == null && rebootMessage
+                == com.android.systemui.res.R.string.global_action_restart_progress) {
+            d.findViewById(com.android.systemui.res.R.id.rr_shutdown_sub)
+                    .setVisibility(View.VISIBLE);
         }
 
         d.show();
@@ -138,21 +154,21 @@ public class ShutdownUi {
     @VisibleForTesting
     int getShutdownDialogContent(boolean isReboot) {
         if (!Flags.poweredOffFindingPlatform()) {
-            return R.layout.shutdown_dialog;
+            return com.android.systemui.res.R.layout.rr_shutdown_dialog;
         }
         int finderActive = mNearbyManager.getPoweredOffFindingMode();
         if (finderActive == NearbyManager.POWERED_OFF_FINDING_MODE_DISABLED
                 || finderActive == NearbyManager.POWERED_OFF_FINDING_MODE_UNSUPPORTED) {
             // inactive or unsupported, use regular shutdown dialog
-            return R.layout.shutdown_dialog;
+            return com.android.systemui.res.R.layout.rr_shutdown_dialog;
         } else if (finderActive == NearbyManager.POWERED_OFF_FINDING_MODE_ENABLED) {
             // active, use dialog with finder info if shutting down
-            return isReboot ? R.layout.shutdown_dialog :
+            return isReboot ? com.android.systemui.res.R.layout.rr_shutdown_dialog :
                     com.android.systemui.res.R.layout.shutdown_dialog_finder_active;
         } else {
             // that's weird? default to regular dialog
             Log.w("ShutdownUi", "Unexpected value for finder active: " + finderActive);
-            return R.layout.shutdown_dialog;
+            return com.android.systemui.res.R.layout.rr_shutdown_dialog;
         }
     }
 
