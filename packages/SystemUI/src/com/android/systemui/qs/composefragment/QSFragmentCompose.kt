@@ -112,6 +112,7 @@ import com.android.compose.modifiers.height
 import com.android.compose.modifiers.padding
 import com.android.compose.modifiers.thenIf
 import com.android.compose.theme.PlatformTheme
+import com.android.settingslib.volume.domain.interactor.AudioVolumeInteractor
 import com.android.systemui.Dumpable
 import com.android.systemui.Flags
 import com.android.systemui.Flags.notificationShadeBlur
@@ -147,7 +148,9 @@ import com.android.systemui.qs.composefragment.viewmodel.QSFragmentComposeViewMo
 import com.android.systemui.qs.footer.ui.compose.FooterActions
 import com.android.systemui.qs.panels.data.repository.QsStyleRepository
 import com.android.systemui.qs.panels.shared.model.LocalQsStyle
+import com.android.systemui.qs.panels.shared.model.QsStyle
 import com.android.systemui.qs.panels.shared.model.QSFragmentComposeClippingTableLog
+import com.android.systemui.qs.panels.ui.compose.QsCirclesMediaRow
 import com.android.systemui.qs.panels.ui.compose.QsStyleSliderFrame
 import com.android.systemui.qs.panels.ui.compose.EditMode
 import com.android.systemui.qs.panels.ui.compose.QuickQuickSettings
@@ -190,6 +193,7 @@ constructor(
     @Background private val backgroundDispatcher: CoroutineDispatcher,
     @ShadeDisplayAware private val configurationController: ConfigurationController,
     private val qsStyleRepository: QsStyleRepository,
+    private val audioVolumeInteractor: AudioVolumeInteractor,
 ) : LifecycleFragment(), QS, Dumpable {
 
     private val scrollListener = MutableStateFlow<QS.ScrollListener?>(null)
@@ -908,15 +912,38 @@ constructor(
                                         end = qsHorizontalMargin(),
                                     )
                         ) {
+                            // Circles puts tall brightness and volume sliders next to the media card.
+                            val circlesRow =
+                                LocalQsStyle.current == QsStyle.CIRCLES &&
+                                    viewModel.qsMediaVisible &&
+                                    !viewModel.qsMediaInRow
+                            val brightnessShown = rememberQsBrightnessSettings().showSlider != 0
                             QuickSettingsLayout(
                                 brightness =
-                                    if (viewModel.isBrightnessSliderVisible) {
+                                    if (viewModel.isBrightnessSliderVisible && !circlesRow) {
                                         BrightnessSlider
                                     } else {
                                         {}
                                     },
                                 tiles = TileGrid,
-                                media = Media,
+                                media =
+                                    if (circlesRow) {
+                                        {
+                                            QsCirclesMediaRow(
+                                                media = Media,
+                                                brightness =
+                                                    viewModel.containerViewModel
+                                                        .brightnessSliderViewModel
+                                                        .takeIf {
+                                                            viewModel.isBrightnessSliderVisible &&
+                                                                brightnessShown
+                                                        },
+                                                volume = audioVolumeInteractor,
+                                            )
+                                        }
+                                    } else {
+                                        Media
+                                    },
                                 mediaInRow = viewModel.qsMediaInRow,
                             )
                         }
