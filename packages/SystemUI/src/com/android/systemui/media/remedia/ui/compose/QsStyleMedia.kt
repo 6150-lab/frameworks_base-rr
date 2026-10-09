@@ -17,6 +17,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -43,7 +44,13 @@ internal data class MediaCardLook(
     val playIcon: Color,
     val playBorder: Color?,
     val artShape: Shape,
+    val translucent: Boolean = false,
 )
+
+/** True for the lockscreen card, where see-through styles get a dark base over the wallpaper. */
+val LocalMediaOnLockscreen = staticCompositionLocalOf { false }
+
+private val LockscreenBase = Color(0x9E0E0F11)
 
 /** The look for the current QS style, or null for the stock album art card. */
 @Composable
@@ -79,6 +86,7 @@ internal fun mediaCardLook(): MediaCardLook? {
                 playIcon = scheme.onPrimary,
                 playBorder = null,
                 artShape = CircleShape,
+                translucent = true,
             )
         QsStyle.GLASS ->
             MediaCardLook(
@@ -92,6 +100,7 @@ internal fun mediaCardLook(): MediaCardLook? {
                 playIcon = scheme.primary,
                 playBorder = scheme.primary,
                 artShape = art,
+                translucent = true,
             )
         QsStyle.CLASSIC ->
             MediaCardLook(
@@ -105,6 +114,7 @@ internal fun mediaCardLook(): MediaCardLook? {
                 playIcon = scheme.primary,
                 playBorder = scheme.primary,
                 artShape = RoundedCornerShape(10.dp),
+                translucent = true,
             )
         QsStyle.MONO ->
             MediaCardLook(
@@ -132,6 +142,7 @@ internal fun mediaCardLook(): MediaCardLook? {
                 playIcon = scheme.onPrimary,
                 playBorder = null,
                 artShape = art,
+                translucent = true,
             )
     }
 }
@@ -140,9 +151,11 @@ internal fun mediaCardLook(): MediaCardLook? {
 @Composable
 internal fun StyledCardBackground(look: MediaCardLook, modifier: Modifier = Modifier) {
     val shape = remember(look.radius) { RoundedCornerShape(look.radius) }
+    val base =
+        if (look.translucent && LocalMediaOnLockscreen.current) LockscreenBase else Color.Transparent
     Box(
         modifier =
-            modifier.clip(shape).background(look.background).let {
+            modifier.clip(shape).background(base).background(look.background).let {
                 if (look.border != null) it.border(1.5.dp, look.border, shape) else it
             }
     )

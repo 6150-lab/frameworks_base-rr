@@ -31,6 +31,7 @@ enum class QsStyle(val value: Int) {
 
     companion object {
         const val SETTING = "rr_qs_style"
+        const val LOCKSCREEN_MEDIA_SETTING = "rr_lockscreen_media_style"
 
         fun of(value: Int): QsStyle = entries.firstOrNull { it.value == value } ?: STOCK
     }

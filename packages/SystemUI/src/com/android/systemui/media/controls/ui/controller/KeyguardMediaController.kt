@@ -24,6 +24,8 @@ import android.util.MathUtils
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.VisibleForTesting
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,6 +37,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.android.compose.theme.PlatformTheme
 import com.android.systemui.Dumpable
 import com.android.systemui.classifier.Classifier
 import com.android.systemui.dagger.SysUISingleton
@@ -48,6 +51,7 @@ import com.android.systemui.media.controls.ui.view.MediaHost
 import com.android.systemui.media.controls.ui.view.MediaHostState
 import com.android.systemui.media.dagger.MediaModule
 import com.android.systemui.media.remedia.shared.flag.MediaControlsInComposeFlag
+import com.android.systemui.media.remedia.ui.compose.LocalMediaOnLockscreen
 import com.android.systemui.media.remedia.ui.compose.Media
 import com.android.systemui.media.remedia.ui.compose.MediaPresentationStyle
 import com.android.systemui.media.remedia.ui.compose.MediaUiBehavior
@@ -55,6 +59,8 @@ import com.android.systemui.media.remedia.ui.viewmodel.MediaCarouselVisibility
 import com.android.systemui.media.remedia.ui.viewmodel.MediaFalsingSystem
 import com.android.systemui.media.remedia.ui.viewmodel.MediaViewModel
 import com.android.systemui.plugins.statusbar.StatusBarStateController
+import com.android.systemui.qs.panels.data.repository.QsStyleRepository
+import com.android.systemui.qs.panels.shared.model.LocalQsStyle
 import com.android.systemui.res.R
 import com.android.systemui.scene.shared.flag.SceneContainerFlag
 import com.android.systemui.shade.ShadeDisplayAware
@@ -107,6 +113,7 @@ constructor(
     private val mediaCarouselInteractor: MediaCarouselInteractor,
     private val falsingSystem: MediaFalsingSystem,
     private val secureSettings: SecureSettings,
+    private val qsStyleRepository: QsStyleRepository,
 ) : Dumpable {
     private var lastUsedStatusBarState = -1
 
@@ -200,21 +207,29 @@ constructor(
                     (1f - (fullShadeTransitionProgress / 0.25f)).coerceIn(0f, 1f)
                 }
             }
-            Media(
-                viewModelFactory = mediaViewModelFactory,
-                presentationStyle = MediaPresentationStyle.Default,
-                behavior =
-                    MediaUiBehavior(
-                        carouselVisibility = MediaCarouselVisibility.WhenAnyCardIsActive,
-                        isCarouselScrollFalseTouch = {
-                            falsingSystem.isFalseTouch(Classifier.MEDIA_CAROUSEL_SWIPE)
-                        },
-                    ),
-                onDismissed = { mediaCarouselInteractor.onSwipeToDismiss() },
-                modifier = Modifier.graphicsLayer { alpha = transitionAlpha },
-                visible = { visible },
-                location = Media.Location.LOCKSCREEN,
-            )
+            val style by qsStyleRepository.lockscreenMediaStyle.collectAsState()
+            PlatformTheme(isDarkTheme = true) {
+                CompositionLocalProvider(
+                    LocalQsStyle provides style,
+                    LocalMediaOnLockscreen provides true,
+                ) {
+                    Media(
+                        viewModelFactory = mediaViewModelFactory,
+                        presentationStyle = MediaPresentationStyle.Default,
+                        behavior =
+                            MediaUiBehavior(
+                                carouselVisibility = MediaCarouselVisibility.WhenAnyCardIsActive,
+                                isCarouselScrollFalseTouch = {
+                                    falsingSystem.isFalseTouch(Classifier.MEDIA_CAROUSEL_SWIPE)
+                                },
+                            ),
+                        onDismissed = { mediaCarouselInteractor.onSwipeToDismiss() },
+                        modifier = Modifier.graphicsLayer { alpha = transitionAlpha },
+                        visible = { visible },
+                        location = Media.Location.LOCKSCREEN,
+                    )
+                }
+            }
         }
     }
 
