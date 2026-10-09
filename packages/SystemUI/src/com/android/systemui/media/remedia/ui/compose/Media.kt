@@ -60,8 +60,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -219,15 +221,17 @@ fun Media(
 
     viewModel.mediaUiEventLogger.logCarouselLocation(location)
 
-    CardCarousel(
-        viewModel = viewModel,
-        presentationStyle = presentationStyle,
-        behavior = behavior,
-        onDismissed = onDismissed,
-        modifier = modifier,
-        mediaSquishiness = mediaSquishiness,
-        expansion = expansion,
-    )
+    CompositionLocalProvider(LocalMediaInQqs provides (location == Media.Location.SHADE)) {
+        CardCarousel(
+            viewModel = viewModel,
+            presentationStyle = presentationStyle,
+            behavior = behavior,
+            onDismissed = onDismissed,
+            modifier = modifier,
+            mediaSquishiness = mediaSquishiness,
+            expansion = expansion,
+        )
+    }
 }
 
 /**
@@ -436,6 +440,7 @@ private fun Card(
     }
 
     val look = mediaCardLook()
+    val shape = if (look != null) qsMediaShape() else null
     Box(modifier) {
         if (look != null && cardStyle != MediaPresentationStyle.Thumbnail) {
             StyledCardBackground(
@@ -469,6 +474,7 @@ private fun Card(
                             colorScheme = colorScheme,
                             threeRows = true,
                             fillHeight = false,
+                            shape = shape,
                         )
                     }
 
@@ -480,6 +486,7 @@ private fun Card(
                             colorScheme = colorScheme,
                             threeRows = true,
                             fillHeight = true,
+                            shape = shape,
                         )
                     }
 
@@ -491,6 +498,7 @@ private fun Card(
                             colorScheme = colorScheme,
                             threeRows = false,
                             fillHeight = false,
+                            shape = shape,
                         )
                     }
 
@@ -502,6 +510,7 @@ private fun Card(
                         // Thumbnail is album art only, no foreground elements
                         var thumbnailModifier =
                             Modifier.clickable(onClick = { viewModel.onClick(it) }).height {
+                                if (shape != null) return@height shape.height.roundToPx()
                                 when (carouselStyle) {
                                     MediaPresentationStyle.Default -> Media.DEFAULT_HEIGHT
                                     // Large is only used for communal, which isn't scrollable
@@ -590,8 +599,10 @@ private fun ContentScope.CardForeground(
     threeRows: Boolean,
     fillHeight: Boolean,
     modifier: Modifier = Modifier,
+    shape: QsMediaShape? = null,
 ) {
     val viewModel = mediaViewModel.cards[cardIndex]
+    val look = mediaCardLook()
     // Can't use a Crossfade composable because of the custom layout logic below. Animate the alpha
     // of the guts (and, indirectly, of the content) from here.
     val gutsAlphaAnimatable = remember { Animatable(0f) }
@@ -603,19 +614,30 @@ private fun ContentScope.CardForeground(
     // card and the guts are set to be the same size of the content.
     Layout(
         content = {
-            CardForegroundContent(
-                expandable = expandable,
-                mediaViewModel = mediaViewModel,
-                cardIndex = cardIndex,
-                threeRows = threeRows,
-                fillHeight = fillHeight,
-                colorScheme = colorScheme,
-                modifier =
-                    Modifier.layoutId(Media.LayoutId.CardForeground).graphicsLayer {
-                        compositingStrategy = CompositingStrategy.ModulateAlpha
-                        alpha = 1f - gutsAlphaAnimatable.value
-                    },
-            )
+            val contentModifier =
+                Modifier.layoutId(Media.LayoutId.CardForeground).graphicsLayer {
+                    compositingStrategy = CompositingStrategy.ModulateAlpha
+                    alpha = 1f - gutsAlphaAnimatable.value
+                }
+            if (look != null && shape != null) {
+                StyledCardForegroundContent(
+                    expandable = expandable,
+                    viewModel = viewModel,
+                    look = look,
+                    shape = shape,
+                    modifier = contentModifier,
+                )
+            } else {
+                CardForegroundContent(
+                    expandable = expandable,
+                    mediaViewModel = mediaViewModel,
+                    cardIndex = cardIndex,
+                    threeRows = threeRows,
+                    fillHeight = fillHeight,
+                    colorScheme = colorScheme,
+                    modifier = contentModifier,
+                )
+            }
 
             CardGuts(
                 viewModel = viewModel.guts,
@@ -915,6 +937,124 @@ private fun ContentScope.CardForegroundContent(
                 }
             }
         }
+    }
+}
+
+/** A QS style card from the canvas, laid out by [shape]. */
+@Composable
+private fun ContentScope.StyledCardForegroundContent(
+    expandable: Expandable,
+    viewModel: MediaCardViewModel,
+    look: MediaCardLook,
+    shape: QsMediaShape,
+    modifier: Modifier = Modifier,
+) {
+    val cardModifier =
+        modifier
+            .combinedClickable(
+                onClick = { viewModel.onClick(expandable) },
+                onLongClick = viewModel.onLongClick,
+            )
+            .semantics { contentDescription = viewModel.contentDescription }
+            .height(shape.height)
+
+    @Composable
+    fun Play(size: Dp) {
+        AnimatedVisibility(visible = viewModel.playPauseAction != null) {
+            PlayPauseAction(
+                viewModel = viewModel.playPauseAction,
+                buttonColor = look.playButton,
+                iconColor = look.playIcon,
+                buttonCornerRadius = { size / 2 },
+                borderColor = look.playBorder,
+                buttonSize = DpSize(size, size),
+                iconSize = 20.dp,
+            )
+        }
+    }
+
+    @Composable
+    fun Labels(modifier: Modifier) {
+        Metadata(
+            title = viewModel.title,
+            subtitle = viewModel.subtitle,
+            isExplicit = viewModel.isExplicit,
+            color = look.text,
+            modifier = modifier,
+        )
+    }
+
+    when (shape) {
+        QsMediaShape.Card ->
+            Column(
+                verticalArrangement = Arrangement.SpaceBetween,
+                modifier = cardModifier.padding(14.dp),
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    ArtThumbnail(
+                        image = viewModel.background,
+                        shape = look.artShape,
+                        size = 52.dp,
+                        modifier = Modifier.padding(end = 12.dp),
+                    )
+                    Labels(Modifier.weight(1f).padding(end = 8.dp))
+                    Play(44.dp)
+                }
+                ProgressLine(navigation = viewModel.navigation, look = look)
+            }
+        QsMediaShape.Pill ->
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = cardModifier.padding(horizontal = 8.dp),
+            ) {
+                ArtThumbnail(
+                    image = viewModel.background,
+                    shape = CircleShape,
+                    size = 44.dp,
+                    modifier = Modifier.padding(end = 10.dp),
+                )
+                Labels(Modifier.weight(1f).padding(end = 10.dp))
+                Play(44.dp)
+            }
+        QsMediaShape.Tall ->
+            Column(
+                verticalArrangement = Arrangement.SpaceBetween,
+                modifier = cardModifier.padding(14.dp),
+            ) {
+                ArtThumbnail(
+                    image = viewModel.background,
+                    shape = RoundedCornerShape(16.dp),
+                    size = 56.dp,
+                )
+                Row(verticalAlignment = Alignment.Bottom) {
+                    Labels(Modifier.weight(1f).padding(end = 8.dp))
+                    Play(42.dp)
+                }
+            }
+    }
+}
+
+/** Thin playback progress line under the styled card. */
+@Composable
+private fun ProgressLine(
+    navigation: MediaNavigationViewModel,
+    look: MediaCardLook,
+    modifier: Modifier = Modifier,
+) {
+    val progress = (navigation as? MediaNavigationViewModel.Showing)?.progress ?: 0f
+    Box(
+        modifier
+            .fillMaxWidth()
+            .height(4.dp)
+            .clip(RoundedCornerShape(2.dp))
+            .background(look.text.copy(alpha = .16f))
+    ) {
+        Box(
+            Modifier.fillMaxHeight()
+                .fillMaxWidth(progress.coerceIn(0f, 1f))
+                .clip(RoundedCornerShape(2.dp))
+                .background(look.accent)
+        )
     }
 }
 
@@ -1625,10 +1765,11 @@ private fun ContentScope.PlayPauseAction(
     buttonCornerRadius: (isPlaying: Boolean) -> Dp,
     modifier: Modifier = Modifier,
     borderColor: Color? = null,
+    buttonSize: DpSize = DpSize(width = 72.dp, height = 48.dp),
+    iconSize: Dp = 24.dp,
 ) {
     if (viewModel == null) return
 
-    val buttonSize = DpSize(width = 72.dp, height = 48.dp)
     val cornerRadius: Dp by
         animateDpAsState(
             targetValue = buttonCornerRadius(viewModel.state != MediaSessionState.Paused),
@@ -1689,12 +1830,12 @@ private fun ContentScope.PlayPauseAction(
                             painter = painter,
                             contentDescription = viewModel.icon?.contentDescription?.load(),
                             tint = iconColor,
-                            modifier = Modifier.size(24.dp).sysuiResTag(MediaRes.PLAY_PAUSE_BTN),
+                            modifier = Modifier.size(iconSize).sysuiResTag(MediaRes.PLAY_PAUSE_BTN),
                         )
                     }
                 }
                 is MediaSessionState.Buffering -> {
-                    CircularProgressIndicator(color = iconColor, modifier = Modifier.size(24.dp))
+                    CircularProgressIndicator(color = iconColor, modifier = Modifier.size(iconSize))
                 }
             }
         }

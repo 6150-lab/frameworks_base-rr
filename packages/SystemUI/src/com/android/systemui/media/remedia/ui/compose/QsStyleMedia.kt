@@ -52,6 +52,32 @@ val LocalMediaOnLockscreen = staticCompositionLocalOf { false }
 
 private val LockscreenBase = Color(0x9E0E0F11)
 
+/** QS card layout from the canvas. The lockscreen keeps the stock rows. */
+internal enum class QsMediaShape(val height: Dp) {
+    /** Artwork, title and play button over a thin progress line. */
+    Card(108.dp),
+    /** One short row with round artwork. */
+    Pill(60.dp),
+    /** Artwork on top, title and play button below. Sits next to the Circles sliders. */
+    Tall(172.dp),
+}
+
+/** True for the collapsed QS card, which stays short. */
+internal val LocalMediaInQqs = staticCompositionLocalOf { false }
+
+/** The QS layout for the current style, or null for the stock rows. */
+@Composable
+@ReadOnlyComposable
+internal fun qsMediaShape(): QsMediaShape? {
+    if (LocalMediaOnLockscreen.current) return null
+    return when (LocalQsStyle.current) {
+        QsStyle.STOCK -> null
+        QsStyle.COMPACT -> QsMediaShape.Pill
+        QsStyle.CIRCLES -> if (LocalMediaInQqs.current) QsMediaShape.Card else QsMediaShape.Tall
+        else -> QsMediaShape.Card
+    }
+}
+
 /** The look for the current QS style, or null for the stock album art card. */
 @Composable
 @ReadOnlyComposable
@@ -59,13 +85,14 @@ internal fun mediaCardLook(): MediaCardLook? {
     val scheme = MaterialTheme.colorScheme
     val surface = LocalAndroidColorScheme.current.surfaceEffect1
     val art = RoundedCornerShape(14.dp)
+    val lock = LocalMediaOnLockscreen.current
     return when (LocalQsStyle.current) {
         QsStyle.STOCK -> null
         QsStyle.REMIX ->
             MediaCardLook(
                 background = Color(0xFF1E2024),
                 border = null,
-                radius = 28.dp,
+                radius = if (lock) 28.dp else 22.dp,
                 text = Color(0xFFEDEEF0),
                 accent = scheme.primary,
                 onAccent = scheme.onPrimary,
@@ -78,7 +105,7 @@ internal fun mediaCardLook(): MediaCardLook? {
             MediaCardLook(
                 background = Color.White.copy(alpha = .09f),
                 border = null,
-                radius = 32.dp,
+                radius = if (lock) 32.dp else 30.dp,
                 text = scheme.onSurface,
                 accent = scheme.primary,
                 onAccent = scheme.onPrimary,
@@ -92,7 +119,7 @@ internal fun mediaCardLook(): MediaCardLook? {
             MediaCardLook(
                 background = Color.White.copy(alpha = .035f),
                 border = Color.White.copy(alpha = .13f),
-                radius = 24.dp,
+                radius = if (lock) 24.dp else 22.dp,
                 text = scheme.onSurface,
                 accent = scheme.primary,
                 onAccent = scheme.onPrimary,
