@@ -974,6 +974,19 @@ private fun ContentScope.StyledCardForegroundContent(
     }
 
     @Composable
+    fun Next() {
+        val next = viewModel.navigation.right
+        if (next !is MediaSecondaryActionViewModel.None) {
+            SecondaryAction(
+                viewModel = next,
+                resId = MediaRes.NEXT_BTN,
+                element = Media.Elements.NextButton,
+                iconColor = look.text,
+            )
+        }
+    }
+
+    @Composable
     fun Labels(modifier: Modifier) {
         Metadata(
             title = viewModel.title,
@@ -997,7 +1010,8 @@ private fun ContentScope.StyledCardForegroundContent(
                         size = 52.dp,
                         modifier = Modifier.padding(end = 12.dp),
                     )
-                    Labels(Modifier.weight(1f).padding(end = 8.dp))
+                    Labels(Modifier.weight(1f).padding(end = 4.dp))
+                    Next()
                     Play(44.dp)
                 }
                 ProgressLine(navigation = viewModel.navigation, look = look)
@@ -1013,7 +1027,8 @@ private fun ContentScope.StyledCardForegroundContent(
                     size = 44.dp,
                     modifier = Modifier.padding(end = 10.dp),
                 )
-                Labels(Modifier.weight(1f).padding(end = 10.dp))
+                Labels(Modifier.weight(1f).padding(end = 4.dp))
+                Next()
                 Play(44.dp)
             }
         QsMediaShape.Tall ->
@@ -1027,7 +1042,8 @@ private fun ContentScope.StyledCardForegroundContent(
                     size = 56.dp,
                 )
                 Row(verticalAlignment = Alignment.Bottom) {
-                    Labels(Modifier.weight(1f).padding(end = 8.dp))
+                    Labels(Modifier.weight(1f).padding(end = 4.dp))
+                    Next()
                     Play(42.dp)
                 }
             }
