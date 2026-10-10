@@ -169,10 +169,10 @@ public class ThemeOverlayController implements CoreStartable, Dumpable {
     private static final int SHADE_MAX = 5;
     private static final double SHADE_STEP = 0.2;
     private double mShadeGamma = 1.0;
-    // RR: Remixer accent hue, degrees the seed turns, -HUE_MAX to HUE_MAX
-    private static final String ACCENT_HUE = "rr_accent_hue";
-    private static final int HUE_MAX = 180;
-    private int mHueShift;
+    // RR: Remixer accent saturation, percent of the accent palettes' chroma, 0 to SATURATION_MAX
+    private static final String ACCENT_SATURATION = "rr_accent_saturation";
+    private static final int SATURATION_MAX = 200;
+    private double mSaturation = 1.0;
     // Theme variant: Vibrant, Tonal, Expressive, etc
     @VisibleForTesting
     @ThemeStyle.Type
@@ -573,7 +573,7 @@ public class ThemeOverlayController implements CoreStartable, Dumpable {
         };
         mSecureSettings.registerContentObserverForUserSync(ACCENT_SHADE, false, accentObserver,
                 UserHandle.USER_ALL);
-        mSecureSettings.registerContentObserverForUserSync(ACCENT_HUE, false, accentObserver,
+        mSecureSettings.registerContentObserverForUserSync(ACCENT_SATURATION, false, accentObserver,
                 UserHandle.USER_ALL);
 
         // All wallpaper color and keyguard logic only applies when Monet is enabled.
@@ -738,9 +738,6 @@ public class ThemeOverlayController implements CoreStartable, Dumpable {
     }
 
     private void createOverlays(int color) {
-        int hue = mSecureSettings.getIntForUser(ACCENT_HUE, 0, mUserTracker.getUserId());
-        mHueShift = Math.max(-HUE_MAX, Math.min(HUE_MAX, hue));
-        color = turnHue(color, mHueShift);
         // RR: Remixer presets store CONTENT; render them as tonal spot at the seed's chroma.
         if (mThemeStyle == ThemeStyle.CONTENT) {
             mDarkColorScheme = new ColorScheme(color, true /* isDark */, mContrast, true);
@@ -752,6 +749,9 @@ public class ThemeOverlayController implements CoreStartable, Dumpable {
         mColorScheme = isNightMode() ? mDarkColorScheme : mLightColorScheme;
         int shade = mSecureSettings.getIntForUser(ACCENT_SHADE, 0, mUserTracker.getUserId());
         mShadeGamma = Math.pow(2, -Math.max(-SHADE_MAX, Math.min(SHADE_MAX, shade)) * SHADE_STEP);
+        int saturation = mSecureSettings.getIntForUser(ACCENT_SATURATION, 100,
+                mUserTracker.getUserId());
+        mSaturation = Math.max(0, Math.min(SATURATION_MAX, saturation)) / 100.0;
 
         mAccentOverlay = newFabricatedOverlay("accent");
         assignColorsToOverlay(mAccentOverlay, DynamicColors.getAllAccentPalette());
@@ -781,35 +781,37 @@ public class ThemeOverlayController implements CoreStartable, Dumpable {
     }
 
     /**
-     * Applies the accent shade as a tone curve on the accent palettes. Foregrounds on accent
-     * backgrounds keep their original contrast.
+     * Applies the accent shade as a tone curve and the accent saturation as a chroma scale on
+     * the accent palettes. Foregrounds on accent backgrounds keep their original contrast.
      */
     private int shadedArgb(DynamicColor color, DynamicScheme scheme) {
         int argb = color.getArgb(scheme);
-        if (mShadeGamma == 1.0) {
+        boolean accent = isAccent(color, scheme);
+        double saturation = accent ? mSaturation : 1.0;
+        if (mShadeGamma == 1.0 && saturation == 1.0) {
             return argb;
         }
         double tone = color.getTone(scheme);
-        DynamicColor background = color.isBackground || color.background == null
-                ? null : color.background.apply(scheme);
-        double shaded;
-        if (background != null && isAccent(background, scheme)) {
-            double backgroundTone = background.getTone(scheme);
-            double target = Math.min(Contrast.RATIO_45,
-                    Contrast.ratioOfTones(tone, backgroundTone));
-            double shadedBackground = shadeTone(backgroundTone);
-            shaded = Contrast.ratioOfTones(tone, shadedBackground) >= target
-                    ? tone : DynamicColor.foregroundTone(shadedBackground, target);
-        } else if (isAccent(color, scheme)) {
-            shaded = shadeTone(tone);
-        } else {
-            return argb;
+        double shaded = tone;
+        if (mShadeGamma != 1.0) {
+            DynamicColor background = color.isBackground || color.background == null
+                    ? null : color.background.apply(scheme);
+            if (background != null && isAccent(background, scheme)) {
+                double backgroundTone = background.getTone(scheme);
+                double target = Math.min(Contrast.RATIO_45,
+                        Contrast.ratioOfTones(tone, backgroundTone));
+                double shadedBackground = shadeTone(backgroundTone);
+                shaded = Contrast.ratioOfTones(tone, shadedBackground) >= target
+                        ? tone : DynamicColor.foregroundTone(shadedBackground, target);
+            } else if (accent) {
+                shaded = shadeTone(tone);
+            }
         }
-        if (shaded == tone) {
+        if (shaded == tone && saturation == 1.0) {
             return argb;
         }
         TonalPalette palette = color.palette.apply(scheme);
-        double chroma = palette.getChroma()
+        double chroma = palette.getChroma() * saturation
                 * (color.chromaMultiplier == null ? 1 : color.chromaMultiplier.apply(scheme));
         return (Hct.from(palette.getHue(), chroma, shaded).toInt() & 0x00FFFFFF)
                 | (argb & 0xFF000000);
@@ -817,26 +819,6 @@ public class ThemeOverlayController implements CoreStartable, Dumpable {
 
     private double shadeTone(double tone) {
         return 100.0 * Math.pow(Math.max(0, Math.min(100, tone)) / 100.0, mShadeGamma);
-    }
-
-    /**
-     * Turns the seed hue. Palettes only read hue and chroma, so pick the tone that keeps the
-     * most chroma at the new hue.
-     */
-    private static int turnHue(int color, int degrees) {
-        if (degrees == 0) {
-            return color;
-        }
-        Hct seed = Hct.fromInt(color);
-        double hue = (seed.getHue() + degrees + 360) % 360;
-        Hct best = Hct.from(hue, seed.getChroma(), seed.getTone());
-        for (int tone = 10; tone <= 90 && best.getChroma() < seed.getChroma() - 1; tone += 5) {
-            Hct candidate = Hct.from(hue, seed.getChroma(), tone);
-            if (candidate.getChroma() > best.getChroma()) {
-                best = candidate;
-            }
-        }
-        return best.toInt();
     }
 
     private static boolean isAccent(DynamicColor color, DynamicScheme scheme) {
@@ -1127,6 +1109,6 @@ public class ThemeOverlayController implements CoreStartable, Dumpable {
         pw.println("mDeferredThemeEvaluation=" + mDeferredThemeEvaluation);
         pw.println("mThemeStyle=" + mThemeStyle);
         pw.println("mShadeGamma=" + mShadeGamma);
-        pw.println("mHueShift=" + mHueShift);
+        pw.println("mSaturation=" + mSaturation);
     }
 }
