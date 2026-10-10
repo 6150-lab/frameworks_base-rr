@@ -64,6 +64,7 @@ import com.android.systemui.qs.panels.shared.model.LocalQsStyle
 import com.android.systemui.res.R
 import com.android.systemui.scene.shared.flag.SceneContainerFlag
 import com.android.systemui.shade.ShadeDisplayAware
+import com.android.systemui.shade.domain.interactor.ShadeInteractor
 import com.android.systemui.statusbar.StatusBarState
 import com.android.systemui.statusbar.SysuiStatusBarStateController
 import com.android.systemui.statusbar.notification.stack.MediaContainerView
@@ -76,6 +77,7 @@ import com.android.systemui.util.println
 import com.android.systemui.util.settings.SecureSettings
 import com.android.systemui.util.settings.SettingsProxyExt.observerFlow
 import com.android.systemui.util.withIncreasedIndent
+import dagger.Lazy
 import java.io.PrintWriter
 import javax.inject.Inject
 import javax.inject.Named
@@ -114,6 +116,7 @@ constructor(
     private val falsingSystem: MediaFalsingSystem,
     private val secureSettings: SecureSettings,
     private val qsStyleRepository: QsStyleRepository,
+    private val shadeInteractor: Lazy<ShadeInteractor>,
 ) : Dumpable {
     private var lastUsedStatusBarState = -1
 
@@ -207,6 +210,8 @@ constructor(
                     (1f - (fullShadeTransitionProgress / 0.25f)).coerceIn(0f, 1f)
                 }
             }
+            // QS pulled down over the lock screen has its own card, so fade this one out.
+            val qsExpansion = remember { shadeInteractor.get().qsExpansion }.collectAsState()
             val style by qsStyleRepository.lockscreenMediaStyle.collectAsState()
             PlatformTheme(isDarkTheme = true) {
                 CompositionLocalProvider(
@@ -224,7 +229,14 @@ constructor(
                                 },
                             ),
                         onDismissed = { mediaCarouselInteractor.onSwipeToDismiss() },
-                        modifier = Modifier.graphicsLayer { alpha = transitionAlpha },
+                        modifier =
+                            Modifier.graphicsLayer {
+                                alpha =
+                                    minOf(
+                                        transitionAlpha,
+                                        (1f - qsExpansion.value / 0.25f).coerceIn(0f, 1f),
+                                    )
+                            },
                         visible = { visible },
                         location = Media.Location.LOCKSCREEN,
                     )

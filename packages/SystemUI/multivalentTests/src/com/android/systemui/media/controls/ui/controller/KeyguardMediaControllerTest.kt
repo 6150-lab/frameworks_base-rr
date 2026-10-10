@@ -44,6 +44,7 @@ import com.android.systemui.media.remedia.ui.viewmodel.factory.mediaViewModelFac
 import com.android.systemui.media.remedia.ui.viewmodel.mediaFalsingSystem
 import com.android.systemui.plugins.statusbar.StatusBarStateController
 import com.android.systemui.qs.panels.data.repository.qsStyleRepository
+import com.android.systemui.shade.domain.interactor.shadeInteractor
 import com.android.systemui.statusbar.StatusBarState
 import com.android.systemui.statusbar.SysuiStatusBarStateController
 import com.android.systemui.statusbar.notification.stack.MediaContainerView
@@ -56,6 +57,7 @@ import com.android.systemui.util.mockito.mock
 import com.android.systemui.util.mockito.whenever
 import com.android.systemui.util.settings.fakeSettings
 import com.google.common.truth.Truth.assertThat
+import dagger.Lazy
 import junit.framework.Assert.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runCurrent
@@ -131,6 +133,7 @@ class KeyguardMediaControllerTest : SysuiTestCase() {
                 mediaFalsingSystem,
                 kosmos.fakeSettings,
                 kosmos.qsStyleRepository,
+                Lazy { kosmos.shadeInteractor },
             )
         keyguardMediaController.attachSinglePaneContainer(mediaContainerView)
         keyguardMediaController.useSplitShade = false
