@@ -81,8 +81,12 @@ fun QsCirclesMediaRow(
 @Composable
 private fun VerticalBrightnessSlider(viewModel: BrightnessSliderViewModel) {
     val gamma = viewModel.currentBrightness.value
-    // Ignore the initial negative value.
-    if (gamma == BrightnessSliderViewModel.initialValue.value) return
+    val icon = painterResource(R.drawable.ic_brightness_full)
+    // Hold the space until the first real value, so the media card keeps its width.
+    if (gamma == BrightnessSliderViewModel.initialValue.value) {
+        EmptySlider(icon)
+        return
+    }
     val min = viewModel.minBrightness.value
     val max = viewModel.maxBrightness.value
     val restriction by
@@ -96,7 +100,7 @@ private fun VerticalBrightnessSlider(viewModel: BrightnessSliderViewModel) {
 
     VerticalSlider(
         fraction = fraction,
-        icon = painterResource(R.drawable.ic_brightness_full),
+        icon = icon,
         label = stringResource(R.string.quick_settings_brightness_dialog_title),
         onChange = { f ->
             dragging = f
@@ -118,16 +122,21 @@ private fun VerticalVolumeSlider(interactor: AudioVolumeInteractor) {
     val model by
         remember(interactor) { interactor.getAudioStream(MusicStream) }
             .collectAsStateWithLifecycle(initialValue = null)
-    val stream = model ?: return
+    val icon = painterResource(R.drawable.ic_speaker_on)
     val scope = rememberCoroutineScope()
     var dragging by remember { mutableStateOf<Float?>(null) }
     var sentLevel by remember { mutableStateOf(-1) }
+    val stream = model
+    if (stream == null) {
+        EmptySlider(icon)
+        return
+    }
     val range = (stream.maxVolume - stream.minVolume).coerceAtLeast(1)
     val fraction = dragging ?: ((stream.volume - stream.minVolume).toFloat() / range)
 
     VerticalSlider(
         fraction = fraction,
-        icon = painterResource(R.drawable.ic_speaker_on),
+        icon = icon,
         label = stringResource(R.string.stream_music),
         onChange = { f ->
             dragging = f
@@ -142,6 +151,24 @@ private fun VerticalVolumeSlider(interactor: AudioVolumeInteractor) {
             sentLevel = -1
         },
     )
+}
+
+/** The slider's track and icon, shown until its value loads. */
+@Composable
+private fun EmptySlider(icon: Painter) {
+    Box(
+        Modifier.width(SliderWidth)
+            .fillMaxHeight()
+            .clip(RoundedCornerShape(SliderWidth / 2))
+            .background(Color.White.copy(alpha = .1f))
+    ) {
+        Icon(
+            painter = icon,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 19.dp).size(20.dp),
+        )
+    }
 }
 
 /**
