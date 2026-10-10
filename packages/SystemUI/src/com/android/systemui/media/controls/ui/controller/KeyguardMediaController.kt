@@ -391,10 +391,12 @@ constructor(
             } else {
                 mediaHost.visible && allowMediaPlayerOnLockScreen
             }
+        // RR: bypass hides the whole notification stack on the lock screen, the player included,
+        // so turn it off while there is media to show.
+        bypassController.lockscreenMediaActive = isMediaHostVisible
         val isBypassNotEnabled = !bypassController.bypassEnabled
         val useSplitShade = useSplitShade
         val shouldBeVisibleForSplitShade = shouldBeVisibleForSplitShade()
-        // RR: keep the player with face unlock bypass on too; the card is styled for it.
         visible = isMediaHostVisible && keyguardOrUserSwitcher && shouldBeVisibleForSplitShade
         logger.logRefreshMediaPosition(
             reason = reason,

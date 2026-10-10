@@ -111,12 +111,25 @@ constructor(
                     else -> field
                 }
             return enabled &&
+                !lockscreenMediaActive &&
                 keyguardStateController.isFaceEnrolledAndEnabled &&
                 isPostureAllowedForFaceAuth()
         }
         private set(value) {
             field = value
             notifyListeners()
+        }
+
+    /**
+     * RR: true while the lock screen media player has something to show. Bypass then keeps the
+     * user on the lock screen after face unlock, so the player stays reachable.
+     */
+    var lockscreenMediaActive = false
+        set(value) {
+            if (field != value) {
+                field = value
+                notifyListeners()
+            }
         }
 
     var bouncerShowing: Boolean = false
@@ -273,6 +286,7 @@ constructor(
             pw.println("  mPendingUnlock: $pendingUnlock")
         }
         pw.println("  bypassEnabled: $bypassEnabled")
+        pw.println("  lockscreenMediaActive: $lockscreenMediaActive")
         pw.println("  canBypass: ${canBypass()}")
         pw.println("  bouncerShowing: $bouncerShowing")
         pw.println(
