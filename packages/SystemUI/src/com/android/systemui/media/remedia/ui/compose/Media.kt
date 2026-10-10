@@ -689,6 +689,11 @@ private fun ContentScope.CardForegroundContent(
     val textColor = look?.text ?: Color.White
     val playButton = look?.playButton ?: colorScheme.primary
     val playBorder = look?.playBorder
+    // RR: a bigger play button on the lock screen.
+    val onLockscreen = LocalMediaOnLockscreen.current
+    val playSize = if (onLockscreen) DpSize(width = 88.dp, height = 60.dp) else DpSize(72.dp, 48.dp)
+    val playIconSize = if (onLockscreen) 30.dp else 24.dp
+    val playingRadius = if (onLockscreen) 20.dp else 16.dp
     Column(
         modifier =
             modifier
@@ -834,8 +839,12 @@ private fun ContentScope.CardForegroundContent(
                             viewModel = viewModel.playPauseAction,
                             buttonColor = playButton,
                             iconColor = look?.playIcon ?: colorScheme.onPrimary,
-                            buttonCornerRadius = { isPlaying -> if (isPlaying) 16.dp else 48.dp },
+                            buttonCornerRadius = { isPlaying ->
+                                if (isPlaying) playingRadius else 48.dp
+                            },
                             borderColor = playBorder,
+                            buttonSize = playSize,
+                            iconSize = playIconSize,
                         )
                     }
                 } else {
@@ -928,8 +937,12 @@ private fun ContentScope.CardForegroundContent(
                             viewModel = viewModel.playPauseAction,
                             buttonColor = playButton,
                             iconColor = look?.playIcon ?: colorScheme.onPrimary,
-                            buttonCornerRadius = { isPlaying -> if (isPlaying) 16.dp else 48.dp },
+                            buttonCornerRadius = { isPlaying ->
+                                if (isPlaying) playingRadius else 48.dp
+                            },
                             borderColor = playBorder,
+                            buttonSize = playSize,
+                            iconSize = playIconSize,
                         )
                     }
                 } else {
