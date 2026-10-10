@@ -891,10 +891,6 @@ constructor(
                             @Composable {
                                 if (viewModel.qsMediaVisible) {
                                     MediaObject(
-                                        // Circles reshapes the card beside its sliders.
-                                        shared =
-                                            LocalQsStyle.current != QsStyle.CIRCLES ||
-                                                viewModel.qsMediaInRow,
                                         mediaHost = viewModel.qsMediaHost,
                                         mediaViewModelFactory = viewModel.mediaViewModelFactory,
                                         mediaPresentationStyle = MediaPresentationStyle.Default,
@@ -1436,21 +1432,8 @@ private fun ContentScope.MediaObject(
     visible: () -> Boolean,
     location: Media.Location,
     expansion: () -> Float,
-    shared: Boolean = true,
 ) {
-    if (MediaControlsInComposeFlag.isEnabled && !shared) {
-        // Not a shared element: no per-frame resize of the carousel between QQS and QS.
-        Media(
-            viewModelFactory = mediaViewModelFactory,
-            presentationStyle = mediaPresentationStyle,
-            behavior = behavior,
-            onDismissed = onSwipeToDismiss,
-            modifier = modifier,
-            visible = visible,
-            location = location,
-            expansion = expansion,
-        )
-    } else if (MediaControlsInComposeFlag.isEnabled) {
+    if (MediaControlsInComposeFlag.isEnabled) {
         Element(
             key = Media.Elements.MediaCarousel,
             modifier =
