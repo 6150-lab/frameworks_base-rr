@@ -981,7 +981,7 @@ private fun ContentScope.StyledCardForegroundContent(
                 buttonCornerRadius = { size / 2 },
                 borderColor = look.playBorder,
                 buttonSize = DpSize(size, size),
-                iconSize = 20.dp,
+                iconSize = 24.dp,
             )
         }
     }
@@ -1829,6 +1829,7 @@ private fun ContentScope.PlayPauseAction(
             enabled = viewModel.onClick != null,
             colors = ButtonDefaults.buttonColors(containerColor = buttonColor),
             shape = RoundedCornerShape(cornerRadius),
+            contentPadding = PaddingValues(0.dp),
             modifier =
                 Modifier.size(buttonSize).scale(scaleAnimatable.value).let {
                     if (borderColor != null) {
