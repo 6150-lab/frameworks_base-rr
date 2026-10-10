@@ -392,7 +392,7 @@ constructor(
                 mediaHost.visible && allowMediaPlayerOnLockScreen
             }
         // RR: bypass hides the whole notification stack on the lock screen, the player included,
-        // so turn it off while there is media to show.
+        // so the layout drops it while there is media to show. Face unlock still skips.
         bypassController.lockscreenMediaActive = isMediaHostVisible
         val isBypassNotEnabled = !bypassController.bypassEnabled
         val useSplitShade = useSplitShade

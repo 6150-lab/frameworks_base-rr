@@ -102,7 +102,7 @@ constructor(
     override fun isBypassEnabled() = bypassEnabled
 
     /** If face unlock dismisses the lock screen or keeps user on keyguard for the current user. */
-    var bypassEnabled: Boolean = false
+    var faceUnlockDismissesKeyguard: Boolean = false
         get() {
             val enabled =
                 when (bypassOverride) {
@@ -111,7 +111,6 @@ constructor(
                     else -> field
                 }
             return enabled &&
-                !lockscreenMediaActive &&
                 keyguardStateController.isFaceEnrolledAndEnabled &&
                 isPostureAllowedForFaceAuth()
         }
@@ -121,9 +120,14 @@ constructor(
         }
 
     /**
-     * RR: true while the lock screen media player has something to show. Bypass then keeps the
-     * user on the lock screen after face unlock, so the player stays reachable.
+     * Bypass as the lock screen layout sees it. RR: off while the media player shows, because
+     * bypass hides the notification stack the player lives in. Face unlock still skips the lock
+     * screen through [faceUnlockDismissesKeyguard].
      */
+    val bypassEnabled: Boolean
+        get() = faceUnlockDismissesKeyguard && !lockscreenMediaActive
+
+    /** RR: true while the lock screen media player has something to show. */
     var lockscreenMediaActive = false
         set(value) {
             if (field != value) {
@@ -169,7 +173,9 @@ constructor(
                     1
                 else 0
             tunerService.addTunable(
-                { key, _ -> bypassEnabled = tunerService.getValue(key, dismissByDefault) != 0 },
+                { key, _ ->
+                    faceUnlockDismissesKeyguard = tunerService.getValue(key, dismissByDefault) != 0
+                },
                 Settings.Secure.FACE_UNLOCK_DISMISSES_KEYGUARD,
             )
             lockscreenUserManager.addUserChangedListener(
@@ -212,7 +218,7 @@ constructor(
         biometricSourceType: BiometricSourceType,
         isStrongBiometric: Boolean,
     ): Boolean {
-        if (biometricSourceType == BiometricSourceType.FACE && bypassEnabled) {
+        if (biometricSourceType == BiometricSourceType.FACE && faceUnlockDismissesKeyguard) {
             val can = canBypass()
             if (!can) {
                 Log.d(
@@ -252,7 +258,7 @@ constructor(
 
     /** If keyguard can be dismissed because of bypass. */
     fun canBypass(): Boolean {
-        if (bypassEnabled) {
+        if (faceUnlockDismissesKeyguard) {
             return when {
                 bouncerShowing -> true
                 keyguardTransitionInteractor.getCurrentState() == KeyguardState.ALTERNATE_BOUNCER ->
@@ -286,6 +292,7 @@ constructor(
             pw.println("  mPendingUnlock: $pendingUnlock")
         }
         pw.println("  bypassEnabled: $bypassEnabled")
+        pw.println("  faceUnlockDismissesKeyguard: $faceUnlockDismissesKeyguard")
         pw.println("  lockscreenMediaActive: $lockscreenMediaActive")
         pw.println("  canBypass: ${canBypass()}")
         pw.println("  bouncerShowing: $bouncerShowing")
