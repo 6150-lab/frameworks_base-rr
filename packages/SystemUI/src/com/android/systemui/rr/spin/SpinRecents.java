@@ -1362,8 +1362,16 @@ public final class SpinRecents {
             }
             exit(true);
             int taskId = task.id;
+            boolean inFront = task.visible;
             EXEC.execute(() -> {
                 try {
+                    // Relaunching the task already in front races the launcher's own
+                    // swipe-up finish and can leave input stuck; closing the wheel is enough.
+                    ActivityManager.RunningTaskInfo top =
+                            ActivityManagerWrapper.getInstance().getRunningTask();
+                    if (inFront && top != null && top.taskId == taskId) {
+                        return;
+                    }
                     int result = ActivityTaskManager.getService().startActivityFromRecents(
                             taskId, options);
                     if (result < 0) {
