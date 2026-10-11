@@ -838,6 +838,27 @@ public abstract class AndroidKeyStoreKeyPairGeneratorSpi extends KeyPairGenerato
                 }
             }
 
+            if (!needGenerate) {
+                try {
+                    metadata = iSecurityLevel.generateKey(descriptor, mAttestKeyDescriptor,
+                            constructKeyGenerationArguments(), flags, additionalEntropy);
+                } catch (KeyStoreException e) {
+                    // The TEE probe caches a healthy result for the life of the
+                    // process, and that probe can consume the last remotely
+                    // provisioned attestation key. The real request then fails
+                    // and leaf hack has no certificate to rewrite.
+                    if (e.getErrorCode()
+                            != KeymasterDefs.KM_ERROR_ATTESTATION_KEYS_NOT_PROVISIONED
+                            || !canSoftwareAttest(packages)) {
+                        throw e;
+                    }
+                    Log.w(TAG, "Attestation keys are not provisioned; generating a "
+                            + "certificate for " + mEntryAlias);
+                    TrickyStoreService.getInstance().noteAttestationKeysMissing();
+                    needGenerate = true;
+                }
+            }
+
             if (needGenerate) {
                 Log.i(TAG, "Generating software key for " + mEntryAlias);
                 
@@ -947,10 +968,6 @@ public abstract class AndroidKeyStoreKeyPairGeneratorSpi extends KeyPairGenerato
                 }
                 
                 mKeyStore.updateSubcomponents(descriptor, userCert, chainBytes);
-                
-            } else {
-                 metadata = iSecurityLevel.generateKey(descriptor, mAttestKeyDescriptor,
-                        constructKeyGenerationArguments(), flags, additionalEntropy);
             }
 
             AndroidKeyStorePublicKey publicKey =
@@ -986,6 +1003,19 @@ public abstract class AndroidKeyStoreKeyPairGeneratorSpi extends KeyPairGenerato
                     }
                 }
             }
+        }
+    }
+
+    private boolean canSoftwareAttest(String[] packages) {
+        if (packages == null) return false;
+        try {
+            TrickyStoreService service = TrickyStoreService.getInstance();
+            if (!service.hasKeyboxes()) return false;
+            int uid = Process.myUid();
+            return service.needHack(uid, packages) || service.needGenerate(uid, packages);
+        } catch (Exception e) {
+            Log.w(TAG, "Failed to check software attestation fallback", e);
+            return false;
         }
     }
 

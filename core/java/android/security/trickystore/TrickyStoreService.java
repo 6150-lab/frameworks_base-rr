@@ -715,4 +715,17 @@ public class TrickyStoreService {
         ensureTeeStatus();
         return Boolean.TRUE.equals(mTeeBroken);
     }
+
+    /**
+     * KeyMint returned ATTESTATION_KEYS_NOT_PROVISIONED. A healthy probe result
+     * is cached for the life of this process, which would leave AUTO targets on
+     * leaf hack with no certificate to rewrite. Remember that attestation keys
+     * are missing so the following calls generate a chain instead.
+     */
+    public void noteAttestationKeysMissing() {
+        mTeeBroken = Boolean.TRUE;
+        mTeeCheckedAtMs = System.currentTimeMillis();
+        AttestationUtils.setTeeBroken(true);
+        Log.w(TAG, "Attestation keys are not provisioned; using certificate generation");
+    }
 }
