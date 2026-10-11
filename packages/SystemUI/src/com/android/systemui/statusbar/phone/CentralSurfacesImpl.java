@@ -73,10 +73,12 @@ import android.view.MotionEvent;
 import android.view.SurfaceControl;
 import android.view.ThreadedRenderer;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.WindowManagerGlobal;
 import android.view.accessibility.AccessibilityManager;
 import android.widget.DateTimeView;
+import android.widget.FrameLayout;
 import android.window.IRemoteTransition;
 
 import androidx.annotation.NonNull;
@@ -879,6 +881,19 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
                 (requestTopUi, componentTag) -> mMainExecutor.execute(
                         () -> mTopUiController.setRequestTopUi(requestTopUi, componentTag)
                 )));
+        attachEdgeLight();
+    }
+
+    /** Puts the edge light under the lock screen views, where Evolution X keeps it. */
+    private void attachEdgeLight() {
+        View edgeLight = mEdgeLightViewController.getEdgeLightView();
+        if (edgeLight.getParent() instanceof ViewGroup) {
+            ((ViewGroup) edgeLight.getParent()).removeView(edgeLight);
+        }
+        ViewGroup root = getNotificationShadeWindowView();
+        int index = Math.max(root.indexOfChild(root.findViewById(R.id.scrim_in_front)) - 3, 0);
+        root.addView(edgeLight, index, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
     }
 
     @VisibleForTesting

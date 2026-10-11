@@ -27,7 +27,8 @@ import com.android.settingslib.Utils
 
 import com.android.systemui.dagger.SysUISingleton
 import com.android.systemui.statusbar.NotificationListener
-import com.android.systemui.util.ScrimUtils
+import com.android.systemui.plugins.statusbar.StatusBarStateController
+import com.android.systemui.statusbar.policy.KeyguardStateController
 import com.android.internal.util.ContrastColorUtil
 
 import kotlinx.coroutines.*
@@ -40,8 +41,9 @@ class EdgeLightViewController
 constructor(
     private val context: Context,
     private val listener: NotificationListener,
-) : NotificationListener.NotificationHandler,
-    ScrimUtils.ScrimEventListener {
+    private val statusBarStateController: StatusBarStateController,
+    private val keyguardStateController: KeyguardStateController,
+) : NotificationListener.NotificationHandler {
 
     private val edgeLightView = EdgeLightView(context)
     private val settingsRepo = EdgeLightSettingsRepository(context)
@@ -64,7 +66,28 @@ constructor(
     init {
         INSTANCE = this
 
-        ScrimUtils.get().addListener(this)
+        listener.addNotificationHandler(this)
+        statusBarStateController.addCallback(object : StatusBarStateController.StateListener {
+            override fun onDozingChanged(isDozing: Boolean) =
+                this@EdgeLightViewController.onDozingChanged(isDozing)
+
+            override fun onPulsingChanged(pulsing: Boolean) =
+                this@EdgeLightViewController.setPulsing(pulsing)
+        })
+        keyguardStateController.addCallback(object : KeyguardStateController.Callback {
+            override fun onKeyguardShowingChanged() =
+                this@EdgeLightViewController.onKeyguardShowingChanged(
+                    keyguardStateController.isShowing)
+
+            override fun onKeyguardFadingAwayChanged() =
+                this@EdgeLightViewController.onKeyguardFadingAwayChanged(
+                    keyguardStateController.isKeyguardFadingAway)
+
+            override fun onKeyguardGoingAwayChanged() =
+                this@EdgeLightViewController.onKeyguardGoingAwayChanged(
+                    keyguardStateController.isKeyguardGoingAway)
+        })
+        isDozing = statusBarStateController.isDozing
         updateView()
     }
 
@@ -84,18 +107,19 @@ constructor(
     private fun updateView() {
         job?.cancel()
         job = scope.launch {
-            currentSettings = settingsRepo.settingsFlow.first()
-            if (!currentSettings.isEnabled) {
-                edgeLightView.pulseRunning = false
-                edgeLightView.visible = false
-            } else {
-                edgeLightView.paintColor = getColor()
-                edgeLightView.userPulseCount = currentSettings.pulseCount
-                edgeLightView.userStrokeWidth = currentSettings.strokeWidth
-                edgeLightView.edgeStyle = currentSettings.edgeStyle
-                edgeLightView.animationEffect = currentSettings.animationEffect
-                edgeLightView.userSpread = currentSettings.spread
-                edgeLightView.userIntensity = currentSettings.intensity
+            settingsRepo.settingsFlow.collect { settings ->
+                currentSettings = settings
+                if (!settings.isEnabled) {
+                    stop()
+                } else {
+                    edgeLightView.paintColor = getColor()
+                    edgeLightView.userPulseCount = settings.pulseCount
+                    edgeLightView.userStrokeWidth = settings.strokeWidth
+                    edgeLightView.edgeStyle = settings.edgeStyle
+                    edgeLightView.animationEffect = settings.animationEffect
+                    edgeLightView.userSpread = settings.spread
+                    edgeLightView.userIntensity = settings.intensity
+                }
             }
         }
     }
@@ -129,49 +153,34 @@ constructor(
         edgeLightView.paintColor = lastNotifColor
     }
 
-    override fun onDozingChanged(dozing: Boolean) {
-        if (!currentSettings.isEnabled) return
+    private fun onDozingChanged(dozing: Boolean) {
         isDozing = dozing
-        if (!isDozing) {
-            edgeLightView.pulseRunning = false
-            edgeLightView.visible = false
-        }
+        if (!dozing) stop()
     }
 
-    override fun onKeyguardShowingChanged(showing: Boolean) {
-        if (!currentSettings.isEnabled) return
-        if (!showing) {
-            edgeLightView.pulseRunning = false
-            edgeLightView.visible = false
-            listener.removeNotificationHandler(this)
-        } else {
-            listener.addNotificationHandler(this)
-            updateView()
-        }
+    private fun onKeyguardShowingChanged(showing: Boolean) {
+        if (showing) updateView() else stop()
     }
 
-    override fun onKeyguardFadingAwayChanged(fadingAway: Boolean) {
-        if (!currentSettings.isEnabled) return
-        if (fadingAway) {
-            edgeLightView.pulseRunning = false
-            edgeLightView.visible = false
-        }
+    private fun onKeyguardFadingAwayChanged(fadingAway: Boolean) {
+        if (fadingAway) stop()
     }
 
-    override fun onKeyguardGoingAwayChanged(goingAway: Boolean) {
-        if (!currentSettings.isEnabled) return
-        if (goingAway) {
-            edgeLightView.pulseRunning = false
-            edgeLightView.visible = false
-        }
+    private fun onKeyguardGoingAwayChanged(goingAway: Boolean) {
+        if (goingAway) stop()
     }
 
-    override fun setPulsing(pulsing: Boolean) {
+    private fun setPulsing(pulsing: Boolean) {
         if (!currentSettings.isEnabled || !pulsing || !isDozing) return
         edgeLightView.apply {
             visible = true
             pulseRunning = true
         }
+    }
+
+    private fun stop() {
+        edgeLightView.pulseRunning = false
+        edgeLightView.visible = false
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification, rankingMap: RankingMap) {}
