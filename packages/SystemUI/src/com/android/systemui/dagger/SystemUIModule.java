@@ -139,6 +139,7 @@ import com.android.systemui.statusbar.dagger.StatusBarModule;
 import com.android.systemui.statusbar.domain.interactor.StatusBarRegionSamplingInteractorModule;
 import com.android.systemui.statusbar.events.StatusBarEventsModule;
 import com.android.systemui.statusbar.events.SystemStatusAnimationScheduler;
+import com.android.systemui.statusbar.policy.ClearVoiceModule;
 import com.android.systemui.statusbar.notification.collection.NotifPipeline;
 import com.android.systemui.statusbar.notification.collection.inflation.NotificationRowBinder;
 import com.android.systemui.statusbar.notification.collection.inflation.NotificationRowBinderImpl;
@@ -226,6 +227,7 @@ import javax.inject.Named;
         BouncerViewModule.class,
         CameraProtectionModule.class,
         ClipboardOverlayModule.class,
+        ClearVoiceModule.class,
         ClockRegistryModule.class,
         CommunalModule.class,
         CommonDataLayerModule.class,

@@ -112,6 +112,11 @@
     <string name="status_bar_firewall">Firewall</string>
     <string name="status_bar_firewall_slot" translatable="false">firewall</string>
 
+    <!-- Clear Voice QS tile (Oplus / vendor/oplus/clearcalling). -->
+    <string name="quick_settings_clear_voice_label">Clear Voice</string>
+    <string name="accessibility_quick_settings_clear_voice_on">Clear Voice on.</string>
+    <string name="accessibility_quick_settings_clear_voice_off">Clear Voice off.</string>
+
     <!-- Channel name for Battery notifications -->
     <string name="battery_notification_channel_tv">Battery warning</string>
 
