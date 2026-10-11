@@ -6463,6 +6463,11 @@ public class NotificationStackScrollLayout
         float pulseHeight = getPulseHeight();
         // The total distance required to fully reveal the header
         float totalDistance = getIntrinsicPadding();
+        if (totalDistance <= 0) {
+            // RR: no padding before the first layout after boot. smoothStep would divide 0 by 0,
+            // and the NaN header translation puts QQS on the lock screen.
+            return pulseHeight > 0 ? 1f : 0f;
+        }
         return MathUtils.smoothStep(0, totalDistance, pulseHeight);
     }
 
