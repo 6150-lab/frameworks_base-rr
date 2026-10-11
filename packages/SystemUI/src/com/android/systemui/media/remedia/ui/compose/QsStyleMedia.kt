@@ -78,6 +78,14 @@ internal fun qsMediaShape(): QsMediaShape? {
     }
 }
 
+/** True for the Circles QQS card, which grows into the tall QS card as the shade expands. */
+@Composable
+@ReadOnlyComposable
+internal fun qsMediaCardGrowsToTall(): Boolean =
+    !LocalMediaOnLockscreen.current &&
+        LocalQsStyle.current == QsStyle.CIRCLES &&
+        LocalMediaInQqs.current
+
 /** The look for the current QS style, or null for the stock album art card. */
 @Composable
 @ReadOnlyComposable

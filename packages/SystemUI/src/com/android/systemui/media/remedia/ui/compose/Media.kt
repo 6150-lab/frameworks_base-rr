@@ -115,6 +115,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerInputChange
@@ -139,6 +140,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
+import androidx.compose.ui.util.lerp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastCoerceIn
 import androidx.compose.ui.util.fastForEach
@@ -475,6 +477,7 @@ private fun Card(
                             threeRows = true,
                             fillHeight = false,
                             shape = shape,
+                            expansion = expansion,
                         )
                     }
 
@@ -487,6 +490,7 @@ private fun Card(
                             threeRows = true,
                             fillHeight = true,
                             shape = shape,
+                            expansion = expansion,
                         )
                     }
 
@@ -499,6 +503,7 @@ private fun Card(
                             threeRows = false,
                             fillHeight = false,
                             shape = shape,
+                            expansion = expansion,
                         )
                     }
 
@@ -600,6 +605,7 @@ private fun ContentScope.CardForeground(
     fillHeight: Boolean,
     modifier: Modifier = Modifier,
     shape: QsMediaShape? = null,
+    expansion: () -> Float = { 0f },
 ) {
     val viewModel = mediaViewModel.cards[cardIndex]
     val look = mediaCardLook()
@@ -625,6 +631,7 @@ private fun ContentScope.CardForeground(
                     viewModel = viewModel,
                     look = look,
                     shape = shape,
+                    expansion = expansion,
                     modifier = contentModifier,
                 )
             } else {
@@ -953,6 +960,11 @@ private fun ContentScope.CardForegroundContent(
     }
 }
 
+private const val CARD_ART = 52f
+private const val TALL_ART = 56f
+private const val CARD_PLAY = 44f
+private const val TALL_PLAY = 42f
+
 /** A QS style card from the canvas, laid out by [shape]. */
 @Composable
 private fun ContentScope.StyledCardForegroundContent(
@@ -960,16 +972,17 @@ private fun ContentScope.StyledCardForegroundContent(
     viewModel: MediaCardViewModel,
     look: MediaCardLook,
     shape: QsMediaShape,
+    expansion: () -> Float,
     modifier: Modifier = Modifier,
 ) {
-    val cardModifier =
+    val baseModifier =
         modifier
             .combinedClickable(
                 onClick = { viewModel.onClick(expandable) },
                 onLongClick = viewModel.onLongClick,
             )
             .semantics { contentDescription = viewModel.contentDescription }
-            .height(shape.height)
+    val cardModifier = baseModifier.height(shape.height)
 
     @Composable
     fun Play(size: Dp) {
@@ -1010,9 +1023,90 @@ private fun ContentScope.StyledCardForegroundContent(
         )
     }
 
+    // RR: Circles shows the short card in QQS and the tall one in QS, and STL draws the QQS card
+    // while the shade expands. Move the same pieces from one layout to the other with the
+    // expansion, so the card doesn't jump at either end.
+    @Composable
+    fun CardToTall() {
+        val fraction = { expansion().coerceIn(0f, 1f) }
+        Layout(
+            content = {
+                ArtThumbnail(
+                    image = viewModel.background,
+                    shape = look.artShape,
+                    size = 52.dp,
+                    modifier =
+                        Modifier.graphicsLayer {
+                            val scale = lerp(1f, TALL_ART / CARD_ART, fraction())
+                            scaleX = scale
+                            scaleY = scale
+                            transformOrigin = TransformOrigin(0f, 0f)
+                        },
+                )
+                Labels(Modifier)
+                Box { Next() }
+                Box(
+                    Modifier.graphicsLayer {
+                        val scale = lerp(1f, TALL_PLAY / CARD_PLAY, fraction())
+                        scaleX = scale
+                        scaleY = scale
+                        transformOrigin = TransformOrigin(1f, 1f)
+                    }
+                ) {
+                    Play(CARD_PLAY.dp)
+                }
+                ProgressLine(
+                    navigation = viewModel.navigation,
+                    look = look,
+                    modifier = Modifier.graphicsLayer { alpha = 1f - fraction() },
+                )
+            },
+            modifier =
+                baseModifier
+                    .height {
+                        lerp(QsMediaShape.Card.height, QsMediaShape.Tall.height, fraction())
+                            .roundToPx()
+                    }
+                    .padding(14.dp),
+        ) { measurables, constraints ->
+            val e = fraction()
+            val width = constraints.maxWidth
+            val height = constraints.maxHeight
+            val loose = constraints.copy(minWidth = 0, minHeight = 0)
+            val art = measurables[0].measure(loose)
+            val next = measurables[2].measure(loose)
+            val play = measurables[3].measure(loose)
+            val playWidth = lerp(play.width, (play.width * TALL_PLAY / CARD_PLAY).toInt(), e)
+            val controls = next.width + playWidth
+            val labelsWidth =
+                lerp(
+                        width - art.width - 12.dp.roundToPx() - controls,
+                        width - controls,
+                        e,
+                    )
+                    .minus(4.dp.roundToPx())
+                    .coerceAtLeast(0)
+            val labels =
+                measurables[1].measure(loose.copy(minWidth = labelsWidth, maxWidth = labelsWidth))
+            val progress = measurables[4].measure(loose.copy(minWidth = width, maxWidth = width))
+            val row = maxOf(art.height, labels.height, next.height, play.height)
+            layout(width, height) {
+                // Card: one row centered at the top. Tall: art on top, the rest on the bottom.
+                fun y(child: Int) = lerp((row - child) / 2, height - child, e)
+                art.place(0, 0)
+                labels.place(lerp(art.width + 12.dp.roundToPx(), 0, e), y(labels.height))
+                next.place(width - controls, y(next.height))
+                play.place(width - play.width, y(play.height))
+                progress.place(0, height - progress.height)
+            }
+        }
+    }
+
     when (shape) {
         QsMediaShape.Card ->
-            Column(
+            if (qsMediaCardGrowsToTall()) {
+                CardToTall()
+            } else Column(
                 verticalArrangement = Arrangement.SpaceBetween,
                 modifier = cardModifier.padding(14.dp),
             ) {
