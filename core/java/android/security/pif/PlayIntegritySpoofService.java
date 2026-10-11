@@ -24,6 +24,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import sun.misc.Unsafe;
+
 /** @hide */
 public final class PlayIntegritySpoofService {
     private static final String TAG = "PIF";
@@ -31,6 +33,40 @@ public final class PlayIntegritySpoofService {
     private static final String DROIDGUARD_PACKAGE = "com.google.android.gms.unstable";
     private static final String VENDING_PACKAGE = "com.android.vending";
     private static final String GMS_PACKAGE = "com.google.android.gms";
+    // These processes read Build.* and compare it with the attestation
+    // certificate. That certificate is rewritten to the PIF profile for every
+    // TrickyStore target, so they have to be shown the same profile. The card
+    // screen is com.google.android.gms.ui, but TapAndPayService runs in the
+    // main com.google.android.gms process. The names are exact, so this does
+    // not include com.google.android.gms.unstable. DroidGuard keeps its own
+    // path, which is what RCS and the Play Store already pass with.
+    private static final String[] WALLET_PACKAGES = {
+            "com.google.android.apps.walletnfcrel",
+            "com.google.android.apps.nbu.paisa.user",
+            "com.google.android.gms.ui",
+            "com.google.android.gms",
+            "com.google.android.gms.persistent",
+    };
+
+    private static final Unsafe UNSAFE;
+    private static final Field UNSAFE_OFFSET_FIELD;
+
+    static {
+        Unsafe unsafe = null;
+        Field offsetField = null;
+        try {
+            Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
+            theUnsafe.setAccessible(true);
+            unsafe = (Unsafe) theUnsafe.get(null);
+            theUnsafe.setAccessible(false);
+            offsetField = Field.class.getDeclaredField("offset");
+            offsetField.setAccessible(true);
+        } catch (Throwable t) {
+            Log.e(TAG, "Unable to initialize Unsafe", t);
+        }
+        UNSAFE = unsafe;
+        UNSAFE_OFFSET_FIELD = offsetField;
+    }
 
     private static final String ROM_SIGNATURE_DATA = "MIIFyTCCA7GgAwIBAgIVALyxxl+zDS9SL68SzOr48309eAZyMA0GCSqGSIb3DQEBCwUAMHQxCzAJ" +
             "BgNVBAYTAlVTMRMwEQYDVQQIEwpDYWxpZm9ybmlhMRYwFAYDVQQHEw1Nb3VudGFpbiBWaWV3MRQw" +
@@ -284,6 +320,23 @@ public final class PlayIntegritySpoofService {
         return DROIDGUARD_PACKAGE.equals(processName) || VENDING_PACKAGE.equals(processName);
     }
 
+    /**
+     * Build-field spoof, without the DroidGuard signature or certificate-chain
+     * block. Wallet must not take those: they are only meaningful for DroidGuard.
+     */
+    public boolean shouldSpoofBuild(String processName) {
+        if (!mConfigLoaded) return false;
+        return shouldSpoof(processName) || isWalletProcess(processName);
+    }
+
+    private static boolean isWalletProcess(String processName) {
+        if (processName == null) return false;
+        for (String pkg : WALLET_PACKAGES) {
+            if (processName.equals(pkg) || processName.startsWith(pkg + ":")) return true;
+        }
+        return false;
+    }
+
     public boolean isGmsProcess(String dataDir) {
         if (dataDir == null) return false;
         return dataDir.endsWith("/" + GMS_PACKAGE) || dataDir.endsWith("/" + VENDING_PACKAGE);
@@ -302,10 +355,11 @@ public final class PlayIntegritySpoofService {
 
         boolean isVending = isVending(processName);
         boolean isDroidGuard = isDroidGuard(processName);
+        boolean isWallet = isWalletProcess(processName);
 
-        if (!isDroidGuard && !isVending) return;
+        if (!isDroidGuard && !isVending && !isWallet) return;
 
-        if (isVending) {
+        if (isVending && !isDroidGuard && !isWallet) {
             // Like upstream, spoofing the SDK level replaces the FINGERPRINT spoof
             // for Play Store rather than adding to it.
             if (mSpoofVendingSdk > 0) {
@@ -326,8 +380,19 @@ public final class PlayIntegritySpoofService {
             return;
         }
 
+        String logSuffix = isWallet ? "WL" : "DG";
         for (Map.Entry<String, String> entry : mBuildFields.entrySet()) {
-            spoofField(entry.getKey(), entry.getValue(), "DG");
+            spoofField(entry.getKey(), entry.getValue(), logSuffix);
+        }
+        if (isWallet) {
+            // The generate path prefers these over Build.MODEL and friends.
+            // Leaf hack writes the PIF values into the certificate either way.
+            spoofField("BRAND_FOR_ATTESTATION", mBuildFields.get("BRAND"), logSuffix);
+            spoofField("DEVICE_FOR_ATTESTATION", mBuildFields.get("DEVICE"), logSuffix);
+            spoofField("PRODUCT_FOR_ATTESTATION", mBuildFields.get("PRODUCT"), logSuffix);
+            spoofField("MANUFACTURER_FOR_ATTESTATION",
+                    mBuildFields.get("MANUFACTURER"), logSuffix);
+            spoofField("MODEL_FOR_ATTESTATION", mBuildFields.get("MODEL"), logSuffix);
         }
     }
 
@@ -519,13 +584,45 @@ public final class PlayIntegritySpoofService {
                 return;
             }
 
-            field.set(null, newValue);
+            try {
+                field.set(null, newValue);
+            } catch (IllegalAccessException denied) {
+                // Android 17 rejects reflection writes to Build's static final
+                // fields. *_FOR_ATTESTATION hits this; the certificate still
+                // has to match what this process reads back.
+                if (!setFinalField(field, newValue)) {
+                    Log.e(TAG, "Failed to spoof " + fieldName, denied);
+                    return;
+                }
+            }
             Log.d(TAG + "/Java:" + logSuffix, "[" + fieldName + "]: " + oldValue + " -> " + value);
 
         } catch (Exception e) {
             Log.e(TAG, "Failed to spoof " + fieldName, e);
         } finally {
             field.setAccessible(false);
+        }
+    }
+
+    private static boolean setFinalField(Field field, Object value) {
+        if (UNSAFE == null || UNSAFE_OFFSET_FIELD == null) return false;
+        try {
+            long offset = UNSAFE_OFFSET_FIELD.getInt(field);
+            Class<?> type = field.getType();
+            Object base = field.getDeclaringClass();
+            if (type == int.class) {
+                UNSAFE.putInt(base, offset, (Integer) value);
+            } else if (type == long.class) {
+                UNSAFE.putLong(base, offset, (Long) value);
+            } else if (type == boolean.class) {
+                UNSAFE.putBoolean(base, offset, (Boolean) value);
+            } else {
+                UNSAFE.putObject(base, offset, value);
+            }
+            return true;
+        } catch (Throwable t) {
+            Log.e(TAG, "Unsafe set failed for " + field.getName(), t);
+            return false;
         }
     }
 

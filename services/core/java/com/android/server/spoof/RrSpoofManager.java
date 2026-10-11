@@ -107,15 +107,22 @@ public class RrSpoofManager implements IRrSpoofManager {
             "com.google.android.contactkeys",
             "com.google.android.safetycore",
             "com.google.android.googlequicksearchbox",
+            // Wallet compares its own props with the attestation certificate, so it
+            // has to be restarted when the fingerprint changes or it keeps the old one.
+            // Tap to pay runs in com.google.android.gms.ui, a process of the GMS
+            // package above, so that force-stop already restarts it.
+            "com.google.android.apps.walletnfcrel",
+            "com.google.android.apps.nbu.paisa.user",
     };
 
     // Staging props for bionic's custom_rom_hide_get_prop_override(), which serves
     // them in place of the matching read-only props (ro.product.*, the *.build.id,
-    // *.security_patch and *api_level keys) — see libc/bionic/custom_rom_hide.cpp.
-    // ro.* props are immutable after boot, so we can't SystemProperties.set() them
-    // directly; these mutable props are the handoff point instead. bionic only
-    // applies them inside the DroidGuard process (com.google.android.gms.unstable),
-    // so every other process keeps seeing the real values.
+    // *.security_patch, *.build.fingerprint and *api_level keys) — see
+    // libc/bionic/custom_rom_hide.cpp. ro.* props are immutable after boot, so we
+    // can't SystemProperties.set() them directly; these mutable props are the
+    // handoff point instead. bionic applies them inside DroidGuard, Google
+    // Wallet, gms.ui, and the main GMS process that hosts TapAndPay. Every
+    // other process keeps seeing the real values.
     private static final String PIF_PRODUCT_PROP_PREFIX = "persist.sys.pif.product.";
     private static final String[] PIF_PRODUCT_PROP_NAMES = {
             "manufacturer", "brand", "model", "device", "name",
@@ -127,6 +134,7 @@ public class RrSpoofManager implements IRrSpoofManager {
     private static final String PIF_BUILD_TAGS_PROP = "persist.sys.pif.build.tags";
     private static final String PIF_BUILD_DESCRIPTION_PROP = "persist.sys.pif.build.description";
     private static final String PIF_BUILD_FLAVOR_PROP = "persist.sys.pif.build.flavor";
+    private static final String PIF_FINGERPRINT_PROP = "persist.sys.pif.fingerprint";
     // Config entries the fixed props above don't cover. Slot i holds "name=value", or
     // "*suffix=value" for a leading-* wildcard; the count says how many slots are live.
     // bionic's custom_rom_hide.cpp reads these with the same names and limits.
@@ -345,6 +353,7 @@ public class RrSpoofManager implements IRrSpoofManager {
         setStagedProp(PIF_BUILD_TAGS_PROP, null);
         setStagedProp(PIF_BUILD_DESCRIPTION_PROP, null);
         setStagedProp(PIF_BUILD_FLAVOR_PROP, null);
+        setStagedProp(PIF_FINGERPRINT_PROP, null);
         stageCustomProps(null);
     }
 
@@ -693,9 +702,10 @@ public class RrSpoofManager implements IRrSpoofManager {
     /**
      * Stages the spoofed product-identity, build id, security patch and initial
      * API level from the PIF config as mutable persist props for bionic's
-     * custom_rom_hide_get_prop_override() to serve to DroidGuard in place of the
-     * real read-only values — closes the gap where DroidGuard reading via
-     * getprop (rather than the Build class) would see the real device.
+     * custom_rom_hide_get_prop_override() to serve to DroidGuard and Google
+     * Wallet in place of the real read-only values — closes the gap where those
+     * processes reading via getprop (rather than the Build class) would see the
+     * real device. Wallet compares that read with its attestation certificate.
      *
      * The config is the source of truth whichever path wrote it (auto-refresh,
      * manual import, Remixer). A field the config doesn't carry is staged empty,
@@ -754,6 +764,16 @@ public class RrSpoofManager implements IRrSpoofManager {
                 : null);
         setStagedProp(PIF_BUILD_FLAVOR_PROP,
                 product != null && type != null ? product + "-" + type : null);
+        // ro.build.fingerprint is what Wallet reads natively. The Java field is
+        // spoofed separately. A value that does not fit in a property is left
+        // unset so the native read keeps the real fingerprint instead of a
+        // truncated one.
+        String fingerprint = fields.get("FINGERPRINT");
+        if (fingerprint != null && fingerprint.length() > PROP_VALUE_MAX_CHARS) {
+            Log.w(TAG, "PIF fingerprint is too long to stage, leaving the native value");
+            fingerprint = null;
+        }
+        setStagedProp(PIF_FINGERPRINT_PROP, fingerprint);
         setStagedProp(PIF_SECURITY_PATCH_PROP, firstNonEmpty(
                 fields.get("*.security_patch"), fields.get("SECURITY_PATCH")));
         setStagedProp(PIF_API_LEVEL_PROP, firstNonEmpty(

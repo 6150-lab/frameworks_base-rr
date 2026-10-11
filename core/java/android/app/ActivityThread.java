@@ -8173,8 +8173,12 @@ public final class ActivityThread extends ClientTransactionHandler
         GamePropsSpoofService.getInstance().spoofForPackage(data.appInfo.packageName);
 
         PlayIntegritySpoofService pifService = PlayIntegritySpoofService.getInstance();
-        if (pifService.shouldSpoof(data.processName)) {
+        if (pifService.shouldSpoofBuild(data.processName)) {
             pifService.spoofBuildFields(data.processName);
+        }
+        // Signature spoof and the certificate-chain block stay on DroidGuard
+        // and Play Store. Wallet only needs the build fields.
+        if (pifService.shouldSpoof(data.processName)) {
             if (pifService.isSpoofProviderEnabled()) {
                 pifService.spoofProvider(data.processName);
             }
