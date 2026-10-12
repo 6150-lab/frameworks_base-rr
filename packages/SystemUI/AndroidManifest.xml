@@ -1254,6 +1254,14 @@
             android:permission="android.permission.CUSTOMIZE_SYSTEM_UI"
             />
 
+        <!-- Clock face previews for Remixer's picker -->
+        <provider
+            android:authorities="com.android.systemui.clockfaces"
+            android:name="com.android.systemui.clocks.ClockFacePreviewProvider"
+            android:exported="true"
+            android:permission="android.permission.WRITE_SECURE_SETTINGS"
+            />
+
         <!-- TODO(b/278897602): Disable EmojiCompatInitializer until threading issues are fixed.
              https://developer.android.com/reference/androidx/emoji2/text/EmojiCompatInitializer -->
         <provider

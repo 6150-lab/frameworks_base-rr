@@ -97,4 +97,9 @@ public class AnalogClockView extends View {
         super.onDetachedFromWindow();
         handler.removeCallbacksAndMessages(null); // Stop updates when detached
     }
+
+    /** Stops the ticking of a detached preview. */
+    public void release() {
+        handler.removeCallbacksAndMessages(null);
+    }
 }

@@ -75,4 +75,9 @@ public class WordClockView extends TextView {
         super.onDetachedFromWindow();
         handler.removeCallbacks(updateTimeRunnable); // Stop updates when view is detached
     }
+
+    /** Stops the ticking of a detached preview. */
+    public void release() {
+        handler.removeCallbacksAndMessages(null);
+    }
 }

@@ -53,4 +53,9 @@ class WeatherTextView @JvmOverloads constructor(
         super.onDetachedFromWindow()
         mWeatherViewController.removeObserver()
     }
+
+    /** Shows the current weather in a detached preview; [release] it when done. */
+    fun preview() = mWeatherViewController.preview()
+
+    fun release() = mWeatherViewController.removeObserver()
 }

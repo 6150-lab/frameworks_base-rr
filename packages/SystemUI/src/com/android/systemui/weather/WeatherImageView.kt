@@ -59,6 +59,11 @@ class WeatherImageView @JvmOverloads constructor(
         weatherViewController.removeObserver()
     }
 
+    /** Shows the current weather in a detached preview; [release] it when done. */
+    fun preview() = weatherViewController.preview()
+
+    fun release() = weatherViewController.removeObserver()
+
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val width = maxSizePx.coerceAtMost(MeasureSpec.getSize(widthMeasureSpec))
         val height = maxSizePx.coerceAtMost(MeasureSpec.getSize(heightMeasureSpec))

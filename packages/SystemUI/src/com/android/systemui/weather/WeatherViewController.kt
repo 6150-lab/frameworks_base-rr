@@ -205,6 +205,9 @@ class WeatherViewController(
         }
     }
 
+    /** Fills the views in once, for a detached preview. */
+    fun preview() = updateWeather()
+
     fun removeObserver() {
         scope.cancel()
         OmniJawsClient.get().removeObserver(context, this)

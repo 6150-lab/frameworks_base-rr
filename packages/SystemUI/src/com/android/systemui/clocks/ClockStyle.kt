@@ -96,6 +96,9 @@ class ClockStyle @JvmOverloads constructor(
     private var pendingLayoutListener: View.OnLayoutChangeListener? = null
     private var clockSizeListener: View.OnLayoutChangeListener? = null
 
+    /** Detached preview: looks come only from [onTuningChanged] and nothing is written back. */
+    var isPreview = false
+
     private var clockWobbleOnChargeEnabled = true
     private var wobbleAnimator: ObjectAnimator? = null
     private var wobbleGlowAnimator: android.animation.ValueAnimator? = null
@@ -174,24 +177,7 @@ class ClockStyle @JvmOverloads constructor(
         super.onAttachedToWindow()
         if (callbacksRegistered) return
 
-        tunerService.addTunable(
-            this,
-            CLOCK_STYLE_KEY,
-            CLOCK_COLOR_MODE_KEY,
-            CLOCK_CUSTOM_COLOR_KEY,
-            CLOCK_TEXT_OPACITY_KEY,
-            CLOCK_FRAME_MARGIN_TOP_KEY,
-            CLOCK_SIZE_KEY,
-            CLOCK_AOD_ANIM_KEY,
-            CLOCK_ALBUM_ART_COLOR_KEY,
-            CLOCK_WOBBLE_ON_CHARGE_KEY,
-            CLOCK_FRAME_MARGIN_START_KEY,
-            CLOCK_GRADIENT_ENABLED_KEY,
-            CLOCK_GRADIENT_COLOR_START_KEY,
-            CLOCK_GRADIENT_COLOR_END_KEY,
-            CLOCK_GRADIENT_ANCHOR_Y_KEY,
-            CLOCK_GRADIENT_RADIUS_KEY,
-        )
+        tunerService.addTunable(this, *TUNABLE_KEYS)
         statusBarStateController.addCallback(statusBarStateListener)
         if (albumArtColorEnabled) {
             MediaSessionManager.get().addListener(mediaDataListener)
@@ -237,7 +223,7 @@ class ClockStyle @JvmOverloads constructor(
         when (key) {
             CLOCK_STYLE_KEY -> {
                 clockStyle = TunerService.parseInteger(newValue, DEFAULT_STYLE)
-                if (clockStyle != 0) {
+                if (clockStyle != 0 && !isPreview) {
                     Settings.Secure.putIntForUser(
                         context.contentResolver,
                         Settings.Secure.LOCK_SCREEN_CUSTOM_CLOCK_FACE,
@@ -277,7 +263,7 @@ class ClockStyle @JvmOverloads constructor(
                 val wasEnabled = albumArtColorEnabled
                 albumArtColorEnabled = TunerService.parseInteger(newValue, 0) != 0
                 when {
-                    albumArtColorEnabled && !wasEnabled ->
+                    albumArtColorEnabled && !wasEnabled && !isPreview ->
                         MediaSessionManager.get().addListener(mediaDataListener)
                     !albumArtColorEnabled && wasEnabled -> {
                         runCatching { MediaSessionManager.get().removeListener(mediaDataListener) }
@@ -992,6 +978,25 @@ class ClockStyle @JvmOverloads constructor(
         @JvmField val CLOCK_GRADIENT_COLOR_END_KEY: String = Settings.Secure.LOCK_SCREEN_CUSTOM_CLOCK_GRADIENT_COLOR_END
         @JvmField val CLOCK_GRADIENT_ANCHOR_Y_KEY: String = Settings.Secure.LOCK_SCREEN_CUSTOM_CLOCK_GRADIENT_ANCHOR_Y
         @JvmField val CLOCK_GRADIENT_RADIUS_KEY: String = Settings.Secure.LOCK_SCREEN_CUSTOM_CLOCK_GRADIENT_RADIUS
+
+        /** Every setting the clock follows, the face last so a preview applies it with its look. */
+        @JvmField val TUNABLE_KEYS = arrayOf(
+            CLOCK_COLOR_MODE_KEY,
+            CLOCK_CUSTOM_COLOR_KEY,
+            CLOCK_TEXT_OPACITY_KEY,
+            CLOCK_FRAME_MARGIN_TOP_KEY,
+            CLOCK_SIZE_KEY,
+            CLOCK_AOD_ANIM_KEY,
+            CLOCK_ALBUM_ART_COLOR_KEY,
+            CLOCK_WOBBLE_ON_CHARGE_KEY,
+            CLOCK_FRAME_MARGIN_START_KEY,
+            CLOCK_GRADIENT_ENABLED_KEY,
+            CLOCK_GRADIENT_COLOR_START_KEY,
+            CLOCK_GRADIENT_COLOR_END_KEY,
+            CLOCK_GRADIENT_ANCHOR_Y_KEY,
+            CLOCK_GRADIENT_RADIUS_KEY,
+            CLOCK_STYLE_KEY,
+        )
 
         const val COLOR_MODE_DEFAULT = "default"
         const val COLOR_MODE_ACCENT = "accent"
