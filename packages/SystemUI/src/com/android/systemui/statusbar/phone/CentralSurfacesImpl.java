@@ -891,7 +891,11 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
             ((ViewGroup) edgeLight.getParent()).removeView(edgeLight);
         }
         ViewGroup root = getNotificationShadeWindowView();
-        int index = Math.max(root.indexOfChild(root.findViewById(R.id.scrim_in_front)) - 3, 0);
+        // Right above the light reveal scrim: it stays black while dozing and hid the light.
+        // The lock screen and the pulsing notification still draw over it.
+        int reveal = root.indexOfChild(root.findViewById(R.id.light_reveal_scrim));
+        int index = reveal >= 0 ? reveal + 1
+                : Math.max(root.indexOfChild(root.findViewById(R.id.scrim_in_front)) - 3, 0);
         root.addView(edgeLight, index, new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
     }
