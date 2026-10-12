@@ -2237,6 +2237,12 @@ class DatabaseHelper extends SQLiteOpenHelper {
             loadStringSetting(stmt, Settings.Secure.IMMERSIVE_MODE_CONFIRMATIONS,
                         R.string.def_immersive_mode_confirmations);
 
+            String theme = mContext.getResources().getString(
+                    R.string.def_theme_customization_overlay_packages);
+            if (!theme.isEmpty()) {
+                loadSetting(stmt, Settings.Secure.THEME_CUSTOMIZATION_OVERLAY_PACKAGES, theme);
+            }
+
             loadBooleanSetting(stmt, Settings.Secure.INSTALL_NON_MARKET_APPS,
                     R.bool.def_install_non_market_apps);
 

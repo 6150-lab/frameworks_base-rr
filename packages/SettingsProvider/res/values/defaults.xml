@@ -160,6 +160,10 @@
          Override to disable immersive mode confirmation for certain packages. -->
     <string name="def_immersive_mode_confirmations" translatable="false"></string>
 
+    <!-- Initial value for Settings.Secure.THEME_CUSTOMIZATION_OVERLAY_PACKAGES, the
+         ThemePicker JSON. Empty leaves the colors to the wallpaper. -->
+    <string name="def_theme_customization_overlay_packages" translatable="false"></string>
+
     <!-- Default for Settings.Global.WIFI_SCAN_ALWAYS_AVAILABLE -->
     <integer name="def_wifi_scan_always_available">0</integer>
 
