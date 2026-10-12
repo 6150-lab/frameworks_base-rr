@@ -53,6 +53,7 @@ import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.HapticFeedbackConstants;
 import android.view.KeyEvent;
@@ -64,12 +65,16 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.WindowInsets;
 import android.view.WindowManager;
+import android.view.WindowManagerGlobal;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.OvershootInterpolator;
 import android.view.animation.PathInterpolator;
 import android.window.OnBackInvokedCallback;
 import android.window.OnBackInvokedDispatcher;
+import android.window.ScreenCaptureInternal;
+import android.window.ScreenCaptureInternal.ScreenshotHardwareBuffer;
+import android.window.ScreenCaptureInternal.SynchronousScreenCaptureListener;
 
 import androidx.core.view.ViewCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
@@ -145,6 +150,8 @@ public final class SpinRecents {
                     return false;
                 }
                 Wheel wheel = new Wheel(context, wm);
+                // Grabbed before the window exists, so the wheel is not in it.
+                wheel.setBackdrop(blurredScreen());
                 wm.addView(wheel, wheelWindow());
                 sWheel = wheel;
                 wheel.requestFocus();
@@ -171,6 +178,10 @@ public final class SpinRecents {
         }
     }
 
+    /** The backdrop is blurred at 1/12 size, then drawn back up smooth. */
+    private static final int BACKDROP_SCALE = 12;
+    private static final int BACKDROP_RADIUS = 4;
+
     private static WindowManager.LayoutParams wheelWindow() {
         WindowManager.LayoutParams lp = new WindowManager.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -189,6 +200,78 @@ public final class SpinRecents {
         lp.setTitle("RRSpinRecents");
         lp.windowAnimations = 0;
         return lp;
+    }
+
+    /**
+     * The screen as it was before the wheel opened, shrunk and blurred into a soft wash so the
+     * app behind doesn't show through. Cross-window blur is off on this device, so it is done
+     * here, once per opening.
+     */
+    private static Bitmap blurredScreen() {
+        SynchronousScreenCaptureListener listener =
+                ScreenCaptureInternal.createSyncCaptureListener();
+        try {
+            WindowManagerGlobal.getWindowManagerService().captureDisplay(
+                    Display.DEFAULT_DISPLAY, null, listener);
+        } catch (RemoteException | SecurityException e) {
+            return null;
+        }
+        ScreenshotHardwareBuffer buffer = listener.getBuffer();
+        Bitmap hardware = buffer != null ? buffer.asBitmap() : null;
+        if (hardware == null) {
+            return null;
+        }
+        Bitmap screen = hardware.copy(Bitmap.Config.ARGB_8888, false);
+        hardware.recycle();
+        if (screen == null) {
+            return null;
+        }
+        int w = Math.max(1, screen.getWidth() / BACKDROP_SCALE);
+        int h = Math.max(1, screen.getHeight() / BACKDROP_SCALE);
+        Bitmap small = Bitmap.createScaledBitmap(screen, w, h, true);
+        if (small != screen) {
+            screen.recycle();
+        }
+        int[] px = new int[w * h];
+        small.getPixels(px, 0, w, 0, 0, w, h);
+        small.recycle();
+        // Three box passes each way come close to a gaussian.
+        for (int pass = 0; pass < 3; pass++) {
+            boxBlur(px, w, h, BACKDROP_RADIUS, true);
+            boxBlur(px, w, h, BACKDROP_RADIUS, false);
+        }
+        return Bitmap.createBitmap(px, w, h, Bitmap.Config.ARGB_8888);
+    }
+
+    /** One box-blur pass along rows or columns, clamped at the edges. */
+    private static void boxBlur(int[] px, int w, int h, int radius, boolean rows) {
+        int lines = rows ? h : w;
+        int length = rows ? w : h;
+        int span = 2 * radius + 1;
+        int[] line = new int[length];
+        for (int l = 0; l < lines; l++) {
+            for (int i = 0; i < length; i++) {
+                line[i] = px[rows ? l * w + i : i * w + l];
+            }
+            int r = 0;
+            int g = 0;
+            int b = 0;
+            for (int i = -radius; i <= radius; i++) {
+                int c = line[Math.max(0, Math.min(length - 1, i))];
+                r += (c >> 16) & 0xFF;
+                g += (c >> 8) & 0xFF;
+                b += c & 0xFF;
+            }
+            for (int i = 0; i < length; i++) {
+                px[rows ? l * w + i : i * w + l] =
+                        0xFF000000 | ((r / span) << 16) | ((g / span) << 8) | (b / span);
+                int out = line[Math.max(0, i - radius)];
+                int in = line[Math.min(length - 1, i + radius + 1)];
+                r += ((in >> 16) & 0xFF) - ((out >> 16) & 0xFF);
+                g += ((in >> 8) & 0xFF) - ((out >> 8) & 0xFF);
+                b += (in & 0xFF) - (out & 0xFF);
+            }
+        }
     }
 
     private static float clamp(float value, float min, float max) {
@@ -388,6 +471,9 @@ public final class SpinRecents {
         private float[] mOffsets = new float[0];
 
         private final Paint mScrim = new Paint();
+        private final Paint mBackdropPaint = new Paint(Paint.FILTER_BITMAP_FLAG);
+        private final Rect mBackdropDst = new Rect();
+        private Bitmap mBackdrop;
         private final Paint mBand = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final Paint mDot = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final Paint mAccent = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -848,10 +934,23 @@ public final class SpinRecents {
                     mBox.centerX() + width / 2f, mBox.bottom);
         }
 
+        void setBackdrop(Bitmap backdrop) {
+            mBackdrop = backdrop;
+            invalidate();
+        }
+
         @Override
         protected void onDraw(Canvas canvas) {
             int w = getWidth();
             int h = getHeight();
+            if (mBackdrop != null) {
+                mBackdropPaint.setAlpha(alpha(255, mShow * 1.4f));
+                mBackdropDst.set(0, 0, w, h);
+                canvas.save();
+                canvas.clipRect(mNavCut.left, 0, w - mNavCut.right, h - mNavCut.bottom);
+                canvas.drawBitmap(mBackdrop, null, mBackdropDst, mBackdropPaint);
+                canvas.restore();
+            }
             mScrim.setAlpha(alpha(SCRIM_ALPHA, mShow * 1.4f));
             canvas.drawRect(mNavCut.left, 0, w - mNavCut.right, h - mNavCut.bottom, mScrim);
             if (mTasks.isEmpty()) {
