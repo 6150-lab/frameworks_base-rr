@@ -34,12 +34,10 @@ public final class PlayIntegritySpoofService {
     private static final String VENDING_PACKAGE = "com.android.vending";
     private static final String GMS_PACKAGE = "com.google.android.gms";
     // These processes read Build.* and compare it with the attestation
-    // certificate. That certificate is rewritten to the PIF profile for every
-    // TrickyStore target, so they have to be shown the same profile. The card
-    // screen is com.google.android.gms.ui, but TapAndPayService runs in the
-    // main com.google.android.gms process. The names are exact, so this does
-    // not include com.google.android.gms.unstable. DroidGuard keeps its own
-    // path, which is what RCS and the Play Store already pass with.
+    // certificate. TapAndPay rejects a canary fingerprint, so they get the
+    // stable certified profile. The names are exact, so this does not include
+    // com.google.android.gms.unstable. DroidGuard keeps the canary profile,
+    // which is what RCS and the Play Store already pass with.
     private static final String[] WALLET_PACKAGES = {
             "com.google.android.apps.walletnfcrel",
             "com.google.android.apps.nbu.paisa.user",
@@ -381,19 +379,83 @@ public final class PlayIntegritySpoofService {
         }
 
         String logSuffix = isWallet ? "WL" : "DG";
-        for (Map.Entry<String, String> entry : mBuildFields.entrySet()) {
+        Map<String, String> fields = isWallet ? getPaymentBuildFields() : mBuildFields;
+        for (Map.Entry<String, String> entry : fields.entrySet()) {
             spoofField(entry.getKey(), entry.getValue(), logSuffix);
         }
         if (isWallet) {
             // The generate path prefers these over Build.MODEL and friends.
-            // Leaf hack writes the PIF values into the certificate either way.
-            spoofField("BRAND_FOR_ATTESTATION", mBuildFields.get("BRAND"), logSuffix);
-            spoofField("DEVICE_FOR_ATTESTATION", mBuildFields.get("DEVICE"), logSuffix);
-            spoofField("PRODUCT_FOR_ATTESTATION", mBuildFields.get("PRODUCT"), logSuffix);
+            // Leaf hack writes the same payment profile into the certificate.
+            spoofField("BRAND_FOR_ATTESTATION", fields.get("BRAND"), logSuffix);
+            spoofField("DEVICE_FOR_ATTESTATION", fields.get("DEVICE"), logSuffix);
+            spoofField("PRODUCT_FOR_ATTESTATION", fields.get("PRODUCT"), logSuffix);
             spoofField("MANUFACTURER_FOR_ATTESTATION",
-                    mBuildFields.get("MANUFACTURER"), logSuffix);
-            spoofField("MODEL_FOR_ATTESTATION", mBuildFields.get("MODEL"), logSuffix);
+                    fields.get("MANUFACTURER"), logSuffix);
+            spoofField("MODEL_FOR_ATTESTATION", fields.get("MODEL"), logSuffix);
         }
+    }
+
+    /**
+     * Stable certified identity for Wallet and TapAndPay. DroidGuard stays on
+     * {@link #getBuildFields()}, the canary profile. Staged props win when
+     * system_server has published a newer stable fingerprint; otherwise this
+     * is the kodiak release shipped with the tree.
+     */
+    public Map<String, String> getPaymentBuildFields() {
+        Map<String, String> fields = new ConcurrentHashMap<>();
+        String fingerprint = SystemProperties.get("persist.sys.pif.w.fp", "");
+        if (fingerprint.isEmpty()) {
+            fingerprint = "google/kodiak/kodiak:17/CD1A.260905.001.B1/16238327:user/release-keys";
+            fields.put("MANUFACTURER", "Google");
+            fields.put("BRAND", "google");
+            fields.put("MODEL", "Pixel 11 Pro XL");
+            fields.put("PRODUCT", "kodiak");
+            fields.put("DEVICE", "kodiak");
+            fields.put("FINGERPRINT", fingerprint);
+            fields.put("ID", "CD1A.260905.001.B1");
+            fields.put("SECURITY_PATCH", "2026-09-05");
+            fields.put("RELEASE", "17");
+            fields.put("INCREMENTAL", "16238327");
+            fields.put("TYPE", "user");
+            fields.put("TAGS", "release-keys");
+            fields.put("DEVICE_INITIAL_SDK_INT", "32");
+            return fields;
+        }
+        fields.put("FINGERPRINT", fingerprint);
+        fields.put("MANUFACTURER", propOr("persist.sys.pif.w.mfr", "Google"));
+        fields.put("BRAND", propOr("persist.sys.pif.w.brand", "google"));
+        fields.put("MODEL", propOr("persist.sys.pif.w.model", "Pixel 11 Pro XL"));
+        fields.put("PRODUCT", propOr("persist.sys.pif.w.name", "kodiak"));
+        fields.put("DEVICE", propOr("persist.sys.pif.w.device", "kodiak"));
+        fields.put("ID", propOr("persist.sys.pif.w.id", "CD1A.260905.001.B1"));
+        fields.put("SECURITY_PATCH", propOr("persist.sys.pif.w.patch", "2026-09-05"));
+        fields.put("TYPE", propOr("persist.sys.pif.w.type", "user"));
+        fields.put("TAGS", propOr("persist.sys.pif.w.tags", "release-keys"));
+        fields.put("DEVICE_INITIAL_SDK_INT", propOr("persist.sys.pif.w.api", "32"));
+        // brand/product/device:release/id/incremental:type/tags
+        String[] parts = fingerprint.split("/");
+        if (parts.length >= 3) {
+            String[] deviceAndRelease = parts[2].split(":");
+            if (deviceAndRelease.length > 1) fields.put("RELEASE", deviceAndRelease[1]);
+        }
+        if (parts.length >= 5) {
+            String incremental = parts[4].split(":")[0];
+            if (!incremental.isEmpty()) fields.put("INCREMENTAL", incremental);
+        }
+        return fields;
+    }
+
+    private static String propOr(String name, String fallback) {
+        String value = SystemProperties.get(name, "");
+        return value.isEmpty() ? fallback : value;
+    }
+
+    /** Fields written into an attestation certificate for this process. */
+    public Map<String, String> getAttestationBuildFields() {
+        if (isWalletProcess(ActivityThread.currentProcessName())) {
+            return getPaymentBuildFields();
+        }
+        return mBuildFields;
     }
 
     /**

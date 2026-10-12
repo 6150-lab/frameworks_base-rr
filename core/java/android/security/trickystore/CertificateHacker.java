@@ -164,7 +164,9 @@ public final class CertificateHacker {
         }
     }
 
-    private static ContentSigner createBCSigner(String algorithm, PrivateKey privateKey) throws Exception {
+    // Package-visible so certificate generation can sign with the keybox key.
+    // Android's BC provider does not register SHA256withECDSA.
+    static ContentSigner createBCSigner(String algorithm, PrivateKey privateKey) throws Exception {
         AlgorithmIdentifier sigAlgId = new DefaultSignatureAlgorithmIdentifierFinder().find(algorithm);
         
         if (privateKey instanceof BCECPrivateKey) {
@@ -298,7 +300,7 @@ public final class CertificateHacker {
                 return overrides;
             }
 
-            Map<String, String> buildFields = pif.getBuildFields();
+            Map<String, String> buildFields = pif.getAttestationBuildFields();
             putIfPresent(overrides, TAG_ATTESTATION_ID_BRAND, buildFields.get("BRAND"));
             putIfPresent(overrides, TAG_ATTESTATION_ID_DEVICE, buildFields.get("DEVICE"));
             putIfPresent(overrides, TAG_ATTESTATION_ID_PRODUCT, buildFields.get("PRODUCT"));

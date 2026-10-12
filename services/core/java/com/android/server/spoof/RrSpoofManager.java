@@ -779,6 +779,84 @@ public class RrSpoofManager implements IRrSpoofManager {
         setStagedProp(PIF_API_LEVEL_PROP, firstNonEmpty(
                 fields.get("*api_level"), fields.get("DEVICE_INITIAL_SDK_INT")));
         stageCustomProps(fields);
+        stagePaymentPropOverrides(firstNonEmpty(
+                fields.get("DEVICE"), head != null ? head[2] : null));
+    }
+
+    /**
+     * Stable certified identity for Wallet and TapAndPay. Short names, because
+     * a property name can be at most 31 characters. DroidGuard keeps the canary
+     * props staged above. bionic falls back to the same kodiak release when
+     * these are still empty.
+     */
+    private void stagePaymentPropOverrides(String canaryDevice) {
+        PixelDeviceRepository.PixelProfile stable = paymentProfile(canaryDevice);
+        if (stable == null || !PixelDeviceRepository.isValidFingerprint(stable.fingerprint)) {
+            return;
+        }
+        final String[] head = fingerprintHead(stable.fingerprint);
+        final String[] tail = fingerprintTail(stable.fingerprint);
+        final String product = stable.product != null ? stable.product
+                : (head != null ? head[1] : null);
+        final String buildId = stable.buildId != null ? stable.buildId
+                : buildIdFromFingerprint(stable.fingerprint);
+        final String type = tail != null ? tail[3] : "user";
+        final String tags = tail != null ? tail[4] : "release-keys";
+        final String release = tail != null ? tail[0] : null;
+        final String incremental = tail != null ? tail[2] : null;
+        setStagedProp("persist.sys.pif.w.mfr", capitalize(stable.brand));
+        setStagedProp("persist.sys.pif.w.brand", stable.brand);
+        setStagedProp("persist.sys.pif.w.model", stable.model);
+        setStagedProp("persist.sys.pif.w.device", stable.device);
+        setStagedProp("persist.sys.pif.w.name", product);
+        setStagedProp("persist.sys.pif.w.id", buildId);
+        setStagedProp("persist.sys.pif.w.patch", stable.securityPatch);
+        setStagedProp("persist.sys.pif.w.api", PIF_DEVICE_INITIAL_SDK);
+        setStagedProp("persist.sys.pif.w.type", type);
+        setStagedProp("persist.sys.pif.w.tags", tags);
+        setStagedProp("persist.sys.pif.w.flavor",
+                product != null && type != null ? product + "-" + type : null);
+        final boolean haveDescription = product != null && type != null && release != null
+                && buildId != null && incremental != null && tags != null;
+        setStagedProp("persist.sys.pif.w.desc", haveDescription
+                ? product + "-" + type + " " + release + " " + buildId + " "
+                        + incremental + " " + tags
+                : null);
+        String fingerprint = stable.fingerprint;
+        if (fingerprint != null && fingerprint.length() > PROP_VALUE_MAX_CHARS) {
+            Log.w(TAG, "Stable fingerprint is too long to stage");
+            fingerprint = null;
+        }
+        setStagedProp("persist.sys.pif.w.fp", fingerprint);
+    }
+
+    private PixelDeviceRepository.PixelProfile paymentProfile(String canaryDevice) {
+        java.util.List<PixelDeviceRepository.PixelProfile> profiles =
+                PixelDeviceRepository.FALLBACK_PROFILES;
+        if (mContext != null) {
+            try {
+                java.util.List<PixelDeviceRepository.PixelProfile> cached =
+                        PixelDeviceRepository.getStableProfiles(mContext, false);
+                if (cached != null && !cached.isEmpty()) profiles = cached;
+            } catch (Exception e) {
+                Log.w(TAG, "Stable profile lookup failed", e);
+            }
+        }
+        PixelDeviceRepository.PixelProfile match = null;
+        if (canaryDevice != null) {
+            for (PixelDeviceRepository.PixelProfile profile : profiles) {
+                if (canaryDevice.equals(profile.codename) && !profile.isCanary) {
+                    match = profile;
+                    break;
+                }
+            }
+        }
+        if (match == null) {
+            for (PixelDeviceRepository.PixelProfile profile : profiles) {
+                if ("kodiak".equals(profile.codename)) return profile;
+            }
+        }
+        return match != null ? match : profiles.get(0);
     }
 
     /**
