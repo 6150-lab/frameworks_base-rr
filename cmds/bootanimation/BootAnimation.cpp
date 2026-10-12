@@ -78,19 +78,19 @@ static const char OEM_SHUTDOWNANIMATION_FILE[] = "/oem/media/shutdownanimation.z
 static const char PRODUCT_SHUTDOWNANIMATION_FILE[] = "/product/media/shutdownanimation.zip";
 static const char SYSTEM_SHUTDOWNANIMATION_FILE[] = "/system/media/shutdownanimation.zip";
 
+// Indexed by persist.sys.bootanimation_style; Remixer's boot animation picker has the same list.
 static const char* const BOOT_ANIMATION_FILES[] = {
     "/product/media/bootanimation.zip",
-    "/product/media/bootanimation_evo_reveal.zip",
+    "/product/media/bootanimation_rr_glow.zip",
+    "/product/media/bootanimation_rr_neon.zip",
+    "/product/media/bootanimation_rr_glitch.zip",
+    "/product/media/bootanimation_rr_lockup.zip",
+    "/product/media/bootanimation_rr.zip",
     "/product/media/bootanimation_aokp.zip",
     "/product/media/bootanimation_cm.zip",
-    "/product/media/bootanimation_ctos.zip",
-    "/product/media/bootanimation_cyberpunk.zip",
     "/product/media/bootanimation_du.zip",
-    "/product/media/bootanimation_google.zip",
     "/product/media/bootanimation_pac.zip",
-    "/product/media/bootanimation_rr.zip",
     "/product/media/bootanimation_slim.zip",
-    "/product/media/bootanimation_valorant.zip",
     "/data/misc/bootanim/bootanimation.zip"
 };
 
@@ -703,8 +703,9 @@ void BootAnimation::findBootAnimationFile() {
         : BOOT_ANIMATION_FILES[0];
     ALOGD("Bootanimation style %d requested -> %s (exists=%d)",
           bootAnimStyle, selectedBootAnimation, access(selectedBootAnimation, R_OK) == 0);
+    // A missing pick falls back to the default animation.
     const std::vector<std::string> bootFiles = {
-        std::string(selectedBootAnimation)
+        std::string(selectedBootAnimation), BOOT_ANIMATION_FILES[0], SYSTEM_BOOTANIMATION_FILE
     };
     static const std::vector<std::string> shutdownFiles = {
         PRODUCT_SHUTDOWNANIMATION_FILE, OEM_SHUTDOWNANIMATION_FILE, SYSTEM_SHUTDOWNANIMATION_FILE, ""
