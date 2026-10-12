@@ -6973,6 +6973,19 @@ public final class Settings {
         public static final String EDGE_LIGHT_ANIMATION_EFFECT = "edge_light_animation_effect";
 
         /**
+         * Whether notifications show the app's icon instead of its small icon. 0 off, 1 on.
+         * @hide
+         */
+        public static final String NOTIFICATION_USE_APP_ICONS = "notification_use_app_icons";
+
+        /**
+         * Whether notification app icons are themed to the accent. 0 off, 1 on.
+         * @hide
+         */
+        public static final String NOTIFICATION_USE_THEMED_APP_ICONS =
+                "notification_use_themed_app_icons";
+
+        /**
          * Keys we no longer back up under the current schema, but want to continue to
          * process when restoring historical backup datasets.
          *

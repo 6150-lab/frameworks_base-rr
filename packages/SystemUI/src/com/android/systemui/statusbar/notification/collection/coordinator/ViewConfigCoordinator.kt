@@ -16,12 +16,17 @@
 
 package com.android.systemui.statusbar.notification.collection.coordinator
 
+import android.database.ContentObserver
+import android.os.Handler
+import android.os.UserHandle
+import android.provider.Settings
 import android.util.Log
 import com.android.app.tracing.traceSection
 import com.android.internal.widget.MessagingGroup
 import com.android.internal.widget.MessagingMessage
 import com.android.keyguard.KeyguardUpdateMonitor
 import com.android.keyguard.KeyguardUpdateMonitorCallback
+import com.android.systemui.dagger.qualifiers.Main
 import com.android.systemui.shade.ShadeDisplayAware
 import com.android.systemui.statusbar.NotificationLockscreenUserManager
 import com.android.systemui.statusbar.NotificationLockscreenUserManager.UserChangedListener
@@ -31,6 +36,7 @@ import com.android.systemui.statusbar.notification.collection.coordinator.dagger
 import com.android.systemui.statusbar.notification.row.NotificationGutsManager
 import com.android.systemui.statusbar.policy.ConfigurationController
 import com.android.systemui.util.Compile
+import com.android.systemui.util.settings.SystemSettings
 import javax.inject.Inject
 
 /**
@@ -47,6 +53,8 @@ internal constructor(
     private val mGutsManager: NotificationGutsManager,
     private val mKeyguardUpdateMonitor: KeyguardUpdateMonitor,
     private val colorUpdateLogger: ColorUpdateLogger,
+    private val mSystemSettings: SystemSettings,
+    @Main private val mMainHandler: Handler,
 ) : Coordinator, ConfigurationController.ConfigurationListener {
 
     private var mIsSwitchingUser = false
@@ -81,11 +89,30 @@ internal constructor(
             }
         }
 
+    // Remixer's notification icon options: rebuild the rows so they apply right away
+    private val mIconSettingsObserver =
+        object : ContentObserver(mMainHandler) {
+            override fun onChange(selfChange: Boolean) {
+                if (!mIsSwitchingUser) {
+                    updateNotificationsOnDensityOrFontScaleChanged()
+                } else {
+                    mReinflateNotificationsOnUserSwitched = true
+                }
+            }
+        }
+
     override fun attach(pipeline: NotifPipeline) {
         mPipeline = pipeline
         mLockscreenUserManager.addUserChangedListener(mUserChangedListener)
         mConfigurationController.addCallback(this)
         mKeyguardUpdateMonitor.registerCallback(mKeyguardUpdateCallback)
+        for (name in ICON_SETTINGS) {
+            mSystemSettings.registerContentObserverForUserAsync(
+                name,
+                mIconSettingsObserver,
+                UserHandle.USER_ALL,
+            )
+        }
     }
 
     override fun onDensityOrFontScaleChanged() {
@@ -166,5 +193,10 @@ internal constructor(
     companion object {
         private const val TAG = "ViewConfigCoordinator"
         private val DEBUG = Compile.IS_DEBUG && Log.isLoggable(TAG, Log.DEBUG)
+        private val ICON_SETTINGS =
+            listOf(
+                Settings.System.NOTIFICATION_USE_APP_ICONS,
+                Settings.System.NOTIFICATION_USE_THEMED_APP_ICONS,
+            )
     }
 }

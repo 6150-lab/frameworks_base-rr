@@ -20,6 +20,8 @@ import android.annotation.WorkerThread
 import android.app.Notification
 import android.content.Context
 import android.content.pm.ApplicationInfo
+import android.os.UserHandle
+import android.provider.Settings
 import android.service.notification.StatusBarNotification
 import com.android.systemui.Dumpable
 import com.android.systemui.dagger.SysUISingleton
@@ -58,9 +60,18 @@ interface NotificationIconStyleProvider {
  */
 abstract class NotificationIconStyleProviderBase : NotificationIconStyleProvider {
     override fun shouldShowAppIcon(notification: StatusBarNotification, context: Context): Boolean {
-        return !prefersSmallIcon(notification.notification) &&
+        return appIconsEnabled(context) &&
+            !prefersSmallIcon(notification.notification) &&
             packageHasAppIcon(notification, context)
     }
+
+    private fun appIconsEnabled(context: Context): Boolean =
+        Settings.System.getIntForUser(
+            context.contentResolver,
+            Settings.System.NOTIFICATION_USE_APP_ICONS,
+            1,
+            UserHandle.USER_CURRENT,
+        ) == 1
 
     private fun prefersSmallIcon(notification: Notification): Boolean {
         return notification.extras.getBoolean(Notification.EXTRA_PREFER_SMALL_ICON)
