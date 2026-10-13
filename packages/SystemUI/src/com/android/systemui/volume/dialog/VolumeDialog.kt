@@ -144,6 +144,7 @@ constructor(
 
     override fun onStart() {
         super.onStart()
+        applyRrStyle()
         context.contentResolver.registerContentObserver(
             LineageSettings.Secure.getUriFor(LineageSettings.Secure.VOLUME_PANEL_ON_LEFT),
             false,
@@ -175,5 +176,62 @@ constructor(
             }
         }
         return false
+    }
+
+    /** RR volume panel looks, on rr_volume_style: 0 Android, 1 Neon, 2 Glass, 3 Pill, 4 Classic RR. */
+    private fun applyRrStyle() {
+        val style = android.provider.Settings.System.getIntForUser(
+            context.contentResolver, "rr_volume_style", 0, android.os.UserHandle.USER_CURRENT
+        )
+        val bg = findViewById<View>(R.id.volume_dialog_background) ?: return
+        if (style == 0) {
+            bg.setBackgroundResource(R.drawable.volume_dialog_background)
+            bg.elevation = 0f
+            return
+        }
+        val density = context.resources.displayMetrics.density
+        val accent = context.getColor(android.R.color.system_accent1_400)
+        val shape = android.graphics.drawable.GradientDrawable().apply { cornerRadius = 100 * density }
+        bg.elevation = 0f
+        when (style) {
+            1 -> {
+                shape.setColor(0xE6120A0C.toInt())
+                shape.setStroke((1.5f * density).toInt(), accent)
+                bg.outlineSpotShadowColor = accent
+                bg.outlineAmbientShadowColor = accent
+                bg.elevation = 10 * density
+                bg.background = shape
+            }
+            2 -> {
+                shape.setColor(0x33FFFFFF)
+                shape.setStroke(density.toInt().coerceAtLeast(1), 0x44FFFFFF)
+                bg.background = shape
+                bg.post {
+                    bg.viewRootImpl?.createBackgroundBlurDrawable()?.let { blur ->
+                        blur.setBlurRadius((40 * density).toInt())
+                        blur.setCornerRadius(100 * density)
+                        blur.setColor(0x33FFFFFF)
+                        bg.background = android.graphics.drawable.LayerDrawable(arrayOf(blur, shape))
+                    }
+                }
+            }
+            3 -> {
+                shape.setColor(0xCC1A1416.toInt())
+                bg.background = shape
+            }
+            4 -> {
+                val card = android.graphics.drawable.GradientDrawable().apply {
+                    cornerRadius = 10 * density
+                    setColor(0xF21D1517.toInt())
+                }
+                val bar = android.graphics.drawable.GradientDrawable().apply {
+                    cornerRadius = 10 * density
+                    setColor(accent)
+                }
+                bg.background = android.graphics.drawable.LayerDrawable(arrayOf(bar, card)).apply {
+                    setLayerInset(1, 0, (3 * density).toInt(), 0, 0)
+                }
+            }
+        }
     }
 }
