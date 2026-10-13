@@ -128,6 +128,8 @@
                             android:textAppearance="@style/TextAppearance.StatusBar.Default" />
                     </com.android.systemui.statusbar.policy.StatusBarWeatherView>
 
+                    <include layout="@layout/now_bar_chip" />
+
                     <!-- To avoid chips causing notifs to re-layout, wrap them in a FrameLayout
                     so they can overlap -->
                     <FrameLayout

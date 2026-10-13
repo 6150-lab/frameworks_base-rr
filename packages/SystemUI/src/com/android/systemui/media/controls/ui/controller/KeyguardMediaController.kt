@@ -16,6 +16,11 @@
 
 package com.android.systemui.media.controls.ui.controller
 
+import android.database.ContentObserver
+import com.android.systemui.rr.nowbar.NowBarSettings
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.merge
 import android.content.Context
 import android.content.res.Configuration
 import android.os.UserHandle
@@ -248,8 +253,12 @@ constructor(
     @VisibleForTesting
     fun listenForLockscreenSettingChanges(scope: CoroutineScope): Job {
         return scope.launch {
-            secureSettings
-                .observerFlow(UserHandle.USER_ALL, Settings.Secure.MEDIA_CONTROLS_LOCK_SCREEN)
+            merge(
+                    secureSettings.observerFlow(
+                        UserHandle.USER_ALL, Settings.Secure.MEDIA_CONTROLS_LOCK_SCREEN
+                    ),
+                    nowBarSettingsFlow(),
+                )
                 // query to get initial value
                 .onStart { emit(Unit) }
                 .map { getMediaLockScreenSetting() }
@@ -262,13 +271,28 @@ constructor(
         }
     }
 
+    /** RR: with music in the Now Bar, the player leaves the lock screen. */
+    private fun nowBarSettingsFlow() = callbackFlow {
+        val observer = object : ContentObserver(null) {
+            override fun onChange(selfChange: Boolean) {
+                trySend(Unit)
+            }
+        }
+        for (key in arrayOf(NowBarSettings.KEY_ENABLED, NowBarSettings.KEY_MUSIC)) {
+            context.contentResolver.registerContentObserver(
+                Settings.System.getUriFor(key), false, observer, UserHandle.USER_ALL
+            )
+        }
+        awaitClose { context.contentResolver.unregisterContentObserver(observer) }
+    }
+
     private suspend fun getMediaLockScreenSetting(): Boolean {
         return withContext(backgroundDispatcher) {
             secureSettings.getBoolForUser(
                 Settings.Secure.MEDIA_CONTROLS_LOCK_SCREEN,
                 true,
                 UserHandle.USER_CURRENT,
-            )
+            ) && !NowBarSettings.hidesLockscreenMedia(context)
         }
     }
 

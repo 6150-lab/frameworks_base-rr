@@ -22,6 +22,7 @@ import com.android.systemui.keyguard.shared.model.KeyguardBlueprint
 import com.android.systemui.keyguard.shared.model.KeyguardSection
 import com.android.systemui.keyguard.ui.view.layout.sections.AccessibilityActionsSection
 import com.android.systemui.keyguard.ui.view.layout.sections.ChargingGlowSection
+import com.android.systemui.keyguard.ui.view.layout.sections.NowBarSection
 import com.android.systemui.keyguard.ui.view.layout.sections.AodBurnInSection
 import com.android.systemui.keyguard.ui.view.layout.sections.AodNotificationIconsSection
 import com.android.systemui.keyguard.ui.view.layout.sections.AodPromotedNotificationSection
@@ -57,6 +58,7 @@ class DefaultKeyguardBlueprint
 @Inject
 constructor(
     chargingGlowSection: ChargingGlowSection,
+    nowBarSection: NowBarSection,
     accessibilityActionsSection: AccessibilityActionsSection,
     defaultIndicationAreaSection: DefaultIndicationAreaSection,
     defaultIndicationAreaTopSection: DefaultIndicationAreaTopSection,
@@ -103,6 +105,7 @@ constructor(
             keyguardClockStyleSection,
             aodStyleSection,
             clockSection,
+            nowBarSection,
             defaultDeviceEntrySection,
             udfpsAccessibilityOverlaySection, // Add LAST: Intentionally has z-order above others
     )
