@@ -6,6 +6,7 @@ package com.android.systemui.rr
 
 import com.android.systemui.CoreStartable
 import com.android.systemui.edgelight.EdgeLightMomentsController
+import com.android.systemui.rr.quicklaunch.QuickLaunchController
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.ClassKey
@@ -18,4 +19,9 @@ abstract class RrModule {
     @IntoMap
     @ClassKey(EdgeLightMomentsController::class)
     abstract fun bindEdgeLightMoments(impl: EdgeLightMomentsController): CoreStartable
+
+    @Binds
+    @IntoMap
+    @ClassKey(QuickLaunchController::class)
+    abstract fun bindQuickLaunch(impl: QuickLaunchController): CoreStartable
 }

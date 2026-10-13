@@ -52,4 +52,11 @@
 
     <!-- Screen-on time since the last full charge; %1$s is a duration like "5 hr 12 min". -->
     <string name="screen_on_time_label">SOT <xliff:g id="duration" example="5 hr 12 min">%1$s</xliff:g></string>
+
+    <!-- Fingerprint quick launch shortcut names -->
+    <string name="quick_launch_camera">Camera</string>
+    <string name="quick_launch_video">Video</string>
+    <string name="quick_launch_flashlight">Flashlight</string>
+    <string name="quick_launch_qr">Scan QR</string>
+    <string name="quick_launch_timer">Timer</string>
 </resources>
