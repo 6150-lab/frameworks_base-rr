@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- RR tag: a dark chip with an accent bar on its leading edge. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#E6141012" />
+            <corners android:radius="6dp" />
+        </shape>
+    </item>
+    <item android:width="3dp" android:gravity="start|fill_vertical">
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/system_accent1_400" />
+            <corners android:topLeftRadius="6dp" android:bottomLeftRadius="6dp" />
+        </shape>
+    </item>
+</layer-list>

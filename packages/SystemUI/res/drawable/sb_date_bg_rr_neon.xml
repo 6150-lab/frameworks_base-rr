@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- RR neon: a dark chip with an accent line inside a faint ring, like the homepage rings. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <stroke android:width="3dp" android:color="@color/sb_chip_rr_neon_glow" />
+            <corners android:radius="@dimen/chip_corner_radius" />
+        </shape>
+    </item>
+    <item android:left="1.5dp" android:top="1.5dp" android:right="1.5dp" android:bottom="1.5dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#E6141012" />
+            <stroke android:width="1.5dp" android:color="@android:color/system_accent1_200" />
+            <corners android:radius="@dimen/chip_corner_radius" />
+        </shape>
+    </item>
+</layer-list>

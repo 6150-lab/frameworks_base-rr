@@ -645,10 +645,21 @@ class HomeStatusBarViewBinderImpl @Inject constructor() : HomeStatusBarViewBinde
                 R.drawable.sb_date_bg11,
                 R.drawable.sb_date_bg12
             )
-            
-            if (style < 1 || style > clockBackgrounds.size) {
-                clock.setStaticColor(false)
-                return
+            // RR styles follow the custom gradient (13).
+            val rrBackgrounds = listOf(
+                R.drawable.sb_date_bg_rr_crimson,
+                R.drawable.sb_date_bg_rr_neon,
+                R.drawable.sb_date_bg_rr_tag,
+                R.drawable.sb_date_bg_rr_glass,
+            )
+            val background = when (style) {
+                in 1..clockBackgrounds.size -> clockBackgrounds[style - 1]
+                in CHIP_STYLE_RR_FIRST until CHIP_STYLE_RR_FIRST + rrBackgrounds.size ->
+                    rrBackgrounds[style - CHIP_STYLE_RR_FIRST]
+                else -> {
+                    clock.setStaticColor(false)
+                    return
+                }
             }
             
             val chipTopBottomPadding = context.resources.getDimensionPixelSize(
@@ -656,7 +667,7 @@ class HomeStatusBarViewBinderImpl @Inject constructor() : HomeStatusBarViewBinde
             val chipLeftRightPadding = context.resources.getDimensionPixelSize(
                 R.dimen.status_bar_clock_chip_lr_padding)
             
-            clock.setBackgroundResource(clockBackgrounds[style - 1])
+            clock.setBackgroundResource(background)
             clock.setPadding(
                 chipLeftRightPadding, 
                 chipTopBottomPadding, 
@@ -664,15 +675,13 @@ class HomeStatusBarViewBinderImpl @Inject constructor() : HomeStatusBarViewBinde
                 chipTopBottomPadding
             )
             clock.setTextAlignment(View.TEXT_ALIGNMENT_CENTER)
-            // Set text color to white for visibility on filled chip backgrounds
-            // Styles 2 and 8 are outline-only (transparent background), so use normal color
-            if (style != 2 && style != 8) {
+            // White text on filled chips; transparent ones keep the normal color.
+            if (style !in OUTLINE_CHIP_STYLES) {
                 clock.setStaticColor(true)
                 clock.setTextColor(Color.WHITE)
             } else {
                 clock.setStaticColor(false)
             }
-            // For outline styles (2, 8), let Clock's DarkIconDispatcher handle the color
         }
 
         // Always reset first so the previous active clock loses chip when position changes
@@ -805,6 +814,9 @@ class HomeStatusBarViewBinderImpl @Inject constructor() : HomeStatusBarViewBinde
 
     companion object {
         private const val CHIP_STYLE_CUSTOM_GRADIENT = 13
+        private const val CHIP_STYLE_RR_FIRST = 14
+        // Transparent styles keep the clock's own color: the outlines and RR glass.
+        private val OUTLINE_CHIP_STYLES = setOf(2, 8, 17)
         private const val GRADIENT_TEXT_STYLE_MASK = 1
 
         private const val CLOCK_POSITION_RIGHT = 0
