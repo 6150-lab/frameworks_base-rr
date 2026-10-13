@@ -16,6 +16,7 @@
 
 package com.android.systemui.statusbar.policy;
 
+import com.android.internal.graphics.ColorUtils;
 import android.annotation.NonNull;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -26,7 +27,10 @@ import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.graphics.Rect;
+import android.graphics.LinearGradient;
+import android.graphics.Shader;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.icu.lang.UCharacter;
 import android.icu.text.DateTimePatternGenerator;
 import android.os.Bundle;
@@ -43,6 +47,8 @@ import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.text.style.CharacterStyle;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.ImageSpan;
 import android.text.style.RelativeSizeSpan;
 import android.provider.Settings;
 import android.util.AttributeSet;
@@ -104,6 +110,17 @@ public class Clock extends TextView implements
             "system:" + Settings.System.STATUS_BAR_CLOCK_PERIOD_SEPARATOR;
     public static final String STATUS_BAR_CLOCK_BOLD =
             "system:" + Settings.System.STATUS_BAR_CLOCK_BOLD;
+    /** RR clock looks: 0 default, 1 neon, 2 split, 3 RR mark, 4 mono, 5 pulse, 6 stacked,
+     *  7 ember, 8 glitch. */
+    public static final String STATUS_BAR_CLOCK_RR_STYLE = "system:status_bar_clock_rr_style";
+    private static final int RR_STYLE_NEON = 1;
+    private static final int RR_STYLE_SPLIT = 2;
+    private static final int RR_STYLE_MARK = 3;
+    private static final int RR_STYLE_MONO = 4;
+    private static final int RR_STYLE_PULSE = 5;
+    private static final int RR_STYLE_STACKED = 6;
+    private static final int RR_STYLE_EMBER = 7;
+    private static final int RR_STYLE_GLITCH = 8;
 
     private final UserTracker mUserTracker;
     private int mCurrentUserId;
@@ -165,6 +182,18 @@ public class Clock extends TextView implements
      * Color to be set on this {@link TextView}, when wallpaperTextColor is <b>not</b> utilized.
      */
     private int mNonAdaptedColor;
+    private int mRrStyle;
+    private float mDarkIntensity;
+    private boolean mPulseOn = true;
+    private float mGlitch = 1f;
+    private final Runnable mPulseTick = new Runnable() {
+        @Override
+        public void run() {
+            mPulseOn = !mPulseOn;
+            updateClock(true);
+            postDelayed(this, 1000);
+        }
+    };
 
     private final BroadcastDispatcher mBroadcastDispatcher;
 
@@ -266,7 +295,7 @@ public class Clock extends TextView implements
                     QS_HEADER_CLOCK_SIZE, STATUS_BAR_CLOCK_DATE_DISPLAY,
                     STATUS_BAR_CLOCK_DATE_STYLE, STATUS_BAR_CLOCK_DATE_POSITION,
                     STATUS_BAR_CLOCK_DATE_FORMAT, STATUS_BAR_CLOCK_PERIOD_SEPARATOR,
-                    STATUS_BAR_CLOCK_BOLD);
+                    STATUS_BAR_CLOCK_BOLD, STATUS_BAR_CLOCK_RR_STYLE);
             mContext.getContentResolver().registerContentObserver(
                     LineageSettings.System.getUriFor(LineageSettings.System.STATUS_BAR_AM_PM),
                     false, mContentObserver);
@@ -288,6 +317,7 @@ public class Clock extends TextView implements
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
+        removeCallbacks(mPulseTick);
         if (mScreenReceiverRegistered) {
             mScreenReceiverRegistered = false;
             mBroadcastDispatcher.unregisterReceiver(mScreenReceiver);
@@ -345,7 +375,10 @@ public class Clock extends TextView implements
     final void updateClock(boolean forceTextUpdate) {
         if (mDemoMode || mCalendar == null) return;
         mCalendar.setTimeInMillis(System.currentTimeMillis());
-        CharSequence smallTime = getSmallTime();
+        CharSequence smallTime = rrStyled(getSmallTime());
+        if (mRrStyle == RR_STYLE_GLITCH && !TextUtils.equals(smallTime, getText())) {
+            twitch();
+        }
         // Setting text actually triggers a layout pass (because the text view is set to
         // wrap_content width and TextView always relayouts for this). Avoid needless
         // relayout if the text didn't actually change.
@@ -395,6 +428,10 @@ public class Clock extends TextView implements
                     mBoldStatusBarClock =
                             TunerService.parseIntegerSwitch(newValue, false);
                     applyBoldClockStyle();
+                    break;
+                case STATUS_BAR_CLOCK_RR_STYLE:
+                    mRrStyle = TunerService.parseInteger(newValue, 0);
+                    applyRrStyle();
                     break;
                 default:
                     return;
@@ -456,8 +493,121 @@ public class Clock extends TextView implements
     public void onDarkChanged(ArrayList<Rect> areas, float darkIntensity, int tint) {
         mNonAdaptedColor = DarkIconDispatcher.getTint(areas, this, tint);
         lastDynamicColor = mNonAdaptedColor;
+        mDarkIntensity = darkIntensity;
         if (useStaticColor) return;
         setTextColor(lastDynamicColor);
+        if (mRrStyle != 0) applyRrStyle();
+    }
+
+    private int rrAccent() {
+        return mContext.getColor(mDarkIntensity > 0.5f
+                ? android.R.color.system_accent1_600 : android.R.color.system_accent1_300);
+    }
+
+    /** Paint side of the RR looks; the text side is in rrStyled(). */
+    private void applyRrStyle() {
+        final float density = getResources().getDisplayMetrics().density;
+        final int accent = rrAccent();
+        final boolean light = mDarkIntensity > 0.5f;
+        if (mRrStyle == RR_STYLE_NEON) {
+            setShadowLayer((light ? 2 : 6) * density, 0, 0,
+                    light ? ColorUtils.setAlphaComponent(accent, 0x70) : accent);
+            if (!useStaticColor) {
+                setTextColor(ColorUtils.blendARGB(accent, light ? Color.BLACK : Color.WHITE,
+                        light ? 0.2f : 0.45f));
+            }
+        } else {
+            setShadowLayer(0, 0, 0, Color.TRANSPARENT);
+            if (!useStaticColor && lastDynamicColor != -1) setTextColor(lastDynamicColor);
+        }
+        if (mRrStyle == RR_STYLE_MONO) {
+            setTypeface(Typeface.create(Typeface.MONOSPACE, Typeface.BOLD));
+        } else if (getTypeface() != null && getTypeface().equals(
+                Typeface.create(Typeface.MONOSPACE, Typeface.BOLD))) {
+            setTypeface(Typeface.DEFAULT);
+            applyBoldClockStyle();
+        }
+        final boolean stacked = mRrStyle == RR_STYLE_STACKED;
+        setSingleLine(!stacked);
+        if (stacked) {
+            setMaxLines(2);
+            setLineSpacing(0, 0.82f);
+        } else {
+            setLineSpacing(0, 1f);
+        }
+        removeCallbacks(mPulseTick);
+        mPulseOn = true;
+        if (mRrStyle == RR_STYLE_PULSE && mAttached) postDelayed(mPulseTick, 1000);
+        updateEmberShader();
+        updateClock(true);
+        invalidate();
+    }
+
+    private void updateEmberShader() {
+        if (mRrStyle == RR_STYLE_EMBER && getWidth() > 0) {
+            getPaint().setShader(new LinearGradient(0, 0, getWidth(), 0,
+                    0xFFFF003F, 0xFFFF7A1A, Shader.TileMode.CLAMP));
+        } else {
+            getPaint().setShader(null);
+        }
+    }
+
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        updateEmberShader();
+    }
+
+    /** Text side of the RR looks. */
+    private CharSequence rrStyled(CharSequence time) {
+        if (mRrStyle == 0 || time == null || time.length() == 0) return time;
+        final int accent = rrAccent();
+        final SpannableStringBuilder text = new SpannableStringBuilder(time);
+        int colon = TextUtils.indexOf(time, ':');
+        if (colon < 0) colon = TextUtils.indexOf(time, '.');
+        switch (mRrStyle) {
+            case RR_STYLE_SPLIT:
+                if (colon > 0) {
+                    text.setSpan(new ForegroundColorSpan(accent), 0, colon,
+                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                }
+                break;
+            case RR_STYLE_PULSE:
+                if (colon >= 0) {
+                    text.setSpan(new ForegroundColorSpan(mPulseOn ? accent
+                            : ColorUtils.setAlphaComponent(accent, 0x30)), colon, colon + 1,
+                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                }
+                break;
+            case RR_STYLE_MARK:
+                final Drawable mark = mContext.getDrawable(R.drawable.rr_clock_mark);
+                if (mark != null) {
+                    mark.setTint(accent);
+                    final int h = Math.round(getTextSize() * 0.72f);
+                    mark.setBounds(0, 0, Math.round(h * 715.3f / 522.7f), h);
+                    text.insert(0, "\u200b ");
+                    text.setSpan(new ImageSpan(mark, ImageSpan.ALIGN_CENTER), 0, 1,
+                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                }
+                break;
+            case RR_STYLE_STACKED:
+                final CharSequence date = DateFormat.format("EEE d", mCalendar);
+                final int start = text.length() + 1;
+                text.append('\n').append(date);
+                text.setSpan(new RelativeSizeSpan(0.62f), start, text.length(),
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                break;
+        }
+        return text;
+    }
+
+    private void twitch() {
+        mGlitch = 3f;
+        invalidate();
+        postDelayed(() -> {
+            mGlitch = 1f;
+            invalidate();
+        }, 300);
     }
 
     // Update text color based when shade scrim changes color.
@@ -494,6 +644,20 @@ public class Clock extends TextView implements
 
     @Override
     protected void onDraw(Canvas canvas) {
+        if (!mMaskTextMode && mRrStyle == RR_STYLE_GLITCH && getLayout() != null) {
+            // Red and cyan copies either side, then the clock itself.
+            final float offset = 1.5f * mGlitch * getResources().getDisplayMetrics().density;
+            final int saved = getPaint().getColor();
+            for (int i = 0; i < 2; i++) {
+                canvas.save();
+                canvas.translate(getTotalPaddingLeft() + (i == 0 ? -offset : offset),
+                        getTotalPaddingTop());
+                getPaint().setColor(i == 0 ? 0xB3FF003F : 0xB333E1FF);
+                getLayout().draw(canvas);
+                canvas.restore();
+            }
+            getPaint().setColor(saved);
+        }
         if (!mMaskTextMode) {
             super.onDraw(canvas);
             return;
