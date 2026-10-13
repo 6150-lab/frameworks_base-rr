@@ -103,6 +103,31 @@
                         systemui:isStatusBar="true"
                     />
 
+                    <com.android.systemui.statusbar.policy.StatusBarWeatherView
+                        android:id="@+id/status_bar_weather_start"
+                        android:tag="start"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingEnd="4dp"
+                        android:visibility="gone">
+
+                        <ImageView
+                            android:id="@+id/status_bar_weather_icon"
+                            android:layout_width="@dimen/status_bar_icon_size_sp"
+                            android:layout_height="@dimen/status_bar_icon_size_sp"
+                            android:scaleType="fitCenter" />
+
+                        <TextView
+                            android:id="@+id/status_bar_weather_temp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:paddingStart="2dp"
+                            android:singleLine="true"
+                            android:textAppearance="@style/TextAppearance.StatusBar.Default" />
+                    </com.android.systemui.statusbar.policy.StatusBarWeatherView>
+
                     <!-- To avoid chips causing notifs to re-layout, wrap them in a FrameLayout
                     so they can overlap -->
                     <FrameLayout
@@ -167,6 +192,31 @@
                 android:orientation="horizontal"
                 android:gravity="center_vertical|end"
                 android:clipChildren="false">
+
+                <com.android.systemui.statusbar.policy.StatusBarWeatherView
+                    android:id="@+id/status_bar_weather_end"
+                    android:tag="end"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingEnd="4dp"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:id="@+id/status_bar_weather_icon"
+                        android:layout_width="@dimen/status_bar_icon_size_sp"
+                        android:layout_height="@dimen/status_bar_icon_size_sp"
+                        android:scaleType="fitCenter" />
+
+                    <TextView
+                        android:id="@+id/status_bar_weather_temp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingStart="2dp"
+                        android:singleLine="true"
+                        android:textAppearance="@style/TextAppearance.StatusBar.Default" />
+                </com.android.systemui.statusbar.policy.StatusBarWeatherView>
 
                 <com.android.systemui.statusbar.LineageStatusBarItemHolder
                     android:id="@+id/network_traffic_holder_end"
