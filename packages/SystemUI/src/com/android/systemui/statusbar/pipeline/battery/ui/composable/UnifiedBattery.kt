@@ -17,6 +17,13 @@
 package com.android.systemui.statusbar.pipeline.battery.ui.composable
 
 import android.graphics.Rect
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
@@ -230,6 +237,23 @@ fun BatteryLayout(
                     showLevelProvider = showLevelProvider,
                     colorsProvider = colorsProvider,
                     modifier = Modifier.layoutId(BatteryMeasurePolicy.LayoutId.FrameCircle),
+                    contentDescription = contentDescription,
+                )
+            } else if (iconStyle == BatteryRepository.ICON_STYLE_NEON_RING) {
+                NeonRingBattery(
+                    attr = attribution,
+                    levelProvider = levelProvider,
+                    showLevelProvider = showLevelProvider,
+                    colorsProvider = colorsProvider,
+                    modifier = Modifier.layoutId(BatteryMeasurePolicy.LayoutId.FrameCircle),
+                    contentDescription = contentDescription,
+                )
+            } else if (iconStyle == BatteryRepository.ICON_STYLE_PILL) {
+                PillBattery(
+                    attr = attribution,
+                    levelProvider = levelProvider,
+                    colorsProvider = colorsProvider,
+                    modifier = Modifier.layoutId(BatteryMeasurePolicy.LayoutId.Frame),
                     contentDescription = contentDescription,
                 )
             } else if (iconStyle == BatteryRepository.ICON_STYLE_TEXT) {
@@ -516,6 +540,98 @@ fun CircleBatteryBody(
                         size.height / 2 - textLayoutResult.size.height / 2f,
                     ),
             )
+        }
+    }
+}
+
+/** RR neon ring: the level as a glowing arc in the accent, with a spark circling while charging. */
+@Composable
+fun NeonRingBattery(
+    attr: BatteryGlyph?,
+    levelProvider: () -> Int?,
+    showLevelProvider: () -> Boolean,
+    colorsProvider: () -> BatteryColors,
+    modifier: Modifier = Modifier,
+    contentDescription: String = "",
+) {
+    val context = LocalContext.current
+    val accent = Color(context.getColor(android.R.color.system_accent1_300))
+    val low = Color(0xFFFF3030)
+    val saver = Color(0xFFFFB02E)
+    val textMeasurer = rememberTextMeasurer()
+    val charging = attr is BatteryGlyph.Bolt || attr is BatteryGlyph.Defend
+    val spin by rememberInfiniteTransition(label = "spark").animateFloat(
+        initialValue = 0f,
+        targetValue = 360f,
+        animationSpec = infiniteRepeatable(tween(1600, easing = LinearEasing)),
+        label = "spark",
+    )
+    Canvas(modifier = modifier, contentDescription = contentDescription) {
+        val level = levelProvider()
+        val colors = colorsProvider()
+        val stroke = size.height / 6.5f
+        val radius = size.height / 2f - stroke
+        val center = Offset(size.width / 2, size.height / 2)
+        val color = when {
+            attr is BatteryGlyph.Plus -> saver
+            level != null && level <= 20 -> low
+            else -> accent
+        }
+        drawCircle(colors.backgroundOnly, radius, center, style = Stroke(stroke))
+        if (level != null && level > 0) {
+            val topLeft = Offset(center.x - radius, center.y - radius)
+            val arc = Size(radius * 2, radius * 2)
+            drawArc(color.copy(alpha = 0.35f), 270f, 3.6f * level, false, topLeft, arc,
+                style = Stroke(stroke * 2.2f, cap = StrokeCap.Round))
+            drawArc(color, 270f, 3.6f * level, false, topLeft, arc,
+                style = Stroke(stroke, cap = StrokeCap.Round))
+        }
+        if (charging) {
+            val a = Math.toRadians((spin - 90f).toDouble())
+            drawCircle(Color.White, stroke * 0.8f,
+                Offset(center.x + radius * kotlin.math.cos(a).toFloat(),
+                    center.y + radius * kotlin.math.sin(a).toFloat()))
+        } else if (showLevelProvider() && level != null && level < 100) {
+            val text = textMeasurer.measure(
+                text = level.toString(),
+                style = TextStyle(color = colors.attribution, fontSize = 6.sp, fontWeight = FontWeight.Bold),
+            )
+            drawText(text, topLeft = Offset(size.width / 2 - text.size.width / 2f,
+                size.height / 2 - text.size.height / 2f))
+        }
+    }
+}
+
+/** RR slim pill: a thin rounded bar filled to the level. */
+@Composable
+fun PillBattery(
+    attr: BatteryGlyph?,
+    levelProvider: () -> Int?,
+    colorsProvider: () -> BatteryColors,
+    modifier: Modifier = Modifier,
+    contentDescription: String = "",
+) {
+    val context = LocalContext.current
+    val accent = Color(context.getColor(android.R.color.system_accent1_300))
+    Canvas(modifier = modifier, contentDescription = contentDescription) {
+        val level = levelProvider() ?: 0
+        val colors = colorsProvider()
+        val h = size.height * 0.5f
+        val top = (size.height - h) / 2f
+        val stroke = h / 6f
+        val corner = CornerRadius(h / 2f, h / 2f)
+        drawRoundRect(colors.attribution, Offset(stroke / 2, top), Size(size.width - stroke, h),
+            corner, style = Stroke(stroke))
+        val inner = stroke * 1.6f
+        val fillWidth = (size.width - inner * 2) * level / 100f
+        if (fillWidth > 0) {
+            val fill = when {
+                attr is BatteryGlyph.Bolt || attr is BatteryGlyph.Defend -> accent
+                level <= 20 -> Color(0xFFFF3030)
+                else -> colors.attribution
+            }
+            drawRoundRect(fill, Offset(inner, top + inner), Size(fillWidth, h - inner * 2),
+                CornerRadius((h - inner * 2) / 2f, (h - inner * 2) / 2f))
         }
     }
 }

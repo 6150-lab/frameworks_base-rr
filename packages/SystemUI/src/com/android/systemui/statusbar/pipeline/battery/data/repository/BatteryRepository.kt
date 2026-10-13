@@ -91,6 +91,10 @@ interface BatteryRepository {
         const val ICON_STYLE_CIRCLE = 1
         const val ICON_STYLE_TEXT = 2
         const val ICON_STYLE_CIRCLE_DOTTED = 3
+        /** RR: a ring in the accent that glows, with a spark while charging. */
+        const val ICON_STYLE_NEON_RING = 4
+        /** RR: a slim rounded bar filled to the level. */
+        const val ICON_STYLE_PILL = 5
         const val SHOW_PERCENT_HIDDEN = 0
         const val SHOW_PERCENT_INSIDE = 1
         const val SHOW_PERCENT_NEXT_TO = 2
