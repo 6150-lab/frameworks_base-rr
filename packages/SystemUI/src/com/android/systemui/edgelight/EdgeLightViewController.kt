@@ -19,6 +19,8 @@ import android.app.Notification
 import android.app.WallpaperManager
 import android.content.Context
 import android.graphics.Color
+import android.os.UserHandle
+import android.provider.Settings
 import android.service.notification.NotificationListenerService.RankingMap
 import android.service.notification.StatusBarNotification
 import android.widget.FrameLayout
@@ -172,6 +174,8 @@ constructor(
 
     private fun setPulsing(pulsing: Boolean) {
         if (!currentSettings.isEnabled || !pulsing || !isDozing) return
+        if (Settings.System.getIntForUser(context.contentResolver, KEY_NOTIFICATIONS, 1,
+                UserHandle.USER_CURRENT) == 0) return
         edgeLightView.apply {
             visible = true
             pulseRunning = true
@@ -194,6 +198,8 @@ constructor(
         private const val COLOR_MODE_WALLPAPER = "wallpaper"
         private const val COLOR_MODE_CUSTOM = "custom"
         private const val COLOR_MODE_RAINBOW = "rainbow"
+        /** Notification pulses, one of the edge light moments. */
+        private const val KEY_NOTIFICATIONS = "edge_light_moment_notifications"
 
         @Volatile
         private var INSTANCE: EdgeLightViewController? = null

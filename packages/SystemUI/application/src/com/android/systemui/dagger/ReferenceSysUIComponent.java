@@ -20,6 +20,7 @@ import com.android.systemui.bundle.phone.PodModulePhone;
 import com.android.systemui.controls.dagger.StartControlsStartableModule;
 import com.android.systemui.keyguard.CustomizationProvider;
 import com.android.systemui.notifications.intelligence.rules.ui.NotificationRulesDefaultModule;
+import com.android.systemui.rr.RrModule;
 import com.android.systemui.rr.pulse.PulseModule;
 import com.android.systemui.settings.MultiUserUtilsModule;
 import com.android.systemui.statusbar.NotificationInsetsModule;
@@ -43,6 +44,7 @@ import dagger.Subcomponent;
         PulseModule.class,
         QsFrameTranslateModule.class,
         ReferenceSystemUIModule.class,
+        RrModule.class,
         StartControlsStartableModule.class,
         StartBinderLoggerModule.class,
         SystemUIModule.class,
