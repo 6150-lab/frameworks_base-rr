@@ -81,7 +81,6 @@ static const char SYSTEM_SHUTDOWNANIMATION_FILE[] = "/system/media/shutdownanima
 // Indexed by persist.sys.bootanimation_style; Remixer's boot animation picker has the same list.
 static const char* const BOOT_ANIMATION_FILES[] = {
     "/product/media/bootanimation.zip",
-    "/product/media/bootanimation_rr_glow.zip",
     "/product/media/bootanimation_rr_neon.zip",
     "/product/media/bootanimation_rr_glitch.zip",
     "/product/media/bootanimation_rr_lockup.zip",
