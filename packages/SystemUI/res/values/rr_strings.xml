@@ -77,4 +77,10 @@
     <string name="now_bar_close">Close</string>
     <string name="now_bar_minutes_left"><xliff:g id="minutes" example="4">%1$d</xliff:g> min left</string>
     <string name="now_bar_minutes"><xliff:g id="minutes" example="12">%1$d</xliff:g> min</string>
+
+    <!-- Charge report -->
+    <string name="charge_report_channel">Charge reports</string>
+    <string name="charge_report_title">Charge report</string>
+    <string name="charge_report_summary">+<xliff:g id="added" example="62">%1$d</xliff:g>%% in <xliff:g id="time" example="31 min">%2$s</xliff:g> \u00b7 peak <xliff:g id="watts" example="55.0">%3$s</xliff:g> W \u00b7 max <xliff:g id="temp" example="38">%4$s</xliff:g> \u00b0C</string>
+    <string name="charge_report_details"><xliff:g id="from" example="12">%1$d</xliff:g>%% to <xliff:g id="to" example="74">%2$d</xliff:g>%% \u00b7 average <xliff:g id="watts" example="41.3">%3$s</xliff:g> W</string>
 </resources>

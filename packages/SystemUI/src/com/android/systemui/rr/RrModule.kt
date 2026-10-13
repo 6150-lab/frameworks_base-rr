@@ -6,6 +6,7 @@ package com.android.systemui.rr
 
 import com.android.systemui.CoreStartable
 import com.android.systemui.edgelight.EdgeLightMomentsController
+import com.android.systemui.rr.chargereport.ChargeReportController
 import com.android.systemui.rr.nowbar.NowBarRepository
 import com.android.systemui.rr.quicklaunch.QuickLaunchController
 import dagger.Binds
@@ -30,4 +31,9 @@ abstract class RrModule {
     @IntoMap
     @ClassKey(NowBarRepository::class)
     abstract fun bindNowBar(impl: NowBarRepository): CoreStartable
+
+    @Binds
+    @IntoMap
+    @ClassKey(ChargeReportController::class)
+    abstract fun bindChargeReport(impl: ChargeReportController): CoreStartable
 }
