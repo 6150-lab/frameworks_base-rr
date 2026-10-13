@@ -7,6 +7,7 @@ package com.android.systemui.rr
 import com.android.systemui.CoreStartable
 import com.android.systemui.edgelight.EdgeLightMomentsController
 import com.android.systemui.rr.chargereport.ChargeReportController
+import com.android.systemui.rr.gesture.GestureAnywhereController
 import com.android.systemui.rr.nowbar.NowBarRepository
 import com.android.systemui.rr.pie.PieController
 import com.android.systemui.rr.quicklaunch.QuickLaunchController
@@ -42,4 +43,9 @@ abstract class RrModule {
     @IntoMap
     @ClassKey(PieController::class)
     abstract fun bindPie(impl: PieController): CoreStartable
+
+    @Binds
+    @IntoMap
+    @ClassKey(GestureAnywhereController::class)
+    abstract fun bindGestureAnywhere(impl: GestureAnywhereController): CoreStartable
 }
