@@ -152,26 +152,34 @@ constructor(
             val custom = JSONArray(string(KEY_CUSTOM) ?: "[]")
             for (i in 0 until custom.length()) {
                 val entry = custom.getJSONObject(i)
-                val strokes = entry.getJSONArray("strokes")
-                val g = Gesture()
-                for (s in 0 until strokes.length()) {
-                    val flat = strokes.getJSONArray(s)
-                    val points = ArrayList<GesturePoint>()
-                    var p = 0
-                    while (p + 2 < flat.length()) {
-                        points += GesturePoint(flat.getDouble(p).toFloat(),
-                            flat.getDouble(p + 1).toFloat(), flat.getLong(p + 2))
-                        p += 3
-                    }
-                    if (points.size > 1) g.addStroke(GestureStroke(points))
-                }
                 val name = "custom$i"
-                store.addGesture(name, g)
+                // Each drawing from Remixer is one more sample of the same gesture.
+                val samples = entry.optJSONArray("samples")
+                    ?: JSONArray().put(entry.getJSONArray("strokes"))
+                for (n in 0 until samples.length()) {
+                    store.addGesture(name, parse(samples.getJSONArray(n)))
+                }
                 actions[name] = entry.getString("action")
             }
         } catch (e: Exception) {
             // Keep the built-in ones.
         }
+    }
+
+    private fun parse(strokes: JSONArray): Gesture {
+        val g = Gesture()
+        for (s in 0 until strokes.length()) {
+            val flat = strokes.getJSONArray(s)
+            val points = ArrayList<GesturePoint>()
+            var p = 0
+            while (p + 2 < flat.length()) {
+                points += GesturePoint(flat.getDouble(p).toFloat(),
+                    flat.getDouble(p + 1).toFloat(), flat.getLong(p + 2))
+                p += 3
+            }
+            if (points.size > 1) g.addStroke(GestureStroke(points))
+        }
+        return g
     }
 
     private fun arc(cx: Float, cy: Float, r: Float, from: Float, to: Float): List<Pair<Float, Float>> {
