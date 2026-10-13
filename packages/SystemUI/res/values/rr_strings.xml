@@ -14,7 +14,7 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <!-- Advanced restart panel -->
     <string name="rr_power_title">Power</string>
     <string name="rr_power_status">Up %1$s · %2$s battery</string>
@@ -49,4 +49,7 @@
 
     <!-- Face unlock -->
     <string name="face_unlock_recognizing">Recognizing face...</string>
+
+    <!-- Screen-on time since the last full charge; %1$s is a duration like "5 hr 12 min". -->
+    <string name="screen_on_time_label">SOT <xliff:g id="duration" example="5 hr 12 min">%1$s</xliff:g></string>
 </resources>

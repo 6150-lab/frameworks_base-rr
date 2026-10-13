@@ -16,8 +16,11 @@
 
 package com.android.systemui.qs.tiles.impl.battery.ui.mapper
 
+import android.content.Context
 import android.content.res.Resources
 import com.android.systemui.common.shared.model.Icon
+import com.android.systemui.dagger.qualifiers.Application
+import com.android.systemui.power.ScreenOnTime
 import com.android.systemui.qs.tiles.base.shared.model.QSTileConfig
 import com.android.systemui.qs.tiles.base.shared.model.QSTileState
 import com.android.systemui.qs.tiles.base.ui.model.QSTileDataToStateMapper
@@ -32,6 +35,7 @@ open class BatterySaverTileMapper
 constructor(
     @ShadeDisplayAware protected val resources: Resources,
     private val theme: Resources.Theme,
+    @Application private val context: Context,
 ) : QSTileDataToStateMapper<BatterySaverTileModel> {
 
     override fun map(config: QSTileConfig, data: BatterySaverTileModel): QSTileState =
@@ -43,11 +47,12 @@ constructor(
                 else R.drawable.qs_battery_saver_icon_off
             icon = Icon.Loaded(resources.getDrawable(iconRes, theme), null, iconRes)
             sideViewIcon = QSTileState.SideViewIcon.None
+            val sot = if (ScreenOnTime.isEnabled(context)) ScreenOnTime.label(context) else null
 
             if (data.isPluggedIn) {
                 activationState = QSTileState.ActivationState.UNAVAILABLE
                 supportedActions = setOf(QSTileState.UserAction.LONG_CLICK)
-                secondaryLabel = ""
+                secondaryLabel = sot ?: ""
             } else if (data.isPowerSaving) {
                 activationState = QSTileState.ActivationState.ACTIVE
                 supportedActions =
@@ -61,13 +66,13 @@ constructor(
                         )
                     stateDescription = secondaryLabel
                 } else {
-                    secondaryLabel = ""
+                    secondaryLabel = sot ?: ""
                 }
             } else {
                 activationState = QSTileState.ActivationState.INACTIVE
                 supportedActions =
                     setOf(QSTileState.UserAction.CLICK, QSTileState.UserAction.LONG_CLICK)
-                secondaryLabel = ""
+                secondaryLabel = sot ?: ""
             }
         }
 }

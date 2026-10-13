@@ -35,6 +35,7 @@ import com.android.systemui.plugins.ActivityStarter;
 import com.android.systemui.plugins.FalsingManager;
 import com.android.systemui.plugins.qs.QSTile.BooleanState;
 import com.android.systemui.plugins.statusbar.StatusBarStateController;
+import com.android.systemui.power.ScreenOnTime;
 import com.android.systemui.qs.QSHost;
 import com.android.systemui.qs.QsEventLogger;
 import com.android.systemui.qs.UserSettingObserver;
@@ -150,7 +151,9 @@ public class BatterySaverTile extends QSTileImpl<BooleanState> implements
         state.icon = maybeLoadResourceIcon(mPowerSave
                 ? R.drawable.qs_battery_saver_icon_on : R.drawable.qs_battery_saver_icon_off);
         state.label = mContext.getString(R.string.battery_detail_switch_title);
-        state.secondaryLabel = "";
+        String sot = ScreenOnTime.isEnabled(mContext)
+                ? ScreenOnTime.label(mContext, () -> refreshState(null)) : null;
+        state.secondaryLabel = sot != null ? sot : "";
         state.contentDescription = state.label;
         state.value = mPowerSave;
         state.expandedAccessibilityClassName = Switch.class.getName();

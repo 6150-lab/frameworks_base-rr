@@ -118,6 +118,7 @@ import com.android.systemui.keyguard.util.IndicationHelper;
 import com.android.systemui.log.core.LogLevel;
 import com.android.systemui.plugins.FalsingManager;
 import com.android.systemui.plugins.statusbar.StatusBarStateController;
+import com.android.systemui.power.ScreenOnTime;
 import com.android.systemui.res.R;
 import com.android.systemui.securelockdevice.domain.interactor.SecureLockDeviceInteractor;
 import com.android.systemui.settings.UserTracker;
@@ -1361,11 +1362,21 @@ public class KeyguardIndicationController {
     }
 
     private String computeBatteryInfo() {
-        if (Settings.System.getIntForUser(mContext.getContentResolver(),
-                Settings.System.LOCKSCREEN_BATTERY_INFO, 1, UserHandle.USER_CURRENT) != 1) {
-            return "";
-        }
         List<String> details = new ArrayList<>();
+        if (Settings.System.getIntForUser(mContext.getContentResolver(),
+                Settings.System.LOCKSCREEN_BATTERY_INFO, 1, UserHandle.USER_CURRENT) == 1) {
+            addChargingDetails(details);
+        }
+        if (ScreenOnTime.isEnabled(mContext)) {
+            String sot = ScreenOnTime.label(mContext);
+            if (sot != null) {
+                details.add(sot);
+            }
+        }
+        return details.isEmpty() ? "" : "\n" + TextUtils.join(" · ", details);
+    }
+
+    private void addChargingDetails(List<String> details) {
         if (mChargingCurrent >= 1_000_000) {
             details.add(String.format(Locale.US, "%.1f", mChargingCurrent / 1_000_000f) + "A");
         } else if (mChargingCurrent > 0) {
@@ -1380,7 +1391,6 @@ public class KeyguardIndicationController {
         if (mTemperature > 0) {
             details.add(String.format(Locale.US, "%.1f", mTemperature / 10f) + "°C");
         }
-        return details.isEmpty() ? "" : "\n" + TextUtils.join(" · ", details);
     }
 
     public void setStatusBarKeyguardViewManager(
