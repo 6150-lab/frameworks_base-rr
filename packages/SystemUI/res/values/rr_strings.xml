@@ -82,7 +82,11 @@
     <string name="charge_report_channel">Charge reports</string>
     <string name="charge_report_title">Charge report</string>
     <string name="charge_report_summary">+<xliff:g id="added" example="62">%1$d</xliff:g>%% in <xliff:g id="time" example="31 min">%2$s</xliff:g> \u00b7 peak <xliff:g id="watts" example="55.0">%3$s</xliff:g> W \u00b7 max <xliff:g id="temp" example="38">%4$s</xliff:g> \u00b0C</string>
-    <string name="charge_report_details"><xliff:g id="from" example="12">%1$d</xliff:g>%% to <xliff:g id="to" example="74">%2$d</xliff:g>%% \u00b7 average <xliff:g id="watts" example="41.3">%3$s</xliff:g> W</string>
+    <string name="charge_report_details"><xliff:g id="charger" example="Wired">%1$s</xliff:g> \u00b7 <xliff:g id="from" example="12">%2$d</xliff:g>%% to <xliff:g id="to" example="74">%3$d</xliff:g>%% \u00b7 average <xliff:g id="watts" example="41.3">%4$s</xliff:g> W</string>
+    <string name="charge_report_wired">Wired</string>
+    <string name="charge_report_wireless">Wireless</string>
+    <string name="charge_report_usb">USB</string>
+    <string name="charge_report_dock">Dock</string>
 
     <!-- Gesture anywhere -->
     <string name="gesture_anywhere_hint">Draw a gesture</string>
