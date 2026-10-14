@@ -6,6 +6,7 @@ package com.android.systemui.rr.chargingglow
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
+import android.animation.TimeAnimator
 import android.animation.ValueAnimator
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -13,11 +14,13 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.res.Configuration
 import android.database.ContentObserver
+import android.graphics.BlurMaskFilter
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.LinearGradient
 import android.graphics.Matrix
 import android.graphics.Paint
+import android.graphics.Path
 import android.graphics.RadialGradient
 import android.graphics.Shader
 import android.os.Handler
@@ -30,10 +33,16 @@ import com.android.internal.graphics.ColorUtils
 import com.android.systemui.broadcast.BroadcastDispatcher
 import com.android.systemui.plugins.statusbar.StatusBarStateController
 import com.android.systemui.statusbar.policy.BatteryController
+import java.util.Random
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.pow
+import kotlin.math.sin
 
 /**
  * Lock screen glow that rises from the bottom while the phone charges. Its height follows the
- * battery level; on the always-on display it is a dim, still version.
+ * battery level; while charging it breathes, a wave of light runs along its top and sparks rise
+ * through it. On the always-on display it is a dim, still version.
  */
 class ChargingGlowView(
     context: Context,
@@ -50,6 +59,7 @@ class ChargingGlowView(
     private var brightness = DEFAULT_BRIGHTNESS / 100f
     private var rippleEnabled = true
     private var showOnAod = true
+    private var motionEnabled = true
 
     private var level = -1
     private var pluggedIn = false
@@ -61,19 +71,45 @@ class ChargingGlowView(
     /** 0 while hidden, 1 once fully risen. */
     private var rise = 0f
     private var breath = 1f
+    /** Seconds of motion, for the wave and the sparks. */
+    private var motionTime = 0f
     private var rippleProgress = -1f
     private var aodShift = 0
 
     private val glowPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val crestPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val ripplePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE }
+    private val waveGlowPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.STROKE
+        strokeCap = Paint.Cap.ROUND
+        strokeJoin = Paint.Join.ROUND
+    }
+    private val waveCorePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.STROKE
+        strokeCap = Paint.Cap.ROUND
+        strokeJoin = Paint.Join.ROUND
+    }
+    private val sparkPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val wavePath = Path()
+    private var crestColor = Color.WHITE
+    private val sparks = Random(7).let { random ->
+        Array(SPARKS) {
+            Spark(
+                x = random.nextFloat(),
+                speed = 0.08f + random.nextFloat() * 0.12f,
+                size = 1.2f + random.nextFloat() * 2.2f,
+                phase = random.nextFloat(),
+                sway = 0.01f + random.nextFloat() * 0.025f,
+            )
+        }
+    }
     private val glowMatrix = Matrix()
     private val crestMatrix = Matrix()
     private var shaderColor = 0
 
     private var riseAnimator: ValueAnimator? = null
     private var levelAnimator: ValueAnimator? = null
-    private var breathAnimator: ValueAnimator? = null
+    private var motionAnimator: TimeAnimator? = null
     private var rippleAnimator: ValueAnimator? = null
 
     private val settingsObserver = object : ContentObserver(Handler(Looper.getMainLooper())) {
@@ -152,6 +188,7 @@ class ChargingGlowView(
         brightness = int(KEY_BRIGHTNESS, DEFAULT_BRIGHTNESS).coerceIn(10, 100) / 100f
         rippleEnabled = int(KEY_RIPPLE, 1) == 1
         showOnAod = int(KEY_AOD, 1) == 1
+        motionEnabled = int(KEY_MOTION, 1) == 1
         shaderColor = 0
     }
 
@@ -178,7 +215,7 @@ class ChargingGlowView(
         } else if (shownLevel != level.toFloat()) {
             animateLevel(level.toFloat(), animate && !dozing)
         }
-        updateBreathing()
+        updateMotion()
         invalidate()
     }
 
@@ -198,22 +235,22 @@ class ChargingGlowView(
         }
     }
 
-    private fun updateBreathing() {
+    /** Breathing, and with motion on the wave and sparks, while charging on the lock screen. */
+    private fun updateMotion() {
         if (charging && level < 100 && !dozing) {
-            if (breathAnimator != null) return
-            breathAnimator = ValueAnimator.ofFloat(1f, BREATH_MIN).apply {
-                duration = BREATH_MS
-                repeatMode = ValueAnimator.REVERSE
-                repeatCount = ValueAnimator.INFINITE
-                addUpdateListener {
-                    breath = it.animatedValue as Float
+            if (motionAnimator != null) return
+            motionAnimator = TimeAnimator().apply {
+                setTimeListener { _, total, _ ->
+                    motionTime = total / 1000f
+                    breath = 1f - (1f - BREATH_MIN) *
+                        (0.5f - 0.5f * cos(2f * PI.toFloat() * motionTime / BREATH_S))
                     invalidate()
                 }
                 start()
             }
         } else {
-            breathAnimator?.cancel()
-            breathAnimator = null
+            motionAnimator?.cancel()
+            motionAnimator = null
             breath = 1f
         }
     }
@@ -272,8 +309,8 @@ class ChargingGlowView(
         animate().cancel()
         riseAnimator?.cancel()
         levelAnimator?.cancel()
-        breathAnimator?.cancel()
-        breathAnimator = null
+        motionAnimator?.cancel()
+        motionAnimator = null
         rippleAnimator?.cancel()
         breath = 1f
     }
@@ -303,6 +340,11 @@ class ChargingGlowView(
             Shader.TileMode.CLAMP,
         )
         val crest = ColorUtils.blendARGB(color, Color.WHITE, 0.2f)
+        crestColor = ColorUtils.blendARGB(color, Color.WHITE, 0.45f)
+        waveGlowPaint.maskFilter = BlurMaskFilter(dp(6f), BlurMaskFilter.Blur.NORMAL)
+        waveGlowPaint.strokeWidth = dp(6f)
+        waveCorePaint.strokeWidth = dp(1.5f)
+        sparkPaint.maskFilter = BlurMaskFilter(dp(2f), BlurMaskFilter.Blur.NORMAL)
         crestPaint.shader = RadialGradient(
             0f, 0f, 1f, withAlpha(crest, 0.8f), withAlpha(crest, 0f), Shader.TileMode.CLAMP
         )
@@ -332,20 +374,64 @@ class ChargingGlowView(
         glowPaint.shader?.setLocalMatrix(glowMatrix)
         glowPaint.alpha = (255 * strength).toInt().coerceIn(0, 255)
         canvas.drawRect(0f, 0f, w, maxOf(glowHeight, h - top), glowPaint)
+        val moving = motionEnabled && motionAnimator != null
         if (!dozing) {
             crestMatrix.setScale(w * 0.6f, dp(10f))
             crestMatrix.postTranslate(w / 2f, 0f)
             crestPaint.shader?.setLocalMatrix(crestMatrix)
             crestPaint.alpha = (230 * strength * rise).toInt().coerceIn(0, 255)
             canvas.drawRect(-w * 0.1f, -dp(12f), w * 1.1f, dp(12f), crestPaint)
+            if (moving) drawWave(canvas, w, strength)
         }
         canvas.restore()
+        if (moving) drawSparks(canvas, w, h, glowHeight, strength)
 
         if (rippleProgress >= 0f) {
             ripplePaint.alpha = (230 * (1f - rippleProgress) * brightness).toInt().coerceIn(0, 255)
             canvas.drawCircle(w / 2f, h + dp(10f), rippleProgress * h * 0.6f, ripplePaint)
         }
     }
+
+    /** A wave of light along the glow's top edge, two swells running against each other. */
+    private fun drawWave(canvas: Canvas, w: Float, strength: Float) {
+        val amp = dp(WAVE_AMP_DP)
+        val twoPi = 2f * PI.toFloat()
+        wavePath.reset()
+        for (i in 0..WAVE_STEPS) {
+            val x = w * i / WAVE_STEPS
+            val u = x / w * twoPi
+            val y = amp * (0.6f * sin(u * 1.5f + motionTime * 2.2f) +
+                0.4f * sin(u * 2.7f - motionTime * 1.6f))
+            if (i == 0) wavePath.moveTo(x, y) else wavePath.lineTo(x, y)
+        }
+        waveGlowPaint.color = crestColor
+        waveGlowPaint.alpha = (150 * strength * rise).toInt().coerceIn(0, 255)
+        canvas.drawPath(wavePath, waveGlowPaint)
+        waveCorePaint.color = crestColor
+        waveCorePaint.alpha = (230 * strength * rise).toInt().coerceIn(0, 255)
+        canvas.drawPath(wavePath, waveCorePaint)
+    }
+
+    /** Sparks rising from the bottom through the glow, fading as they go. */
+    private fun drawSparks(canvas: Canvas, w: Float, h: Float, glowHeight: Float, strength: Float) {
+        sparkPaint.color = crestColor
+        for (spark in sparks) {
+            val progress = (motionTime * spark.speed + spark.phase) % 1f
+            val y = h - progress * glowHeight * 1.05f
+            val x = (spark.x + sin(motionTime * 1.3f + spark.phase * 6.28f) * spark.sway) * w
+            val fade = (1f - progress).pow(1.5f) * minOf(1f, progress * 8f)
+            sparkPaint.alpha = (210 * fade * strength * rise).toInt().coerceIn(0, 255)
+            canvas.drawCircle(x, y, dp(spark.size), sparkPaint)
+        }
+    }
+
+    private class Spark(
+        val x: Float,
+        val speed: Float,
+        val size: Float,
+        val phase: Float,
+        val sway: Float,
+    )
 
     private fun dp(value: Float) = value * resources.displayMetrics.density
 
@@ -363,8 +449,11 @@ class ChargingGlowView(
         const val KEY_BRIGHTNESS = "charging_glow_brightness"
         const val KEY_RIPPLE = "charging_glow_ripple"
         const val KEY_AOD = "charging_glow_aod"
+        /** The wave and sparks while charging. */
+        const val KEY_MOTION = "charging_glow_motion"
         private val KEYS = arrayOf(
-            KEY_ENABLED, KEY_COLOR, KEY_CUSTOM_COLOR, KEY_HEIGHT, KEY_BRIGHTNESS, KEY_RIPPLE, KEY_AOD
+            KEY_ENABLED, KEY_COLOR, KEY_CUSTOM_COLOR, KEY_HEIGHT, KEY_BRIGHTNESS, KEY_RIPPLE, KEY_AOD,
+            KEY_MOTION,
         )
 
         private const val COLOR_ACCENT = 0
@@ -387,8 +476,11 @@ class ChargingGlowView(
         private const val AOD_ALPHA = 0.35f
         private const val AOD_SHIFT_STEPS = 8
         private const val AOD_SHIFT_DP = 3f
-        private const val BREATH_MIN = 0.82f
-        private const val BREATH_MS = 1700L
+        private const val BREATH_MIN = 0.7f
+        private const val BREATH_S = 3.4f
+        private const val WAVE_AMP_DP = 7f
+        private const val WAVE_STEPS = 48
+        private const val SPARKS = 14
         private const val RISE_MS = 1100L
         private const val LEVEL_MS = 600L
         private const val RIPPLE_MS = 1600L
