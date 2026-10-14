@@ -23,6 +23,7 @@ import android.view.View.MeasureSpec
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.FrameLayout
+import android.widget.TextView
 import com.android.systemui.res.R
 import com.android.systemui.weather.WeatherImageView
 import com.android.systemui.weather.WeatherTextView
@@ -107,6 +108,9 @@ class ClockFacePreviewProvider : ContentProvider() {
                 )
                 root.layout(0, 0, width, height)
             }
+            // Single-line text scrolls itself into view on pre-draw, which views outside a
+            // window never get; centered faces drew their time off to the side.
+            preDraw(root)
             val scale = outWidth.toFloat() / width
             val bitmap = Bitmap.createBitmap(
                 outWidth, (height * scale).toInt().coerceAtLeast(1), Bitmap.Config.ARGB_8888
@@ -129,6 +133,13 @@ class ClockFacePreviewProvider : ContentProvider() {
                     is WordClockView -> view.release()
                 }
             }
+        }
+    }
+
+    private fun preDraw(view: View) {
+        if (view is TextView) view.onPreDraw()
+        if (view is ViewGroup) {
+            for (i in 0 until view.childCount) preDraw(view.getChildAt(i))
         }
     }
 
