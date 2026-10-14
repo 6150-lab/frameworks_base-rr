@@ -101,12 +101,7 @@ constructor(
                 if (
                     context.resources.getBoolean(R.bool.force_small_clock_on_lockscreen) ||
                     secureSettings.getIntForUser(
-                        "clock_style",
-                        0, // Default value
-                        UserHandle.USER_CURRENT
-                    ) != 0 ||
-                    systemSettings.getIntForUser(
-                        "lockscreen_widgets_enabled",
+                        Settings.Secure.LOCK_SCREEN_CUSTOM_CLOCK_STYLE,
                         0, // Default value
                         UserHandle.USER_CURRENT
                     ) != 0

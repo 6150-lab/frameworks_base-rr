@@ -272,7 +272,7 @@ constructor(
     }
 
     /** RR: with music in the Now Bar, the player leaves the lock screen. */
-    private fun nowBarSettingsFlow() = callbackFlow {
+    private fun nowBarSettingsFlow() = callbackFlow<Unit> {
         val observer = object : ContentObserver(null) {
             override fun onChange(selfChange: Boolean) {
                 trySend(Unit)

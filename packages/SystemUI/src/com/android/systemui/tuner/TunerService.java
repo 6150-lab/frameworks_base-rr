@@ -73,6 +73,15 @@ public abstract class TunerService {
     /** */
     public abstract void showResetRequest(Runnable onDisabled);
 
+    /** An int setting value, or {@code defaultValue} when it's missing or not a number. */
+    public static int parseInteger(String value, int defaultValue) {
+        try {
+            return value != null ? Integer.parseInt(value) : defaultValue;
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
+    }
+
     public static boolean parseIntegerSwitch(String value, boolean defaultValue) {
         try {
             return value != null ? Integer.parseInt(value) != 0 : defaultValue;

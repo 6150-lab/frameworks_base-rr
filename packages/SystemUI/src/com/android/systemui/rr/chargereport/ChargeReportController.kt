@@ -20,6 +20,7 @@ import com.android.systemui.CoreStartable
 import com.android.systemui.dagger.SysUISingleton
 import com.android.systemui.res.R
 import com.android.systemui.statusbar.policy.BatteryController
+import java.io.PrintWriter
 import javax.inject.Inject
 import kotlin.math.abs
 import org.json.JSONArray
@@ -58,6 +59,10 @@ constructor(
 
     override fun start() {
         batteryController.addCallback(this)
+    }
+
+    override fun dump(pw: PrintWriter, args: Array<out String>) {
+        pw.println("ChargeReport: pluggedIn=$pluggedIn from=$startLevel samples=$samples peak=$peakWatts")
     }
 
     override fun onBatteryLevelChanged(level: Int, pluggedIn: Boolean, charging: Boolean) {

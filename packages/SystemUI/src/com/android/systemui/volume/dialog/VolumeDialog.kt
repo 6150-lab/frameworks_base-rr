@@ -211,7 +211,9 @@ constructor(
                         blur.setBlurRadius((40 * density).toInt())
                         blur.setCornerRadius(100 * density)
                         blur.setColor(0x33FFFFFF)
-                        bg.background = android.graphics.drawable.LayerDrawable(arrayOf(blur, shape))
+                        bg.background = android.graphics.drawable.LayerDrawable(
+                            arrayOf<android.graphics.drawable.Drawable>(blur, shape)
+                        )
                     }
                 }
             }
@@ -228,7 +230,9 @@ constructor(
                     cornerRadius = 10 * density
                     setColor(accent)
                 }
-                bg.background = android.graphics.drawable.LayerDrawable(arrayOf(bar, card)).apply {
+                bg.background = android.graphics.drawable.LayerDrawable(
+                    arrayOf<android.graphics.drawable.Drawable>(bar, card)
+                ).apply {
                     setLayerInset(1, 0, (3 * density).toInt(), 0, 0)
                 }
             }

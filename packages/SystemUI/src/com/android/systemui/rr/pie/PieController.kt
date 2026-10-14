@@ -230,7 +230,7 @@ constructor(
             FLASHLIGHT -> flashlightController.setFlashlight(!flashlightController.isEnabled)
             SCREENSHOT -> key(KeyEvent.KEYCODE_SYSRQ)
             POWER -> try {
-                WindowManagerGlobal.getWindowManagerService().showGlobalActions()
+                WindowManagerGlobal.getWindowManagerService()?.showGlobalActions()
             } catch (e: Exception) {
                 // Not now.
             }
