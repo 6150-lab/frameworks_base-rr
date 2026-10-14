@@ -420,7 +420,7 @@ class NowBarView(
     private fun dp(value: Float) = value * density
 
     companion object {
-        private const val REMIXER_ACTION = "com.resurrection.settings.REMIXER"
+        private const val REMIXER_ACTION = "com.resurrection.settings.NOW_BAR"
         private val BURN_IN_STEPS_X = floatArrayOf(0f, 3f, 5f, 3f, 0f, -3f, -5f, -3f)
         private val BURN_IN_STEPS_Y = floatArrayOf(0f, -2f, -4f, -6f, -4f, -2f, 0f, -2f)
     }
