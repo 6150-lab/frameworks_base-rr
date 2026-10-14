@@ -5,8 +5,12 @@
 package com.android.systemui.rr.nowbar
 
 import android.content.Context
+import android.database.ContentObserver
 import android.os.UserHandle
 import android.provider.Settings
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 
 /** Now Bar switches, kept in Settings.System and set from Remixer › Lock screen › Now Bar. */
 class NowBarSettings(private val context: Context) {
@@ -70,5 +74,21 @@ class NowBarSettings(private val context: Context) {
         @JvmStatic
         fun hidesLockscreenMedia(context: Context) =
             get(context, KEY_ENABLED, true) && get(context, KEY_MUSIC, true)
+
+        /** Fires when [hidesLockscreenMedia] may have changed. */
+        @JvmStatic
+        fun lockscreenMediaChanges(context: Context): Flow<Unit> = callbackFlow {
+            val observer = object : ContentObserver(null) {
+                override fun onChange(selfChange: Boolean) {
+                    trySend(Unit)
+                }
+            }
+            for (key in arrayOf(KEY_ENABLED, KEY_MUSIC)) {
+                context.contentResolver.registerContentObserver(
+                    Settings.System.getUriFor(key), false, observer, UserHandle.USER_ALL
+                )
+            }
+            awaitClose { context.contentResolver.unregisterContentObserver(observer) }
+        }
     }
 }

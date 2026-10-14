@@ -659,17 +659,17 @@ constructor(
             }
         }
 
+        // RR: the Now Bar takes music off the lock screen.
+        fun readAllowMediaPlayerOnLockScreen() =
+            secureSettings.getBoolForUser(
+                Settings.Secure.MEDIA_CONTROLS_LOCK_SCREEN,
+                true,
+                UserHandle.USER_CURRENT,
+            ) && !com.android.systemui.rr.nowbar.NowBarSettings.hidesLockscreenMedia(context)
         val settingsObserver: ContentObserver =
             object : ContentObserver(handler) {
                 override fun onChange(selfChange: Boolean, uri: Uri?) {
-                    if (uri == lockScreenMediaPlayerUri) {
-                        allowMediaPlayerOnLockScreen =
-                            secureSettings.getBoolForUser(
-                                Settings.Secure.MEDIA_CONTROLS_LOCK_SCREEN,
-                                true,
-                                UserHandle.USER_CURRENT,
-                            )
-                    }
+                    allowMediaPlayerOnLockScreen = readAllowMediaPlayerOnLockScreen()
                 }
             }
         secureSettings.registerContentObserverForUserAsync(
@@ -677,6 +677,13 @@ constructor(
             settingsObserver,
             UserHandle.USER_ALL,
         )
+        for (key in arrayOf(com.android.systemui.rr.nowbar.NowBarSettings.KEY_ENABLED,
+                com.android.systemui.rr.nowbar.NowBarSettings.KEY_MUSIC)) {
+            context.contentResolver.registerContentObserver(
+                Settings.System.getUriFor(key), false, settingsObserver, UserHandle.USER_ALL
+            )
+        }
+        handler.post { allowMediaPlayerOnLockScreen = readAllowMediaPlayerOnLockScreen() }
 
         // Listen to the communal UI state. Make sure that communal UI is showing and hub itself
         // is
