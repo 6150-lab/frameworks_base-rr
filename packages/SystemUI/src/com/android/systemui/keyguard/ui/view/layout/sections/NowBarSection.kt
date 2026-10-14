@@ -17,7 +17,7 @@ import com.android.systemui.rr.nowbar.NowBarRepository
 import com.android.systemui.rr.nowbar.NowBarView
 import javax.inject.Inject
 
-/** The Now Bar, just above the device entry icon. */
+/** The Now Bar, just below the device entry icon, like One UI's. */
 class NowBarSection
 @Inject
 constructor(
@@ -47,8 +47,8 @@ constructor(
             constrainHeight(R.id.now_bar, ConstraintSet.WRAP_CONTENT)
             connect(R.id.now_bar, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, side)
             connect(R.id.now_bar, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END, side)
-            connect(R.id.now_bar, ConstraintSet.BOTTOM, R.id.device_entry_icon_view, ConstraintSet.TOP,
-                (14 * density).toInt())
+            connect(R.id.now_bar, ConstraintSet.TOP, R.id.device_entry_icon_view, ConstraintSet.BOTTOM,
+                (16 * density).toInt())
         }
     }
 
