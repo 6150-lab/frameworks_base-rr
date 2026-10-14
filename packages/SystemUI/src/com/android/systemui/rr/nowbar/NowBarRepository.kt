@@ -31,6 +31,7 @@ import com.android.systemui.res.R
 import com.android.systemui.statusbar.NotificationListener
 import com.android.systemui.statusbar.policy.BatteryController
 import com.android.systemui.statusbar.policy.FlashlightController
+import java.io.PrintWriter
 import javax.inject.Inject
 import kotlin.math.max
 
@@ -127,6 +128,23 @@ constructor(
         updateSessions(activeSessions())
         batteryController.addCallback(batteryCallback)
         flashlightController.addCallback(flashlightListener)
+    }
+
+    override fun dump(pw: PrintWriter, args: Array<out String>) {
+        pw.println("NowBar: enabled=${settings.enabled} sessions=${controllers.size} " +
+            "media=${mediaItem != null} notifications=${notificationItems.keys} hidden=$hidden")
+        pw.println("  items=${items.map { "${it.type}:${it.key}" }}")
+        for (listener in listeners) {
+            val view = listener as? android.view.View
+            if (view == null) {
+                pw.println("  listener=$listener")
+                continue
+            }
+            val at = IntArray(2).also { view.getLocationOnScreen(it) }
+            pw.println("  view=${view.javaClass.simpleName} attached=${view.isAttachedToWindow} " +
+                "visibility=${view.visibility} alpha=${view.alpha} size=${view.width}x${view.height} " +
+                "at=${at[0]},${at[1]} shown=${view.isShown}")
+        }
     }
 
     fun addListener(listener: Listener) {
