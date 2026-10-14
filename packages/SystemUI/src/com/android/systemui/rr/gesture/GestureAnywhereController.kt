@@ -73,6 +73,8 @@ constructor(
     private var monitor: InputMonitorCompat? = null
     private var receiver: InputChannelCompat.InputEventReceiver? = null
     private var overlay: FrameLayout? = null
+    /** The strip drawn while Remixer's page is open, so you can see where it is. */
+    private var stripPreview: android.view.View? = null
     private var store = GestureStore()
     private val actions = HashMap<String, String>()
 
@@ -117,6 +119,7 @@ constructor(
         position = int(KEY_POSITION, 50).coerceIn(0, 100)
         length = int(KEY_LENGTH, 30).coerceIn(10, 80)
         buildStore()
+        updateStripPreview(enabled && int(KEY_SHOW_STRIP, 0) == 1)
         if (enabled && monitor == null) {
             monitor = InputMonitorCompat(TAG, Display.DEFAULT_DISPLAY).also {
                 receiver = it.getInputReceiver(Looper.getMainLooper(), Choreographer.getInstance()) {
@@ -206,6 +209,51 @@ constructor(
         val span = h * length / 100f
         val center = h * (0.1f + 0.8f * position / 100f)
         return y in center - span / 2..center + span / 2
+    }
+
+    private fun updateStripPreview(show: Boolean) {
+        stripPreview?.let {
+            try {
+                windowManager.removeView(it)
+            } catch (e: RuntimeException) {
+                // Already gone.
+            }
+        }
+        stripPreview = null
+        if (!show) return
+        val metrics = context.resources.displayMetrics
+        val h = metrics.heightPixels
+        val span = (h * length / 100f).toInt()
+        val center = h * (0.1f + 0.8f * position / 100f)
+        val view = android.view.View(windowContext).apply {
+            background = android.graphics.drawable.GradientDrawable().apply {
+                cornerRadius = 4 * metrics.density
+                setColor((context.getColor(android.R.color.system_accent1_400) and 0x00FFFFFF) or
+                    0x99000000.toInt())
+            }
+        }
+        val lp = WindowManager.LayoutParams(
+            (STRIP_DP * metrics.density).toInt(),
+            span,
+            WindowManager.LayoutParams.TYPE_NAVIGATION_BAR_PANEL,
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+            PixelFormat.TRANSLUCENT,
+        )
+        lp.gravity = Gravity.TOP or (if (rightSide) Gravity.RIGHT else Gravity.LEFT)
+        lp.y = (center - span / 2f).toInt()
+        lp.setFitInsetsTypes(0)
+        lp.layoutInDisplayCutoutMode =
+            WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
+        lp.title = "RRGestureStrip"
+        try {
+            windowManager.addView(view, lp)
+            stripPreview = view
+        } catch (e: RuntimeException) {
+            // No window; the strip still works.
+        }
     }
 
     private fun onInputEvent(event: InputEvent) {
@@ -361,8 +409,10 @@ constructor(
         const val KEY_O = "gesture_anywhere_o"
         /** JSON from Remixer: [{action, strokes: [[x, y, t, ...]]}]. */
         const val KEY_CUSTOM = "gesture_anywhere_custom"
+        /** Set by Remixer while its page is open. */
+        const val KEY_SHOW_STRIP = "gesture_anywhere_show_strip"
         private val KEYS = arrayOf(KEY_ENABLED, KEY_SIDE, KEY_POSITION, KEY_LENGTH, KEY_C, KEY_M,
-            KEY_DOWN, KEY_O, KEY_CUSTOM)
+            KEY_DOWN, KEY_O, KEY_CUSTOM, KEY_SHOW_STRIP)
         private const val STRIP_DP = 14f
         private const val SWIPE_MS = 400L
         private const val IDLE_MS = 4000L
