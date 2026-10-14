@@ -34,7 +34,11 @@ import androidx.compose.ui.layout.onLayoutRectChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.PlatformTextStyle
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.LineHeightStyle
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.android.systemui.statusbar.phone.domain.interactor.IsAreaDark
 import com.android.systemui.statusbar.pipeline.battery.data.repository.BatteryRepository
@@ -86,7 +90,8 @@ fun BatteryWithPercent(
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        if (viewModel.batteryIconStyle != BatteryRepository.ICON_STYLE_TEXT) {
+        val bigPercent = viewModel.batteryIconStyle == BatteryRepository.ICON_STYLE_BIG_PERCENT
+        if (viewModel.batteryIconStyle != BatteryRepository.ICON_STYLE_TEXT && !bigPercent) {
             UnifiedBattery(
                 viewModel = viewModel,
                 isDarkProvider = isDarkProvider,
@@ -96,13 +101,39 @@ fun BatteryWithPercent(
 
         if (showPercent) {
             viewModel.batteryPercent?.let {
-                BasicText(
-                    text = it,
-                    color = colorProducer,
-                    style = textStyle,
-                    maxLines = 1,
-                    modifier = Modifier.align(Alignment.CenterVertically)
-                )
+                if (bigPercent) {
+                    // RR: the number bold and larger, the percent sign small.
+                    val big = textStyle.fontSize * 1.25f
+                    val small = textStyle.fontSize * 0.7f
+                    BasicText(
+                        text =
+                            buildAnnotatedString {
+                                for (c in it) {
+                                    withStyle(
+                                        if (c.isDigit()) {
+                                            SpanStyle(fontSize = big, fontWeight = FontWeight.Bold)
+                                        } else {
+                                            SpanStyle(fontSize = small)
+                                        }
+                                    ) {
+                                        append(c)
+                                    }
+                                }
+                            },
+                        color = colorProducer,
+                        style = textStyle,
+                        maxLines = 1,
+                        modifier = Modifier.align(Alignment.CenterVertically),
+                    )
+                } else {
+                    BasicText(
+                        text = it,
+                        color = colorProducer,
+                        style = textStyle,
+                        maxLines = 1,
+                        modifier = Modifier.align(Alignment.CenterVertically)
+                    )
+                }
             }
         }
 

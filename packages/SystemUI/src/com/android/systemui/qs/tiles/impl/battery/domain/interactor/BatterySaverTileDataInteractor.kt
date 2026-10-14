@@ -43,9 +43,9 @@ constructor(private val batteryRepository: BatteryRepository) :
         ) {
             isPluggedIn: Boolean,
             isPowerSaverEnabled: Boolean,
-            _ // we are only interested in battery level change, not the actual level
+            level: Int?,
              ->
-            BatterySaverTileModel.Standard(isPluggedIn, isPowerSaverEnabled)
+            BatterySaverTileModel.Standard(isPluggedIn, isPowerSaverEnabled, level ?: -1)
         }
 
     override fun availability(user: UserHandle): Flow<Boolean> = flowOf(true)

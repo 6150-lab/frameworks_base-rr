@@ -21,6 +21,8 @@ import android.content.res.Resources
 import com.android.systemui.common.shared.model.Icon
 import com.android.systemui.dagger.qualifiers.Application
 import com.android.systemui.power.ScreenOnTime
+import com.android.systemui.rr.battery.BatteryRingDrawable
+import com.android.systemui.rr.battery.NeonRingPrefs
 import com.android.systemui.qs.tiles.base.shared.model.QSTileConfig
 import com.android.systemui.qs.tiles.base.shared.model.QSTileState
 import com.android.systemui.qs.tiles.base.ui.model.QSTileDataToStateMapper
@@ -47,7 +49,14 @@ constructor(
                 else R.drawable.qs_battery_saver_icon_off
             icon = Icon.Loaded(resources.getDrawable(iconRes, theme), null, iconRes)
             sideViewIcon = QSTileState.SideViewIcon.None
-            val sot = if (ScreenOnTime.isEnabled(context)) ScreenOnTime.label(context) else null
+            var sot = if (ScreenOnTime.isEnabled(context)) ScreenOnTime.label(context) else null
+            // RR: the neon ring and the level, like the status bar's.
+            if (data.level >= 0 && NeonRingPrefs.tileRing(context)) {
+                val size = (24 * resources.displayMetrics.density).toInt()
+                icon = Icon.Loaded(BatteryRingDrawable(data.level, data.isPluggedIn, size), null)
+                val percent = java.text.NumberFormat.getPercentInstance().format(data.level / 100.0)
+                sot = if (sot != null) "$percent \u00b7 $sot" else percent
+            }
 
             if (data.isPluggedIn) {
                 activationState = QSTileState.ActivationState.UNAVAILABLE

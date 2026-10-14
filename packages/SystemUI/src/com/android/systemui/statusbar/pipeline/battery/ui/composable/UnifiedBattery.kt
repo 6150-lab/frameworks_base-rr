@@ -24,6 +24,9 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.runtime.collectAsState
+import com.android.systemui.rr.battery.NeonRingPrefs
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
@@ -256,7 +259,10 @@ fun BatteryLayout(
                     modifier = Modifier.layoutId(BatteryMeasurePolicy.LayoutId.Frame),
                     contentDescription = contentDescription,
                 )
-            } else if (iconStyle == BatteryRepository.ICON_STYLE_TEXT) {
+            } else if (
+                iconStyle == BatteryRepository.ICON_STYLE_TEXT ||
+                    iconStyle == BatteryRepository.ICON_STYLE_BIG_PERCENT
+            ) {
                 // Empty on purpose
             } else {
                 BatteryBody(
@@ -544,7 +550,11 @@ fun CircleBatteryBody(
     }
 }
 
-/** RR neon ring: the level as a glowing arc in the accent, with a spark circling while charging. */
+/**
+ * RR neon ring: the level as a glowing arc, with a spark circling while charging. By level it's the
+ * accent, red at 20% and under (pulsing under 10%) and amber in Battery Saver; it can also stay in
+ * the accent or follow the status bar like the stock icon. NeonRingPrefs holds the options.
+ */
 @Composable
 fun NeonRingBattery(
     attr: BatteryGlyph?,
@@ -555,40 +565,59 @@ fun NeonRingBattery(
     contentDescription: String = "",
 ) {
     val context = LocalContext.current
-    val accent = Color(context.getColor(android.R.color.system_accent1_300))
+    val prefs by NeonRingPrefs.state(context).collectAsState()
+    val accentDark = Color(context.getColor(android.R.color.system_accent1_300))
+    val accentLight = Color(context.getColor(android.R.color.system_accent1_600))
     val low = Color(0xFFFF3030)
     val saver = Color(0xFFFFB02E)
     val textMeasurer = rememberTextMeasurer()
     val charging = attr is BatteryGlyph.Bolt || attr is BatteryGlyph.Defend
-    val spin by rememberInfiniteTransition(label = "spark").animateFloat(
+    val transition = rememberInfiniteTransition(label = "neonRing")
+    val spin by transition.animateFloat(
         initialValue = 0f,
         targetValue = 360f,
         animationSpec = infiniteRepeatable(tween(1600, easing = LinearEasing)),
         label = "spark",
     )
+    val pulse by transition.animateFloat(
+        initialValue = 1f,
+        targetValue = 0.4f,
+        animationSpec = infiniteRepeatable(tween(900), RepeatMode.Reverse),
+        label = "pulse",
+    )
     Canvas(modifier = modifier, contentDescription = contentDescription) {
         val level = levelProvider()
         val colors = colorsProvider()
+        // Dark icons mean a light status bar: a deeper accent and a darker track.
+        val lightBar = colors is BatteryColors.LightTheme
+        val accent = if (lightBar) accentLight else accentDark
         val stroke = size.height / 6.5f
         val radius = size.height / 2f - stroke
         val center = Offset(size.width / 2, size.height / 2)
-        val color = when {
-            attr is BatteryGlyph.Plus -> saver
-            level != null && level <= 20 -> low
-            else -> accent
+        val color = when (prefs.color) {
+            NeonRingPrefs.COLOR_WHITE -> colors.attribution
+            NeonRingPrefs.COLOR_ACCENT -> accent
+            else -> when {
+                attr is BatteryGlyph.Plus -> saver
+                level != null && level <= 20 -> low
+                else -> accent
+            }
         }
-        drawCircle(colors.backgroundOnly, radius, center, style = Stroke(stroke))
+        val alpha = if (!charging && level != null && level < 10) pulse else 1f
+        val track = if (lightBar) colors.attribution.copy(alpha = 0.28f) else colors.backgroundOnly
+        drawCircle(track, radius, center, style = Stroke(stroke))
         if (level != null && level > 0) {
             val topLeft = Offset(center.x - radius, center.y - radius)
             val arc = Size(radius * 2, radius * 2)
-            drawArc(color.copy(alpha = 0.35f), 270f, 3.6f * level, false, topLeft, arc,
+            drawArc(color.copy(alpha = (if (lightBar) 0.2f else 0.35f) * alpha), 270f,
+                3.6f * level, false, topLeft, arc,
                 style = Stroke(stroke * 2.2f, cap = StrokeCap.Round))
-            drawArc(color, 270f, 3.6f * level, false, topLeft, arc,
+            drawArc(color.copy(alpha = alpha), 270f, 3.6f * level, false, topLeft, arc,
                 style = Stroke(stroke, cap = StrokeCap.Round))
         }
-        if (charging) {
+        if (charging && prefs.spark) {
             val a = Math.toRadians((spin - 90f).toDouble())
-            drawCircle(Color.White, stroke * 0.8f,
+            drawCircle(if (lightBar) colors.attribution else Color.White, stroke * 0.8f,
                 Offset(center.x + radius * kotlin.math.cos(a).toFloat(),
                     center.y + radius * kotlin.math.sin(a).toFloat()))
         } else if (showLevelProvider() && level != null && level < 100) {

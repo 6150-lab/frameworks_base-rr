@@ -137,7 +137,9 @@ private fun BatteryAndPercentChip(
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        val isText = batteryIconStyle == BatteryRepository.ICON_STYLE_TEXT
+        val isText =
+            batteryIconStyle == BatteryRepository.ICON_STYLE_TEXT ||
+                batteryIconStyle == BatteryRepository.ICON_STYLE_BIG_PERCENT
         if (!isText) {
             BatteryLayout(
                 attribution = BatteryGlyph.Bolt, // Always charging

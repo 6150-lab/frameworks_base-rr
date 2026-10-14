@@ -95,6 +95,8 @@ interface BatteryRepository {
         const val ICON_STYLE_NEON_RING = 4
         /** RR: a slim rounded bar filled to the level. */
         const val ICON_STYLE_PILL = 5
+        /** RR: no icon, just the number, bold. */
+        const val ICON_STYLE_BIG_PERCENT = 6
         const val SHOW_PERCENT_HIDDEN = 0
         const val SHOW_PERCENT_INSIDE = 1
         const val SHOW_PERCENT_NEXT_TO = 2
@@ -333,7 +335,10 @@ constructor(
                             BatteryRepository.ICON_STYLE_DEFAULT,
                             UserHandle.USER_CURRENT,
                         )
-                    return if (iconStyle == BatteryRepository.ICON_STYLE_TEXT) {
+                    return if (
+                        iconStyle == BatteryRepository.ICON_STYLE_TEXT ||
+                            iconStyle == BatteryRepository.ICON_STYLE_BIG_PERCENT
+                    ) {
                         BatteryRepository.SHOW_PERCENT_NEXT_TO
                     } else {
                         LineageSettings.System.getIntForUser(

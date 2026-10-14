@@ -36,6 +36,8 @@ import com.android.systemui.plugins.FalsingManager;
 import com.android.systemui.plugins.qs.QSTile.BooleanState;
 import com.android.systemui.plugins.statusbar.StatusBarStateController;
 import com.android.systemui.power.ScreenOnTime;
+import com.android.systemui.rr.battery.BatteryRingDrawable;
+import com.android.systemui.rr.battery.NeonRingPrefs;
 import com.android.systemui.qs.QSHost;
 import com.android.systemui.qs.QsEventLogger;
 import com.android.systemui.qs.UserSettingObserver;
@@ -153,6 +155,13 @@ public class BatterySaverTile extends QSTileImpl<BooleanState> implements
         state.label = mContext.getString(R.string.battery_detail_switch_title);
         String sot = ScreenOnTime.isEnabled(mContext)
                 ? ScreenOnTime.label(mContext, () -> refreshState(null)) : null;
+        // RR: the neon ring and the level, like the status bar's.
+        if (NeonRingPrefs.tileRing(mContext)) {
+            int size = (int) (24 * mContext.getResources().getDisplayMetrics().density);
+            state.icon = new DrawableIcon(new BatteryRingDrawable(mLevel, mPluggedIn, size));
+            String percent = java.text.NumberFormat.getPercentInstance().format(mLevel / 100.0);
+            sot = sot != null ? percent + " \u00b7 " + sot : percent;
+        }
         state.secondaryLabel = sot != null ? sot : "";
         state.contentDescription = state.label;
         state.value = mPowerSave;

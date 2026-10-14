@@ -21,11 +21,15 @@ sealed interface BatterySaverTileModel {
 
     val isPluggedIn: Boolean
     val isPowerSaving: Boolean
+    /** RR: the battery level for the tile's ring, or -1. */
+    val level: Int
+        get() = -1
 
     /** For when the device does not support extreme battery saver mode. */
     data class Standard(
         override val isPluggedIn: Boolean,
         override val isPowerSaving: Boolean,
+        override val level: Int = -1,
     ) : BatterySaverTileModel
 
     /**
