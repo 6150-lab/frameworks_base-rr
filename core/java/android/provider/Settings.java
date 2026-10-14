@@ -6979,13 +6979,6 @@ public final class Settings {
         public static final String NOTIFICATION_USE_APP_ICONS = "notification_use_app_icons";
 
         /**
-         * Whether notification app icons are themed to the accent. 0 off, 1 on.
-         * @hide
-         */
-        public static final String NOTIFICATION_USE_THEMED_APP_ICONS =
-                "notification_use_themed_app_icons";
-
-        /**
          * Whether to show the battery info on the lockscreen while charging
          * @hide
          */

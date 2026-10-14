@@ -193,10 +193,6 @@ internal constructor(
     companion object {
         private const val TAG = "ViewConfigCoordinator"
         private val DEBUG = Compile.IS_DEBUG && Log.isLoggable(TAG, Log.DEBUG)
-        private val ICON_SETTINGS =
-            listOf(
-                Settings.System.NOTIFICATION_USE_APP_ICONS,
-                Settings.System.NOTIFICATION_USE_THEMED_APP_ICONS,
-            )
+        private val ICON_SETTINGS = listOf(Settings.System.NOTIFICATION_USE_APP_ICONS)
     }
 }

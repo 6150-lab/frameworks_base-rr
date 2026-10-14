@@ -25,7 +25,6 @@ import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.LayerDrawable
 import android.os.UserHandle
-import android.provider.Settings
 import com.android.internal.R
 import com.android.launcher3.icons.BaseIconFactory
 import com.android.launcher3.icons.BaseIconFactory.IconOptions
@@ -73,25 +72,26 @@ constructor(
                 context = sysuiContext,
                 fullResIconDpi = densityDpi,
                 iconBitmapSize = iconSize,
-                // Initialize the controller so that we can support themed icons. Always, so the
-                // themed option can switch without refetching icons.
+                // Initialize the controller so that we can support themed icons.
                 themeController =
-                    MonoIconThemeController(
-                        shouldForceThemeIcon = true,
-                        colorProvider = { ctx ->
-                            val res = ctx.resources
-                            val bgColor = res.getColor(R.color.materialColorPrimary, null)
-                            val foregroundColor =
-                                res.getColor(R.color.materialColorSurfaceContainerHigh, null)
-                            ColorList(
-                                iconBackgroundColor = bgColor,
-                                iconForegroundColor = foregroundColor,
-                                iconAdaptiveBackgroundColor = bgColor,
-                                badgeBackgroundColor = bgColor,
-                                badgeForegroundColor = foregroundColor,
-                            )
-                        },
-                    ),
+                    if (notificationsRedesignThemedAppIcons())
+                        MonoIconThemeController(
+                            shouldForceThemeIcon = true,
+                            colorProvider = { ctx ->
+                                val res = ctx.resources
+                                val bgColor = res.getColor(R.color.materialColorPrimary, null)
+                                val foregroundColor =
+                                    res.getColor(R.color.materialColorSurfaceContainerHigh, null)
+                                ColorList(
+                                    iconBackgroundColor = bgColor,
+                                    iconForegroundColor = foregroundColor,
+                                    iconAdaptiveBackgroundColor = bgColor,
+                                    badgeBackgroundColor = bgColor,
+                                    badgeForegroundColor = foregroundColor,
+                                )
+                            },
+                        )
+                    else null,
             )
 
     private val skeletonIconFactory: BaseIconFactory
@@ -125,26 +125,17 @@ constructor(
         packageName: String,
         userHandle: UserHandle,
         instanceKey: String,
-    ): Drawable {
-        val themed = themedAppIcons()
-        return standardCache.getOrFetchAppIcon(
+    ): Drawable =
+        standardCache.getOrFetchAppIcon(
             packageName = packageName,
             userHandle = userHandle,
-            drawableInstanceKey = if (themed) "$instanceKey|themed" else instanceKey,
-            createDrawable = { it.createIconDrawable(themed = themed) },
+            drawableInstanceKey = instanceKey,
+            createDrawable = {
+                it.createIconDrawable(themed = notificationsRedesignThemedAppIcons())
+            },
         ) {
             fetchAppIconBitmapInfo(standardIconFactory, packageName, userHandle)
         }
-    }
-
-    private fun themedAppIcons(): Boolean =
-        notificationsRedesignThemedAppIcons() ||
-            Settings.System.getIntForUser(
-                sysuiContext.contentResolver,
-                Settings.System.NOTIFICATION_USE_THEMED_APP_ICONS,
-                0,
-                UserHandle.USER_CURRENT,
-            ) == 1
 
     override fun getOrFetchSkeletonAppIcon(packageName: String, userHandle: UserHandle): Drawable =
         skeletonCache.getOrFetchAppIcon(
