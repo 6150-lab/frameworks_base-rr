@@ -178,64 +178,101 @@ constructor(
         return false
     }
 
-    /** RR volume panel looks, on rr_volume_style: 0 Android, 1 Neon, 2 Glass, 3 Pill, 4 Classic RR. */
+    /**
+     * RR volume panel looks, on rr_volume_style: 0 Android, 1 Neon, 2 Glass, 3 Pill, 4 Classic RR.
+     * The ringer binder owns the background drawable (it reshapes it and swaps in the blur layers),
+     * so a look only tints it and draws its outline or bar on top.
+     */
     private fun applyRrStyle() {
         val style = android.provider.Settings.System.getIntForUser(
             context.contentResolver, "rr_volume_style", 0, android.os.UserHandle.USER_CURRENT
         )
         val bg = findViewById<View>(R.id.volume_dialog_background) ?: return
-        if (style == 0) {
-            bg.setBackgroundResource(R.drawable.volume_dialog_background)
-            bg.elevation = 0f
-            return
-        }
+        bg.backgroundTintList = null
+        bg.foreground = null
+        bg.elevation = 0f
+        bg.outlineSpotShadowColor = android.graphics.Color.BLACK
+        bg.outlineAmbientShadowColor = android.graphics.Color.BLACK
+        if (style == 0) return
         val density = context.resources.displayMetrics.density
         val accent = context.getColor(android.R.color.system_accent1_400)
-        val shape = android.graphics.drawable.GradientDrawable().apply { cornerRadius = 100 * density }
-        bg.elevation = 0f
+        fun tint(color: Int) {
+            bg.backgroundTintList = android.content.res.ColorStateList.valueOf(color)
+            bg.backgroundTintMode = android.graphics.PorterDuff.Mode.SRC_IN
+        }
         when (style) {
             1 -> {
-                shape.setColor(0xE6120A0C.toInt())
-                shape.setStroke((1.5f * density).toInt(), accent)
+                tint(0xE6120A0C.toInt())
+                bg.foreground = RrPanelForeground(bg, accent, 1.5f * density, bar = false)
                 bg.outlineSpotShadowColor = accent
                 bg.outlineAmbientShadowColor = accent
                 bg.elevation = 10 * density
-                bg.background = shape
             }
             2 -> {
-                shape.setColor(0x33FFFFFF)
-                shape.setStroke(density.toInt().coerceAtLeast(1), 0x44FFFFFF)
-                bg.background = shape
-                bg.post {
-                    bg.viewRootImpl?.createBackgroundBlurDrawable()?.let { blur ->
-                        blur.setBlurRadius((40 * density).toInt())
-                        blur.setCornerRadius(100 * density)
-                        blur.setColor(0x33FFFFFF)
-                        bg.background = android.graphics.drawable.LayerDrawable(
-                            arrayOf<android.graphics.drawable.Drawable>(blur, shape)
-                        )
-                    }
-                }
+                tint(0x40FFFFFF)
+                bg.foreground = RrPanelForeground(bg, 0x44FFFFFF, density, bar = false)
             }
-            3 -> {
-                shape.setColor(0xCC1A1416.toInt())
-                bg.background = shape
-            }
+            3 -> tint(0xCC1A1416.toInt())
             4 -> {
-                val card = android.graphics.drawable.GradientDrawable().apply {
-                    cornerRadius = 10 * density
-                    setColor(0xF21D1517.toInt())
-                }
-                val bar = android.graphics.drawable.GradientDrawable().apply {
-                    cornerRadius = 10 * density
-                    setColor(accent)
-                }
-                bg.background = android.graphics.drawable.LayerDrawable(
-                    arrayOf<android.graphics.drawable.Drawable>(bar, card)
-                ).apply {
-                    setLayerInset(1, 0, (3 * density).toInt(), 0, 0)
-                }
+                tint(0xF21D1517.toInt())
+                bg.foreground = RrPanelForeground(bg, accent, 3 * density, bar = true)
             }
         }
+    }
+
+    /** An outline, or a bar along the top, that follows the panel's current corners. */
+    private class RrPanelForeground(
+        private val view: View,
+        color: Int,
+        private val widthPx: Float,
+        private val bar: Boolean,
+    ) : android.graphics.drawable.Drawable() {
+        private val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
+            this.color = color
+            style = if (bar) android.graphics.Paint.Style.FILL else android.graphics.Paint.Style.STROKE
+            strokeWidth = widthPx
+        }
+        private val path = android.graphics.Path()
+        private val rect = android.graphics.RectF()
+
+        override fun draw(canvas: android.graphics.Canvas) {
+            val radii = radii() ?: return
+            rect.set(bounds)
+            if (!bar) rect.inset(widthPx / 2, widthPx / 2)
+            path.reset()
+            path.addRoundRect(rect, radii, android.graphics.Path.Direction.CW)
+            if (bar) {
+                canvas.save()
+                canvas.clipPath(path)
+                canvas.drawRect(rect.left, rect.top, rect.right, rect.top + widthPx, paint)
+                canvas.restore()
+            } else {
+                canvas.drawPath(path, paint)
+            }
+        }
+
+        private fun radii(): FloatArray? {
+            val shape = when (val background = view.background) {
+                is android.graphics.drawable.GradientDrawable -> background
+                is android.graphics.drawable.LayerDrawable ->
+                    (0 until background.numberOfLayers)
+                        .map { background.getDrawable(it) }
+                        .filterIsInstance<android.graphics.drawable.GradientDrawable>()
+                        .lastOrNull()
+                else -> null
+            } ?: return null
+            return shape.cornerRadii ?: FloatArray(8) { shape.cornerRadius }
+        }
+
+        override fun setAlpha(alpha: Int) {
+            paint.alpha = alpha
+        }
+
+        override fun setColorFilter(colorFilter: android.graphics.ColorFilter?) {
+            paint.colorFilter = colorFilter
+        }
+
+        @Deprecated("Deprecated in Java")
+        override fun getOpacity() = android.graphics.PixelFormat.TRANSLUCENT
     }
 }
