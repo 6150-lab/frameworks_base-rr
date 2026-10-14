@@ -83,7 +83,7 @@ constructor(
 ) {
 
     // Use horizontal volume dialog if the audio tile details view is enabled
-    val isVolumeDialogVertical = !expandedAudioTileDetailsFeatureInteractor.isEnabled()
+    val isVolumeDialogVertical = !expandedAudioTileDetailsFeatureInteractor.isDialogHorizontal()
 
     // Show blur if the flag is enabled and the volume dialog is vertical
     val showBlur = isVolumeAndPowerBlurEnabled() && isVolumeDialogVertical

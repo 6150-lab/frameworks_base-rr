@@ -16,8 +16,16 @@
 
 package com.android.systemui.volume.dialog.sliders.ui
 
+import android.os.UserHandle
+import android.provider.Settings
 import android.view.View
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.size
@@ -67,7 +75,12 @@ constructor(
 ) {
     fun bind(view: View) {
         // Use horizontal volume dialog if the audio tile details view is enabled
-        val isVolumeDialogVertical = !expandedAudioTileDetailsFeatureInteractor.isEnabled()
+        val isVolumeDialogVertical = !expandedAudioTileDetailsFeatureInteractor.isDialogHorizontal()
+        val resolver = view.context.contentResolver
+        val rrStyle = Settings.System.getIntForUser(resolver, "rr_volume_style", 0,
+            UserHandle.USER_CURRENT)
+        val ticks = Settings.System.getIntForUser(resolver, "rr_volume_tick", 1,
+            UserHandle.USER_CURRENT) == 1
         val sliderComposeViewId =
             if (isVolumeDialogVertical) {
                 R.id.volume_dialog_slider
@@ -82,6 +95,8 @@ constructor(
                     overscrollViewModel = overscrollViewModel,
                     hapticsViewModelFactory = hapticsViewModelFactory,
                     isVolumeDialogVertical = isVolumeDialogVertical,
+                    rrStyle = rrStyle,
+                    ticks = ticks,
                 )
             }
         }
@@ -96,15 +111,48 @@ private fun VolumeDialogSlider(
     hapticsViewModelFactory: SliderHapticsViewModel.Factory,
     isVolumeDialogVertical: Boolean,
     modifier: Modifier = Modifier,
+    rrStyle: Int = RR_ANDROID,
+    ticks: Boolean = true,
     dimensions: VolumeSliderDimensions =
-        if (isVolumeDialogVertical) {
-            VolumeSliderDimensions.Vertical
-        } else {
-            VolumeSliderDimensions.Horizontal
+        when {
+            rrStyle == RR_PILL && isVolumeDialogVertical -> VolumeSliderDimensions.RrPill
+            isVolumeDialogVertical -> VolumeSliderDimensions.Vertical
+            else -> VolumeSliderDimensions.Horizontal
         },
 ) {
+    val accent = Color(LocalContext.current.getColor(android.R.color.system_accent1_400))
     val colors =
-        if (isVolumeDialogVertical) {
+        when (rrStyle) {
+            // RR looks: an outlined, glowing track; frosted; one wide pill; classic accent.
+            RR_NEON ->
+                SliderDefaults.colors(
+                    activeTrackColor = accent,
+                    thumbColor = accent,
+                    activeTickColor = Color(0x33FFFFFF),
+                    inactiveTrackColor = Color(0x1AFFFFFF),
+                    disabledActiveTickColor = Color(0x1AFFFFFF),
+                    disabledInactiveTrackColor = Color(0x1AFFFFFF),
+                )
+            RR_GLASS ->
+                SliderDefaults.colors(
+                    activeTrackColor = Color(0xD9FFFFFF),
+                    thumbColor = Color.White,
+                    activeTickColor = Color(0x40FFFFFF),
+                    inactiveTrackColor = Color(0x33FFFFFF),
+                    disabledActiveTickColor = Color(0x33FFFFFF),
+                    disabledInactiveTrackColor = Color(0x33FFFFFF),
+                )
+            RR_PILL, RR_CLASSIC ->
+                SliderDefaults.colors(
+                    activeTrackColor = accent,
+                    thumbColor = accent,
+                    activeTickColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                    inactiveTrackColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                    disabledActiveTickColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                    disabledInactiveTrackColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                )
+            else -> null
+        } ?: if (isVolumeDialogVertical) {
             SliderDefaults.colors(
                 activeTickColor = MaterialTheme.colorScheme.surfaceContainerHighest,
                 inactiveTrackColor = MaterialTheme.colorScheme.surfaceContainerHighest,
@@ -152,19 +200,36 @@ private fun VolumeDialogSlider(
         colors = colors,
         interactionSource = interactionSource,
         haptics =
-            Haptics.Enabled(
-                hapticsViewModelFactory = hapticsViewModelFactory,
-                hapticConfigs =
-                    VolumeHapticsConfigsProvider.continuousConfigs(SliderHapticFeedbackFilter()),
-                orientation =
-                    if (isVolumeDialogVertical) {
-                        Orientation.Vertical
-                    } else {
-                        Orientation.Horizontal
-                    },
-            ),
+            if (!ticks) {
+                Haptics.Disabled
+            } else {
+                Haptics.Enabled(
+                    hapticsViewModelFactory = hapticsViewModelFactory,
+                    hapticConfigs =
+                        VolumeHapticsConfigsProvider.continuousConfigs(SliderHapticFeedbackFilter()),
+                    orientation =
+                        if (isVolumeDialogVertical) {
+                            Orientation.Vertical
+                        } else {
+                            Orientation.Horizontal
+                        },
+                )
+            },
         stepDistance = 1f,
         track = { sliderState ->
+            Box(
+                if (rrStyle == RR_NEON) {
+                    Modifier.shadow(
+                            elevation = 8.dp,
+                            shape = RoundedCornerShape(12.dp),
+                            ambientColor = accent,
+                            spotColor = accent,
+                        )
+                        .border(1.5.dp, accent, RoundedCornerShape(12.dp))
+                } else {
+                    Modifier
+                }
+            ) {
             SliderTrack(
                 sliderState,
                 colors = colors,
@@ -196,6 +261,7 @@ private fun VolumeDialogSlider(
                 },
                 trackSize = dimensions.trackSize,
             )
+            }
         },
         thumb = { sliderState, interactions ->
             SliderDefaults.Thumb(
@@ -221,6 +287,12 @@ private fun VolumeDialogSlider(
     )
 }
 
+private const val RR_ANDROID = 0
+private const val RR_NEON = 1
+private const val RR_GLASS = 2
+private const val RR_PILL = 3
+private const val RR_CLASSIC = 4
+
 data class VolumeSliderDimensions(
     val iconSize: Dp,
     val thumbHeight: Dp,
@@ -242,6 +314,16 @@ data class VolumeSliderDimensions(
                 thumbHeight = 40.dp,
                 thumbWidth = 3.dp,
                 trackSize = 32.dp,
+            )
+
+        /** RR Pill: one wide pill you drag, no handle, the icon inside. */
+        val RrPill =
+            VolumeSliderDimensions(
+                iconSize = 24.dp,
+                thumbWidth = 0.dp,
+                thumbHeight = 0.dp,
+                // The whole width of the slider's 52dp column.
+                trackSize = 52.dp,
             )
     }
 }

@@ -16,16 +16,34 @@
 
 package com.android.systemui.volume.dialog.domain.interactor
 
+import android.content.Context
+import android.os.UserHandle
+import android.provider.Settings
 import com.android.systemui.dagger.SysUISingleton
+import com.android.systemui.dagger.qualifiers.Application
 import com.android.systemui.qs.flags.ExpandedAudioDetailedView
 import com.android.systemui.qs.flags.QsDetailedView
 import javax.inject.Inject
 
 @SysUISingleton
-class ExpandedAudioTileDetailsFeatureInteractor @Inject constructor() {
+class ExpandedAudioTileDetailsFeatureInteractor
+@Inject
+constructor(@Application private val context: Context) {
     private val isEnabled = QsDetailedView.isEnabled && ExpandedAudioDetailedView.isEnabled
 
     fun isEnabled(): Boolean {
         return isEnabled
+    }
+
+    /** RR: the horizontal panel across the top, also for the Classic RR volume look. */
+    fun isDialogHorizontal(): Boolean =
+        isEnabled ||
+            Settings.System.getIntForUser(
+                context.contentResolver, RR_VOLUME_STYLE, 0, UserHandle.USER_CURRENT
+            ) == RR_STYLE_CLASSIC
+
+    companion object {
+        const val RR_VOLUME_STYLE = "rr_volume_style"
+        const val RR_STYLE_CLASSIC = 4
     }
 }

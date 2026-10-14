@@ -55,11 +55,12 @@ constructor(
     val csdWarningConfigModel: CsdWarningConfigModel,
     private val uiEventLogger: UiEventLogger,
     private val broadcastDispatcher: BroadcastDispatcher,
-    expandedAudioTileDetailsFeatureInteractor: ExpandedAudioTileDetailsFeatureInteractor,
+    private val expandedAudioTileDetailsFeatureInteractor: ExpandedAudioTileDetailsFeatureInteractor,
 ) {
 
     // Use horizontal volume dialog if the audio tile details view is enabled
-    private val isVolumeDialogVertical = !expandedAudioTileDetailsFeatureInteractor.isEnabled()
+    private val isVolumeDialogVertical
+        get() = !expandedAudioTileDetailsFeatureInteractor.isDialogHorizontal()
     private var dismissJob: Job? = null
 
     fun launchVolumeDialog() {

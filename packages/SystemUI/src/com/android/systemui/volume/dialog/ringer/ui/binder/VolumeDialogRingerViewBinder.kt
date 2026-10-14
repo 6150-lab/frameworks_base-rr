@@ -176,7 +176,21 @@ constructor(
         }
 
         viewModel.ringerViewModel
-            .mapLatest { ringerState ->
+            .mapLatest { state ->
+                // RR: the ringer mode button can be turned off.
+                val ringerState =
+                    if (
+                        android.provider.Settings.System.getIntForUser(
+                            view.context.contentResolver,
+                            "rr_volume_ringer",
+                            1,
+                            android.os.UserHandle.USER_CURRENT,
+                        ) == 1
+                    ) {
+                        state
+                    } else {
+                        RingerViewModelState.Unavailable
+                    }
                 when (ringerState) {
                     is RingerViewModelState.Available -> {
                         val uiModel = ringerState.uiModel
