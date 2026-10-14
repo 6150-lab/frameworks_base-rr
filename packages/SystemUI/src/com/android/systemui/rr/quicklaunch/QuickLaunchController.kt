@@ -29,8 +29,6 @@ import com.android.keyguard.KeyguardUpdateMonitor
 import com.android.keyguard.KeyguardUpdateMonitorCallback
 import com.android.systemui.CoreStartable
 import com.android.systemui.biometrics.AuthController
-import com.android.systemui.biometrics.UdfpsController
-import com.android.systemui.biometrics.shared.model.UdfpsOverlayParams
 import com.android.systemui.dagger.SysUISingleton
 import com.android.systemui.plugins.ActivityStarter
 import com.android.systemui.qrcodescanner.controller.QRCodeScannerController
@@ -40,13 +38,12 @@ import com.android.systemui.shared.system.InputMonitorCompat
 import com.android.systemui.statusbar.policy.FlashlightController
 import com.android.systemui.statusbar.policy.KeyguardStateController
 import javax.inject.Inject
-import javax.inject.Provider
 import kotlin.math.hypot
 
 /**
  * Fingerprint quick launch: unlock with the in-display sensor and keep the finger down, and a fan
  * of shortcuts opens above it. Slide to one and lift to open it; lift without sliding to just
- * unlock.
+ * unlock. An input monitor watches the lock screen for the touch that lands on the sensor.
  */
 @SysUISingleton
 class QuickLaunchController
@@ -54,7 +51,6 @@ class QuickLaunchController
 constructor(
     private val context: Context,
     private val authController: AuthController,
-    private val udfpsControllerProvider: Provider<UdfpsController>,
     private val keyguardUpdateMonitor: KeyguardUpdateMonitor,
     private val keyguardStateController: KeyguardStateController,
     private val flashlightController: FlashlightController,
@@ -67,7 +63,6 @@ constructor(
     private val handler = Handler(Looper.getMainLooper())
     private lateinit var windowContext: Context
     private lateinit var windowManager: WindowManager
-    private var udfpsController: UdfpsController? = null
 
     private var enabled = false
     private var holdMs = DEFAULT_HOLD_MS
@@ -89,21 +84,10 @@ constructor(
     private val showFan = Runnable { showFan() }
     private val giveUp = Runnable { if (!authenticated) stopTracking() }
 
-    private val authCallback = object : AuthController.Callback {
-        override fun onAllAuthenticatorsRegistered(modality: Int) = updateUdfps()
-
-        override fun onUdfpsLocationChanged(udfpsOverlayParams: UdfpsOverlayParams) = updateUdfps()
-    }
-
-    private val udfpsCallback = object : UdfpsController.Callback {
-        override fun onFingerDown() {
-            if (enabled && !tracking && keyguardStateController.isShowing) startTracking()
-        }
-
-        override fun onFingerUp() {
-            // Once authenticated, the input monitor tracks the finger instead.
-            if (tracking && !authenticated) stopTracking()
-        }
+    // The monitor runs while the lock screen shows, so it sees the touch that lands on the sensor
+    // from its start; one registered mid-touch never gets that touch's moves.
+    private val keyguardCallback = object : KeyguardStateController.Callback {
+        override fun onKeyguardShowingChanged() = updateMonitor()
     }
 
     private val updateMonitorCallback = object : KeyguardUpdateMonitorCallback() {
@@ -140,9 +124,9 @@ constructor(
         qrCodeScannerController.registerQRCodeScannerChangeObservers(
             QRCodeScannerController.DEFAULT_QR_CODE_SCANNER_CHANGE
         )
-        authController.addCallback(authCallback)
-        updateUdfps()
         keyguardUpdateMonitor.registerCallback(updateMonitorCallback)
+        keyguardStateController.addCallback(keyguardCallback)
+        updateMonitor()
     }
 
     private fun readSettings() {
@@ -155,51 +139,69 @@ constructor(
         tokens = Settings.System.getStringForUser(resolver, KEY_SHORTCUTS, UserHandle.USER_CURRENT)
             ?: DEFAULT_SHORTCUTS
         if (!enabled && tracking) stopTracking()
+        updateMonitor()
     }
 
-    private fun updateUdfps() {
-        if (udfpsController != null || authController.udfpsProps.isNullOrEmpty()) return
-        udfpsController = udfpsControllerProvider.get().also { it.addCallback(udfpsCallback) }
+    /** Listens while quick launch is on and the lock screen shows, or a hold is in progress. */
+    private fun updateMonitor() {
+        val want = enabled && !authController.udfpsProps.isNullOrEmpty() &&
+            (keyguardStateController.isShowing || tracking)
+        if (want && monitor == null) {
+            try {
+                monitor = InputMonitorCompat(TAG, Display.DEFAULT_DISPLAY).also {
+                    receiver = it.getInputReceiver(
+                        Looper.getMainLooper(), Choreographer.getInstance()
+                    ) { event -> onInputEvent(event) }
+                }
+            } catch (e: RuntimeException) {
+                Log.w(TAG, "No input monitor", e)
+            }
+        } else if (!want && monitor != null) {
+            receiver?.dispose()
+            receiver = null
+            monitor?.dispose()
+            monitor = null
+        }
     }
 
-    private fun startTracking() {
+    private fun onSensor(x: Float, y: Float): Boolean {
+        val location = authController.udfpsLocation ?: return false
+        return hypot(x - location.x, y - location.y) <= maxOf(authController.udfpsRadius, 1f) * 1.6f
+    }
+
+    private fun startTracking(x: Float, y: Float) {
         val location = authController.udfpsLocation ?: return
         sensorX = location.x.toFloat()
         sensorY = location.y.toFloat()
-        lastX = sensorX
-        lastY = sensorY
+        lastX = x
+        lastY = y
         tracking = true
         pointerDown = true
         authenticated = false
-        try {
-            monitor = InputMonitorCompat(TAG, Display.DEFAULT_DISPLAY).also {
-                receiver = it.getInputReceiver(
-                    Looper.getMainLooper(), Choreographer.getInstance()
-                ) { event -> onInputEvent(event) }
-            }
-        } catch (e: RuntimeException) {
-            Log.w(TAG, "No input monitor", e)
-            stopTracking()
-            return
-        }
+        handler.removeCallbacks(giveUp)
         handler.postDelayed(giveUp, AUTH_TIMEOUT_MS)
     }
 
     private fun stopTracking() {
         handler.removeCallbacks(showFan)
         handler.removeCallbacks(giveUp)
-        receiver?.dispose()
-        receiver = null
-        monitor?.dispose()
-        monitor = null
         tracking = false
         pointerDown = false
         authenticated = false
         hideFan()
+        updateMonitor()
     }
 
     private fun onInputEvent(event: InputEvent) {
-        if (event !is MotionEvent || !tracking) return
+        if (event !is MotionEvent) return
+        if (event.actionMasked == MotionEvent.ACTION_DOWN) {
+            if (tracking) stopTracking()
+            if (enabled && keyguardStateController.isShowing && onSensor(event.rawX, event.rawY)) {
+                startTracking(event.rawX, event.rawY)
+            }
+            return
+        }
+        if (!tracking) return
         when (event.actionMasked) {
             MotionEvent.ACTION_MOVE -> {
                 lastX = event.rawX
