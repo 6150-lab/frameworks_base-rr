@@ -14,6 +14,7 @@ import android.hardware.biometrics.BiometricSourceType
 import android.hardware.display.DisplayManager
 import android.os.Handler
 import android.os.Looper
+import android.os.SystemClock
 import android.os.UserHandle
 import android.provider.AlarmClock
 import android.provider.MediaStore
@@ -24,11 +25,13 @@ import android.view.Display
 import android.view.HapticFeedbackConstants
 import android.view.InputEvent
 import android.view.MotionEvent
+import android.view.View
 import android.view.WindowManager
 import com.android.keyguard.KeyguardUpdateMonitor
 import com.android.keyguard.KeyguardUpdateMonitorCallback
 import com.android.systemui.CoreStartable
 import com.android.systemui.biometrics.AuthController
+import com.android.systemui.biometrics.UdfpsController
 import com.android.systemui.dagger.SysUISingleton
 import com.android.systemui.plugins.ActivityStarter
 import com.android.systemui.qrcodescanner.controller.QRCodeScannerController
@@ -37,13 +40,15 @@ import com.android.systemui.shared.system.InputChannelCompat
 import com.android.systemui.shared.system.InputMonitorCompat
 import com.android.systemui.statusbar.policy.FlashlightController
 import com.android.systemui.statusbar.policy.KeyguardStateController
+import dagger.Lazy
 import javax.inject.Inject
 import kotlin.math.hypot
 
 /**
  * Fingerprint quick launch: unlock with the in-display sensor and keep the finger down, and a fan
  * of shortcuts opens above it. Slide to one and lift to open it; lift without sliding to just
- * unlock. An input monitor watches the lock screen for the touch that lands on the sensor.
+ * unlock. An input monitor watches the lock screen for the touch that lands on the sensor; the
+ * sensor's overlay takes that touch until it unlocks, then hands its window over.
  */
 @SysUISingleton
 class QuickLaunchController
@@ -51,6 +56,7 @@ class QuickLaunchController
 constructor(
     private val context: Context,
     private val authController: AuthController,
+    private val udfpsController: Lazy<UdfpsController>,
     private val keyguardUpdateMonitor: KeyguardUpdateMonitor,
     private val keyguardStateController: KeyguardStateController,
     private val flashlightController: FlashlightController,
@@ -74,6 +80,12 @@ constructor(
     private var tracking = false
     private var pointerDown = false
     private var authenticated = false
+    // The sensor's overlay pilfered the touch; it comes back through keeper.
+    private var stolen = false
+    private var kept: View? = null
+    private var release: Runnable? = null
+    private var keeperSet = false
+    private var unlockedAt = 0L
     private var sensorX = 0f
     private var sensorY = 0f
     private var lastX = 0f
@@ -83,6 +95,7 @@ constructor(
 
     private val showFan = Runnable { showFan() }
     private val giveUp = Runnable { if (!authenticated) stopTracking() }
+    private val endGrace = Runnable { updateMonitor() }
 
     // The monitor runs while the lock screen shows, so it sees the touch that lands on the sensor
     // from its start; one registered mid-touch never gets that touch's moves.
@@ -96,12 +109,33 @@ constructor(
             biometricSourceType: BiometricSourceType,
             isStrongBiometric: Boolean,
         ) {
-            if (biometricSourceType != BiometricSourceType.FINGERPRINT || !tracking ||
-                !pointerDown || authenticated) return
-            authenticated = true
-            handler.removeCallbacks(giveUp)
-            handler.postDelayed(showFan, holdMs)
+            if (biometricSourceType != BiometricSourceType.FINGERPRINT) return
+            if (!tracking) {
+                // Out of deep sleep the screen reports the touch only after the unlock.
+                unlockedAt = SystemClock.uptimeMillis()
+                handler.removeCallbacks(endGrace)
+                handler.postDelayed(endGrace, GRACE_MS)
+                return
+            }
+            if (pointerDown && !authenticated) onUnlocked()
         }
+    }
+
+    // The overlay hides on unlock with the finger still down; its window carries the rest of the
+    // touch until release.
+    private val keeper = UdfpsController.GestureKeeper { view, release ->
+        if (!enabled || !tracking || !stolen || kept != null) return@GestureKeeper false
+        kept = view
+        this.release = release
+        view.setOnTouchListener { _, event ->
+            onInputEvent(event)
+            true
+        }
+        if (!authenticated) {
+            handler.removeCallbacks(giveUp)
+            handler.postDelayed(giveUp, KEEP_TIMEOUT_MS)
+        }
+        true
     }
 
     override fun start() {
@@ -145,7 +179,11 @@ constructor(
     /** Listens while quick launch is on and the lock screen shows, or a hold is in progress. */
     private fun updateMonitor() {
         val want = enabled && !authController.udfpsProps.isNullOrEmpty() &&
-            (keyguardStateController.isShowing || tracking)
+            (keyguardStateController.isShowing || tracking || inGrace())
+        if (want && !keeperSet) {
+            udfpsController.get().setGestureKeeper(keeper)
+            keeperSet = true
+        }
         if (want && monitor == null) {
             try {
                 monitor = InputMonitorCompat(TAG, Display.DEFAULT_DISPLAY).also {
@@ -178,9 +216,18 @@ constructor(
         tracking = true
         pointerDown = true
         authenticated = false
+        stolen = false
         handler.removeCallbacks(giveUp)
         handler.postDelayed(giveUp, AUTH_TIMEOUT_MS)
     }
+
+    private fun onUnlocked() {
+        authenticated = true
+        handler.removeCallbacks(giveUp)
+        handler.postDelayed(showFan, holdMs)
+    }
+
+    private fun inGrace() = SystemClock.uptimeMillis() - unlockedAt < GRACE_MS
 
     private fun stopTracking() {
         handler.removeCallbacks(showFan)
@@ -188,6 +235,11 @@ constructor(
         tracking = false
         pointerDown = false
         authenticated = false
+        stolen = false
+        kept?.setOnTouchListener(null)
+        kept = null
+        release?.run()
+        release = null
         hideFan()
         updateMonitor()
     }
@@ -196,7 +248,11 @@ constructor(
         if (event !is MotionEvent) return
         if (event.actionMasked == MotionEvent.ACTION_DOWN) {
             if (tracking) stopTracking()
-            if (enabled && keyguardStateController.isShowing && onSensor(event.rawX, event.rawY)) {
+            if (!enabled || !onSensor(event.rawX, event.rawY)) return
+            if (inGrace()) {
+                startTracking(event.rawX, event.rawY)
+                onUnlocked()
+            } else if (keyguardStateController.isShowing) {
                 startTracking(event.rawX, event.rawY)
             }
             return
@@ -217,7 +273,8 @@ constructor(
                 }
             }
             MotionEvent.ACTION_UP -> finish(launch = true)
-            MotionEvent.ACTION_CANCEL -> finish(launch = false)
+            MotionEvent.ACTION_CANCEL ->
+                if (kept == null && view == null) stolen = true else finish(launch = false)
         }
     }
 
@@ -232,7 +289,8 @@ constructor(
     }
 
     private fun showFan() {
-        if (!tracking || !pointerDown || movedAway()) {
+        // A stolen touch that never came back was lifted before the unlock.
+        if (!tracking || !pointerDown || movedAway() || (stolen && kept == null)) {
             stopTracking()
             return
         }
@@ -241,8 +299,8 @@ constructor(
             stopTracking()
             return
         }
-        // The rest of this touch is ours; the keyguard gets a cancel.
-        monitor?.pilferPointers()
+        // The rest of this touch is ours; the keyguard gets a cancel. A kept window already has it.
+        if (kept == null) monitor?.pilferPointers()
         val fan = QuickLaunchView(windowContext)
         val lp = WindowManager.LayoutParams(
             WindowManager.LayoutParams.MATCH_PARENT,
@@ -288,7 +346,7 @@ constructor(
         val pm = context.packageManager
         fun builtIn(token: String, label: Int, icon: Int) =
             Entry(token, QuickLaunchView.Item(context.getString(label), context.getDrawable(icon)!!.mutate()))
-        return tokens.split(',').map { it.trim() }.filter { it.isNotEmpty() }.mapNotNull { token ->
+        return tokens.split(',').map { it.trim() }.filter { it.isNotEmpty() }.distinct().mapNotNull { token ->
             when {
                 token == CAMERA -> builtIn(token, R.string.quick_launch_camera, R.drawable.rr_ql_camera)
                 token == VIDEO -> builtIn(token, R.string.quick_launch_video, R.drawable.rr_ql_video)
@@ -349,6 +407,8 @@ constructor(
         private const val DEFAULT_SHORTCUTS = "camera,flashlight,qr,timer"
         private const val DEFAULT_HOLD_MS = 500L
         private const val AUTH_TIMEOUT_MS = 3000L
+        private const val KEEP_TIMEOUT_MS = 1000L
+        private const val GRACE_MS = 600L
         private const val MAX_SHORTCUTS = 5
     }
 }
