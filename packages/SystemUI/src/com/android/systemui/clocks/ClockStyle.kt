@@ -19,6 +19,7 @@ import android.graphics.Color.HSVToColor
 import android.graphics.LinearGradient
 import android.graphics.Shader
 import android.graphics.Typeface
+import android.graphics.drawable.ColorDrawable
 import android.media.session.PlaybackState
 import android.os.Handler
 import android.os.Looper
@@ -63,6 +64,7 @@ class ClockStyle @JvmOverloads constructor(
 
     private val textClocks = ArrayList<TextClock>()
     private val styledTextViews = ArrayList<TextView>()
+    private val styledShapes = ArrayList<View>()
 
     private var clockStyle = DEFAULT_STYLE
     private var colorMode = COLOR_MODE_DEFAULT
@@ -90,8 +92,6 @@ class ClockStyle @JvmOverloads constructor(
 
     private var currentShiftX = 0
     private var currentShiftY = 0
-
-    private var naturalClockHeight = 0
 
     private var pendingLayoutListener: View.OnLayoutChangeListener? = null
     private var clockSizeListener: View.OnLayoutChangeListener? = null
@@ -404,8 +404,9 @@ class ClockStyle @JvmOverloads constructor(
         currentClockView = null
         textClocks.clear()
         styledTextViews.clear()
-        naturalClockHeight = 0
-        clockContainer?.minimumHeight = 0
+        styledShapes.clear()
+        clockContainer?.translationY = 0f
+        setFrameBottomMargin(0)
 
         if (clockStyle in 1 until CLOCK_LAYOUTS.size) {
             val stub = clockStub
@@ -462,6 +463,10 @@ class ClockStyle @JvmOverloads constructor(
                 root.setTag(R.id.original_alpha, root.alpha)
                 styledTextViews.add(root)
             }
+        }
+        val background = root.background
+        if (background is ColorDrawable && (background.color and 0x00FFFFFF) == 0x00FFFFFF) {
+            styledShapes.add(root)
         }
         if (root is ViewGroup) {
             for (i in 0 until root.childCount) {
@@ -577,7 +582,10 @@ class ClockStyle @JvmOverloads constructor(
         clockSizeListener?.let { currentClockView?.removeOnLayoutChangeListener(it) }
         val listener = View.OnLayoutChangeListener { v, l, t, r, b, ol, ot, oR, ob ->
             if (r - l != oR - ol || b - t != ob - ot) {
-                if (gradientEnabled) applyClockColors()
+                // Gradients span the face and rules are told apart by size.
+                applyClockColors()
+                // The face grows when weather turns up; the frame follows its real height.
+                v.post { applyClockScale() }
             }
         }
         clockSizeListener = listener
@@ -637,6 +645,22 @@ class ClockStyle @JvmOverloads constructor(
                 }
             }
         }
+
+        // White boxes and rules follow the clock color like white text; left white they turn grey
+        // at any opacity below 100%. Dozing text is all white, so boxes clear out of its way and
+        // rules stay white with it.
+        val shapeColor = if (useGradient) gradientColorStart else resolveClockColor()
+        val thin = (RULE_MAX_DP * resources.displayMetrics.density).toInt()
+        for (shape in styledShapes) {
+            val rule = shape.height in 1..thin || shape.width in 1..thin
+            shape.setBackgroundColor(
+                when {
+                    !isDozing -> shapeColor
+                    rule -> whiteColor
+                    else -> Color.TRANSPARENT
+                }
+            )
+        }
     }
 
     private fun getScaleFactor(): Float =
@@ -650,29 +674,22 @@ class ClockStyle @JvmOverloads constructor(
         view.pivotX = view.width / 2f
         view.pivotY = view.height / 2f
         disableClippingOnParents(view)
-        if (naturalClockHeight == 0 && view.height > 0) {
-            naturalClockHeight = view.height
-        }
+        // The face keeps its natural height. Squeezed into a scaled frame it overflowed, and a
+        // translucent face draws through a layer clipped to its bounds, which cut off its ends.
+        // Instead the frame moves up by what the scale frees above the face and gives back what
+        // it frees below; burn-in and the wobble own the face's own translation.
+        val frame = clockContainer ?: return
+        val freed = (1f - scale) * view.height
+        frame.translationY = -freed / 2f
+        setFrameBottomMargin(-freed.toInt())
+    }
 
-        if (naturalClockHeight > 0) {
-            val scaledHeight = (naturalClockHeight * scale).toInt()
-            val container = clockContainer ?: return
-            if (scale >= 1.0f) {
-                container.minimumHeight = scaledHeight
-                val lp = container.layoutParams
-                if (lp != null) {
-                    lp.height = ViewGroup.LayoutParams.WRAP_CONTENT
-                    container.layoutParams = lp
-                }
-            } else {
-                container.minimumHeight = 0
-                val lp = container.layoutParams
-                if (lp != null) {
-                    lp.height = scaledHeight
-                    container.layoutParams = lp
-                }
-            }
-            container.requestLayout()
+    private fun setFrameBottomMargin(margin: Int) {
+        val frame = clockContainer ?: return
+        val params = frame.layoutParams as? ViewGroup.MarginLayoutParams ?: return
+        if (params.bottomMargin != margin) {
+            params.bottomMargin = margin
+            frame.layoutParams = params
         }
     }
 
@@ -689,9 +706,6 @@ class ClockStyle @JvmOverloads constructor(
             ) {
                 v.removeOnLayoutChangeListener(this)
                 if (pendingLayoutListener === this) pendingLayoutListener = null
-                if (naturalClockHeight == 0) {
-                    naturalClockHeight = v.height
-                }
                 applyClockScale()
                 if (gradientEnabled) applyClockColors()
             }
@@ -1009,6 +1023,8 @@ class ClockStyle @JvmOverloads constructor(
         private const val DEFAULT_MARGIN_TOP = 15
         private const val DEFAULT_CUSTOM_COLOR = Color.WHITE
         private const val AOD_OPACITY_CAP = 70
+        // A white shape this thin, in dp, is a rule rather than a box.
+        private const val RULE_MAX_DP = 4
         private const val DEFAULT_CLOCK_SIZE = 100
         private const val MIN_CLOCK_SIZE = 50
         private const val MAX_CLOCK_SIZE = 150
