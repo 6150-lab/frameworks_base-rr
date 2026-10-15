@@ -17,6 +17,7 @@ enum class NowBarType {
     TIMER,
     RECORDING,
     MUSIC,
+    SPORTS,
     LIVE,
     CHARGING,
     FLASHLIGHT,
@@ -29,6 +30,17 @@ class NowBarAction(
     val iconRes: Int = 0,
     val intent: PendingIntent? = null,
     val run: (() -> Unit)? = null,
+)
+
+/** A game: both sides, their scores and where the game is at. */
+class NowBarScore(
+    val team1: CharSequence,
+    val team2: CharSequence,
+    val score1: CharSequence,
+    val score2: CharSequence,
+    val logo1: Drawable?,
+    val logo2: Drawable?,
+    val status: CharSequence?,
 )
 
 /** One activity in the Now Bar. */
@@ -51,4 +63,5 @@ class NowBarItem(
     val actions: List<NowBarAction> = emptyList(),
     val contentIntent: PendingIntent? = null,
     val controller: MediaController? = null,
+    val score: NowBarScore? = null,
 )

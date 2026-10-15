@@ -68,6 +68,7 @@ constructor(
     private var chargingItem: NowBarItem? = null
     private var flashlightItem: NowBarItem? = null
     private lateinit var sessionManager: MediaSessionManager
+    private val scores = NowBarScores(context, handler) { publish() }
 
     private val sessionsListener =
         MediaSessionManager.OnActiveSessionsChangedListener { sessions ->
@@ -114,6 +115,7 @@ constructor(
         val observer = object : ContentObserver(handler) {
             override fun onChange(selfChange: Boolean) {
                 settings.read()
+                scores.setSource(if (settings.enabled) settings.scores else NowBarScores.SOURCE_OFF)
                 publish()
             }
         }
@@ -128,11 +130,13 @@ constructor(
         updateSessions(activeSessions())
         batteryController.addCallback(batteryCallback)
         flashlightController.addCallback(flashlightListener)
+        scores.setSource(if (settings.enabled) settings.scores else NowBarScores.SOURCE_OFF)
     }
 
     override fun dump(pw: PrintWriter, args: Array<out String>) {
         pw.println("NowBar: enabled=${settings.enabled} sessions=${controllers.size} " +
-            "media=${mediaItem != null} notifications=${notificationItems.keys} hidden=$hidden")
+            "media=${mediaItem != null} notifications=${notificationItems.keys} hidden=$hidden " +
+            "scores=${settings.scores}:${scores.items.size}")
         pw.println("  items=${items.map { "${it.type}:${it.key}" }}")
         for (listener in listeners) {
             val view = listener as? android.view.View
@@ -167,6 +171,7 @@ constructor(
         mediaItem?.let(all::add)
         chargingItem?.let(all::add)
         flashlightItem?.let(all::add)
+        all += scores.items
         hidden.retainAll(all.map { it.key }.toSet())
         items = all.filter { settings.shows(it.type) && it.key !in hidden }
             .sortedBy { it.type.ordinal }

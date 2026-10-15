@@ -22,6 +22,9 @@ class NowBarSettings(private val context: Context) {
         private set
     var chip = true
         private set
+    /** Where live scores come from: [NowBarScores.SOURCE_OFF], At a Glance or Smartspacer. */
+    var scores = NowBarScores.SOURCE_GLANCE
+        private set
     private val shown = HashMap<NowBarType, Boolean>()
 
     init {
@@ -33,6 +36,9 @@ class NowBarSettings(private val context: Context) {
         wave = get(KEY_WAVE, true)
         aod = get(KEY_AOD, true)
         chip = get(KEY_CHIP, true)
+        scores = Settings.System.getIntForUser(context.contentResolver, KEY_SCORES,
+            NowBarScores.SOURCE_GLANCE, UserHandle.USER_CURRENT)
+        shown[NowBarType.SPORTS] = scores != NowBarScores.SOURCE_OFF
         shown[NowBarType.MUSIC] = get(KEY_MUSIC, true)
         shown[NowBarType.TIMER] = get(KEY_TIMERS, true)
         shown[NowBarType.CALL] = get(KEY_CALLS, true)
@@ -60,9 +66,10 @@ class NowBarSettings(private val context: Context) {
         const val KEY_WAVE = "now_bar_wave"
         const val KEY_AOD = "now_bar_aod"
         const val KEY_CHIP = "now_bar_chip"
+        const val KEY_SCORES = "now_bar_scores"
         val KEYS = arrayOf(
             KEY_ENABLED, KEY_MUSIC, KEY_TIMERS, KEY_CALLS, KEY_LIVE, KEY_RECORDING, KEY_CHARGING,
-            KEY_FLASHLIGHT, KEY_WAVE, KEY_AOD, KEY_CHIP,
+            KEY_FLASHLIGHT, KEY_WAVE, KEY_AOD, KEY_CHIP, KEY_SCORES,
         )
 
         private fun get(context: Context, key: String, def: Boolean) =
