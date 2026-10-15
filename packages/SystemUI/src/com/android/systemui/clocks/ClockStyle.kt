@@ -13,6 +13,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Color.colorToHSV
 import android.graphics.Color.HSVToColor
@@ -20,6 +21,7 @@ import android.graphics.LinearGradient
 import android.graphics.Shader
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.GradientDrawable
 import android.media.session.PlaybackState
 import android.os.Handler
 import android.os.Looper
@@ -65,6 +67,7 @@ class ClockStyle @JvmOverloads constructor(
     private val textClocks = ArrayList<TextClock>()
     private val styledTextViews = ArrayList<TextView>()
     private val styledShapes = ArrayList<View>()
+    private val faceShapes = ArrayList<Pair<View, ColorStateList?>>()
 
     private var clockStyle = DEFAULT_STYLE
     private var colorMode = COLOR_MODE_DEFAULT
@@ -405,6 +408,7 @@ class ClockStyle @JvmOverloads constructor(
         textClocks.clear()
         styledTextViews.clear()
         styledShapes.clear()
+        faceShapes.clear()
         clockContainer?.translationY = 0f
         setFrameBottomMargin(0)
 
@@ -464,9 +468,15 @@ class ClockStyle @JvmOverloads constructor(
                 styledTextViews.add(root)
             }
         }
-        val background = root.background
-        if (background is ColorDrawable && (background.color and 0x00FFFFFF) == 0x00FFFFFF) {
-            styledShapes.add(root)
+        val fill = when (val background = root.background) {
+            is ColorDrawable -> background.color.takeIf { Color.alpha(it) > 0 }
+            is GradientDrawable -> background.color?.defaultColor ?: Color.TRANSPARENT
+            else -> null
+        }
+        when {
+            fill == null -> {}
+            Color.alpha(fill) > 0 && (fill and 0x00FFFFFF) == 0x00FFFFFF -> styledShapes.add(root)
+            else -> faceShapes.add(root to root.backgroundTintList)
         }
         if (root is ViewGroup) {
             for (i in 0 until root.childCount) {
@@ -647,19 +657,26 @@ class ClockStyle @JvmOverloads constructor(
         }
 
         // White boxes and rules follow the clock color like white text; left white they turn grey
-        // at any opacity below 100%. Dozing text is all white, so boxes clear out of its way and
-        // rules stay white with it.
+        // at any opacity below 100%. Dozing text is all white, so every box clears out of its way
+        // and rules stay white with it. Tinting keeps each shape's corners.
         val shapeColor = if (useGradient) gradientColorStart else resolveClockColor()
         val thin = (RULE_MAX_DP * resources.displayMetrics.density).toInt()
+        fun isRule(shape: View) = shape.height in 1..thin || shape.width in 1..thin
         for (shape in styledShapes) {
-            val rule = shape.height in 1..thin || shape.width in 1..thin
-            shape.setBackgroundColor(
+            shape.backgroundTintList = ColorStateList.valueOf(
                 when {
                     !isDozing -> shapeColor
-                    rule -> whiteColor
+                    isRule(shape) -> whiteColor
                     else -> Color.TRANSPARENT
                 }
             )
+        }
+        for ((shape, tint) in faceShapes) {
+            shape.backgroundTintList = when {
+                !isDozing -> tint
+                isRule(shape) -> ColorStateList.valueOf(whiteColor)
+                else -> ColorStateList.valueOf(Color.TRANSPARENT)
+            }
         }
     }
 
