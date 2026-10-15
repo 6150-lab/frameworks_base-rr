@@ -16,6 +16,7 @@
 
 package com.android.systemui.volume.dialog.sliders.ui
 
+import android.graphics.BlurMaskFilter
 import android.os.UserHandle
 import android.provider.Settings
 import android.view.View
@@ -23,9 +24,13 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.size
@@ -121,6 +126,16 @@ private fun VolumeDialogSlider(
         },
 ) {
     val accent = Color(LocalContext.current.getColor(android.R.color.system_accent1_400))
+    val density = LocalDensity.current
+    // Neon glows around the track itself; an elevation shadow showed through its clear part.
+    val neonGlow = remember(accent, density) {
+        android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
+            style = android.graphics.Paint.Style.STROKE
+            strokeWidth = with(density) { 4.dp.toPx() }
+            color = accent.copy(alpha = 0.7f).toArgb()
+            maskFilter = BlurMaskFilter(with(density) { 6.dp.toPx() }, BlurMaskFilter.Blur.NORMAL)
+        }
+    }
     val colors =
         when (rrStyle) {
             // RR looks: an outlined, glowing track; frosted; one wide pill; classic accent.
@@ -219,12 +234,13 @@ private fun VolumeDialogSlider(
         track = { sliderState ->
             Box(
                 if (rrStyle == RR_NEON) {
-                    Modifier.shadow(
-                            elevation = 8.dp,
-                            shape = RoundedCornerShape(12.dp),
-                            ambientColor = accent,
-                            spotColor = accent,
-                        )
+                    Modifier.drawBehind {
+                            val r = 12.dp.toPx()
+                            drawIntoCanvas {
+                                it.nativeCanvas.drawRoundRect(
+                                    0f, 0f, size.width, size.height, r, r, neonGlow)
+                            }
+                        }
                         .border(1.5.dp, accent, RoundedCornerShape(12.dp))
                 } else {
                     Modifier
