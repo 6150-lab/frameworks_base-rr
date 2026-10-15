@@ -180,88 +180,185 @@ constructor(
 
     /**
      * RR volume panel looks, on rr_volume_style: 0 Android, 1 Neon, 2 Glass, 3 Pill, 4 Classic RR.
-     * The ringer binder owns the background drawable (it reshapes it and swaps in the blur layers),
-     * so a look only tints it and draws its outline or bar on top.
+     * The ringer binder owns the background drawables (it reshapes them and swaps in the blur
+     * layers), so a look only tints them and draws its outline or bar on top.
      */
     private fun applyRrStyle() {
         val style = android.provider.Settings.System.getIntForUser(
             context.contentResolver, "rr_volume_style", 0, android.os.UserHandle.USER_CURRENT
         )
+        val root = findViewById<View>(R.id.volume_dialog) ?: return
         val bg = findViewById<View>(R.id.volume_dialog_background) ?: return
+        val ringer = findViewById<View>(R.id.ringer_buttons_background)
+        panelOutline?.let {
+            root.overlay.remove(it)
+            root.viewTreeObserver.removeOnPreDrawListener(it)
+        }
+        panelOutline = null
         bg.backgroundTintList = null
+        ringer?.backgroundTintList = null
         bg.foreground = null
-        bg.elevation = 0f
-        bg.outlineSpotShadowColor = android.graphics.Color.BLACK
-        bg.outlineAmbientShadowColor = android.graphics.Color.BLACK
         if (style == 0) return
         val density = context.resources.displayMetrics.density
         val accent = context.getColor(android.R.color.system_accent1_400)
         fun tint(color: Int) {
-            bg.backgroundTintList = android.content.res.ColorStateList.valueOf(color)
-            bg.backgroundTintMode = android.graphics.PorterDuff.Mode.SRC_IN
+            for (view in listOfNotNull(bg, ringer)) {
+                view.backgroundTintList = android.content.res.ColorStateList.valueOf(color)
+                view.backgroundTintMode = android.graphics.PorterDuff.Mode.SRC_IN
+            }
+        }
+        fun outline(color: Int, widthPx: Float, glow: Boolean) {
+            panelOutline = RrPanelOutline(root, bg, ringer, color, widthPx, withGlow = glow).also {
+                root.overlay.add(it)
+                root.viewTreeObserver.addOnPreDrawListener(it)
+            }
         }
         when (style) {
             1 -> {
                 tint(0xE6120A0C.toInt())
-                bg.foreground = RrPanelForeground(bg, accent, 1.5f * density, bar = false)
-                bg.outlineSpotShadowColor = accent
-                bg.outlineAmbientShadowColor = accent
-                bg.elevation = 10 * density
+                outline(accent, 1.5f * density, glow = true)
             }
             2 -> {
                 tint(0x40FFFFFF)
-                bg.foreground = RrPanelForeground(bg, 0x44FFFFFF, density, bar = false)
+                outline(0x44FFFFFF, density, glow = false)
             }
             3 -> tint(0xCC1A1416.toInt())
             4 -> {
                 tint(0xF21D1517.toInt())
-                bg.foreground = RrPanelForeground(bg, accent, 3 * density, bar = true)
+                bg.foreground = RrPanelBar(bg, accent, 3 * density)
             }
         }
     }
 
-    /** An outline, or a bar along the top, that follows the panel's current corners. */
-    private class RrPanelForeground(
+    private var panelOutline: RrPanelOutline? = null
+
+    /**
+     * An outline around the panel and the ringer above it, drawn over the dialog so nothing in it
+     * hides the line. Neon's glow is a blurred stroke; an elevation shadow would lift the panel
+     * over the sliders.
+     */
+    private class RrPanelOutline(
+        private val root: View,
+        private val panel: View,
+        private val ringer: View?,
+        color: Int,
+        widthPx: Float,
+        withGlow: Boolean,
+    ) : android.graphics.drawable.Drawable(), android.view.ViewTreeObserver.OnPreDrawListener {
+        private val line = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
+            this.color = color
+            style = android.graphics.Paint.Style.STROKE
+            strokeWidth = widthPx
+        }
+        private val glow = if (!withGlow) null else android.graphics.Paint(line).apply {
+            strokeWidth = widthPx * 3
+            alpha = 150
+            maskFilter = android.graphics.BlurMaskFilter(
+                widthPx * 5, android.graphics.BlurMaskFilter.Blur.NORMAL
+            )
+        }
+        private val path = android.graphics.Path()
+        private val part = android.graphics.Path()
+        private val rect = android.graphics.RectF()
+        private val origin = IntArray(2)
+        private val at = IntArray(2)
+        private var shape = FloatArray(0)
+
+        // The ringer drawer animates both shapes, so rebuild whenever either changes.
+        override fun onPreDraw(): Boolean {
+            val next = FloatArray(SHAPE_SIZE * 2)
+            val hasPanel = measure(panel, next, 0)
+            if (ringer != null && ringer.isShown) measure(ringer, next, SHAPE_SIZE)
+            if (!next.contentEquals(shape)) {
+                shape = next
+                path.reset()
+                if (hasPanel) {
+                    addShape(path, 0)
+                    if (next[SHAPE_SIZE + 2] > 0f) {
+                        part.reset()
+                        addShape(part, SHAPE_SIZE)
+                        path.op(part, android.graphics.Path.Op.UNION)
+                    }
+                }
+                setBounds(0, 0, root.width, root.height)
+                invalidateSelf()
+            }
+            return true
+        }
+
+        /** Writes [view]'s bounds in the dialog and its corner radii into [out] at [offset]. */
+        private fun measure(view: View, out: FloatArray, offset: Int): Boolean {
+            if (view.width == 0 || view.height == 0) return false
+            root.getLocationInWindow(origin)
+            view.getLocationInWindow(at)
+            out[offset] = (at[0] - origin[0]).toFloat()
+            out[offset + 1] = (at[1] - origin[1]).toFloat()
+            out[offset + 2] = view.width.toFloat()
+            out[offset + 3] = view.height.toFloat()
+            radii(view)?.copyInto(out, offset + 4)
+            return true
+        }
+
+        private fun addShape(target: android.graphics.Path, offset: Int) {
+            val left = shape[offset]
+            val top = shape[offset + 1]
+            rect.set(left, top, left + shape[offset + 2], top + shape[offset + 3])
+            target.addRoundRect(
+                rect, shape.copyOfRange(offset + 4, offset + SHAPE_SIZE),
+                android.graphics.Path.Direction.CW
+            )
+        }
+
+        override fun draw(canvas: android.graphics.Canvas) {
+            glow?.let {
+                // Only outward, so it doesn't tint the sliders.
+                canvas.save()
+                canvas.clipOutPath(path)
+                canvas.drawPath(path, it)
+                canvas.restore()
+            }
+            canvas.drawPath(path, line)
+        }
+
+        override fun setAlpha(alpha: Int) {
+            line.alpha = alpha
+        }
+
+        override fun setColorFilter(colorFilter: android.graphics.ColorFilter?) {
+            line.colorFilter = colorFilter
+            glow?.colorFilter = colorFilter
+        }
+
+        @Deprecated("Deprecated in Java")
+        override fun getOpacity() = android.graphics.PixelFormat.TRANSLUCENT
+
+        private companion object {
+            // Left, top, width, height, then eight corner radii.
+            const val SHAPE_SIZE = 12
+        }
+    }
+
+    /** A bar along the top that follows the panel's current corners. */
+    private class RrPanelBar(
         private val view: View,
         color: Int,
-        private val widthPx: Float,
-        private val bar: Boolean,
+        private val heightPx: Float,
     ) : android.graphics.drawable.Drawable() {
         private val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
             this.color = color
-            style = if (bar) android.graphics.Paint.Style.FILL else android.graphics.Paint.Style.STROKE
-            strokeWidth = widthPx
         }
         private val path = android.graphics.Path()
         private val rect = android.graphics.RectF()
 
         override fun draw(canvas: android.graphics.Canvas) {
-            val radii = radii() ?: return
+            val radii = radii(view) ?: return
             rect.set(bounds)
-            if (!bar) rect.inset(widthPx / 2, widthPx / 2)
             path.reset()
             path.addRoundRect(rect, radii, android.graphics.Path.Direction.CW)
-            if (bar) {
-                canvas.save()
-                canvas.clipPath(path)
-                canvas.drawRect(rect.left, rect.top, rect.right, rect.top + widthPx, paint)
-                canvas.restore()
-            } else {
-                canvas.drawPath(path, paint)
-            }
-        }
-
-        private fun radii(): FloatArray? {
-            val shape = when (val background = view.background) {
-                is android.graphics.drawable.GradientDrawable -> background
-                is android.graphics.drawable.LayerDrawable ->
-                    (0 until background.numberOfLayers)
-                        .map { background.getDrawable(it) }
-                        .filterIsInstance<android.graphics.drawable.GradientDrawable>()
-                        .lastOrNull()
-                else -> null
-            } ?: return null
-            return shape.cornerRadii ?: FloatArray(8) { shape.cornerRadius }
+            canvas.save()
+            canvas.clipPath(path)
+            canvas.drawRect(rect.left, rect.top, rect.right, rect.top + heightPx, paint)
+            canvas.restore()
         }
 
         override fun setAlpha(alpha: Int) {
@@ -275,4 +372,18 @@ constructor(
         @Deprecated("Deprecated in Java")
         override fun getOpacity() = android.graphics.PixelFormat.TRANSLUCENT
     }
+}
+
+/** The corner radii of [view]'s rounded background, the one the ringer binder reshapes. */
+private fun radii(view: View): FloatArray? {
+    val shape = when (val background = view.background) {
+        is android.graphics.drawable.GradientDrawable -> background
+        is android.graphics.drawable.LayerDrawable ->
+            (0 until background.numberOfLayers)
+                .map { background.getDrawable(it) }
+                .filterIsInstance<android.graphics.drawable.GradientDrawable>()
+                .lastOrNull()
+        else -> null
+    } ?: return null
+    return shape.cornerRadii ?: FloatArray(8) { shape.cornerRadius }
 }
