@@ -9360,8 +9360,12 @@ public final class ActivityThread extends ClientTransactionHandler
                         sendMessage(H.CONFIGURATION_CHANGED, globalConfig);
                         mPendingConfiguration = updatedConfig;
                     }
+                } else {
+                    return;
                 }
             }
+            // Views hear about this before CONFIGURATION_CHANGED, pick up the font now.
+            FontController.OnConfigurationChanged(mInitialApplication.getResources());
         };
         ViewRootImpl.addConfigCallback(configChangedCallback);
     }
