@@ -16,10 +16,7 @@
 
 package com.android.systemui.media.controls.ui.controller
 
-import android.database.ContentObserver
 import com.android.systemui.rr.nowbar.NowBarSettings
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.merge
 import android.content.Context
 import android.content.res.Configuration
@@ -176,8 +173,9 @@ constructor(
                         mediaCarouselInteractor.allowMediaOnLockscreen,
                         mediaCarouselInteractor.hasActiveMedia,
                         mediaCarouselInteractor.isOnLockscreen,
-                    ) { allowMediaOnLockscreen, activeMedia, isOnLockscreen ->
-                        if (allowMediaOnLockscreen && isOnLockscreen) {
+                        nowBarHidesMedia(),
+                    ) { allowMediaOnLockscreen, activeMedia, isOnLockscreen, nowBar ->
+                        if (allowMediaOnLockscreen && isOnLockscreen && !nowBar) {
                             activeMedia
                         } else {
                             false
@@ -257,7 +255,7 @@ constructor(
                     secureSettings.observerFlow(
                         UserHandle.USER_ALL, Settings.Secure.MEDIA_CONTROLS_LOCK_SCREEN
                     ),
-                    nowBarSettingsFlow(),
+                    NowBarSettings.lockscreenMediaChanges(context),
                 )
                 // query to get initial value
                 .onStart { emit(Unit) }
@@ -271,20 +269,16 @@ constructor(
         }
     }
 
-    /** RR: with music in the Now Bar, the player leaves the lock screen. */
-    private fun nowBarSettingsFlow() = callbackFlow<Unit> {
-        val observer = object : ContentObserver(null) {
-            override fun onChange(selfChange: Boolean) {
-                trySend(Unit)
-            }
-        }
-        for (key in arrayOf(NowBarSettings.KEY_ENABLED, NowBarSettings.KEY_MUSIC)) {
-            context.contentResolver.registerContentObserver(
-                Settings.System.getUriFor(key), false, observer, UserHandle.USER_ALL
-            )
-        }
-        awaitClose { context.contentResolver.unregisterContentObserver(observer) }
-    }
+    /**
+     * RR: with music in the Now Bar, the player leaves the lock screen. Only here: the shared
+     * lock screen setting also hides QS media while locked.
+     */
+    private fun nowBarHidesMedia() =
+        NowBarSettings.lockscreenMediaChanges(context)
+            .onStart { emit(Unit) }
+            .map { NowBarSettings.hidesLockscreenMedia(context) }
+            .distinctUntilChanged()
+            .flowOn(backgroundDispatcher)
 
     private suspend fun getMediaLockScreenSetting(): Boolean {
         return withContext(backgroundDispatcher) {

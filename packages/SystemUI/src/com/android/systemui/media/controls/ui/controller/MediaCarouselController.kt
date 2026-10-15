@@ -534,9 +534,6 @@ constructor(
         return scope.launch {
             secureSettings
                 .observerFlow(UserHandle.USER_ALL, Settings.Secure.MEDIA_CONTROLS_LOCK_SCREEN)
-                // RR: the Now Bar takes music off the lock screen.
-                .let { kotlinx.coroutines.flow.merge(it,
-                    com.android.systemui.rr.nowbar.NowBarSettings.lockscreenMediaChanges(context)) }
                 // query to get initial value
                 .onStart { emit(Unit) }
                 .map { getMediaLockScreenSetting() }
@@ -566,7 +563,7 @@ constructor(
                 Settings.Secure.MEDIA_CONTROLS_LOCK_SCREEN,
                 true,
                 UserHandle.USER_CURRENT,
-            ) && !com.android.systemui.rr.nowbar.NowBarSettings.hidesLockscreenMedia(context)
+            )
         }
     }
 
