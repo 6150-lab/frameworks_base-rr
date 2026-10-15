@@ -5,13 +5,17 @@
 package com.android.systemui.rr.nowbar
 
 import android.app.PendingIntent
+import android.app.WallpaperColors
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.res.ColorStateList
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Outline
+import android.graphics.Paint
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.os.SystemClock
@@ -29,6 +33,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.PopupMenu
 import android.widget.TextView
+import androidx.core.graphics.ColorUtils
 import com.android.systemui.broadcast.BroadcastDispatcher
 import com.android.systemui.plugins.ActivityStarter
 import com.android.systemui.plugins.statusbar.StatusBarStateController
@@ -36,8 +41,9 @@ import com.android.systemui.res.R
 import kotlin.math.abs
 
 /**
- * The Now Bar on the lock screen: a capsule with the current activity. Swipe between activities,
- * tap to open the card, long-press to hide one. On the always-on display it is a dim outline.
+ * The Now Bar on the lock screen, between the shortcuts like One UI's: a capsule with the current
+ * activity, and the next one peeking out behind it. Swipe between activities, tap to open the
+ * card, long-press to hide one. On the always-on display it is a dim outline.
  */
 class NowBarView(
     context: Context,
@@ -45,26 +51,51 @@ class NowBarView(
     private val statusBarStateController: StatusBarStateController,
     private val activityStarter: ActivityStarter,
     private val broadcastDispatcher: BroadcastDispatcher,
-) : LinearLayout(context), NowBarRepository.Listener, StatusBarStateController.StateListener {
+) : FrameLayout(context), NowBarRepository.Listener, StatusBarStateController.StateListener {
 
     private val density = resources.displayMetrics.density
     private val accent = context.getColor(android.R.color.system_accent1_400)
-    private val capsuleBg = GradientDrawable().apply { cornerRadius = dp(30f) }
+    private val semibold = Typeface.create(Typeface.DEFAULT, 600, false)
+    private val medium = Typeface.create(Typeface.DEFAULT, 500, false)
+    private val peekBg = GradientDrawable().apply { cornerRadius = dp(CAPSULE / 2) }
+    private val peek = View(context)
+    private val capsuleBg = GradientDrawable().apply { cornerRadius = dp(CAPSULE / 2) }
     private val capsule = FrameLayout(context)
-    private val row = LinearLayout(context)
+    private val row = FrameLayout(context)
     private val icon = ImageView(context)
+
+    // Music
+    private val songTitle = TextView(context)
+    private val controls = LinearLayout(context)
+    private val controlViews = List(3) { ImageView(context) }
+    private val wave = NowBarWaveView(context)
+
+    // Everything else
+    private val texts = LinearLayout(context)
+    private val label = TextView(context)
     private val title = TextView(context)
     private val chronometer = Chronometer(context)
     private val subtitle = TextView(context)
+    private val actionRow = LinearLayout(context)
     private val actionViews = List(2) { ImageView(context) }
-    private val wave = NowBarWaveView(context)
-    private val dots = NowBarDotsView(context)
+    private val progress = ProgressLine(context)
+
+    // Games
+    private val scoreRow = LinearLayout(context)
+    private val logo1 = ImageView(context)
+    private val logo2 = ImageView(context)
+    private val team1 = TextView(context)
+    private val team2 = TextView(context)
+    private val scoreText = TextView(context)
+    private val statusText = TextView(context)
 
     private var items: List<NowBarItem> = emptyList()
     private var currentKey: String? = null
     private var dozing = false
     private var card: NowBarCard? = null
     private var burnIn = 0
+    private var artColorsFor: Bitmap? = null
+    private var artColors: IntArray? = null
 
     private var downX = 0f
     private var downY = 0f
@@ -91,65 +122,175 @@ class NowBarView(
     }
 
     init {
-        orientation = VERTICAL
         clipChildren = false
         clipToPadding = false
         visibility = GONE
+        peek.background = peekBg
+        addView(peek, LayoutParams(LayoutParams.MATCH_PARENT, dp(CAPSULE).toInt(), Gravity.TOP)
+            .apply {
+                marginStart = dp(14f).toInt()
+                marginEnd = dp(14f).toInt()
+            })
         capsule.background = capsuleBg
         capsule.elevation = dp(6f)
-        addView(capsule, LayoutParams(LayoutParams.MATCH_PARENT, dp(60f).toInt()))
-
-        row.orientation = HORIZONTAL
-        row.gravity = Gravity.CENTER_VERTICAL
-        row.setPaddingRelative(dp(9f).toInt(), 0, dp(9f).toInt(), 0)
-        capsule.addView(row, FrameLayout.LayoutParams(-1, -1))
+        capsule.clipToOutline = true
+        addView(capsule, LayoutParams(LayoutParams.MATCH_PARENT, dp(CAPSULE).toInt(),
+            Gravity.BOTTOM).apply { topMargin = dp(PEEK).toInt() })
+        capsule.addView(row, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
 
         icon.outlineProvider = object : ViewOutlineProvider() {
             override fun getOutline(view: View, outline: Outline) =
                 outline.setOval(0, 0, view.width, view.height)
         }
         icon.clipToOutline = true
-        row.addView(icon, LayoutParams(dp(42f).toInt(), dp(42f).toInt()))
+        row.addView(icon, LayoutParams(dp(ART).toInt(), dp(ART).toInt(),
+            Gravity.START or Gravity.CENTER_VERTICAL).apply { marginStart = dp(INSET).toInt() })
 
-        val texts = LinearLayout(context).apply { orientation = VERTICAL }
+        buildMusic()
+        buildTexts()
+        buildScore()
+    }
+
+    private fun buildMusic() {
+        songTitle.setTextColor(Color.WHITE)
+        songTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f)
+        songTitle.typeface = medium
+        songTitle.isSingleLine = true
+        songTitle.ellipsize = TextUtils.TruncateAt.MARQUEE
+        songTitle.marqueeRepeatLimit = -1
+        songTitle.isHorizontalFadingEdgeEnabled = true
+        songTitle.setFadingEdgeLength(dp(10f).toInt())
+        songTitle.isSelected = true
+        row.addView(songTitle, LayoutParams(LayoutParams.MATCH_PARENT, dp(18f).toInt(),
+            Gravity.TOP).apply {
+                marginStart = dp(CONTENT_START).toInt()
+                marginEnd = dp(16f).toInt()
+                topMargin = dp(6f).toInt()
+            })
+
+        controls.orientation = LinearLayout.HORIZONTAL
+        controls.gravity = Gravity.CENTER_VERTICAL
+        val ripple = TypedValue().also {
+            context.theme.resolveAttribute(android.R.attr.selectableItemBackgroundBorderless, it,
+                true)
+        }.resourceId
+        for (view in controlViews) {
+            val pad = dp(8f).toInt()
+            view.setPadding(pad, pad, pad, pad)
+            view.imageTintList = ColorStateList.valueOf(Color.WHITE)
+            if (ripple != 0) view.setBackgroundResource(ripple)
+            controls.addView(LinearLayout(context).apply {
+                gravity = Gravity.CENTER
+                addView(view, LinearLayout.LayoutParams(dp(34f).toInt(), dp(34f).toInt()))
+            }, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f))
+        }
+        row.addView(controls, LayoutParams(LayoutParams.MATCH_PARENT, dp(34f).toInt(),
+            Gravity.TOP).apply {
+                marginStart = dp(CONTENT_START).toInt()
+                marginEnd = dp(16f).toInt()
+                topMargin = dp(22f).toInt()
+            })
+
+        row.addView(wave, LayoutParams(LayoutParams.MATCH_PARENT, dp(11f).toInt(),
+            Gravity.BOTTOM).apply {
+                marginStart = dp(44f).toInt()
+                marginEnd = dp(26f).toInt()
+            })
+    }
+
+    private fun buildTexts() {
+        texts.orientation = LinearLayout.VERTICAL
+        label.setTextColor(0xB8FFFFFF.toInt())
+        label.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f)
+        label.typeface = medium
+        label.isSingleLine = true
+        label.ellipsize = TextUtils.TruncateAt.END
         title.setTextColor(Color.WHITE)
-        title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f)
-        title.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+        title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f)
+        title.typeface = semibold
         title.isSingleLine = true
         title.ellipsize = TextUtils.TruncateAt.END
         chronometer.setTextColor(Color.WHITE)
-        chronometer.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f)
-        chronometer.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+        chronometer.setTextSize(TypedValue.COMPLEX_UNIT_SP, 21f)
+        chronometer.typeface = semibold
         chronometer.fontFeatureSettings = "tnum"
-        subtitle.setTextColor(0xA6FFFFFF.toInt())
+        subtitle.setTextColor(0xB8FFFFFF.toInt())
         subtitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f)
         subtitle.isSingleLine = true
         subtitle.ellipsize = TextUtils.TruncateAt.END
+        texts.addView(label)
         texts.addView(title)
         texts.addView(chronometer)
         texts.addView(subtitle)
-        row.addView(texts, LayoutParams(0, -2, 1f).apply { marginStart = dp(11f).toInt() })
+        row.addView(texts, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT,
+            Gravity.CENTER_VERTICAL).apply { marginStart = dp(CONTENT_START - 1f).toInt() })
 
+        actionRow.orientation = LinearLayout.HORIZONTAL
         for (view in actionViews) {
             view.background = GradientDrawable().apply {
                 shape = GradientDrawable.OVAL
                 setColor(0x1FFFFFFF)
             }
-            val pad = dp(9f).toInt()
+            val pad = dp(10f).toInt()
             view.setPadding(pad, pad, pad, pad)
             view.imageTintList = ColorStateList.valueOf(Color.WHITE)
-            row.addView(view, LayoutParams(dp(38f).toInt(), dp(38f).toInt()).apply {
-                marginStart = dp(6f).toInt()
-            })
+            actionRow.addView(view, LinearLayout.LayoutParams(dp(ART).toInt(), dp(ART).toInt())
+                .apply { marginStart = dp(6f).toInt() })
         }
+        row.addView(actionRow, LayoutParams(LayoutParams.WRAP_CONTENT, dp(ART).toInt(),
+            Gravity.END or Gravity.CENTER_VERTICAL).apply { marginEnd = dp(INSET).toInt() })
 
-        wave.color = accent
-        capsule.addView(wave, FrameLayout.LayoutParams(-1, dp(7f).toInt(), Gravity.BOTTOM).apply {
-            marginStart = dp(22f).toInt()
-            marginEnd = dp(22f).toInt()
-            bottomMargin = dp(3f).toInt()
-        })
-        addView(dots, LayoutParams(-1, dp(8f).toInt()).apply { topMargin = dp(6f).toInt() })
+        row.addView(progress, LayoutParams(LayoutParams.MATCH_PARENT, dp(3f).toInt(),
+            Gravity.BOTTOM).apply {
+                marginStart = dp(CONTENT_START - 1f).toInt()
+                marginEnd = dp(22f).toInt()
+                bottomMargin = dp(7f).toInt()
+            })
+    }
+
+    private fun buildScore() {
+        scoreRow.orientation = LinearLayout.HORIZONTAL
+        scoreRow.gravity = Gravity.CENTER_VERTICAL
+        val side = dp(14f).toInt()
+        scoreRow.setPaddingRelative(side, 0, side, 0)
+        for (team in listOf(team1, team2)) {
+            team.setTextColor(Color.WHITE)
+            team.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f)
+            team.typeface = semibold
+            team.isSingleLine = true
+            team.ellipsize = TextUtils.TruncateAt.END
+        }
+        team1.gravity = Gravity.START
+        team2.gravity = Gravity.END
+        scoreText.setTextColor(Color.WHITE)
+        scoreText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20f)
+        scoreText.typeface = Typeface.create(Typeface.DEFAULT, 700, false)
+        scoreText.fontFeatureSettings = "tnum"
+        scoreText.gravity = Gravity.CENTER
+        statusText.setTextColor(0xB8FFFFFF.toInt())
+        statusText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11f)
+        statusText.isSingleLine = true
+        statusText.ellipsize = TextUtils.TruncateAt.END
+        statusText.gravity = Gravity.CENTER
+        val middle = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER
+            addView(scoreText)
+            addView(statusText)
+        }
+        val logo = dp(28f).toInt()
+        scoreRow.addView(logo1, LinearLayout.LayoutParams(logo, logo))
+        scoreRow.addView(team1, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT,
+            1f).apply { marginStart = dp(8f).toInt() })
+        scoreRow.addView(middle, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                marginStart = dp(6f).toInt()
+                marginEnd = dp(6f).toInt()
+            })
+        scoreRow.addView(team2, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT,
+            1f).apply { marginEnd = dp(8f).toInt() })
+        scoreRow.addView(logo2, LinearLayout.LayoutParams(logo, logo))
+        row.addView(scoreRow, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
     }
 
     override fun onAttachedToWindow() {
@@ -197,11 +338,47 @@ class NowBarView(
             return
         }
         visibility = VISIBLE
-        capsuleBg.setColor(if (dozing) Color.BLACK else 0xE60D0809.toInt())
-        capsuleBg.setStroke(dp(1f).toInt(), if (dozing) 0x22FFFFFF else 0x1AFFFFFF)
+        val music = item.type == NowBarType.MUSIC && !dozing
+        val game = item.score != null
+        val colors = if (music) item.art?.let(::colorsOf) else null
+        val fill = when {
+            dozing -> Color.BLACK
+            colors != null -> colors[0]
+            else -> 0xEB0D0809.toInt()
+        }
+        capsuleBg.setColor(fill)
+        capsuleBg.setStroke(dp(1f).toInt(), if (dozing) 0x29FFFFFF else 0x14FFFFFF)
         capsule.elevation = if (dozing) 0f else dp(6f)
-        alpha = if (dozing) 0.8f else 1f
+        alpha = if (dozing) 0.85f else 1f
+        peek.visibility = if (items.size > 1 && !dozing) VISIBLE else INVISIBLE
+        peekBg.setColor(ColorUtils.setAlphaComponent(
+            ColorUtils.blendARGB(fill, Color.WHITE, 0.08f), 0xC0))
 
+        bindIcon(item, game)
+        songTitle.visibility = if (music) VISIBLE else GONE
+        controls.visibility = if (music) VISIBLE else GONE
+        texts.visibility = if (!music && !game) VISIBLE else GONE
+        actionRow.visibility = if (!music && !game) VISIBLE else GONE
+        progress.visibility = GONE
+        scoreRow.visibility = if (game) VISIBLE else GONE
+        when {
+            music -> bindMusic(item, colors)
+            game -> bindScore(item.score!!)
+            else -> bindTexts(item)
+        }
+        val playing = music && item.playing && settings.wave
+        wave.visibility = if (playing) VISIBLE else GONE
+        wave.running = playing
+        capsule.contentDescription = listOfNotNull(item.title, item.text).joinToString(", ")
+    }
+
+    private fun bindIcon(item: NowBarItem, game: Boolean) {
+        if (game) {
+            icon.visibility = GONE
+            return
+        }
+        icon.visibility = VISIBLE
+        icon.alpha = if (dozing) 0.6f else 1f
         val art = item.art
         if (art != null) {
             icon.setImageBitmap(art)
@@ -209,51 +386,86 @@ class NowBarView(
             icon.setPadding(0, 0, 0, 0)
             icon.imageTintList = null
             icon.background = null
-        } else {
-            icon.setImageDrawable(item.icon?.mutate())
-            icon.scaleType = ImageView.ScaleType.FIT_CENTER
-            val appIcon = item.type == NowBarType.MUSIC
-            val pad = if (appIcon) 0 else dp(10f).toInt()
-            icon.setPadding(pad, pad, pad, pad)
-            icon.imageTintList = if (appIcon) null else ColorStateList.valueOf(Color.WHITE)
-            val tint = if (item.color != 0 && item.color != Color.BLACK) item.color else accent
-            icon.background = if (appIcon) null else GradientDrawable().apply {
-                shape = GradientDrawable.OVAL
-                setColor((tint and 0x00FFFFFF) or (if (dozing) 0x14000000 else 0x4D000000))
-            }
+            return
         }
+        icon.setImageDrawable(item.icon?.mutate())
+        icon.scaleType = ImageView.ScaleType.FIT_CENTER
+        val appIcon = item.type == NowBarType.MUSIC
+        val pad = if (appIcon) 0 else dp(9f).toInt()
+        icon.setPadding(pad, pad, pad, pad)
+        icon.imageTintList = if (appIcon) null else ColorStateList.valueOf(Color.WHITE)
+        val tint = if (item.color != 0 && item.color != Color.BLACK) item.color else accent
+        icon.background = if (appIcon) null else GradientDrawable().apply {
+            shape = GradientDrawable.OVAL
+            setColor((tint and 0x00FFFFFF) or (if (dozing) 0x14000000 else 0x66000000))
+        }
+    }
 
+    private fun bindMusic(item: NowBarItem, colors: IntArray?) {
+        chronometer.stop()
+        val line = listOfNotNull(item.title.takeIf { it.isNotEmpty() }, item.text)
+            .joinToString(" · ")
+        if (songTitle.text.toString() != line) songTitle.text = line
+        controlViews.forEachIndexed { i, view ->
+            val action = item.actions.getOrNull(i)
+            if (action == null) {
+                view.visibility = INVISIBLE
+                return@forEachIndexed
+            }
+            view.visibility = VISIBLE
+            if (action.iconRes != 0) view.setImageResource(action.iconRes)
+            else view.setImageDrawable(action.icon?.loadDrawable(context))
+            view.contentDescription = action.title
+            view.setOnClickListener { run(action) }
+        }
+        wave.colors = colors?.copyOfRange(1, 4) ?: intArrayOf(
+            ColorUtils.setAlphaComponent(accent, 0x8C), ColorUtils.setAlphaComponent(accent, 0x66),
+            ColorUtils.setAlphaComponent(Color.WHITE, 0x40))
+    }
+
+    private fun bindTexts(item: NowBarItem) {
+        label.visibility = GONE
         if (item.chronometerBase != 0L && !dozing) {
-            chronometer.base = SystemClock.elapsedRealtime() + (item.chronometerBase - System.currentTimeMillis())
+            chronometer.base = SystemClock.elapsedRealtime() +
+                (item.chronometerBase - System.currentTimeMillis())
             chronometer.isCountDown = item.countDown
             chronometer.start()
             chronometer.visibility = VISIBLE
             title.visibility = GONE
-            subtitle.text = listOfNotNull(item.title, item.text).joinToString(" · ")
+            label.text = item.title
+            label.visibility = if (item.title.isNotEmpty()) VISIBLE else GONE
+            subtitle.text = item.text
         } else {
             chronometer.stop()
             chronometer.visibility = GONE
             title.visibility = VISIBLE
-            if (item.chronometerBase != 0L) {
-                // Minutes only on the always-on display; the time tick refreshes it.
-                val minutes = (abs(item.chronometerBase - System.currentTimeMillis()) / 60000L).toInt()
-                title.text = context.getString(
-                    if (item.countDown) R.string.now_bar_minutes_left else R.string.now_bar_minutes,
-                    minutes,
-                )
-                subtitle.text = item.title
-            } else {
-                title.text = item.title
-                subtitle.text = item.text
+            when {
+                item.chronometerBase != 0L -> {
+                    // Minutes only on the always-on display; the time tick refreshes it.
+                    val minutes =
+                        (abs(item.chronometerBase - System.currentTimeMillis()) / 60000L).toInt()
+                    title.text = context.getString(
+                        if (item.countDown) R.string.now_bar_minutes_left
+                        else R.string.now_bar_minutes,
+                        minutes,
+                    )
+                    subtitle.text = item.title
+                }
+                item.type == NowBarType.MUSIC -> {
+                    title.text = listOfNotNull(item.title.takeIf { it.isNotEmpty() }, item.text)
+                        .joinToString(" · ")
+                    subtitle.text = null
+                }
+                else -> {
+                    title.text = item.title
+                    subtitle.text = item.text
+                }
             }
         }
-        subtitle.visibility = if (subtitle.text.isNullOrEmpty()) GONE else VISIBLE
+        subtitle.visibility = if (subtitle.text.isNullOrEmpty() || dozing) GONE else VISIBLE
 
-        val shown = when {
-            dozing -> emptyList()
-            item.type == NowBarType.MUSIC -> listOfNotNull(item.actions.getOrNull(1))
-            else -> item.actions.filter { it.icon != null || it.iconRes != 0 }.take(2)
-        }
+        val shown = if (dozing) emptyList()
+            else item.actions.filter { it.icon != null || it.iconRes != 0 }.take(2)
         actionViews.forEachIndexed { i, view ->
             val action = shown.getOrNull(i)
             if (action == null) {
@@ -266,13 +478,55 @@ class NowBarView(
             view.contentDescription = action.title
             view.setOnClickListener { run(action) }
         }
-        val playingMusic = item.type == NowBarType.MUSIC && item.playing
-        actionViews[0].backgroundTintList =
-            if (playingMusic && !dozing) ColorStateList.valueOf(accent) else null
-        wave.visibility = if (playingMusic && settings.wave && !dozing) VISIBLE else GONE
-        wave.running = wave.visibility == VISIBLE
-        dots.set(if (dozing) 0 else items.size, index)
-        capsule.contentDescription = listOfNotNull(item.title, item.text).joinToString(", ")
+        (texts.layoutParams as LayoutParams).marginEnd =
+            dp(INSET + shown.size * (ART + 6f) + 6f).toInt()
+        texts.requestLayout()
+        progress.visibility = if (item.progress >= 0f && !dozing) VISIBLE else GONE
+        progress.set(item.progress, accent)
+    }
+
+    private fun bindScore(score: NowBarScore) {
+        chronometer.stop()
+        team1.text = score.team1
+        team2.text = score.team2
+        scoreText.text = if (score.score1.isEmpty()) "vs" else "${score.score1} – ${score.score2}"
+        statusText.text = score.status
+        statusText.visibility = if (score.status.isNullOrEmpty()) GONE else VISIBLE
+        for ((view, logo) in listOf(logo1 to score.logo1, logo2 to score.logo2)) {
+            view.setImageDrawable(logo)
+            view.visibility = if (logo != null) VISIBLE else GONE
+            view.alpha = if (dozing) 0.6f else 1f
+        }
+    }
+
+    /** The capsule's tint and three wave colors from the album art, cached per bitmap. */
+    private fun colorsOf(art: Bitmap): IntArray? {
+        if (art === artColorsFor) return artColors
+        artColorsFor = art
+        artColors = try {
+            val wallpaperColors = WallpaperColors.fromBitmap(art)
+            val primary = wallpaperColors.primaryColor.toArgb()
+            val secondary = wallpaperColors.secondaryColor?.toArgb() ?: primary
+            val tertiary = wallpaperColors.tertiaryColor?.toArgb() ?: secondary
+            intArrayOf(
+                tone(primary, 0.17f, 0.5f, 0xF0),
+                tone(primary, 0.66f, 0.85f, 0x8C),
+                tone(secondary, 0.72f, 0.85f, 0x99),
+                tone(tertiary, 0.6f, 0.85f, 0x8C),
+            )
+        } catch (e: RuntimeException) {
+            // Hardware or odd bitmaps: the default look.
+            null
+        }
+        return artColors
+    }
+
+    private fun tone(color: Int, lightness: Float, maxSaturation: Float, alpha: Int): Int {
+        val hsl = FloatArray(3)
+        ColorUtils.colorToHSL(color, hsl)
+        hsl[1] = hsl[1].coerceAtMost(maxSaturation)
+        hsl[2] = lightness
+        return ColorUtils.setAlphaComponent(ColorUtils.HSLToColor(hsl), alpha)
     }
 
     private fun run(action: NowBarAction) {
@@ -419,7 +673,34 @@ class NowBarView(
 
     private fun dp(value: Float) = value * density
 
+    /** A thin progress bar: a dim track and a filled part. */
+    private class ProgressLine(context: Context) : View(context) {
+        private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+        private var fraction = 0f
+        private var color = Color.WHITE
+
+        fun set(fraction: Float, color: Int) {
+            this.fraction = fraction.coerceIn(0f, 1f)
+            this.color = color
+            invalidate()
+        }
+
+        override fun onDraw(canvas: Canvas) {
+            val r = height / 2f
+            paint.color = 0x29FFFFFF
+            canvas.drawRoundRect(0f, 0f, width.toFloat(), height.toFloat(), r, r, paint)
+            paint.color = color
+            canvas.drawRoundRect(0f, 0f, width * fraction, height.toFloat(), r, r, paint)
+        }
+    }
+
     companion object {
+        /** The capsule's height and how far the next activity peeks out above it, in dp. */
+        const val CAPSULE = 64f
+        const val PEEK = 7f
+        private const val ART = 38f
+        private const val INSET = 12f
+        private const val CONTENT_START = INSET + ART + 12f
         private const val REMIXER_ACTION = "com.resurrection.settings.NOW_BAR"
         private val BURN_IN_STEPS_X = floatArrayOf(0f, 3f, 5f, 3f, 0f, -3f, -5f, -3f)
         private val BURN_IN_STEPS_Y = floatArrayOf(0f, -2f, -4f, -6f, -4f, -2f, 0f, -2f)

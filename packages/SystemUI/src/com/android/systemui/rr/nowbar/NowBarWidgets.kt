@@ -7,15 +7,17 @@ package com.android.systemui.rr.nowbar
 import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Canvas
+import android.graphics.LinearGradient
 import android.graphics.Paint
 import android.graphics.Path
+import android.graphics.Shader
 import android.view.MotionEvent
 import android.view.View
 import android.view.animation.LinearInterpolator
 import kotlin.math.PI
 import kotlin.math.sin
 
-/** A small moving wave, drawn along the bottom of the capsule while music plays. */
+/** A small moving wave while music plays: a line, or layered fills in the album's colors. */
 class NowBarWaveView(context: Context) : View(context) {
     private val density = resources.displayMetrics.density
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -23,6 +25,8 @@ class NowBarWaveView(context: Context) : View(context) {
         strokeWidth = 2f * density
         strokeCap = Paint.Cap.ROUND
     }
+    private val fills = List(3) { Paint(Paint.ANTI_ALIAS_FLAG) }
+    private var shadedWidth = -1
     private val path = Path()
     private var phase = 0f
     private val animator = ValueAnimator.ofFloat(0f, 1f).apply {
@@ -39,6 +43,15 @@ class NowBarWaveView(context: Context) : View(context) {
         get() = paint.color
         set(value) {
             paint.color = value
+            invalidate()
+        }
+
+    /** Up to three colors for filled waves fading out at both ends; null draws the line. */
+    var colors: IntArray? = null
+        set(value) {
+            if (field contentEquals value) return
+            field = value
+            shadedWidth = -1
             invalidate()
         }
 
@@ -72,8 +85,33 @@ class NowBarWaveView(context: Context) : View(context) {
     }
 
     override fun onDraw(canvas: Canvas) {
-        wave(path, 0f, width.toFloat(), height / 2f, height / 2.5f, WAVELENGTH * density, phase)
-        canvas.drawPath(path, paint)
+        val layers = colors
+        if (layers == null) {
+            wave(path, 0f, width.toFloat(), height / 2f, height / 2.5f, WAVELENGTH * density, phase)
+            canvas.drawPath(path, paint)
+            return
+        }
+        val w = width.toFloat()
+        val h = height.toFloat()
+        if (shadedWidth != width) {
+            shadedWidth = width
+            layers.forEachIndexed { i, color ->
+                if (i >= fills.size) return@forEachIndexed
+                val clear = color and 0x00FFFFFF
+                fills[i].shader = LinearGradient(0f, 0f, w, 0f,
+                    intArrayOf(clear, color, color, clear), floatArrayOf(0f, 0.3f, 0.7f, 1f),
+                    Shader.TileMode.CLAMP)
+            }
+        }
+        for (i in 0 until minOf(layers.size, fills.size)) {
+            val direction = if (i % 2 == 0) 1f else -1f
+            wave(path, 0f, w, h * (0.5f + 0.12f * i), h * (0.32f - 0.07f * i),
+                (WAVELENGTH * 3f + i * 10f) * density, phase * direction + i * 0.3f)
+            path.lineTo(w, h)
+            path.lineTo(0f, h)
+            path.close()
+            canvas.drawPath(path, fills[i])
+        }
     }
 
     companion object {
@@ -90,36 +128,6 @@ class NowBarWaveView(context: Context) : View(context) {
                 path.lineTo(x, y)
                 x += 2f
             }
-        }
-    }
-}
-
-/** Page dots under the capsule: the current page is a short bar. */
-class NowBarDotsView(context: Context) : View(context) {
-    private val density = resources.displayMetrics.density
-    private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
-    private var count = 0
-    private var current = 0
-
-    fun set(count: Int, current: Int) {
-        this.count = count
-        this.current = current
-        invalidate()
-    }
-
-    override fun onDraw(canvas: Canvas) {
-        if (count < 2) return
-        val dot = 4f * density
-        val bar = 9f * density
-        val gap = 3f * density
-        val total = bar + (count - 1) * dot + (count - 1) * gap
-        var x = (width - total) / 2f
-        val y = height / 2f
-        for (i in 0 until count) {
-            val w = if (i == current) bar else dot
-            paint.color = if (i == current) 0xFFFFFFFF.toInt() else 0x55FFFFFF
-            canvas.drawRoundRect(x, y - dot / 2f, x + w, y + dot / 2f, dot / 2f, dot / 2f, paint)
-            x += w + gap
         }
     }
 }
