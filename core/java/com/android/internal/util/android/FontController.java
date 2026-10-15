@@ -18,7 +18,6 @@ import android.app.ActivityThread;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Typeface;
-import android.os.SystemProperties;
 import android.util.ArrayMap;
 import android.util.Log;
 import android.text.TextUtils;
@@ -33,6 +32,8 @@ import java.util.Set;
 public class FontController {
 
     private static final String TAG = "FontController";
+    // Apps can't read persist.sys props, and each denied read logs a warning.
+    private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
     private static FontController sInstance = null;
 
@@ -250,7 +251,7 @@ public class FontController {
     }
 
     private static void logger(String msg) {
-        if (SystemProperties.getBoolean("persist.sys.ax_font_debug", false)) {
+        if (DEBUG) {
             Log.d(TAG, msg);
         }
     }
