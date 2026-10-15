@@ -41,8 +41,19 @@ class UdfpsTouchOverlay(context: Context, attrs: AttributeSet?) : FrameLayout(co
     var isDisplayConfigured: Boolean = false
         private set
 
+    /** Keeps the view visible while another component holds its touch. */
+    var pinVisible = false
+        set(value) {
+            field = value
+            if (value) super.setVisibility(VISIBLE)
+        }
+
     override fun onFinishInflate() {
         ghbmView = findViewById(R.id.hbm_view)
+    }
+
+    override fun setVisibility(visibility: Int) {
+        super.setVisibility(if (pinVisible) VISIBLE else visibility)
     }
 
     fun setUdfpsDisplayModeProvider(udfpsDisplayModeProvider: UdfpsDisplayModeProvider?) {

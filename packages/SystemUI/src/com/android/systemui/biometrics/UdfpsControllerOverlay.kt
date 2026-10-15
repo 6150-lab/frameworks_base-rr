@@ -328,8 +328,12 @@ constructor(
         }
     }
 
-    /** Hide the overlay or return false and do nothing if it is already hidden. */
-    fun hide(): Boolean {
+    /**
+     * Hide the overlay or return false and do nothing if it is already hidden. [keeper] may keep
+     * the window for the touch it still holds.
+     */
+    @JvmOverloads
+    fun hide(keeper: UdfpsController.GestureKeeper? = null): Boolean {
         val wasShowing = isShowing
         Log.d(TAG, "hideUdfpsControllerOverlay wasShowing=$wasShowing")
         overlayTouchView?.apply {
@@ -343,15 +347,15 @@ constructor(
             udfpsHelper?.removeDimLayer()
         }
         getTouchOverlay()?.apply {
-            if (this.parent != null) {
+            setOnTouchListener(null)
+            setOnHoverListener(null)
+            if (this.parent != null && (keeper == null || !keep(this, keeper))) {
                 if (Build.IS_DEBUGGABLE) {
                     Log.d(TAG, "removing view=$this")
                 }
                 windowManager.removeView(this)
             }
             Trace.setCounter("UdfpsAddView", 0)
-            setOnTouchListener(null)
-            setOnHoverListener(null)
             overlayAttachStateListener?.let { removeOnAttachStateChangeListener(it) }
             overlayTouchListener?.let {
                 accessibilityManager.removeTouchExplorationStateChangeListener(it)
@@ -363,6 +367,22 @@ constructor(
         listenForCurrentKeyguardState?.cancel()
 
         return wasShowing
+    }
+
+    /** Hands the touch [view]'s window still holds to [keeper], which removes it when done. */
+    private fun keep(view: View, keeper: UdfpsController.GestureKeeper): Boolean {
+        val touchView = view as? UdfpsTouchOverlay ?: return false
+        // An invisible window drops out of input, and the touch with it.
+        touchView.pinVisible = true
+        val kept = keeper.keep(view) {
+            try {
+                windowManager.removeView(view)
+            } catch (e: IllegalArgumentException) {
+                Log.w(TAG, "kept view already removed", e)
+            }
+        }
+        touchView.pinVisible = kept
+        return kept
     }
 
     /** Cancel this request. */

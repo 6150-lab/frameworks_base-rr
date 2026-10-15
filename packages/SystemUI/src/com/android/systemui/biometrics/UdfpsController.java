@@ -215,6 +215,9 @@ public class UdfpsController implements DozeReceiver, Dumpable {
     private int mActivePointerId = MotionEvent.INVALID_POINTER_ID;
     // Whether a pointer has been pilfered for current gesture
     private boolean mPointerPilfered = false;
+    // Whether the current gesture is still down.
+    private boolean mGestureDown = false;
+    @Nullable private GestureKeeper mGestureKeeper;
     // The timestamp of the most recent touch log.
     private long mTouchLogTime;
     // The timestamp of the most recent log of a touch InteractionEvent.
@@ -638,6 +641,12 @@ public class UdfpsController implements DozeReceiver, Dumpable {
                     + mOverlay.getRequestId());
             return false;
         }
+        final int action = event.getActionMasked();
+        if (action == MotionEvent.ACTION_DOWN) {
+            mGestureDown = true;
+        } else if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
+            mGestureDown = false;
+        }
         if (event.getAction() == MotionEvent.ACTION_DOWN
                 || event.getAction() == MotionEvent.ACTION_HOVER_ENTER) {
             // Reset on ACTION_DOWN, start of new gesture
@@ -982,12 +991,15 @@ public class UdfpsController implements DozeReceiver, Dumpable {
         mExecution.assertIsMainThread();
 
         if (mOverlay != null) {
+            // A finger still down on the pilfered gesture can go to the keeper.
+            final GestureKeeper keeper = mPointerPilfered && mGestureDown ? mGestureKeeper : null;
+            mGestureDown = false;
             // Reset the controller back to its starting state.
             final View oldView = mOverlay.getTouchOverlay();
             if (oldView != null) {
                 onFingerUp(mOverlay.getRequestId(), oldView);
             }
-            final boolean removed = mOverlay.hide();
+            final boolean removed = mOverlay.hide(keeper);
             mKeyguardViewManager.hideAlternateBouncer(
                     /* updateScrim */ true,
                     /* clearDismissAction */ false
@@ -1096,6 +1108,11 @@ public class UdfpsController implements DozeReceiver, Dumpable {
      */
     public void addCallback(Callback cb) {
         mCallbacks.add(cb);
+    }
+
+    /** Sets who may take the touch the overlay still holds when it hides. */
+    public void setGestureKeeper(@Nullable GestureKeeper keeper) {
+        mGestureKeeper = keeper;
     }
 
     /**
@@ -1309,5 +1326,13 @@ public class UdfpsController implements DozeReceiver, Dumpable {
          * Called onFingerDown events.
          */
         void onFingerDown();
+    }
+
+    /** Takes the touch the overlay still holds when it hides. */
+    public interface GestureKeeper {
+        /**
+         * Returns true to keep {@code view}'s window, and its touch, until {@code release} runs.
+         */
+        boolean keep(@NonNull View view, @NonNull Runnable release);
     }
 }
