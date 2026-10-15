@@ -87,8 +87,4 @@
     <string name="charge_report_wireless">Wireless</string>
     <string name="charge_report_usb">USB</string>
     <string name="charge_report_dock">Dock</string>
-
-    <!-- Gesture anywhere -->
-    <string name="gesture_anywhere_hint">Draw a gesture</string>
-    <string name="gesture_anywhere_unknown">Didn\'t catch that. Draw it again</string>
 </resources>
