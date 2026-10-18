@@ -113,11 +113,6 @@ public final class AttestationUtils {
                 }
             }
             if (sBootHash == null) {
-                // Same stable fallback as the boot key. A fresh random value
-                // makes every chain's verified-boot hash disagree with the last.
-                sBootHash = getBootKeyFromKeybox();
-            }
-            if (sBootHash == null) {
                 Log.w(TAG, "Failed to get boot hash from prop, disk, and TEE, using random bytes");
                 sBootHash = generateRandomBytes(32);
                 writePersisted(HBK_FILE, sBootHash);

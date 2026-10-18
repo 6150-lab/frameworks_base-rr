@@ -107,22 +107,15 @@ public class RrSpoofManager implements IRrSpoofManager {
             "com.google.android.contactkeys",
             "com.google.android.safetycore",
             "com.google.android.googlequicksearchbox",
-            // Wallet compares its own props with the attestation certificate, so it
-            // has to be restarted when the fingerprint changes or it keeps the old one.
-            // Tap to pay runs in com.google.android.gms.ui, a process of the GMS
-            // package above, so that force-stop already restarts it.
-            "com.google.android.apps.walletnfcrel",
-            "com.google.android.apps.nbu.paisa.user",
     };
 
     // Staging props for bionic's custom_rom_hide_get_prop_override(), which serves
     // them in place of the matching read-only props (ro.product.*, the *.build.id,
-    // *.security_patch, *.build.fingerprint and *api_level keys) — see
-    // libc/bionic/custom_rom_hide.cpp. ro.* props are immutable after boot, so we
-    // can't SystemProperties.set() them directly; these mutable props are the
-    // handoff point instead. bionic applies them inside DroidGuard, Google
-    // Wallet, gms.ui, and the main GMS process that hosts TapAndPay. Every
-    // other process keeps seeing the real values.
+    // *.security_patch and *api_level keys) — see libc/bionic/custom_rom_hide.cpp.
+    // ro.* props are immutable after boot, so we can't SystemProperties.set() them
+    // directly; these mutable props are the handoff point instead. bionic only
+    // applies them inside the DroidGuard process (com.google.android.gms.unstable),
+    // so every other process keeps seeing the real values.
     private static final String PIF_PRODUCT_PROP_PREFIX = "persist.sys.pif.product.";
     private static final String[] PIF_PRODUCT_PROP_NAMES = {
             "manufacturer", "brand", "model", "device", "name",
@@ -134,7 +127,6 @@ public class RrSpoofManager implements IRrSpoofManager {
     private static final String PIF_BUILD_TAGS_PROP = "persist.sys.pif.build.tags";
     private static final String PIF_BUILD_DESCRIPTION_PROP = "persist.sys.pif.build.description";
     private static final String PIF_BUILD_FLAVOR_PROP = "persist.sys.pif.build.flavor";
-    private static final String PIF_FINGERPRINT_PROP = "persist.sys.pif.fingerprint";
     // Config entries the fixed props above don't cover. Slot i holds "name=value", or
     // "*suffix=value" for a leading-* wildcard; the count says how many slots are live.
     // bionic's custom_rom_hide.cpp reads these with the same names and limits.
@@ -353,7 +345,6 @@ public class RrSpoofManager implements IRrSpoofManager {
         setStagedProp(PIF_BUILD_TAGS_PROP, null);
         setStagedProp(PIF_BUILD_DESCRIPTION_PROP, null);
         setStagedProp(PIF_BUILD_FLAVOR_PROP, null);
-        setStagedProp(PIF_FINGERPRINT_PROP, null);
         stageCustomProps(null);
     }
 
@@ -702,10 +693,9 @@ public class RrSpoofManager implements IRrSpoofManager {
     /**
      * Stages the spoofed product-identity, build id, security patch and initial
      * API level from the PIF config as mutable persist props for bionic's
-     * custom_rom_hide_get_prop_override() to serve to DroidGuard and Google
-     * Wallet in place of the real read-only values — closes the gap where those
-     * processes reading via getprop (rather than the Build class) would see the
-     * real device. Wallet compares that read with its attestation certificate.
+     * custom_rom_hide_get_prop_override() to serve to DroidGuard in place of the
+     * real read-only values — closes the gap where DroidGuard reading via
+     * getprop (rather than the Build class) would see the real device.
      *
      * The config is the source of truth whichever path wrote it (auto-refresh,
      * manual import, Remixer). A field the config doesn't carry is staged empty,
@@ -764,99 +754,11 @@ public class RrSpoofManager implements IRrSpoofManager {
                 : null);
         setStagedProp(PIF_BUILD_FLAVOR_PROP,
                 product != null && type != null ? product + "-" + type : null);
-        // ro.build.fingerprint is what Wallet reads natively. The Java field is
-        // spoofed separately. A value that does not fit in a property is left
-        // unset so the native read keeps the real fingerprint instead of a
-        // truncated one.
-        String fingerprint = fields.get("FINGERPRINT");
-        if (fingerprint != null && fingerprint.length() > PROP_VALUE_MAX_CHARS) {
-            Log.w(TAG, "PIF fingerprint is too long to stage, leaving the native value");
-            fingerprint = null;
-        }
-        setStagedProp(PIF_FINGERPRINT_PROP, fingerprint);
         setStagedProp(PIF_SECURITY_PATCH_PROP, firstNonEmpty(
                 fields.get("*.security_patch"), fields.get("SECURITY_PATCH")));
         setStagedProp(PIF_API_LEVEL_PROP, firstNonEmpty(
                 fields.get("*api_level"), fields.get("DEVICE_INITIAL_SDK_INT")));
         stageCustomProps(fields);
-        stagePaymentPropOverrides(firstNonEmpty(
-                fields.get("DEVICE"), head != null ? head[2] : null));
-    }
-
-    /**
-     * Stable certified identity for Wallet and TapAndPay. Short names, because
-     * a property name can be at most 31 characters. DroidGuard keeps the canary
-     * props staged above. bionic falls back to the same kodiak release when
-     * these are still empty.
-     */
-    private void stagePaymentPropOverrides(String canaryDevice) {
-        PixelDeviceRepository.PixelProfile stable = paymentProfile(canaryDevice);
-        if (stable == null || !PixelDeviceRepository.isValidFingerprint(stable.fingerprint)) {
-            return;
-        }
-        final String[] head = fingerprintHead(stable.fingerprint);
-        final String[] tail = fingerprintTail(stable.fingerprint);
-        final String product = stable.product != null ? stable.product
-                : (head != null ? head[1] : null);
-        final String buildId = stable.buildId != null ? stable.buildId
-                : buildIdFromFingerprint(stable.fingerprint);
-        final String type = tail != null ? tail[3] : "user";
-        final String tags = tail != null ? tail[4] : "release-keys";
-        final String release = tail != null ? tail[0] : null;
-        final String incremental = tail != null ? tail[2] : null;
-        setStagedProp("persist.sys.pif.w.mfr", capitalize(stable.brand));
-        setStagedProp("persist.sys.pif.w.brand", stable.brand);
-        setStagedProp("persist.sys.pif.w.model", stable.model);
-        setStagedProp("persist.sys.pif.w.device", stable.device);
-        setStagedProp("persist.sys.pif.w.name", product);
-        setStagedProp("persist.sys.pif.w.id", buildId);
-        setStagedProp("persist.sys.pif.w.patch", stable.securityPatch);
-        setStagedProp("persist.sys.pif.w.api", PIF_DEVICE_INITIAL_SDK);
-        setStagedProp("persist.sys.pif.w.type", type);
-        setStagedProp("persist.sys.pif.w.tags", tags);
-        setStagedProp("persist.sys.pif.w.flavor",
-                product != null && type != null ? product + "-" + type : null);
-        final boolean haveDescription = product != null && type != null && release != null
-                && buildId != null && incremental != null && tags != null;
-        setStagedProp("persist.sys.pif.w.desc", haveDescription
-                ? product + "-" + type + " " + release + " " + buildId + " "
-                        + incremental + " " + tags
-                : null);
-        String fingerprint = stable.fingerprint;
-        if (fingerprint != null && fingerprint.length() > PROP_VALUE_MAX_CHARS) {
-            Log.w(TAG, "Stable fingerprint is too long to stage");
-            fingerprint = null;
-        }
-        setStagedProp("persist.sys.pif.w.fp", fingerprint);
-    }
-
-    private PixelDeviceRepository.PixelProfile paymentProfile(String canaryDevice) {
-        java.util.List<PixelDeviceRepository.PixelProfile> profiles =
-                PixelDeviceRepository.FALLBACK_PROFILES;
-        if (mContext != null) {
-            try {
-                java.util.List<PixelDeviceRepository.PixelProfile> cached =
-                        PixelDeviceRepository.getStableProfiles(mContext, false);
-                if (cached != null && !cached.isEmpty()) profiles = cached;
-            } catch (Exception e) {
-                Log.w(TAG, "Stable profile lookup failed", e);
-            }
-        }
-        PixelDeviceRepository.PixelProfile match = null;
-        if (canaryDevice != null) {
-            for (PixelDeviceRepository.PixelProfile profile : profiles) {
-                if (canaryDevice.equals(profile.codename) && !profile.isCanary) {
-                    match = profile;
-                    break;
-                }
-            }
-        }
-        if (match == null) {
-            for (PixelDeviceRepository.PixelProfile profile : profiles) {
-                if ("kodiak".equals(profile.codename)) return profile;
-            }
-        }
-        return match != null ? match : profiles.get(0);
     }
 
     /**

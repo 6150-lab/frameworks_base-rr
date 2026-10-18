@@ -24,8 +24,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import sun.misc.Unsafe;
-
 /** @hide */
 public final class PlayIntegritySpoofService {
     private static final String TAG = "PIF";
@@ -33,38 +31,6 @@ public final class PlayIntegritySpoofService {
     private static final String DROIDGUARD_PACKAGE = "com.google.android.gms.unstable";
     private static final String VENDING_PACKAGE = "com.android.vending";
     private static final String GMS_PACKAGE = "com.google.android.gms";
-    // These processes read Build.* and compare it with the attestation
-    // certificate. TapAndPay rejects a canary fingerprint, so they get the
-    // stable certified profile. The names are exact, so this does not include
-    // com.google.android.gms.unstable. DroidGuard keeps the canary profile,
-    // which is what RCS and the Play Store already pass with.
-    private static final String[] WALLET_PACKAGES = {
-            "com.google.android.apps.walletnfcrel",
-            "com.google.android.apps.nbu.paisa.user",
-            "com.google.android.gms.ui",
-            "com.google.android.gms",
-            "com.google.android.gms.persistent",
-    };
-
-    private static final Unsafe UNSAFE;
-    private static final Field UNSAFE_OFFSET_FIELD;
-
-    static {
-        Unsafe unsafe = null;
-        Field offsetField = null;
-        try {
-            Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
-            theUnsafe.setAccessible(true);
-            unsafe = (Unsafe) theUnsafe.get(null);
-            theUnsafe.setAccessible(false);
-            offsetField = Field.class.getDeclaredField("offset");
-            offsetField.setAccessible(true);
-        } catch (Throwable t) {
-            Log.e(TAG, "Unable to initialize Unsafe", t);
-        }
-        UNSAFE = unsafe;
-        UNSAFE_OFFSET_FIELD = offsetField;
-    }
 
     private static final String ROM_SIGNATURE_DATA = "MIIFyTCCA7GgAwIBAgIVALyxxl+zDS9SL68SzOr48309eAZyMA0GCSqGSIb3DQEBCwUAMHQxCzAJ" +
             "BgNVBAYTAlVTMRMwEQYDVQQIEwpDYWxpZm9ybmlhMRYwFAYDVQQHEw1Nb3VudGFpbiBWaWV3MRQw" +
@@ -318,23 +284,6 @@ public final class PlayIntegritySpoofService {
         return DROIDGUARD_PACKAGE.equals(processName) || VENDING_PACKAGE.equals(processName);
     }
 
-    /**
-     * Build-field spoof, without the DroidGuard signature or certificate-chain
-     * block. Wallet must not take those: they are only meaningful for DroidGuard.
-     */
-    public boolean shouldSpoofBuild(String processName) {
-        if (!mConfigLoaded) return false;
-        return shouldSpoof(processName) || isWalletProcess(processName);
-    }
-
-    private static boolean isWalletProcess(String processName) {
-        if (processName == null) return false;
-        for (String pkg : WALLET_PACKAGES) {
-            if (processName.equals(pkg) || processName.startsWith(pkg + ":")) return true;
-        }
-        return false;
-    }
-
     public boolean isGmsProcess(String dataDir) {
         if (dataDir == null) return false;
         return dataDir.endsWith("/" + GMS_PACKAGE) || dataDir.endsWith("/" + VENDING_PACKAGE);
@@ -353,11 +302,10 @@ public final class PlayIntegritySpoofService {
 
         boolean isVending = isVending(processName);
         boolean isDroidGuard = isDroidGuard(processName);
-        boolean isWallet = isWalletProcess(processName);
 
-        if (!isDroidGuard && !isVending && !isWallet) return;
+        if (!isDroidGuard && !isVending) return;
 
-        if (isVending && !isDroidGuard && !isWallet) {
+        if (isVending) {
             // Like upstream, spoofing the SDK level replaces the FINGERPRINT spoof
             // for Play Store rather than adding to it.
             if (mSpoofVendingSdk > 0) {
@@ -378,84 +326,9 @@ public final class PlayIntegritySpoofService {
             return;
         }
 
-        String logSuffix = isWallet ? "WL" : "DG";
-        Map<String, String> fields = isWallet ? getPaymentBuildFields() : mBuildFields;
-        for (Map.Entry<String, String> entry : fields.entrySet()) {
-            spoofField(entry.getKey(), entry.getValue(), logSuffix);
+        for (Map.Entry<String, String> entry : mBuildFields.entrySet()) {
+            spoofField(entry.getKey(), entry.getValue(), "DG");
         }
-        if (isWallet) {
-            // The generate path prefers these over Build.MODEL and friends.
-            // Leaf hack writes the same payment profile into the certificate.
-            spoofField("BRAND_FOR_ATTESTATION", fields.get("BRAND"), logSuffix);
-            spoofField("DEVICE_FOR_ATTESTATION", fields.get("DEVICE"), logSuffix);
-            spoofField("PRODUCT_FOR_ATTESTATION", fields.get("PRODUCT"), logSuffix);
-            spoofField("MANUFACTURER_FOR_ATTESTATION",
-                    fields.get("MANUFACTURER"), logSuffix);
-            spoofField("MODEL_FOR_ATTESTATION", fields.get("MODEL"), logSuffix);
-        }
-    }
-
-    /**
-     * Stable certified identity for Wallet and TapAndPay. DroidGuard stays on
-     * {@link #getBuildFields()}, the canary profile. Staged props win when
-     * system_server has published a newer stable fingerprint; otherwise this
-     * is the kodiak release shipped with the tree.
-     */
-    public Map<String, String> getPaymentBuildFields() {
-        Map<String, String> fields = new ConcurrentHashMap<>();
-        String fingerprint = SystemProperties.get("persist.sys.pif.w.fp", "");
-        if (fingerprint.isEmpty()) {
-            fingerprint = "google/kodiak/kodiak:17/CD1A.260905.001.B1/16238327:user/release-keys";
-            fields.put("MANUFACTURER", "Google");
-            fields.put("BRAND", "google");
-            fields.put("MODEL", "Pixel 11 Pro XL");
-            fields.put("PRODUCT", "kodiak");
-            fields.put("DEVICE", "kodiak");
-            fields.put("FINGERPRINT", fingerprint);
-            fields.put("ID", "CD1A.260905.001.B1");
-            fields.put("SECURITY_PATCH", "2026-09-05");
-            fields.put("RELEASE", "17");
-            fields.put("INCREMENTAL", "16238327");
-            fields.put("TYPE", "user");
-            fields.put("TAGS", "release-keys");
-            fields.put("DEVICE_INITIAL_SDK_INT", "32");
-            return fields;
-        }
-        fields.put("FINGERPRINT", fingerprint);
-        fields.put("MANUFACTURER", propOr("persist.sys.pif.w.mfr", "Google"));
-        fields.put("BRAND", propOr("persist.sys.pif.w.brand", "google"));
-        fields.put("MODEL", propOr("persist.sys.pif.w.model", "Pixel 11 Pro XL"));
-        fields.put("PRODUCT", propOr("persist.sys.pif.w.name", "kodiak"));
-        fields.put("DEVICE", propOr("persist.sys.pif.w.device", "kodiak"));
-        fields.put("ID", propOr("persist.sys.pif.w.id", "CD1A.260905.001.B1"));
-        fields.put("SECURITY_PATCH", propOr("persist.sys.pif.w.patch", "2026-09-05"));
-        fields.put("TYPE", propOr("persist.sys.pif.w.type", "user"));
-        fields.put("TAGS", propOr("persist.sys.pif.w.tags", "release-keys"));
-        fields.put("DEVICE_INITIAL_SDK_INT", propOr("persist.sys.pif.w.api", "32"));
-        // brand/product/device:release/id/incremental:type/tags
-        String[] parts = fingerprint.split("/");
-        if (parts.length >= 3) {
-            String[] deviceAndRelease = parts[2].split(":");
-            if (deviceAndRelease.length > 1) fields.put("RELEASE", deviceAndRelease[1]);
-        }
-        if (parts.length >= 5) {
-            String incremental = parts[4].split(":")[0];
-            if (!incremental.isEmpty()) fields.put("INCREMENTAL", incremental);
-        }
-        return fields;
-    }
-
-    private static String propOr(String name, String fallback) {
-        String value = SystemProperties.get(name, "");
-        return value.isEmpty() ? fallback : value;
-    }
-
-    /** Fields written into an attestation certificate for this process. */
-    public Map<String, String> getAttestationBuildFields() {
-        if (isWalletProcess(ActivityThread.currentProcessName())) {
-            return getPaymentBuildFields();
-        }
-        return mBuildFields;
     }
 
     /**
@@ -646,45 +519,13 @@ public final class PlayIntegritySpoofService {
                 return;
             }
 
-            try {
-                field.set(null, newValue);
-            } catch (IllegalAccessException denied) {
-                // Android 17 rejects reflection writes to Build's static final
-                // fields. *_FOR_ATTESTATION hits this; the certificate still
-                // has to match what this process reads back.
-                if (!setFinalField(field, newValue)) {
-                    Log.e(TAG, "Failed to spoof " + fieldName, denied);
-                    return;
-                }
-            }
+            field.set(null, newValue);
             Log.d(TAG + "/Java:" + logSuffix, "[" + fieldName + "]: " + oldValue + " -> " + value);
 
         } catch (Exception e) {
             Log.e(TAG, "Failed to spoof " + fieldName, e);
         } finally {
             field.setAccessible(false);
-        }
-    }
-
-    private static boolean setFinalField(Field field, Object value) {
-        if (UNSAFE == null || UNSAFE_OFFSET_FIELD == null) return false;
-        try {
-            long offset = UNSAFE_OFFSET_FIELD.getInt(field);
-            Class<?> type = field.getType();
-            Object base = field.getDeclaringClass();
-            if (type == int.class) {
-                UNSAFE.putInt(base, offset, (Integer) value);
-            } else if (type == long.class) {
-                UNSAFE.putLong(base, offset, (Long) value);
-            } else if (type == boolean.class) {
-                UNSAFE.putBoolean(base, offset, (Boolean) value);
-            } else {
-                UNSAFE.putObject(base, offset, value);
-            }
-            return true;
-        } catch (Throwable t) {
-            Log.e(TAG, "Unsafe set failed for " + field.getName(), t);
-            return false;
         }
     }
 
