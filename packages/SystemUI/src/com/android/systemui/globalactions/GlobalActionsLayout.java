@@ -21,12 +21,14 @@ import static com.android.systemui.shared.system.RrGlass.isPowerBlurEnabled;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.LayerDrawable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.android.internal.annotations.VisibleForTesting;
+import com.android.internal.graphics.drawable.BackgroundBlurDrawable;
 import com.android.systemui.HardwareBgDrawable;
 import com.android.systemui.MultiListLayout;
 import com.android.systemui.res.R;
@@ -83,19 +85,45 @@ public abstract class GlobalActionsLayout extends MultiListLayout {
 
     private void updateIsBlurSupported() {
         if (isPowerBlurEnabled() && mBackgroundsSet && mIsBlurSupported != null) {
-            updateBackground(mContext.getColor(
-                    mIsBlurSupported && mTranslucentPowerMenu
-                            ? R.color.global_actions_grid_background_blur
-                            : R.color.global_actions_grid_background_blur_fallback));
+            final boolean translucent = mIsBlurSupported && mTranslucentPowerMenu;
+            updateBackground(mContext.getColor(translucent
+                    ? R.color.global_actions_grid_background_blur
+                    : R.color.global_actions_grid_background_blur_fallback));
+            updatePanelBlur(translucent);
         }
     }
 
     private void updateBackground(int color) {
         Drawable drawable = getListView().getBackground();
+        if (drawable instanceof LayerDrawable layers
+                && layers.getDrawable(0) instanceof BackgroundBlurDrawable) {
+            drawable = layers.getDrawable(1);
+        }
         if (drawable instanceof GradientDrawable gradientDrawable) {
             gradientDrawable.setColor(color);
         } else {
             drawable.setTint(color);
+        }
+    }
+
+    // Blurs the panel's own rounded region, so Liquid Glass lights the panel itself and not
+    // only the full-screen blur behind the dialog.
+    private void updatePanelBlur(boolean on) {
+        final ViewGroup list = getListView();
+        final Drawable background = list.getBackground();
+        BackgroundBlurDrawable blur = null;
+        if (background instanceof LayerDrawable layers
+                && layers.getDrawable(0) instanceof BackgroundBlurDrawable existing) {
+            blur = existing;
+        } else if (on && list.getViewRootImpl() != null
+                && background instanceof GradientDrawable panel) {
+            blur = list.getViewRootImpl().createBackgroundBlurDrawable();
+            blur.setCornerRadius(panel.getCornerRadius());
+            list.setBackground(new LayerDrawable(new Drawable[] {blur, background}));
+        }
+        if (blur != null) {
+            blur.setBlurRadius(on ? getResources().getDimensionPixelSize(
+                    R.dimen.global_actions_blur_radius) : 0);
         }
     }
 
