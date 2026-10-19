@@ -93,6 +93,7 @@ class NowBarView(
     private var currentKey: String? = null
     private var dozing = false
     private var card: NowBarCard? = null
+    private var popup: PopupMenu? = null
     private var burnIn = 0
     private var artColorsFor: Bitmap? = null
     private var artColors: IntArray? = null
@@ -308,6 +309,7 @@ class NowBarView(
         broadcastDispatcher.unregisterReceiver(timeTick)
         chronometer.stop()
         dismissCard()
+        popup?.dismiss()
     }
 
     override fun onNowBarChanged(items: List<NowBarItem>) {
@@ -319,7 +321,10 @@ class NowBarView(
 
     override fun onDozingChanged(isDozing: Boolean) {
         dozing = isDozing
-        if (dozing) dismissCard()
+        if (dozing) {
+            dismissCard()
+            popup?.dismiss()
+        }
         if (!dozing) {
             translationX = 0f
             translationY = 0f
@@ -561,7 +566,8 @@ class NowBarView(
 
     private fun showMenu() {
         val item = items.getOrNull(index) ?: return
-        PopupMenu(context, capsule).apply {
+        popup?.dismiss()
+        popup = PopupMenu(context, capsule).apply {
             menu.add(0, 1, 0, R.string.now_bar_hide)
             menu.add(0, 2, 1, R.string.now_bar_settings)
             setOnMenuItemClickListener {
@@ -574,6 +580,7 @@ class NowBarView(
                 }
                 true
             }
+            setOnDismissListener { popup = null }
             show()
         }
     }

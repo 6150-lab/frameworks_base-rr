@@ -18,6 +18,7 @@ package com.android.systemui.shade
 
 import android.content.Context
 import android.content.res.Configuration
+import android.graphics.Rect
 import android.os.PowerManager
 import android.util.ArraySet
 import android.view.GestureDetector
@@ -64,6 +65,7 @@ import com.android.systemui.log.LogBuffer
 import com.android.systemui.log.core.Logger
 import com.android.systemui.log.dagger.CommunalTouchLog
 import com.android.systemui.media.controls.ui.controller.KeyguardMediaController
+import com.android.systemui.res.R
 import com.android.systemui.scene.shared.flag.SceneContainerFlag
 import com.android.systemui.shade.domain.interactor.ShadeInteractor
 import com.android.systemui.statusbar.lockscreen.LockscreenSmartspaceController
@@ -242,6 +244,9 @@ constructor(
 
     /** True if the keyguard transition state is finished on [KeyguardState.LOCKSCREEN]. */
     private var onLockscreen = false
+
+    /** True from a down on the Now Bar until that touch ends; its swipes are its own. */
+    private var touchOnNowBar = false
 
     /**
      * True if the shade ever fully expands and the user isn't interacting with it (aka finger on
@@ -499,6 +504,17 @@ constructor(
             return false
         }
 
+        if (ev.actionMasked == MotionEvent.ACTION_DOWN) {
+            touchOnNowBar = !hubShowing && isWithinNowBar(ev.x.toInt(), ev.y.toInt())
+        }
+        if (touchOnNowBar) {
+            if (ev.actionMasked == MotionEvent.ACTION_UP ||
+                ev.actionMasked == MotionEvent.ACTION_CANCEL) {
+                touchOnNowBar = false
+            }
+            return false
+        }
+
         // In the case that we are handling full swipes on the lockscreen, are on the lockscreen,
         // and the touch is within the horizontal notification band on the screen, do not process
         // the touch.
@@ -525,6 +541,14 @@ constructor(
         }
 
         return handleTouchEventOnCommunalView(ev)
+    }
+
+    private fun isWithinNowBar(x: Int, y: Int): Boolean {
+        val bar = communalContainerWrapper?.rootView?.findViewById<View>(R.id.now_bar)
+        if (bar == null || !bar.isShown) return false
+        val bounds = Rect()
+        bar.getBoundsOnScreen(bounds)
+        return bounds.contains(x, y)
     }
 
     private fun handleTouchEventOnCommunalView(ev: MotionEvent): Boolean {
