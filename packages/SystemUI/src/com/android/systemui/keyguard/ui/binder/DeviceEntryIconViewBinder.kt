@@ -33,7 +33,7 @@ import com.android.app.tracing.coroutines.launchTraced as launch
 import com.android.internal.graphics.drawable.BackgroundBlurDrawable
 import com.android.systemui.Dependency
 import com.android.systemui.Flags
-import com.android.systemui.Flags.enableLockscreenBlur
+import com.android.systemui.shared.system.RrGlass.isLockscreenBlurEnabled
 import com.android.systemui.biometrics.UdfpsIconDrawable
 import com.android.systemui.common.ui.view.TouchHandlingView
 import com.android.systemui.keyguard.ui.view.DeviceEntryIconView
@@ -323,7 +323,7 @@ object DeviceEntryIconViewBinder {
         disposables +=
             bgView.repeatWhenAttached(mainImmediateDispatcher) {
                 repeatOnLifecycle(Lifecycle.State.CREATED) {
-                    if (enableLockscreenBlur()) {
+                    if (isLockscreenBlurEnabled()) {
                         bgView.background =
                             bgView.viewRootImpl.createBackgroundBlurDrawable().apply {
                                 setBlurRadius(
@@ -349,7 +349,7 @@ object DeviceEntryIconViewBinder {
                     launch("$TAG#bgViewModel.alpha") {
                         bgViewModel.alpha.collect { alpha ->
                             bgView.alpha = alpha
-                            if (enableLockscreenBlur()) {
+                            if (isLockscreenBlurEnabled()) {
                                 bgView.background?.alpha = (255 * alpha).toInt()
                             }
                         }

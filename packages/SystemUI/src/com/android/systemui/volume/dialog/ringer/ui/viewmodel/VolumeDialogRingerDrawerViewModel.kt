@@ -33,7 +33,7 @@ import com.android.settingslib.volume.shared.model.RingerMode
 import com.android.systemui.dagger.qualifiers.Application
 import com.android.systemui.dagger.qualifiers.Background
 import com.android.systemui.res.R
-import com.android.systemui.shared.system.BlurUtils.isVolumeAndPowerBlurEnabled
+import com.android.systemui.shared.system.RrGlass.isVolumeBlurEnabled
 import com.android.systemui.statusbar.VibratorHelper
 import com.android.systemui.statusbar.policy.ConfigurationController
 import com.android.systemui.statusbar.policy.onConfigChanged
@@ -86,7 +86,7 @@ constructor(
     val isVolumeDialogVertical = !expandedAudioTileDetailsFeatureInteractor.isDialogHorizontal()
 
     // Show blur if the flag is enabled and the volume dialog is vertical
-    val showBlur = isVolumeAndPowerBlurEnabled() && isVolumeDialogVertical
+    val showBlur = isVolumeBlurEnabled() && isVolumeDialogVertical
 
     private val drawerState = MutableStateFlow<RingerDrawerState>(RingerDrawerState.Initial)
     private val orientation: StateFlow<Int> =

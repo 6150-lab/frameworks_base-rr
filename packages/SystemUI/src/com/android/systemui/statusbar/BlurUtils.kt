@@ -41,6 +41,7 @@ import com.android.systemui.dagger.qualifiers.Main
 import com.android.systemui.dump.DumpManager
 import com.android.systemui.keyguard.ui.transitions.BlurConfig
 import com.android.systemui.res.R
+import com.android.systemui.shared.system.RrGlass
 import java.io.PrintWriter
 import javax.inject.Inject
 
@@ -249,7 +250,8 @@ constructor(
     private fun supportsBlursOnWindowsBase(): Boolean {
         return CROSS_WINDOW_BLUR_SUPPORTED &&
             ActivityManager.isHighEndGfx() &&
-            !SystemProperties.getBoolean("persist.sysui.disableBlur", false)
+            !SystemProperties.getBoolean("persist.sysui.disableBlur", false) &&
+            RrGlass.isOn(RrGlass.QS)
     }
 
     override fun dump(pw: PrintWriter, args: Array<out String>) {
