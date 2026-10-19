@@ -14,6 +14,7 @@ import android.graphics.PointF
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.text.TextPaint
+import android.util.TypedValue
 import android.view.View
 import android.view.animation.OvershootInterpolator
 import kotlin.math.abs
@@ -56,12 +57,14 @@ class QuickLaunchView(context: Context) : View(context) {
         color = accent
         maskFilter = BlurMaskFilter(14 * density, BlurMaskFilter.Blur.NORMAL)
     }
+    // Inside apply, a bare `density` is TextPaint.density, which is 1.
     private val labelPaint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
         color = Color.WHITE
-        textSize = 15 * density
+        textSize = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_SP, 16f, resources.displayMetrics)
         typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
         textAlign = Paint.Align.CENTER
-        setShadowLayer(6 * density, 0f, 0f, 0x99000000.toInt())
+        setShadowLayer(6 * this@QuickLaunchView.density, 0f, 0f, 0x99000000.toInt())
     }
 
     init {
