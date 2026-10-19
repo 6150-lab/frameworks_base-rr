@@ -47,8 +47,10 @@ final class BlurController {
     // Liquid Glass (Remixer). SurfaceFlinger reads the persist.sys.rr.glass.* mirrors.
     private static final String GLASS_MATERIAL = "rr_glass_material";
     private static final String GLASS_BATTERY_SAVER = "rr_glass_battery_saver";
+    private static final String GLASS_TILT = "rr_glass_tilt";
     private static final int GLASS_SOLID = 0;
     private static final int GLASS_FROSTED = 1;
+    private static final int GLASS_LIQUID = 2;
     private static final String[] GLASS_KEYS = {GLASS_MATERIAL, "rr_glass_blur",
             "rr_glass_tint", "rr_glass_refraction", "rr_glass_accent_tint",
             "rr_glass_accent_color"};
@@ -71,6 +73,9 @@ final class BlurController {
     private boolean mTunnelModeEnabled = false;
     private int mGlassMaterial = GLASS_FROSTED;
     private boolean mSolidInPowerSave = true;
+    private boolean mGlassTilt = true;
+    private boolean mInteractive;
+    private final GlassTilt mTilt;
 
     private TunnelModeEnabledListener mTunnelModeListener =
             new TunnelModeEnabledListener(Runnable::run) {
@@ -83,15 +88,23 @@ final class BlurController {
 
     BlurController(Context context, PowerManager powerManager) {
         mContext = context;
+        mTilt = new GlassTilt(context);
+        mInteractive = powerManager.isInteractive();
 
         IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
         filter.addAction(PowerManager.ACTION_POWER_SAVE_MODE_CHANGED);
         filter.addAction(Intent.ACTION_USER_SWITCHED);
+        filter.addAction(Intent.ACTION_SCREEN_ON);
+        filter.addAction(Intent.ACTION_SCREEN_OFF);
         context.registerReceiverForAllUsers(new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (Intent.ACTION_USER_SWITCHED.equals(intent.getAction())) {
                     readGlassSettings();
+                    updateBlurEnabled();
+                } else if (Intent.ACTION_SCREEN_ON.equals(intent.getAction())
+                        || Intent.ACTION_SCREEN_OFF.equals(intent.getAction())) {
+                    mInteractive = Intent.ACTION_SCREEN_ON.equals(intent.getAction());
                     updateBlurEnabled();
                 } else if (PowerManager.ACTION_POWER_SAVE_MODE_CHANGED.equals(
                         intent.getAction())) {
@@ -132,6 +145,9 @@ final class BlurController {
         context.getContentResolver().registerContentObserver(
                 Settings.System.getUriFor(GLASS_BATTERY_SAVER), false, glassObserver,
                 UserHandle.USER_ALL);
+        context.getContentResolver().registerContentObserver(
+                Settings.System.getUriFor(GLASS_TILT), false, glassObserver,
+                UserHandle.USER_ALL);
         readGlassSettings();
 
         powerManager.addThermalStatusListener((status) -> {
@@ -165,11 +181,12 @@ final class BlurController {
             final boolean newEnabled = CROSS_WINDOW_BLUR_SUPPORTED && !mBlurDisabledSetting
                     && mGlassMaterial != GLASS_SOLID && !(mInPowerSaveMode && mSolidInPowerSave)
                     && !mTunnelModeEnabled && !mDisabledByThermal;
-            if (mBlurEnabled == newEnabled) {
-                return;
+            if (mBlurEnabled != newEnabled) {
+                mBlurEnabled = newEnabled;
+                notifyBlurEnabledChangedLocked(newEnabled);
             }
-            mBlurEnabled = newEnabled;
-            notifyBlurEnabledChangedLocked(newEnabled);
+            mTilt.setActive(newEnabled && mGlassMaterial == GLASS_LIQUID && mGlassTilt
+                    && mInteractive);
         }
     }
 
@@ -190,6 +207,8 @@ final class BlurController {
     private void readGlassSettings() {
         final ContentResolver resolver = mContext.getContentResolver();
         mSolidInPowerSave = Settings.System.getIntForUser(resolver, GLASS_BATTERY_SAVER, 1,
+                UserHandle.USER_CURRENT) != 0;
+        mGlassTilt = Settings.System.getIntForUser(resolver, GLASS_TILT, 1,
                 UserHandle.USER_CURRENT) != 0;
         for (int i = 0; i < GLASS_KEYS.length; i++) {
             final int value = Settings.System.getIntForUser(resolver, GLASS_KEYS[i],
