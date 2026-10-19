@@ -36,6 +36,8 @@ import com.android.systemui.res.R
 @Composable
 fun qsStyleSliderColors(style: QsStyle): SliderColors? {
     val scheme = MaterialTheme.colorScheme
+    val vivid = colorResource(android.R.color.system_accent1_400)
+    val vividInk = colorResource(android.R.color.system_accent1_900)
     return when (style) {
         QsStyle.REMIX ->
             SliderDefaults.colors()
@@ -71,6 +73,41 @@ fun qsStyleSliderColors(style: QsStyle): SliderColors? {
                     activeTickColor = Color(0xFF111111),
                     inactiveTickColor = Color(0xFFEDEDED),
                 )
+        QsStyle.NEON,
+        QsStyle.BLUEPRINT ->
+            SliderDefaults.colors()
+                .copy(
+                    thumbColor = vivid,
+                    activeTrackColor = vivid,
+                    inactiveTrackColor =
+                        Color.White.copy(alpha = if (style == QsStyle.NEON) .1f else .25f),
+                )
+        QsStyle.BENTO,
+        QsStyle.SHAPES ->
+            SliderDefaults.colors()
+                .copy(
+                    thumbColor = vivid,
+                    activeTrackColor = vivid,
+                    inactiveTrackColor = Color.White.copy(alpha = .1f),
+                    activeTickColor = vividInk,
+                    inactiveTickColor = scheme.onSurface,
+                )
+        QsStyle.DUO ->
+            SliderDefaults.colors()
+                .copy(
+                    thumbColor = vivid,
+                    activeTrackColor = vivid.copy(alpha = .3f),
+                    inactiveTrackColor = Color.White.copy(alpha = .07f),
+                    activeTickColor = scheme.onSurface,
+                    inactiveTickColor = scheme.onSurface,
+                )
+        QsStyle.SOFT ->
+            SliderDefaults.colors()
+                .copy(
+                    thumbColor = vivid,
+                    activeTrackColor = vivid,
+                    inactiveTrackColor = Color(0xFF110D0C),
+                )
         else -> null
     }
 }
@@ -97,6 +134,39 @@ fun qsStyleSliderDimensions(
             )
         QsStyle.GLASS -> default.copy(trackHeight = 36.dp, thumbHeight = 46.dp)
         QsStyle.REMIX -> default.copy(trackHeight = 44.dp, thumbHeight = 52.dp, verticalPadding = 0.dp)
+        QsStyle.NEON ->
+            default.copy(
+                iconSize = DpSize(0.dp, 0.dp),
+                thumbHeight = 22.dp,
+                thumbWidth = 22.dp,
+                trackHeight = 6.dp,
+                verticalPadding = 10.dp,
+            )
+        QsStyle.BENTO -> default.copy(trackHeight = 52.dp, thumbHeight = 60.dp, verticalPadding = 0.dp)
+        QsStyle.SHAPES -> default.copy(trackHeight = 52.dp, thumbHeight = 64.dp, verticalPadding = 0.dp)
+        QsStyle.BLUEPRINT ->
+            default.copy(
+                iconSize = DpSize(0.dp, 0.dp),
+                thumbHeight = 26.dp,
+                thumbWidth = 2.dp,
+                trackHeight = 2.dp,
+                verticalPadding = 10.dp,
+            )
+        QsStyle.DUO ->
+            default.copy(
+                iconSize = DpSize(0.dp, 0.dp),
+                thumbHeight = 32.dp,
+                trackHeight = 52.dp,
+                verticalPadding = 0.dp,
+            )
+        QsStyle.SOFT ->
+            default.copy(
+                iconSize = DpSize(0.dp, 0.dp),
+                thumbHeight = 30.dp,
+                thumbWidth = 30.dp,
+                trackHeight = 18.dp,
+                verticalPadding = 8.dp,
+            )
         else -> default
     }
 
@@ -123,7 +193,16 @@ fun QsStyleSliderFrame(style: QsStyle, content: @Composable () -> Unit) {
                 content()
             }
         }
-        QsStyle.CLASSIC ->
+        QsStyle.CLASSIC,
+        QsStyle.NEON,
+        QsStyle.BLUEPRINT,
+        QsStyle.SOFT -> {
+            val sun =
+                when (style) {
+                    QsStyle.CLASSIC -> MaterialTheme.colorScheme.primary
+                    QsStyle.NEON -> colorResource(android.R.color.system_accent1_400)
+                    else -> MaterialTheme.colorScheme.onSurface.copy(alpha = .7f)
+                }
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(14.dp),
@@ -132,9 +211,36 @@ fun QsStyleSliderFrame(style: QsStyle, content: @Composable () -> Unit) {
                 Image(
                     painter = painterResource(R.drawable.ic_brightness_full),
                     contentDescription = null,
-                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary),
+                    colorFilter = ColorFilter.tint(sun),
                     modifier = Modifier.size(22.dp),
                 )
+                Box(modifier = Modifier.weight(1f)) { content() }
+            }
+        }
+        // Duo: the sun in its own accent segment, the slider beside it.
+        QsStyle.DUO ->
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(3.dp),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier =
+                        Modifier.size(52.dp)
+                            .background(
+                                colorResource(android.R.color.system_accent1_400),
+                                RoundedCornerShape(18.dp, 6.dp, 6.dp, 18.dp),
+                            ),
+                ) {
+                    Image(
+                        painter = painterResource(R.drawable.ic_brightness_full),
+                        contentDescription = null,
+                        colorFilter =
+                            ColorFilter.tint(colorResource(android.R.color.system_accent1_900)),
+                        modifier = Modifier.size(22.dp),
+                    )
+                }
                 Box(modifier = Modifier.weight(1f)) { content() }
             }
         else -> content()

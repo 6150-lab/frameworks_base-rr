@@ -704,6 +704,36 @@ private fun styledButtonColors(footerAction: FooterActionsButtonViewModel): Butt
             } else {
                 ButtonColors(if (user) Color.Unspecified else Color(0xFFEDEDED), Color(0xFF161616))
             }
+        QsStyle.NEON,
+        QsStyle.BLUEPRINT,
+        QsStyle.SOFT -> {
+            val vivid = colorResource(android.R.color.system_accent1_400)
+            val base =
+                when (LocalQsStyle.current) {
+                    QsStyle.NEON -> Color.White.copy(alpha = .04f)
+                    QsStyle.SOFT -> Color(0xFF1C1716)
+                    else -> Color.Transparent
+                }
+            if (power) {
+                ButtonColors(vivid, if (base == Color.Transparent) base else vivid.copy(alpha = .12f))
+            } else {
+                ButtonColors(if (user) Color.Unspecified else scheme.onSurface, base)
+            }
+        }
+        QsStyle.BENTO,
+        QsStyle.SHAPES,
+        QsStyle.DUO ->
+            if (power) {
+                ButtonColors(
+                    colorResource(android.R.color.system_accent1_900),
+                    colorResource(android.R.color.system_accent1_400),
+                )
+            } else {
+                ButtonColors(
+                    if (user) Color.Unspecified else scheme.onSurface,
+                    Color.White.copy(alpha = .09f),
+                )
+            }
         else -> null
     }
 }

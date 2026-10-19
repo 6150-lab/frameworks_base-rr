@@ -20,8 +20,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.drawOutline
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.Dp
@@ -31,6 +36,8 @@ import com.android.systemui.common.shared.model.Icon
 import com.android.systemui.common.shared.model.asImageBitmap
 import com.android.systemui.qs.panels.shared.model.LocalQsStyle
 import com.android.systemui.qs.panels.shared.model.QsStyle
+import com.android.systemui.qs.panels.ui.compose.infinitegrid.BlobShape
+import com.android.systemui.qs.panels.ui.compose.infinitegrid.SoftSurface
 
 /** Media card look for the QS style: a plain card with the artwork as a thumbnail. */
 internal data class MediaCardLook(
@@ -45,12 +52,32 @@ internal data class MediaCardLook(
     val playBorder: Color?,
     val artShape: Shape,
     val translucent: Boolean = false,
+    /** Play button corner radius as a fraction of its size; one half is round. */
+    val playCorner: Float = .5f,
+    val progress: MediaProgress = MediaProgress.Line,
+    val borderWidth: Dp = 1.5.dp,
+    /** Soft: a light rim at the top left and a dark one at the bottom right. */
+    val bevel: Boolean = false,
 )
+
+/** How the styled card shows playback progress. */
+internal enum class MediaProgress {
+    Line,
+    /** Neon: the line glows. */
+    Glow,
+    /** Blueprint: a row of blocks. */
+    Segments,
+    /** Shapes: the played part waves. */
+    Wave,
+    /** Soft: pressed into the card. */
+    Channel,
+}
 
 /** True for the lockscreen card, where see-through styles get a dark base over the wallpaper. */
 val LocalMediaOnLockscreen = staticCompositionLocalOf { false }
 
 private val LockscreenBase = Color(0x9E0E0F11)
+private val ShapesArt = BlobShape(9, .06f)
 
 /** QS card layout from the canvas. The lockscreen keeps the stock rows. */
 internal enum class QsMediaShape(val height: Dp) {
@@ -60,6 +87,10 @@ internal enum class QsMediaShape(val height: Dp) {
     Pill(60.dp),
     /** Artwork on top, title and play button below. Sits next to the Circles sliders. */
     Tall(172.dp),
+    /** Bento: big artwork beside the title, progress and controls. */
+    Big(156.dp),
+    /** Duo: the artwork and the rest in two segments. */
+    Split(108.dp),
 }
 
 /** True for the collapsed QS card, which stays short. */
@@ -74,6 +105,8 @@ internal fun qsMediaShape(): QsMediaShape? {
         QsStyle.STOCK -> null
         QsStyle.COMPACT -> QsMediaShape.Pill
         QsStyle.CIRCLES -> if (LocalMediaInQqs.current) QsMediaShape.Card else QsMediaShape.Tall
+        QsStyle.BENTO -> if (LocalMediaInQqs.current) QsMediaShape.Card else QsMediaShape.Big
+        QsStyle.DUO -> QsMediaShape.Split
         else -> QsMediaShape.Card
     }
 }
@@ -94,6 +127,8 @@ internal fun mediaCardLook(): MediaCardLook? {
     val surface = LocalAndroidColorScheme.current.surfaceEffect1
     val art = RoundedCornerShape(14.dp)
     val lock = LocalMediaOnLockscreen.current
+    val vivid = colorResource(android.R.color.system_accent1_400)
+    val vividInk = colorResource(android.R.color.system_accent1_900)
     return when (LocalQsStyle.current) {
         QsStyle.STOCK -> null
         QsStyle.REMIX ->
@@ -164,6 +199,97 @@ internal fun mediaCardLook(): MediaCardLook? {
                 playBorder = null,
                 artShape = RoundedCornerShape(12.dp),
             )
+        QsStyle.NEON ->
+            MediaCardLook(
+                background = Color(0xFF0B080C),
+                border = vivid.copy(alpha = .9f),
+                radius = 24.dp,
+                text = scheme.onSurface,
+                accent = vivid,
+                onAccent = vividInk,
+                playButton = vivid.copy(alpha = .12f),
+                playIcon = vivid,
+                playBorder = vivid,
+                artShape = art,
+                progress = MediaProgress.Glow,
+            )
+        QsStyle.BENTO ->
+            MediaCardLook(
+                background = surface,
+                border = null,
+                radius = 26.dp,
+                text = scheme.onSurface,
+                accent = vivid,
+                onAccent = vividInk,
+                playButton = vivid,
+                playIcon = vividInk,
+                playBorder = null,
+                artShape = RoundedCornerShape(18.dp),
+                translucent = true,
+            )
+        QsStyle.SHAPES ->
+            MediaCardLook(
+                background = surface,
+                border = null,
+                radius = 32.dp,
+                text = scheme.onSurface,
+                accent = vivid,
+                onAccent = vividInk,
+                playButton = vivid,
+                playIcon = vividInk,
+                playBorder = null,
+                artShape = ShapesArt,
+                translucent = true,
+                playCorner = .32f,
+                progress = MediaProgress.Wave,
+            )
+        QsStyle.BLUEPRINT ->
+            MediaCardLook(
+                background = Color.Transparent,
+                border = Color.White.copy(alpha = .18f),
+                radius = 10.dp,
+                text = scheme.onSurface,
+                accent = vivid,
+                onAccent = vividInk,
+                playButton = vivid.copy(alpha = .08f),
+                playIcon = vivid,
+                playBorder = vivid,
+                artShape = RoundedCornerShape(6.dp),
+                translucent = true,
+                playCorner = .18f,
+                progress = MediaProgress.Segments,
+                borderWidth = 1.dp,
+            )
+        QsStyle.DUO ->
+            MediaCardLook(
+                background = Color.White.copy(alpha = .07f),
+                border = null,
+                radius = 22.dp,
+                text = scheme.onSurface,
+                accent = vivid,
+                onAccent = vividInk,
+                playButton = vivid,
+                playIcon = vividInk,
+                playBorder = null,
+                artShape = RoundedCornerShape(22.dp, 6.dp, 6.dp, 22.dp),
+                translucent = true,
+                playCorner = .3f,
+            )
+        QsStyle.SOFT ->
+            MediaCardLook(
+                background = SoftSurface,
+                border = null,
+                radius = 26.dp,
+                text = scheme.onSurface,
+                accent = vivid,
+                onAccent = vividInk,
+                playButton = SoftSurface,
+                playIcon = vivid,
+                playBorder = Color.White.copy(alpha = .08f),
+                artShape = RoundedCornerShape(16.dp),
+                progress = MediaProgress.Channel,
+                bevel = true,
+            )
         // Circles and Cards.
         else ->
             MediaCardLook(
@@ -190,10 +316,32 @@ internal fun StyledCardBackground(look: MediaCardLook, modifier: Modifier = Modi
         if (look.translucent && LocalMediaOnLockscreen.current) LockscreenBase else Color.Transparent
     Box(
         modifier =
-            modifier.clip(shape).background(base).background(look.background).let {
-                if (look.border != null) it.border(1.5.dp, look.border, shape) else it
-            }
+            modifier
+                .clip(shape)
+                .background(base)
+                .background(look.background)
+                .let { if (look.border != null) it.border(look.borderWidth, look.border, shape) else it }
+                .let { if (look.bevel) it.bevel(shape) else it }
     )
+}
+
+/** Soft: light catches the top left edge, the bottom right falls into shadow. */
+internal fun Modifier.bevel(shape: Shape): Modifier = drawWithCache {
+    val outline = shape.createOutline(size, layoutDirection, this)
+    val rim =
+        Brush.linearGradient(
+            0f to Color.White.copy(alpha = .1f),
+            .5f to Color.Transparent,
+            1f to Color.Black.copy(alpha = .5f),
+            start = Offset.Zero,
+            end = Offset(size.width, size.height),
+        )
+    // The card clips to its shape, so half the stroke shows.
+    val stroke = Stroke(width = 3.dp.toPx())
+    onDrawWithContent {
+        drawContent()
+        drawOutline(outline, rim, style = stroke)
+    }
 }
 
 /** The artwork, shown small next to the title. */

@@ -68,6 +68,7 @@ import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.toggleableState
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.trace
 import com.android.app.tracing.coroutines.launchTraced as launch
 import com.android.compose.animation.Expandable
@@ -187,13 +188,24 @@ fun ContentScope.Tile(
         // TODO(b/361789146): Draw the shapes instead of clipping
         val tileShape by TileDefaults.animateTileShapeAsState(uiState, look)
         val styleModifier =
-            if (style == QsStyle.GLASS) Modifier.glassGlow(active, look.activeRadius) else Modifier
+            when (style) {
+                QsStyle.GLASS -> Modifier.glassGlow(active, look.activeRadius)
+                QsStyle.NEON -> Modifier.neonGlow(active, look.activeRadius)
+                QsStyle.SOFT -> Modifier.softRaise(active, tileShape)
+                else -> Modifier
+            }
         val fillModifier =
             when {
                 style == QsStyle.REMIX -> Modifier.remixFill(active)
                 // Liquid Glass draws its own rim.
                 style == QsStyle.GLASS && glass != QsGlass.LIQUID ->
                     Modifier.glassBorder(active, tileShape)
+                style == QsStyle.NEON ->
+                    Modifier.styleOutline(active, tileShape, Color.White.copy(alpha = .12f),
+                        if (active) 1.5.dp else 1.dp)
+                style == QsStyle.BLUEPRINT ->
+                    Modifier.styleOutline(active, tileShape, Color.White.copy(alpha = .18f), 1.dp)
+                style == QsStyle.SOFT -> Modifier.softInset(active, tileShape)
                 else -> Modifier
             }.then(if (glass == QsGlass.LIQUID) Modifier.liquidRim(tileShape) else Modifier)
         val animatedColor by animateColorAsState(colors.background, label = "QSTileBackgroundColor")
@@ -332,7 +344,16 @@ fun ContentScope.Tile(
                     val iconProvider: Context.() -> Icon = { getTileIcon(icon = icon) }
                     val iconBounce =
                         Modifier.bounceScale { currentBounceableInfo.bounceable.iconBounceScale }
-                    if (style == QsStyle.CLASSIC) {
+                    if (style == QsStyle.SHAPES) {
+                        ShapeTileContent(
+                            label = uiState.label,
+                            iconProvider = iconProvider,
+                            colors = colors,
+                            active = active,
+                            iconSize = look.smallIconSize,
+                            iconModifier = iconBounce,
+                        )
+                    } else if (style == QsStyle.CLASSIC || (style == QsStyle.BENTO && iconOnly)) {
                         ClassicTileContent(
                             label = uiState.label,
                             iconProvider = iconProvider,
@@ -357,6 +378,25 @@ fun ContentScope.Tile(
                             iconSize = look.smallIconSize,
                             iconModifier = iconBounce,
                         )
+                    } else if (style == QsStyle.DUO && !iconOnly) {
+                        DuoTileContent(
+                            label = uiState.label,
+                            secondaryLabel = uiState.secondaryLabel,
+                            iconProvider = iconProvider,
+                            colors = colors,
+                            look = look,
+                            accessibilityUiState = uiState.accessibilityUiState,
+                            toggleClick =
+                                {
+                                        hapticsViewModel.setTileInteractionState(
+                                            TileHapticsViewModel.TileInteractionState.CLICKED
+                                        )
+                                        tile.toggleClick()
+                                    }
+                                    .takeIf { isDualTarget },
+                            onLongClick = longClick,
+                            iconModifier = iconBounce,
+                        )
                     } else if (iconOnly) {
                         SmallTileContent(
                             iconProvider = iconProvider,
@@ -375,9 +415,12 @@ fun ContentScope.Tile(
                                     tile.toggleClick()
                                 }
                                 .takeIf { isDualTarget }
+                        val caps = style == QsStyle.BLUEPRINT
                         LargeTileContent(
-                            label = uiState.label,
-                            secondaryLabel = uiState.secondaryLabel,
+                            label = if (caps) uiState.label.uppercase() else uiState.label,
+                            secondaryLabel =
+                                if (caps) uiState.secondaryLabel.uppercase()
+                                else uiState.secondaryLabel,
                             iconProvider = iconProvider,
                             sideDrawable = uiState.sideDrawable,
                             colors = colors,

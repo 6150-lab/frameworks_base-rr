@@ -101,6 +101,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
@@ -116,6 +117,9 @@ import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerInputChange
@@ -186,9 +190,12 @@ import com.android.systemui.media.remedia.ui.viewmodel.MediaSettingsButtonViewMo
 import com.android.systemui.media.remedia.ui.viewmodel.MediaViewModel
 import com.android.systemui.qs.panels.ui.compose.infinitegrid.verticalSquish
 import com.android.systemui.res.R
+import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.roundToInt
+import kotlin.math.sin
 import kotlinx.coroutines.launch
 
 /**
@@ -445,10 +452,13 @@ private fun Card(
     val shape = if (look != null) qsMediaShape() else null
     Box(modifier) {
         if (look != null && cardStyle != MediaPresentationStyle.Thumbnail) {
-            StyledCardBackground(
-                look = look,
-                modifier = Modifier.matchParentSize().sysuiResTag(MediaRes.BACKGROUND),
-            )
+            // Split draws its own two segments.
+            if (shape != QsMediaShape.Split) {
+                StyledCardBackground(
+                    look = look,
+                    modifier = Modifier.matchParentSize().sysuiResTag(MediaRes.BACKGROUND),
+                )
+            }
         } else if (carouselStyle != MediaPresentationStyle.Compact) {
             CardBackground(
                 image = viewModel.background,
@@ -985,15 +995,15 @@ private fun ContentScope.StyledCardForegroundContent(
     val cardModifier = baseModifier.height(shape.height)
 
     @Composable
-    fun Play(size: Dp) {
+    fun Play(size: Dp, width: Dp = size) {
         AnimatedVisibility(visible = viewModel.playPauseAction != null) {
             PlayPauseAction(
                 viewModel = viewModel.playPauseAction,
                 buttonColor = look.playButton,
                 iconColor = look.playIcon,
-                buttonCornerRadius = { size / 2 },
+                buttonCornerRadius = { size * look.playCorner },
                 borderColor = look.playBorder,
-                buttonSize = DpSize(size, size),
+                buttonSize = DpSize(width, size),
                 iconSize = 24.dp,
             )
         }
@@ -1154,6 +1164,54 @@ private fun ContentScope.StyledCardForegroundContent(
                     Play(42.dp)
                 }
             }
+        QsMediaShape.Big ->
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(14.dp),
+                modifier = cardModifier.padding(12.dp),
+            ) {
+                ArtThumbnail(
+                    image = viewModel.background,
+                    shape = look.artShape,
+                    size = shape.height - 24.dp,
+                )
+                Column(modifier = Modifier.weight(1f).fillMaxHeight().padding(top = 4.dp)) {
+                    Labels(Modifier.fillMaxWidth())
+                    Spacer(Modifier.weight(1f))
+                    ProgressLine(navigation = viewModel.navigation, look = look)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.End,
+                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                    ) {
+                        Next()
+                        Play(44.dp, width = 64.dp)
+                    }
+                }
+            }
+        QsMediaShape.Split ->
+            Row(horizontalArrangement = Arrangement.spacedBy(3.dp), modifier = cardModifier) {
+                ArtThumbnail(
+                    image = viewModel.background,
+                    shape = look.artShape,
+                    size = shape.height,
+                )
+                Column(
+                    verticalArrangement = Arrangement.SpaceBetween,
+                    modifier =
+                        Modifier.weight(1f)
+                            .fillMaxHeight()
+                            .clip(RoundedCornerShape(6.dp, look.radius, look.radius, 6.dp))
+                            .background(look.background)
+                            .padding(14.dp),
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Labels(Modifier.weight(1f).padding(end = 4.dp))
+                        Next()
+                        Play(44.dp)
+                    }
+                    ProgressLine(navigation = viewModel.navigation, look = look)
+                }
+            }
     }
 }
 
@@ -1164,20 +1222,99 @@ private fun ProgressLine(
     look: MediaCardLook,
     modifier: Modifier = Modifier,
 ) {
-    val progress = (navigation as? MediaNavigationViewModel.Showing)?.progress ?: 0f
-    Box(
-        modifier
-            .fillMaxWidth()
-            .height(4.dp)
-            .clip(RoundedCornerShape(2.dp))
-            .background(look.text.copy(alpha = .16f))
-    ) {
-        Box(
-            Modifier.fillMaxHeight()
-                .fillMaxWidth(progress.coerceIn(0f, 1f))
-                .clip(RoundedCornerShape(2.dp))
-                .background(look.accent)
-        )
+    val progress =
+        ((navigation as? MediaNavigationViewModel.Showing)?.progress ?: 0f).coerceIn(0f, 1f)
+    val track = look.text.copy(alpha = .16f)
+    when (look.progress) {
+        MediaProgress.Line,
+        MediaProgress.Glow ->
+            // Not clipped, so Neon's glow spills past the line.
+            Box(modifier.fillMaxWidth().height(4.dp).background(track, RoundedCornerShape(2.dp))) {
+                Box(
+                    Modifier.fillMaxHeight()
+                        .fillMaxWidth(progress)
+                        .then(
+                            if (look.progress == MediaProgress.Glow) {
+                                Modifier.progressGlow(look.accent)
+                            } else {
+                                Modifier
+                            }
+                        )
+                        .clip(RoundedCornerShape(2.dp))
+                        .background(look.accent)
+                )
+            }
+        MediaProgress.Segments -> {
+            val filled = (progress * PROGRESS_SEGMENTS).roundToInt()
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(3.dp),
+                modifier = modifier.fillMaxWidth().height(6.dp),
+            ) {
+                repeat(PROGRESS_SEGMENTS) { i ->
+                    Box(
+                        Modifier.weight(1f)
+                            .fillMaxHeight()
+                            .clip(RoundedCornerShape(1.dp))
+                            .background(if (i < filled) look.accent else track)
+                    )
+                }
+            }
+        }
+        MediaProgress.Wave ->
+            Canvas(modifier.fillMaxWidth().height(10.dp)) {
+                val mid = size.height / 2
+                val end = size.width * progress
+                val stroke = 3.dp.toPx()
+                val amplitude = 2.5.dp.toPx()
+                val wavelength = 16.dp.toPx()
+                val wave = Path()
+                var x = 0f
+                while (x <= end) {
+                    val y = mid + amplitude * sin(2 * PI * x / wavelength).toFloat()
+                    if (x == 0f) wave.moveTo(x, y) else wave.lineTo(x, y)
+                    x += 2f
+                }
+                if (end > 0f) {
+                    drawPath(wave, look.accent, style = Stroke(stroke, cap = StrokeCap.Round))
+                }
+                val gap = 6.dp.toPx()
+                if (end + gap < size.width) {
+                    drawLine(track, Offset(end + gap, mid), Offset(size.width, mid), stroke,
+                        StrokeCap.Round)
+                }
+            }
+        MediaProgress.Channel ->
+            Box(
+                modifier
+                    .fillMaxWidth()
+                    .height(10.dp)
+                    .clip(RoundedCornerShape(5.dp))
+                    .background(Color(0xFF110D0C))
+                    .padding(2.dp)
+            ) {
+                Box(
+                    Modifier.fillMaxHeight()
+                        .fillMaxWidth(progress)
+                        .clip(RoundedCornerShape(3.dp))
+                        .background(look.accent)
+                )
+            }
+    }
+}
+
+private const val PROGRESS_SEGMENTS = 24
+
+/** Neon: a soft glow under the played part of the line. */
+private fun Modifier.progressGlow(color: Color): Modifier = drawBehind {
+    drawIntoCanvas { canvas ->
+        val paint =
+            android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
+                this.color = color.copy(alpha = .7f).toArgb()
+                maskFilter =
+                    android.graphics.BlurMaskFilter(4.dp.toPx(), android.graphics.BlurMaskFilter.Blur.NORMAL)
+            }
+        canvas.nativeCanvas.drawRoundRect(0f, 0f, size.width, size.height, size.height / 2,
+            size.height / 2, paint)
     }
 }
 
