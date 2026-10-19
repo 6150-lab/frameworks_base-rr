@@ -95,7 +95,15 @@ fun BatteryWithPercent(
             UnifiedBattery(
                 viewModel = viewModel,
                 isDarkProvider = isDarkProvider,
-                modifier = Modifier.height(batteryHeight).wrapContentWidth(),
+                modifier =
+                    Modifier.height(
+                            if (isCircleBatteryStyle(viewModel.batteryIconStyle)) {
+                                batteryHeight * CIRCLE_BATTERY_SCALE
+                            } else {
+                                batteryHeight
+                            }
+                        )
+                        .wrapContentWidth(),
             )
         }
 

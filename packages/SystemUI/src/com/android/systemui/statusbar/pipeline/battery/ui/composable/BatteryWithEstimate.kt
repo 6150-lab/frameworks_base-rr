@@ -58,7 +58,15 @@ fun BatteryWithEstimate(
             UnifiedBattery(
                 viewModel = viewModel,
                 isDarkProvider = isDarkProvider,
-                modifier = Modifier.height(batteryHeight).align(Alignment.CenterVertically),
+                modifier =
+                    Modifier.height(
+                            if (isCircleBatteryStyle(viewModel.batteryIconStyle)) {
+                                batteryHeight * CIRCLE_BATTERY_SCALE
+                            } else {
+                                batteryHeight
+                            }
+                        )
+                        .align(Alignment.CenterVertically),
             )
         }
         if (showEstimate) {

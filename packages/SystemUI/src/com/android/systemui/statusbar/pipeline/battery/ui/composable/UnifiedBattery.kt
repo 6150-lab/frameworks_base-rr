@@ -45,6 +45,7 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.drawscope.inset
@@ -60,13 +61,15 @@ import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.layout.onLayoutRectChanged
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.text.PlatformTextStyle
+import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastFirstOrNull
 import com.android.systemui.common.ui.compose.load
 import com.android.systemui.compose.modifiers.sysuiResTag
@@ -504,7 +507,10 @@ fun CircleBatteryBody(
             )
         }
 
-        if (attr != null) {
+        if (showLevel && level != null) {
+            // RR: the level stays inside while charging too; the arc color shows the state.
+            drawRingLevel(textMeasurer, level, colors.attribution, size.height - strokeWidth * 2f)
+        } else if (attr != null) {
             // Draw attribution
             inset(strokeWidth * 2f) {
                 val attrScale = attr.scaleTo(size.width, size.height)
@@ -525,27 +531,6 @@ fun CircleBatteryBody(
                     drawPath(attr.path, colors.attribution)
                 }
             }
-        } else if (showLevel && level != null && level < 100) {
-            // Draw charge level
-            val textLayoutResult =
-                textMeasurer.measure(
-                    text = level.toString(),
-                    style =
-                        TextStyle(
-                            color = colors.attribution,
-                            fontSize = 6.sp,
-                            fontWeight = FontWeight.Bold,
-                        ),
-                )
-
-            drawText(
-                textLayoutResult = textLayoutResult,
-                topLeft =
-                    Offset(
-                        size.width / 2 - textLayoutResult.size.width / 2f,
-                        size.height / 2 - textLayoutResult.size.height / 2f,
-                    ),
-            )
         }
     }
 }
@@ -615,20 +600,61 @@ fun NeonRingBattery(
             drawArc(color.copy(alpha = alpha), 270f, 3.6f * level, false, topLeft, arc,
                 style = Stroke(stroke, cap = StrokeCap.Round))
         }
+        if (showLevelProvider() && level != null) {
+            drawRingLevel(textMeasurer, level, colors.attribution, size.height - stroke * 3f)
+        }
         if (charging && prefs.spark) {
             val a = Math.toRadians((spin - 90f).toDouble())
             drawCircle(if (lightBar) colors.attribution else Color.White, stroke * 0.8f,
                 Offset(center.x + radius * kotlin.math.cos(a).toFloat(),
                     center.y + radius * kotlin.math.sin(a).toFloat()))
-        } else if (showLevelProvider() && level != null && level < 100) {
-            val text = textMeasurer.measure(
-                text = level.toString(),
-                style = TextStyle(color = colors.attribution, fontSize = 6.sp, fontWeight = FontWeight.Bold),
-            )
-            drawText(text, topLeft = Offset(size.width / 2 - text.size.width / 2f,
-                size.height / 2 - text.size.height / 2f))
         }
     }
+}
+
+/** RR: the circle styles draw larger than the stock body so the level fits inside. */
+const val CIRCLE_BATTERY_SCALE = 1.35f
+
+fun isCircleBatteryStyle(style: Int): Boolean =
+    style == BatteryRepository.ICON_STYLE_CIRCLE ||
+        style == BatteryRepository.ICON_STYLE_CIRCLE_DOTTED ||
+        style == BatteryRepository.ICON_STYLE_NEON_RING
+
+/** The level centered in a ring whose inside is [inner] px across, shrunk to fit "100". */
+private fun DrawScope.drawRingLevel(
+    measurer: TextMeasurer,
+    level: Int,
+    color: Color,
+    inner: Float,
+) {
+    val text = level.toString()
+    fun measure(px: Float) =
+        measurer.measure(
+            text = text,
+            style =
+                TextStyle(
+                    color = color,
+                    fontSize = px.toSp(),
+                    fontWeight = FontWeight.Bold,
+                    platformStyle = PlatformTextStyle(includeFontPadding = false),
+                    lineHeightStyle =
+                        LineHeightStyle(
+                            alignment = LineHeightStyle.Alignment.Center,
+                            trim = LineHeightStyle.Trim.Both,
+                        ),
+                ),
+        )
+    val px = inner * 0.6f
+    var layout = measure(px)
+    val maxWidth = inner * 0.9f
+    if (layout.size.width > maxWidth) {
+        layout = measure(px * maxWidth / layout.size.width)
+    }
+    drawText(
+        layout,
+        topLeft =
+            Offset(center.x - layout.size.width / 2f, center.y - layout.size.height / 2f),
+    )
 }
 
 /** RR slim pill: a thin rounded bar filled to the level. */
