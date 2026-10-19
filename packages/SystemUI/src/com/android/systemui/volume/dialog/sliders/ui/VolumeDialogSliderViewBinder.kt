@@ -22,7 +22,13 @@ import android.provider.Settings
 import android.view.View
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
@@ -38,13 +44,16 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -68,6 +77,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.isActive
+import kotlin.math.roundToInt
 
 @VolumeDialogSliderScope
 class VolumeDialogSliderViewBinder
@@ -86,6 +96,8 @@ constructor(
             UserHandle.USER_CURRENT)
         val ticks = Settings.System.getIntForUser(resolver, "rr_volume_tick", 1,
             UserHandle.USER_CURRENT) == 1
+        val percent = Settings.System.getIntForUser(resolver, "rr_volume_percent", 1,
+            UserHandle.USER_CURRENT) == 1
         val sliderComposeViewId =
             if (isVolumeDialogVertical) {
                 R.id.volume_dialog_slider
@@ -102,6 +114,7 @@ constructor(
                     isVolumeDialogVertical = isVolumeDialogVertical,
                     rrStyle = rrStyle,
                     ticks = ticks,
+                    showPercent = percent,
                 )
             }
         }
@@ -118,6 +131,7 @@ private fun VolumeDialogSlider(
     modifier: Modifier = Modifier,
     rrStyle: Int = RR_ANDROID,
     ticks: Boolean = true,
+    showPercent: Boolean = true,
     dimensions: VolumeSliderDimensions =
         when {
             rrStyle == RR_PILL && isVolumeDialogVertical -> VolumeSliderDimensions.RrPill
@@ -197,110 +211,179 @@ private fun VolumeDialogSlider(
         }
     }
 
-    Slider(
-        value = sliderStateModel.value,
-        valueRange = sliderStateModel.valueRange,
-        onValueChanged = { value ->
-            overscrollViewModel.setSlider(
-                value = value,
-                min = sliderStateModel.valueRange.start,
-                max = sliderStateModel.valueRange.endInclusive,
-            )
-            viewModel.setStreamVolume(value, true)
-        },
-        onValueChangeFinished = { viewModel.onSliderChangeFinished(it) },
-        isEnabled = !sliderStateModel.isDisabled,
-        isReverseDirection = true,
+    val percent =
+        with(sliderStateModel) {
+            val span = valueRange.endInclusive - valueRange.start
+            if (span > 0f) ((value - valueRange.start) / span * 100f).roundToInt() else 0
+        }
+    val percentColor =
+        when (rrStyle) {
+            RR_NEON -> accent
+            RR_GLASS -> Color.White
+            else -> MaterialTheme.colorScheme.onSurfaceVariant
+        }
+
+    PercentFrame(
+        show = showPercent,
         isVertical = isVolumeDialogVertical,
-        colors = colors,
-        interactionSource = interactionSource,
-        haptics =
-            if (!ticks) {
-                Haptics.Disabled
-            } else {
-                Haptics.Enabled(
-                    hapticsViewModelFactory = hapticsViewModelFactory,
-                    hapticConfigs =
-                        VolumeHapticsConfigsProvider.continuousConfigs(SliderHapticFeedbackFilter()),
-                    orientation =
-                        if (isVolumeDialogVertical) {
-                            Orientation.Vertical
-                        } else {
-                            Orientation.Horizontal
-                        },
+        text = "$percent%",
+        color = percentColor,
+        modifier = modifier,
+    ) { sliderModifier ->
+        Slider(
+            value = sliderStateModel.value,
+            valueRange = sliderStateModel.valueRange,
+            onValueChanged = { value ->
+                overscrollViewModel.setSlider(
+                    value = value,
+                    min = sliderStateModel.valueRange.start,
+                    max = sliderStateModel.valueRange.endInclusive,
+                )
+                viewModel.setStreamVolume(value, true)
+            },
+            onValueChangeFinished = { viewModel.onSliderChangeFinished(it) },
+            isEnabled = !sliderStateModel.isDisabled,
+            isReverseDirection = true,
+            isVertical = isVolumeDialogVertical,
+            colors = colors,
+            interactionSource = interactionSource,
+            haptics =
+                if (!ticks) {
+                    Haptics.Disabled
+                } else {
+                    Haptics.Enabled(
+                        hapticsViewModelFactory = hapticsViewModelFactory,
+                        hapticConfigs =
+                            VolumeHapticsConfigsProvider.continuousConfigs(
+                                SliderHapticFeedbackFilter()
+                            ),
+                        orientation =
+                            if (isVolumeDialogVertical) {
+                                Orientation.Vertical
+                            } else {
+                                Orientation.Horizontal
+                            },
+                    )
+                },
+            stepDistance = 1f,
+            track = { sliderState ->
+                Box(
+                    if (rrStyle == RR_NEON) {
+                        Modifier.drawBehind {
+                                val r = 12.dp.toPx()
+                                drawIntoCanvas {
+                                    it.nativeCanvas.drawRoundRect(
+                                        0f, 0f, size.width, size.height, r, r, neonGlow)
+                                }
+                            }
+                            .border(1.5.dp, accent, RoundedCornerShape(12.dp))
+                    } else {
+                        Modifier
+                    }
+                ) {
+                SliderTrack(
+                    sliderState,
+                    colors = colors,
+                    isEnabled = !sliderStateModel.isDisabled,
+                    isVertical = isVolumeDialogVertical,
+                    activeTrackEndIcon = { iconsState ->
+                        SliderIcon(
+                            icon = {
+                                Icon(
+                                    icon = sliderStateModel.icon,
+                                    tint = null,
+                                    modifier = Modifier.size(dimensions.iconSize),
+                                )
+                            },
+                            isVisible = !iconsState.isInactiveTrackEndIconVisible,
+                        )
+                    },
+                    inactiveTrackEndIcon = { iconsState ->
+                        SliderIcon(
+                            icon = {
+                                Icon(
+                                    icon = sliderStateModel.icon,
+                                    tint = null,
+                                    modifier = Modifier.size(dimensions.iconSize),
+                                )
+                            },
+                            isVisible = iconsState.isInactiveTrackEndIconVisible,
+                        )
+                    },
+                    trackSize = dimensions.trackSize,
+                )
+                }
+            },
+            thumb = { sliderState, interactions ->
+                SliderDefaults.Thumb(
+                    sliderState = sliderState,
+                    interactionSource = interactions,
+                    enabled = !sliderStateModel.isDisabled,
+                    colors = colors,
+                    thumbSize = DpSize(dimensions.thumbWidth, dimensions.thumbHeight),
                 )
             },
-        stepDistance = 1f,
-        track = { sliderState ->
-            Box(
-                if (rrStyle == RR_NEON) {
-                    Modifier.drawBehind {
-                            val r = 12.dp.toPx()
-                            drawIntoCanvas {
-                                it.nativeCanvas.drawRoundRect(
-                                    0f, 0f, size.width, size.height, r, r, neonGlow)
+            accessibilityParams = AccessibilityParams(contentDescription = sliderStateModel.label),
+            modifier =
+                sliderModifier.pointerInput(Unit) {
+                    coroutineScope {
+                        val currentContext = currentCoroutineContext()
+                        awaitPointerEventScope {
+                            while (currentContext.isActive) {
+                                viewModel.onTouchEvent(awaitPointerEvent())
                             }
                         }
-                        .border(1.5.dp, accent, RoundedCornerShape(12.dp))
-                } else {
-                    Modifier
-                }
-            ) {
-            SliderTrack(
-                sliderState,
-                colors = colors,
-                isEnabled = !sliderStateModel.isDisabled,
-                isVertical = isVolumeDialogVertical,
-                activeTrackEndIcon = { iconsState ->
-                    SliderIcon(
-                        icon = {
-                            Icon(
-                                icon = sliderStateModel.icon,
-                                tint = null,
-                                modifier = Modifier.size(dimensions.iconSize),
-                            )
-                        },
-                        isVisible = !iconsState.isInactiveTrackEndIconVisible,
-                    )
-                },
-                inactiveTrackEndIcon = { iconsState ->
-                    SliderIcon(
-                        icon = {
-                            Icon(
-                                icon = sliderStateModel.icon,
-                                tint = null,
-                                modifier = Modifier.size(dimensions.iconSize),
-                            )
-                        },
-                        isVisible = iconsState.isInactiveTrackEndIconVisible,
-                    )
-                },
-                trackSize = dimensions.trackSize,
-            )
-            }
-        },
-        thumb = { sliderState, interactions ->
-            SliderDefaults.Thumb(
-                sliderState = sliderState,
-                interactionSource = interactions,
-                enabled = !sliderStateModel.isDisabled,
-                colors = colors,
-                thumbSize = DpSize(dimensions.thumbWidth, dimensions.thumbHeight),
-            )
-        },
-        accessibilityParams = AccessibilityParams(contentDescription = sliderStateModel.label),
-        modifier =
-            modifier.pointerInput(Unit) {
-                coroutineScope {
-                    val currentContext = currentCoroutineContext()
-                    awaitPointerEventScope {
-                        while (currentContext.isActive) {
-                            viewModel.onTouchEvent(awaitPointerEvent())
-                        }
                     }
-                }
-            },
-    )
+                },
+        )
+    }
+}
+
+/** The slider with its level in percent above it, or after it when horizontal. */
+@Composable
+private fun PercentFrame(
+    show: Boolean,
+    isVertical: Boolean,
+    text: String,
+    color: Color,
+    modifier: Modifier,
+    content: @Composable (Modifier) -> Unit,
+) {
+    if (!show) {
+        content(modifier)
+        return
+    }
+    val label: @Composable () -> Unit = {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.labelMedium.copy(fontFeatureSettings = "tnum"),
+            color = color,
+            maxLines = 1,
+            // The slider already reads out its level.
+            modifier = Modifier.clearAndSetSemantics {},
+        )
+    }
+    if (isVertical) {
+        Column(
+            modifier = modifier.fillMaxHeight(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            label()
+            content(Modifier.weight(1f))
+        }
+    } else {
+        Row(
+            modifier = modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            content(Modifier.weight(1f))
+            Box(modifier = Modifier.width(40.dp), contentAlignment = Alignment.CenterEnd) {
+                label()
+            }
+        }
+    }
 }
 
 private const val RR_ANDROID = 0
