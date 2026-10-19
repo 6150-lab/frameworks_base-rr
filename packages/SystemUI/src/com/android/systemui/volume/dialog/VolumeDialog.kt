@@ -201,7 +201,7 @@ constructor(
         bg.foreground = null
         if (style == 0) return
         val density = context.resources.displayMetrics.density
-        val accent = context.getColor(android.R.color.system_accent1_400)
+        val accent = context.getColor(android.R.color.system_primary_dark)
         fun tint(color: Int, ringerColor: Int = color) {
             for (view in listOfNotNull(bg, ringer)) {
                 view.backgroundTintList = android.content.res.ColorStateList.valueOf(

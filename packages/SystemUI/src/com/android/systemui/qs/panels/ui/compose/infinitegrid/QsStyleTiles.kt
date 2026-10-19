@@ -168,8 +168,8 @@ internal fun styledTileColors(style: QsStyle, uiState: TileUiState, iconOnly: Bo
     val surface = LocalAndroidColorScheme.current.surfaceEffect1
     val active = uiState.visualState == STATE_ACTIVE
     val dualLarge = uiState.handlesToggleClick && !iconOnly
-    val vivid = colorResource(android.R.color.system_accent1_400)
-    val vividInk = colorResource(android.R.color.system_accent1_900)
+    val vivid = colorResource(android.R.color.system_primary_dark)
+    val vividInk = colorResource(android.R.color.system_on_primary_dark)
     val colors =
         when (style) {
             QsStyle.REMIX ->
@@ -548,7 +548,7 @@ internal fun CardTileContent(
 @Composable
 internal fun Modifier.neonGlow(active: Boolean, radius: Dp): Modifier {
     val glow by animateFloatAsState(if (active) 1f else 0f, label = "QSTileNeonGlow")
-    val glowColor = colorResource(android.R.color.system_accent1_400)
+    val glowColor = colorResource(android.R.color.system_primary_dark)
     return drawBehind {
         if (glow > 0f) {
             drawIntoCanvas { canvas ->
@@ -570,7 +570,7 @@ internal fun Modifier.neonGlow(active: Boolean, radius: Dp): Modifier {
 internal fun Modifier.styleOutline(active: Boolean, shape: Shape, off: Color, width: Dp): Modifier {
     val color by
         animateColorAsState(
-            if (active) colorResource(android.R.color.system_accent1_400) else off,
+            if (active) colorResource(android.R.color.system_primary_dark) else off,
             label = "QSTileStyleOutline",
         )
     return border(width, color, shape)

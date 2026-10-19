@@ -707,7 +707,7 @@ private fun styledButtonColors(footerAction: FooterActionsButtonViewModel): Butt
         QsStyle.NEON,
         QsStyle.BLUEPRINT,
         QsStyle.SOFT -> {
-            val vivid = colorResource(android.R.color.system_accent1_400)
+            val vivid = colorResource(android.R.color.system_primary_dark)
             val base =
                 when (LocalQsStyle.current) {
                     QsStyle.NEON -> Color.White.copy(alpha = .04f)
@@ -725,8 +725,8 @@ private fun styledButtonColors(footerAction: FooterActionsButtonViewModel): Butt
         QsStyle.DUO ->
             if (power) {
                 ButtonColors(
-                    colorResource(android.R.color.system_accent1_900),
-                    colorResource(android.R.color.system_accent1_400),
+                    colorResource(android.R.color.system_on_primary_dark),
+                    colorResource(android.R.color.system_primary_dark),
                 )
             } else {
                 ButtonColors(

@@ -36,8 +36,8 @@ import com.android.systemui.res.R
 @Composable
 fun qsStyleSliderColors(style: QsStyle): SliderColors? {
     val scheme = MaterialTheme.colorScheme
-    val vivid = colorResource(android.R.color.system_accent1_400)
-    val vividInk = colorResource(android.R.color.system_accent1_900)
+    val vivid = colorResource(android.R.color.system_primary_dark)
+    val vividInk = colorResource(android.R.color.system_on_primary_dark)
     return when (style) {
         QsStyle.REMIX ->
             SliderDefaults.colors()
@@ -200,7 +200,7 @@ fun QsStyleSliderFrame(style: QsStyle, content: @Composable () -> Unit) {
             val sun =
                 when (style) {
                     QsStyle.CLASSIC -> MaterialTheme.colorScheme.primary
-                    QsStyle.NEON -> colorResource(android.R.color.system_accent1_400)
+                    QsStyle.NEON -> colorResource(android.R.color.system_primary_dark)
                     else -> MaterialTheme.colorScheme.onSurface.copy(alpha = .7f)
                 }
             Row(
@@ -229,7 +229,7 @@ fun QsStyleSliderFrame(style: QsStyle, content: @Composable () -> Unit) {
                     modifier =
                         Modifier.size(52.dp)
                             .background(
-                                colorResource(android.R.color.system_accent1_400),
+                                colorResource(android.R.color.system_primary_dark),
                                 RoundedCornerShape(18.dp, 6.dp, 6.dp, 18.dp),
                             ),
                 ) {
@@ -237,7 +237,7 @@ fun QsStyleSliderFrame(style: QsStyle, content: @Composable () -> Unit) {
                         painter = painterResource(R.drawable.ic_brightness_full),
                         contentDescription = null,
                         colorFilter =
-                            ColorFilter.tint(colorResource(android.R.color.system_accent1_900)),
+                            ColorFilter.tint(colorResource(android.R.color.system_on_primary_dark)),
                         modifier = Modifier.size(22.dp),
                     )
                 }

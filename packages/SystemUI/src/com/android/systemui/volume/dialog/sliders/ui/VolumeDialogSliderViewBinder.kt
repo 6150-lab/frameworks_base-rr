@@ -140,7 +140,7 @@ private fun VolumeDialogSlider(
             else -> VolumeSliderDimensions.Horizontal
         },
 ) {
-    val accent = Color(LocalContext.current.getColor(android.R.color.system_accent1_400))
+    val accent = Color(LocalContext.current.getColor(android.R.color.system_primary_dark))
     val density = LocalDensity.current
     // Neon glows around the track itself; an elevation shadow showed through its clear part.
     val neonGlow = remember(accent, density) {

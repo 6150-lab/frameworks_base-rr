@@ -127,8 +127,8 @@ internal fun mediaCardLook(): MediaCardLook? {
     val surface = LocalAndroidColorScheme.current.surfaceEffect1
     val art = RoundedCornerShape(14.dp)
     val lock = LocalMediaOnLockscreen.current
-    val vivid = colorResource(android.R.color.system_accent1_400)
-    val vividInk = colorResource(android.R.color.system_accent1_900)
+    val vivid = colorResource(android.R.color.system_primary_dark)
+    val vividInk = colorResource(android.R.color.system_on_primary_dark)
     return when (LocalQsStyle.current) {
         QsStyle.STOCK -> null
         QsStyle.REMIX ->
