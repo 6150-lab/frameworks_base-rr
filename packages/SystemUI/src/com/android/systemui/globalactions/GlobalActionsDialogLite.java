@@ -691,6 +691,10 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
             attrs.flags |= WindowManager.LayoutParams.FLAG_BLUR_BEHIND;
             attrs.setBlurBehindRadius(mContext.getResources().getDimensionPixelSize(
                     com.android.systemui.res.R.dimen.global_actions_blur_radius));
+        } else {
+            // The power menu follows its own Liquid Glass switch, not the dialogs one.
+            attrs.flags &= ~WindowManager.LayoutParams.FLAG_BLUR_BEHIND;
+            attrs.setBlurBehindRadius(0);
         }
         dialog.getWindow().setAttributes(attrs);
         // Don't acquire soft keyboard focus, to avoid destroying state when capturing bugreports

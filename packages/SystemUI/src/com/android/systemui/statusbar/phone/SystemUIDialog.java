@@ -46,6 +46,7 @@ import com.android.systemui.animation.DialogTransitionAnimator;
 import com.android.systemui.broadcast.BroadcastDispatcher;
 import com.android.systemui.dagger.qualifiers.Application;
 import com.android.systemui.res.R;
+import com.android.systemui.shared.system.RrGlass;
 import com.android.systemui.util.DialogKt;
 import com.android.systemui.window.domain.interactor.WindowRootViewBlurInteractor;
 
@@ -294,6 +295,12 @@ public class SystemUIDialog extends AlertDialog {
         applyFlags(this);
         WindowManager.LayoutParams attrs = getWindow().getAttributes();
         attrs.setTitle(getClass().getSimpleName());
+        // Liquid Glass: blur what's behind the dialog; window manager drops it while blur is off.
+        if (RrGlass.isOn(RrGlass.MENUS)) {
+            attrs.flags |= WindowManager.LayoutParams.FLAG_BLUR_BEHIND;
+            attrs.setBlurBehindRadius(context.getResources().getDimensionPixelSize(
+                    R.dimen.bottomsheet_blur_radius));
+        }
         getWindow().setAttributes(attrs);
         mLastNightMode = context.getResources().getConfiguration().uiMode
                 & Configuration.UI_MODE_NIGHT_MASK;
