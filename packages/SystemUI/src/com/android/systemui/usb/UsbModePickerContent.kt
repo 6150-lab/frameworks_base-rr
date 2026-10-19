@@ -18,19 +18,14 @@ package com.android.systemui.usb
 
 import androidx.annotation.StringRes
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.selectable
@@ -70,6 +65,7 @@ import com.android.internal.graphics.ColorUtils
 import com.android.systemui.res.R
 import com.android.systemui.shared.system.RrGlass.isDialogBlurEnabled
 import com.android.systemui.statusbar.phone.SystemUIDialog
+import kotlinx.coroutines.delay
 
 data class UsbModeItem(
     val function: Long,
@@ -79,7 +75,7 @@ data class UsbModeItem(
     val selected: Boolean,
 )
 
-/** The USB island: the current mode, a button per mode, and a bar that runs out before it hides. */
+/** The USB island: the current mode and a button per mode; it hides itself after a while. */
 @Composable
 fun UsbModePickerContent(
     dialog: SystemUIDialog,
@@ -101,9 +97,8 @@ fun UsbModePickerContent(
     if (!glass) {
         SideEffect { blur.setBlurRadius(0) }
     }
-    val timer = remember { Animatable(1f) }
     LaunchedEffect(Unit) {
-        timer.animateTo(0f, tween(AUTO_HIDE_MS, easing = LinearEasing))
+        delay(AUTO_HIDE_MS)
         onDismiss()
     }
     val current = modes.firstOrNull { it.selected } ?: modes.last()
@@ -192,21 +187,6 @@ fun UsbModePickerContent(
                 UsbModeButton(mode, Modifier.weight(1f)) { onModeSelected(mode.function) }
             }
         }
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(3.dp)
-                .clip(CircleShape)
-                .background(colors.onSurface.copy(alpha = 0.12f)),
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(timer.value)
-                    .fillMaxHeight()
-                    .background(colors.primary),
-            )
-        }
     }
 }
 
@@ -251,4 +231,4 @@ private fun UsbModeButton(mode: UsbModeItem, modifier: Modifier, onClick: () -> 
     }
 }
 
-private const val AUTO_HIDE_MS = 8000
+private const val AUTO_HIDE_MS = 8000L
