@@ -85,8 +85,8 @@ constructor(
     // Use horizontal volume dialog if the audio tile details view is enabled
     val isVolumeDialogVertical = !expandedAudioTileDetailsFeatureInteractor.isDialogHorizontal()
 
-    // Show blur if the flag is enabled and the volume dialog is vertical
-    val showBlur = isVolumeBlurEnabled() && isVolumeDialogVertical
+    // Show blur if the flag is enabled. RR: the horizontal dialog too; its shapes are the same.
+    val showBlur = isVolumeBlurEnabled()
 
     private val drawerState = MutableStateFlow<RingerDrawerState>(RingerDrawerState.Initial)
     private val orientation: StateFlow<Int> =
