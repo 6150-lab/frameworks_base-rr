@@ -54,6 +54,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -171,6 +172,22 @@ private fun VolumeDialogSlider(
                     disabledActiveTickColor = Color(0x33FFFFFF),
                     disabledInactiveTrackColor = Color(0x33FFFFFF),
                 )
+            // The QS themes.
+            RR_BENTO, RR_SHAPES, RR_BLUEPRINT, RR_DUO, RR_SOFT ->
+                SliderDefaults.colors(
+                    activeTrackColor = if (rrStyle == RR_DUO) accent.copy(alpha = .35f) else accent,
+                    thumbColor = accent,
+                    activeTickColor = Color(0x33000000),
+                    inactiveTrackColor =
+                        when (rrStyle) {
+                            RR_BLUEPRINT -> Color.Transparent
+                            RR_SOFT -> Color(0xFF110D0C)
+                            RR_SHAPES -> Color(0x2EFFFFFF)
+                            else -> Color(0x1AFFFFFF)
+                        },
+                    disabledActiveTickColor = Color(0x1AFFFFFF),
+                    disabledInactiveTrackColor = Color(0x1AFFFFFF),
+                )
             RR_PILL, RR_CLASSIC ->
                 SliderDefaults.colors(
                     activeTrackColor = accent,
@@ -218,7 +235,7 @@ private fun VolumeDialogSlider(
         }
     val percentColor =
         when (rrStyle) {
-            RR_NEON -> accent
+            RR_NEON, RR_BLUEPRINT -> accent
             RR_GLASS -> Color.White
             else -> MaterialTheme.colorScheme.onSurfaceVariant
         }
@@ -228,6 +245,7 @@ private fun VolumeDialogSlider(
         isVertical = isVolumeDialogVertical,
         text = "$percent%",
         color = percentColor,
+        mono = rrStyle == RR_BLUEPRINT,
         modifier = modifier,
     ) { sliderModifier ->
         Slider(
@@ -268,17 +286,21 @@ private fun VolumeDialogSlider(
             stepDistance = 1f,
             track = { sliderState ->
                 Box(
-                    if (rrStyle == RR_NEON) {
-                        Modifier.drawBehind {
-                                val r = 12.dp.toPx()
-                                drawIntoCanvas {
-                                    it.nativeCanvas.drawRoundRect(
-                                        0f, 0f, size.width, size.height, r, r, neonGlow)
+                    when (rrStyle) {
+                        RR_NEON ->
+                            Modifier.drawBehind {
+                                    val r = 12.dp.toPx()
+                                    drawIntoCanvas {
+                                        it.nativeCanvas.drawRoundRect(
+                                            0f, 0f, size.width, size.height, r, r, neonGlow)
+                                    }
                                 }
-                            }
-                            .border(1.5.dp, accent, RoundedCornerShape(12.dp))
-                    } else {
-                        Modifier
+                                .border(1.5.dp, accent, RoundedCornerShape(12.dp))
+                        // Blueprint draws the track as an outline, Soft as a rim.
+                        RR_BLUEPRINT ->
+                            Modifier.border(1.dp, Color(0x47FFFFFF), RoundedCornerShape(12.dp))
+                        RR_SOFT -> Modifier.border(1.dp, Color(0x14FFFFFF), RoundedCornerShape(12.dp))
+                        else -> Modifier
                     }
                 ) {
                 SliderTrack(
@@ -346,6 +368,7 @@ private fun PercentFrame(
     isVertical: Boolean,
     text: String,
     color: Color,
+    mono: Boolean,
     modifier: Modifier,
     content: @Composable (Modifier) -> Unit,
 ) {
@@ -356,7 +379,11 @@ private fun PercentFrame(
     val label: @Composable () -> Unit = {
         Text(
             text = text,
-            style = MaterialTheme.typography.labelMedium.copy(fontFeatureSettings = "tnum"),
+            style =
+                MaterialTheme.typography.labelMedium.copy(
+                    fontFeatureSettings = "tnum",
+                    fontFamily = if (mono) FontFamily.Monospace else null,
+                ),
             color = color,
             maxLines = 1,
             // The slider already reads out its level.
@@ -391,6 +418,11 @@ private const val RR_NEON = 1
 private const val RR_GLASS = 2
 private const val RR_PILL = 3
 private const val RR_CLASSIC = 4
+private const val RR_BENTO = 5
+private const val RR_SHAPES = 6
+private const val RR_BLUEPRINT = 7
+private const val RR_DUO = 8
+private const val RR_SOFT = 9
 
 data class VolumeSliderDimensions(
     val iconSize: Dp,

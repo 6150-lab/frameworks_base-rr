@@ -179,7 +179,8 @@ constructor(
     }
 
     /**
-     * RR volume panel looks, on rr_volume_style: 0 Android, 1 Neon, 2 Glass, 3 Pill, 4 Classic RR.
+     * RR volume panel looks, on rr_volume_style: 0 Android, 1 Neon, 2 Glass, 3 Pill, 4 Classic RR,
+     * and the QS themes 5 Bento, 6 Shapes, 7 Blueprint, 8 Duo, 9 Soft.
      * The ringer binder owns the background drawables (it reshapes them and swaps in the blur
      * layers), so a look only tints them and draws its outline or bar on top.
      */
@@ -201,9 +202,11 @@ constructor(
         if (style == 0) return
         val density = context.resources.displayMetrics.density
         val accent = context.getColor(android.R.color.system_accent1_400)
-        fun tint(color: Int) {
+        fun tint(color: Int, ringerColor: Int = color) {
             for (view in listOfNotNull(bg, ringer)) {
-                view.backgroundTintList = android.content.res.ColorStateList.valueOf(color)
+                view.backgroundTintList = android.content.res.ColorStateList.valueOf(
+                    if (view === ringer) ringerColor else color
+                )
                 view.backgroundTintMode = android.graphics.PorterDuff.Mode.SRC_IN
             }
         }
@@ -226,6 +229,18 @@ constructor(
             4 -> {
                 tint(0xF21D1517.toInt())
                 bg.foreground = RrPanelBar(bg, accent, 3 * density)
+            }
+            5 -> tint(0xF2181211.toInt())
+            6 -> tint(0xF21E1715.toInt())
+            7 -> {
+                tint(0xF20C0B0B.toInt())
+                outline(0x2EFFFFFF, density, glow = false)
+            }
+            // Duo: the ringer and the sliders are two segments in two shades.
+            8 -> tint(0xF2181211.toInt(), ringerColor = 0xF22A2120.toInt())
+            9 -> {
+                tint(0xFF1C1716.toInt())
+                outline(0x14FFFFFF, density, glow = false)
             }
         }
     }
