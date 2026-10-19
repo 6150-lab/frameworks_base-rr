@@ -4,8 +4,6 @@
      SPDX-License-Identifier: Apache-2.0
 -->
 <resources>
-    <!-- Lock screen charging glow, behind everything else on the keyguard -->
-    <item type="id" name="charging_glow" />
     <!-- Now Bar capsule above the device entry icon -->
     <item type="id" name="now_bar" />
 </resources>

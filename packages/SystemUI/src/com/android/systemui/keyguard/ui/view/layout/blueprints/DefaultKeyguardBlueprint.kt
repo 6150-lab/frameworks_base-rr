@@ -21,7 +21,6 @@ import com.android.systemui.dagger.SysUISingleton
 import com.android.systemui.keyguard.shared.model.KeyguardBlueprint
 import com.android.systemui.keyguard.shared.model.KeyguardSection
 import com.android.systemui.keyguard.ui.view.layout.sections.AccessibilityActionsSection
-import com.android.systemui.keyguard.ui.view.layout.sections.ChargingGlowSection
 import com.android.systemui.keyguard.ui.view.layout.sections.NowBarSection
 import com.android.systemui.keyguard.ui.view.layout.sections.AodBurnInSection
 import com.android.systemui.keyguard.ui.view.layout.sections.AodNotificationIconsSection
@@ -57,7 +56,6 @@ import kotlin.jvm.optionals.getOrNull
 class DefaultKeyguardBlueprint
 @Inject
 constructor(
-    chargingGlowSection: ChargingGlowSection,
     nowBarSection: NowBarSection,
     accessibilityActionsSection: AccessibilityActionsSection,
     defaultIndicationAreaSection: DefaultIndicationAreaSection,
@@ -86,7 +84,6 @@ constructor(
 
     override val sections =
         listOfNotNull(
-            chargingGlowSection, // First: below everything else
             accessibilityActionsSection,
             defaultIndicationAreaSection,
             defaultIndicationAreaTopSection,
