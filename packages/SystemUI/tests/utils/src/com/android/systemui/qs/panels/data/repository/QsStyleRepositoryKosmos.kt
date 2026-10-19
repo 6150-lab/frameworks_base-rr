@@ -8,6 +8,13 @@ package com.android.systemui.qs.panels.data.repository
 import com.android.systemui.kosmos.Kosmos
 import com.android.systemui.kosmos.applicationCoroutineScope
 import com.android.systemui.shared.settings.data.repository.systemSettingsRepository
+import com.android.systemui.window.domain.interactor.windowRootViewBlurInteractor
 
 val Kosmos.qsStyleRepository by
-    Kosmos.Fixture { QsStyleRepository(applicationCoroutineScope, systemSettingsRepository) }
+    Kosmos.Fixture {
+        QsStyleRepository(
+            applicationCoroutineScope,
+            systemSettingsRepository,
+            windowRootViewBlurInteractor,
+        )
+    }

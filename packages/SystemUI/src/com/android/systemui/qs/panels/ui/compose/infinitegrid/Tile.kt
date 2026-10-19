@@ -87,7 +87,9 @@ import com.android.systemui.compose.modifiers.sysuiResTag
 import com.android.systemui.haptics.msdl.qs.TileHapticsViewModel
 import com.android.systemui.lifecycle.rememberViewModel
 import com.android.systemui.qs.flags.QsDetailedView
+import com.android.systemui.qs.panels.shared.model.LocalQsGlass
 import com.android.systemui.qs.panels.shared.model.LocalQsStyle
+import com.android.systemui.qs.panels.shared.model.QsGlass
 import com.android.systemui.qs.panels.shared.model.QsStyle
 import com.android.systemui.qs.panels.ui.compose.BounceableInfo
 import com.android.systemui.qs.panels.ui.compose.Tooltip
@@ -173,9 +175,10 @@ fun ContentScope.Tile(
             }
 
         val style = LocalQsStyle.current
+        val glass = LocalQsGlass.current
         val look = tileLook(style)
         val active = uiState.visualState == STATE_ACTIVE
-        val colors = TileDefaults.getColorForState(uiState, iconOnly, style)
+        val colors = TileDefaults.getColorForState(uiState, iconOnly, style).glassy(glass, active)
         val hapticsViewModel: TileHapticsViewModel =
             rememberViewModel(traceName = "TileHapticsViewModel") {
                 tileHapticsViewModelFactory.create(tile)
@@ -186,11 +189,13 @@ fun ContentScope.Tile(
         val styleModifier =
             if (style == QsStyle.GLASS) Modifier.glassGlow(active, look.activeRadius) else Modifier
         val fillModifier =
-            when (style) {
-                QsStyle.REMIX -> Modifier.remixFill(active)
-                QsStyle.GLASS -> Modifier.glassBorder(active, tileShape)
+            when {
+                style == QsStyle.REMIX -> Modifier.remixFill(active)
+                // Liquid Glass draws its own rim.
+                style == QsStyle.GLASS && glass != QsGlass.LIQUID ->
+                    Modifier.glassBorder(active, tileShape)
                 else -> Modifier
-            }
+            }.then(if (glass == QsGlass.LIQUID) Modifier.liquidRim(tileShape) else Modifier)
         val animatedColor by animateColorAsState(colors.background, label = "QSTileBackgroundColor")
         val isDualTarget = uiState.handlesToggleClick
         val interactionSource = remember { MutableInteractionSource() }

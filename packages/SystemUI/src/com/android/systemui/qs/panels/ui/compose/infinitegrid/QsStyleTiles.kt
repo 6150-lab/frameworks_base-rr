@@ -30,11 +30,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.colorResource
@@ -48,6 +51,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.android.compose.theme.LocalAndroidColorScheme
 import com.android.systemui.common.shared.model.Icon
+import com.android.systemui.qs.panels.shared.model.QsGlass
 import com.android.systemui.qs.panels.shared.model.QsStyle
 import com.android.systemui.qs.panels.ui.viewmodel.TileUiState
 
@@ -245,6 +249,46 @@ internal fun Modifier.glassBorder(active: Boolean, shape: Shape): Modifier {
             label = "QSTileGlassBorder",
         )
     return border(1.5.dp, color, shape)
+}
+
+/** Liquid Glass: lets the blurred shade show through the tile. */
+internal fun TileColors.glassy(glass: QsGlass, active: Boolean): TileColors {
+    val alpha =
+        when (glass) {
+            QsGlass.SOLID -> return this
+            QsGlass.FROSTED -> if (active) .86f else .55f
+            QsGlass.LIQUID -> if (active) .72f else .24f
+        }
+    return copy(
+        background = background.copy(alpha = background.alpha * alpha),
+        iconBackground = iconBackground.copy(alpha = iconBackground.alpha * alpha),
+    )
+}
+
+/** Liquid Glass: a lit rim and a soft sheen, where light catches the glass. */
+internal fun Modifier.liquidRim(shape: Shape): Modifier = drawWithCache {
+    val outline = shape.createOutline(size, layoutDirection, this)
+    val rim =
+        Brush.linearGradient(
+            0f to Color.White.copy(alpha = .6f),
+            .45f to Color.White.copy(alpha = .06f),
+            1f to Color.White.copy(alpha = .24f),
+            start = Offset.Zero,
+            end = Offset(size.width, size.height),
+        )
+    val sheen =
+        Brush.radialGradient(
+            listOf(Color.White.copy(alpha = .14f), Color.Transparent),
+            center = Offset(size.width * .2f, 0f),
+            radius = maxOf(size.width, size.height) * .8f,
+        )
+    // The tile clips to its shape, so half the stroke shows.
+    val stroke = Stroke(width = 2.dp.toPx())
+    onDrawWithContent {
+        drawOutline(outline, sheen)
+        drawContent()
+        drawOutline(outline, rim, style = stroke)
+    }
 }
 
 /** Remix: on tiles fill with an accent gradient. */

@@ -38,3 +38,17 @@ enum class QsStyle(val value: Int) {
 }
 
 val LocalQsStyle = staticCompositionLocalOf { QsStyle.STOCK }
+
+/** Liquid Glass material on the tiles; [SOLID] while glass is off for QS or blur is off. */
+enum class QsGlass {
+    SOLID,
+    FROSTED,
+    LIQUID;
+
+    companion object {
+        const val SETTING_QS = "rr_glass_qs"
+        const val SETTING_MATERIAL = "rr_glass_material"
+    }
+}
+
+val LocalQsGlass = staticCompositionLocalOf { QsGlass.SOLID }

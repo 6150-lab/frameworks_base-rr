@@ -147,6 +147,7 @@ import com.android.systemui.qs.composefragment.ui.toEditMode
 import com.android.systemui.qs.composefragment.viewmodel.QSFragmentComposeViewModel
 import com.android.systemui.qs.footer.ui.compose.FooterActions
 import com.android.systemui.qs.panels.data.repository.QsStyleRepository
+import com.android.systemui.qs.panels.shared.model.LocalQsGlass
 import com.android.systemui.qs.panels.shared.model.LocalQsStyle
 import com.android.systemui.qs.panels.shared.model.QsStyle
 import com.android.systemui.qs.panels.shared.model.QSFragmentComposeClippingTableLog
@@ -286,8 +287,9 @@ constructor(
     @Composable
     private fun Content(modifier: Modifier = Modifier) {
         val qsStyle by qsStyleRepository.style.collectAsStateWithLifecycle()
+        val qsGlass by qsStyleRepository.glass.collectAsStateWithLifecycle()
         PlatformTheme(isDarkTheme = if (notificationShadeBlur()) isSystemInDarkTheme() else true) {
-            CompositionLocalProvider(LocalQsStyle provides qsStyle) {
+            CompositionLocalProvider(LocalQsStyle provides qsStyle, LocalQsGlass provides qsGlass) {
                 ProvideShortcutHelperIndication(interactionsConfig = interactionsConfig()) {
                     Box(
                         modifier =
