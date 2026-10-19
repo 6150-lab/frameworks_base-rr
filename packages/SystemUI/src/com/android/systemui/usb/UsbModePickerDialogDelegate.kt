@@ -24,17 +24,21 @@ import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.hardware.usb.UsbManager
 import android.net.TetheringManager
+import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerExecutor
 import android.os.UserHandle
 import android.os.UserManager
+import android.provider.Settings
+import android.view.Gravity
+import android.view.WindowManager
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Bolt
-import androidx.compose.material.icons.outlined.CameraAlt
+import androidx.compose.material.icons.outlined.Image
+import androidx.compose.material.icons.outlined.Link
 import androidx.compose.material.icons.outlined.MusicNote
 import androidx.compose.material.icons.outlined.SwapVert
-import androidx.compose.material.icons.outlined.Usb
 import androidx.compose.material.icons.outlined.Videocam
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -47,9 +51,10 @@ import com.android.systemui.plugins.ActivityStarter
 import com.android.systemui.res.R
 import com.android.systemui.shade.domain.interactor.ShadeDialogContextInteractor
 import com.android.systemui.statusbar.phone.ComponentSystemUIDialog
+import com.android.systemui.statusbar.phone.DialogDelegate
 import com.android.systemui.statusbar.phone.SystemUIDialog
 import com.android.systemui.statusbar.phone.SystemUIDialogFactory
-import com.android.systemui.statusbar.phone.createBottomSheet
+import com.android.systemui.statusbar.phone.create
 import com.android.systemui.statusbar.policy.KeyguardStateController
 import java.io.PrintWriter
 import javax.inject.Inject
@@ -103,7 +108,7 @@ class UsbModePickerDialogDelegate @Inject constructor(
                     val connected = intent.getBooleanExtra(UsbManager.USB_CONNECTED, false)
                     if (connected) {
                         val functions = resolveFunctions(intent)
-                        if (!shownForCurrentSession) {
+                        if (!shownForCurrentSession && isPickerEnabled()) {
                             shownForCurrentSession = true
                             if (keyguardStateController.isUnlocked) {
                                 showDialog(functions)
@@ -132,23 +137,29 @@ class UsbModePickerDialogDelegate @Inject constructor(
         val modes = buildModeList(functions)
         if (modes.isEmpty()) return
 
-        val statusText = resolveStatusText(modes)
-
-        currentDialog = sysuiDialogFactory.createBottomSheet(
+        currentDialog = sysuiDialogFactory.create(
             context = shadeDialogContextInteractor.context,
-            content = { dialog ->
-                UsbModePickerBottomSheet(dialog, modes, statusText, functions)
-            },
-        )
+            refreshBackgroundOnThemeChange = false,
+            dialogDelegate = IslandWindow,
+            isTransient = true,
+        ) { dialog ->
+            UsbModePickerIsland(dialog, modes, functions)
+        }.apply {
+            setCanceledOnTouchOutside(false)
+        }
 
         currentDialog?.show()
     }
 
+    private fun isPickerEnabled(): Boolean =
+        Settings.System.getIntForUser(
+            context.contentResolver, SETTING_PICKER, 1, UserHandle.USER_CURRENT,
+        ) != 0
+
     @Composable
-    private fun UsbModePickerBottomSheet(
+    private fun UsbModePickerIsland(
         dialog: SystemUIDialog,
         initialModes: List<UsbModeItem>,
-        statusText: String,
         currentFunctions: Long,
     ) {
         val isCurrentlyInDarkTheme = isSystemInDarkTheme()
@@ -156,8 +167,8 @@ class UsbModePickerDialogDelegate @Inject constructor(
 
         PlatformTheme(isDarkTheme = cachedDarkTheme) {
             UsbModePickerContent(
+                dialog = dialog,
                 modes = initialModes,
-                statusText = statusText,
                 onModeSelected = { function ->
                     onModeSelected(function, currentFunctions)
                     dialog.dismiss()
@@ -168,15 +179,6 @@ class UsbModePickerDialogDelegate @Inject constructor(
                 },
                 onDismiss = { dialog.dismiss() },
             )
-        }
-    }
-
-    private fun resolveStatusText(modes: List<UsbModeItem>): String {
-        val selected = modes.firstOrNull { it.selected }
-        return if (selected != null && selected.function != UsbManager.FUNCTION_NONE) {
-            context.getString(selected.labelResId)
-        } else {
-            context.getString(R.string.usb_charging_status)
         }
     }
 
@@ -293,16 +295,52 @@ class UsbModePickerDialogDelegate @Inject constructor(
         pw.println("  currentFunctions=${usbManager.currentFunctions}")
     }
 
+    /** A card-sized island at the bottom that leaves the rest of the screen usable. */
+    private object IslandWindow : DialogDelegate<SystemUIDialog> {
+        override fun onCreate(dialog: SystemUIDialog, savedInstanceState: Bundle?) {
+            val window = dialog.window ?: return
+            window.setGravity(Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL)
+            window.setBackgroundDrawableResource(android.R.color.transparent)
+            window.setDimAmount(0f)
+            // The island blurs only its own card.
+            window.clearFlags(
+                WindowManager.LayoutParams.FLAG_DIM_BEHIND or
+                    WindowManager.LayoutParams.FLAG_BLUR_BEHIND
+            )
+            window.addFlags(
+                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
+                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+            )
+            window.attributes = window.attributes.apply {
+                blurBehindRadius = 0
+                y = dialog.context.resources.getDimensionPixelSize(R.dimen.usb_island_margin)
+            }
+        }
+
+        override fun getWidth(dialog: SystemUIDialog): Int {
+            val res = dialog.context.resources
+            return minOf(
+                res.displayMetrics.widthPixels -
+                    2 * res.getDimensionPixelSize(R.dimen.usb_island_margin),
+                res.getDimensionPixelSize(R.dimen.usb_island_max_width),
+            )
+        }
+
+        override fun getHeight(dialog: SystemUIDialog): Int =
+            WindowManager.LayoutParams.WRAP_CONTENT
+    }
+
     companion object {
         private const val UNLOCK_SHOW_DELAY_MS = 500L
+        private const val SETTING_PICKER = "rr_usb_mode_picker"
 
         private val USB_MODES = listOf(
-            UsbModeItem(UsbManager.FUNCTION_MTP, R.string.usb_mode_file_transfer, Icons.Outlined.SwapVert, false),
-            UsbModeItem(UsbManager.FUNCTION_RNDIS, R.string.usb_mode_tethering, Icons.Outlined.Usb, false),
-            UsbModeItem(UsbManager.FUNCTION_MIDI, R.string.usb_mode_midi, Icons.Outlined.MusicNote, false),
-            UsbModeItem(UsbManager.FUNCTION_PTP, R.string.usb_mode_photo_transfer, Icons.Outlined.CameraAlt, false),
-            UsbModeItem(UsbManager.FUNCTION_UVC, R.string.usb_mode_webcam, Icons.Outlined.Videocam, false),
-            UsbModeItem(UsbManager.FUNCTION_NONE, R.string.usb_mode_charging_only, Icons.Outlined.Bolt, false),
+            UsbModeItem(UsbManager.FUNCTION_MTP, R.string.usb_mode_file_transfer, R.string.usb_mode_short_files, Icons.Outlined.SwapVert, false),
+            UsbModeItem(UsbManager.FUNCTION_RNDIS, R.string.usb_mode_tethering, R.string.usb_mode_short_tethering, Icons.Outlined.Link, false),
+            UsbModeItem(UsbManager.FUNCTION_MIDI, R.string.usb_mode_midi, R.string.usb_mode_midi, Icons.Outlined.MusicNote, false),
+            UsbModeItem(UsbManager.FUNCTION_PTP, R.string.usb_mode_photo_transfer, R.string.usb_mode_short_photos, Icons.Outlined.Image, false),
+            UsbModeItem(UsbManager.FUNCTION_UVC, R.string.usb_mode_webcam, R.string.usb_mode_short_webcam, Icons.Outlined.Videocam, false),
+            UsbModeItem(UsbManager.FUNCTION_NONE, R.string.usb_mode_charging_only, R.string.usb_mode_short_charge, Icons.Outlined.Bolt, false),
         )
     }
 }

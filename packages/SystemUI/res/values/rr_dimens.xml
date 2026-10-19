@@ -64,4 +64,9 @@
     <!-- Udfps fingerprint animation -->
     <dimen name="udfps_animation_size">200dp</dimen>
     <dimen name="udfps_animation_offset">0dp</dimen>
+
+    <!-- USB mode island -->
+    <dimen name="usb_island_margin">16dp</dimen>
+    <dimen name="usb_island_max_width">448dp</dimen>
+    <dimen name="usb_island_corner_radius">32dp</dimen>
 </resources>

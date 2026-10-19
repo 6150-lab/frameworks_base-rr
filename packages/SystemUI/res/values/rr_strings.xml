@@ -98,4 +98,14 @@
     <string name="usb_mode_webcam">USB Webcam</string>
     <string name="usb_mode_charging_only">Charging only</string>
     <string name="usb_charging_status">USB charging is on</string>
+
+    <!-- USB mode island -->
+    <string name="usb_island_title">USB connected</string>
+    <string name="usb_island_settings">USB settings</string>
+    <string name="usb_island_dismiss">Dismiss</string>
+    <string name="usb_mode_short_files">Files</string>
+    <string name="usb_mode_short_tethering">Tethering</string>
+    <string name="usb_mode_short_photos">Photos</string>
+    <string name="usb_mode_short_webcam">Webcam</string>
+    <string name="usb_mode_short_charge">Charge</string>
 </resources>

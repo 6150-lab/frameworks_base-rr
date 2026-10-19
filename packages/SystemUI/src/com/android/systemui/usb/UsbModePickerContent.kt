@@ -18,217 +18,237 @@ package com.android.systemui.usb
 
 import androidx.annotation.StringRes
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Bolt
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material.icons.outlined.Usb
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.android.compose.theme.LocalAndroidColorScheme
+import com.android.internal.graphics.ColorUtils
 import com.android.systemui.res.R
+import com.android.systemui.shared.system.RrGlass.isDialogBlurEnabled
+import com.android.systemui.statusbar.phone.SystemUIDialog
 
 data class UsbModeItem(
     val function: Long,
     @StringRes val labelResId: Int,
+    @StringRes val shortLabelResId: Int,
     val icon: ImageVector,
     val selected: Boolean,
 )
 
+/** The USB island: the current mode, a button per mode, and a bar that runs out before it hides. */
 @Composable
 fun UsbModePickerContent(
+    dialog: SystemUIDialog,
     modes: List<UsbModeItem>,
-    statusText: String,
     onModeSelected: (Long) -> Unit,
     onSettingsClick: () -> Unit,
     onDismiss: () -> Unit,
 ) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 24.dp, end = 4.dp, top = 20.dp, bottom = 4.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                text = stringResource(R.string.usb_mode_picker_title),
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.weight(1f),
+    val colors = MaterialTheme.colorScheme
+    val radius = dimensionResource(R.dimen.usb_island_corner_radius)
+    val blurRadius = dimensionResource(R.dimen.bottomsheet_blur_radius)
+    val isBlurSupported by
+        dialog.blurInteractor!!.isBlurCurrentlySupported.collectAsStateWithLifecycle()
+    // Liquid Glass: blur the card's own region, so the glass lens lights the card.
+    val glass = isDialogBlurEnabled() && isBlurSupported
+    val blur = remember {
+        dialog.window!!.decorView.getViewRootImpl().createBackgroundBlurDrawable()
+    }
+    if (!glass) {
+        SideEffect { blur.setBlurRadius(0) }
+    }
+    val timer = remember { Animatable(1f) }
+    LaunchedEffect(Unit) {
+        timer.animateTo(0f, tween(AUTO_HIDE_MS, easing = LinearEasing))
+        onDismiss()
+    }
+    val current = modes.firstOrNull { it.selected } ?: modes.last()
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(
+                if (glass) {
+                    Modifier.drawBehind {
+                        blur.setBlurRadius(blurRadius.roundToPx())
+                        blur.setCornerRadius(radius.toPx())
+                        drawIntoCanvas { canvas ->
+                            blur.setBounds(0, 0, size.width.toInt(), size.height.toInt())
+                            blur.draw(canvas.nativeCanvas)
+                        }
+                    }
+                } else {
+                    Modifier
+                }
             )
+            .clip(RoundedCornerShape(radius))
+            .background(
+                if (glass) {
+                    Color(
+                        ColorUtils.compositeColors(
+                            LocalAndroidColorScheme.current.surfaceEffect0.toArgb(),
+                            LocalAndroidColorScheme.current.surfaceEffect2.toArgb(),
+                        )
+                    )
+                } else {
+                    colors.surfaceContainer
+                }
+            )
+            .padding(14.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp),
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Box(
+                modifier = Modifier.size(40.dp).clip(CircleShape).background(colors.primary),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Usb,
+                    contentDescription = null,
+                    modifier = Modifier.size(21.dp),
+                    tint = colors.onPrimary,
+                )
+            }
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(R.string.usb_island_title),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = colors.onSurfaceVariant,
+                )
+                Text(
+                    text = stringResource(current.labelResId),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = colors.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
             IconButton(onClick = onSettingsClick) {
                 Icon(
                     imageVector = Icons.Outlined.Settings,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    contentDescription = stringResource(R.string.usb_island_settings),
+                    tint = colors.onSurfaceVariant,
                 )
             }
             IconButton(onClick = onDismiss) {
                 Icon(
                     imageVector = Icons.Outlined.Close,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    contentDescription = stringResource(R.string.usb_island_dismiss),
+                    tint = colors.onSurfaceVariant,
                 )
             }
         }
 
-        val listState = rememberLazyListState()
-        val scrollbarColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
-
-        LazyColumn(
-            state = listState,
-            modifier = Modifier
-                .fillMaxWidth()
-                .heightIn(max = MAX_LIST_HEIGHT)
-                .drawScrollbar(listState, scrollbarColor, modes.size),
-        ) {
-            items(modes, key = { it.function }) { mode ->
-                UsbModeRow(mode, onModeSelected)
+        Row(modifier = Modifier.fillMaxWidth()) {
+            modes.forEach { mode ->
+                UsbModeButton(mode, Modifier.weight(1f)) { onModeSelected(mode.function) }
             }
         }
 
-        HorizontalDivider(
-            modifier = Modifier.padding(top = 4.dp),
-            color = MaterialTheme.colorScheme.outlineVariant,
-        )
-
-        Row(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 14.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
+                .height(3.dp)
+                .clip(CircleShape)
+                .background(colors.onSurface.copy(alpha = 0.12f)),
         ) {
-            Icon(
-                imageVector = Icons.Outlined.Bolt,
-                contentDescription = null,
-                modifier = Modifier.size(18.dp),
-                tint = MaterialTheme.colorScheme.primary,
-            )
-            Text(
-                text = statusText,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(start = 6.dp),
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(timer.value)
+                    .fillMaxHeight()
+                    .background(colors.primary),
             )
         }
     }
 }
 
 @Composable
-private fun UsbModeRow(mode: UsbModeItem, onModeSelected: (Long) -> Unit) {
-    val containerColor by animateColorAsState(
-        targetValue = if (mode.selected) {
-            MaterialTheme.colorScheme.primaryContainer
-        } else {
-            MaterialTheme.colorScheme.secondaryContainer
-        },
+private fun UsbModeButton(mode: UsbModeItem, modifier: Modifier, onClick: () -> Unit) {
+    val colors = MaterialTheme.colorScheme
+    val container by animateColorAsState(
+        targetValue = if (mode.selected) colors.primary else colors.onSurface.copy(alpha = 0.1f),
         animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
-        label = "iconBg",
+        label = "usbModeContainer",
     )
-    val iconTint by animateColorAsState(
-        targetValue = if (mode.selected) {
-            MaterialTheme.colorScheme.onPrimaryContainer
-        } else {
-            MaterialTheme.colorScheme.onSecondaryContainer
-        },
+    val content by animateColorAsState(
+        targetValue = if (mode.selected) colors.onPrimary else colors.onSurface,
         animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
-        label = "iconTint",
+        label = "usbModeContent",
     )
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onModeSelected(mode.function) }
-            .padding(horizontal = 24.dp, vertical = 10.dp),
-        verticalAlignment = Alignment.CenterVertically,
+    Column(
+        modifier = modifier
+            .clip(RoundedCornerShape(16.dp))
+            .selectable(selected = mode.selected, role = Role.RadioButton, onClick = onClick)
+            .padding(vertical = 4.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         Box(
-            modifier = Modifier
-                .size(40.dp)
-                .clip(CircleShape)
-                .background(containerColor),
+            modifier = Modifier.size(48.dp).clip(CircleShape).background(container),
             contentAlignment = Alignment.Center,
         ) {
             Icon(
                 imageVector = mode.icon,
                 contentDescription = null,
                 modifier = Modifier.size(22.dp),
-                tint = iconTint,
+                tint = content,
             )
         }
         Text(
-            text = stringResource(mode.labelResId),
-            style = MaterialTheme.typography.bodyLarge,
-            color = if (mode.selected) {
-                MaterialTheme.colorScheme.primary
-            } else {
-                MaterialTheme.colorScheme.onSurface
-            },
-            modifier = Modifier.padding(start = 16.dp),
+            text = stringResource(mode.shortLabelResId),
+            style = MaterialTheme.typography.labelSmall,
+            color = if (mode.selected) colors.onSurface else colors.onSurfaceVariant,
+            maxLines = 1,
         )
     }
 }
 
-private fun Modifier.drawScrollbar(
-    listState: androidx.compose.foundation.lazy.LazyListState,
-    color: androidx.compose.ui.graphics.Color,
-    totalItems: Int,
-): Modifier = drawWithContent {
-    drawContent()
-    if (totalItems <= MAX_VISIBLE_ITEMS) return@drawWithContent
-
-    val visibleFraction = listState.layoutInfo.visibleItemsInfo.size.toFloat() / totalItems
-    val thumbHeight = (size.height * visibleFraction).coerceAtLeast(SCROLLBAR_MIN_HEIGHT_PX)
-    val scrollRange = size.height - thumbHeight
-    val firstVisible = listState.firstVisibleItemIndex
-    val scrollOffset = listState.firstVisibleItemScrollOffset
-    val maxScroll = totalItems - listState.layoutInfo.visibleItemsInfo.size
-    val scrollFraction = if (maxScroll > 0) {
-        (firstVisible.toFloat() + scrollOffset.toFloat() /
-            (listState.layoutInfo.visibleItemsInfo.firstOrNull()?.size ?: 1)) / maxScroll
-    } else 0f
-    val thumbOffset = scrollRange * scrollFraction.coerceIn(0f, 1f)
-
-    drawRoundRect(
-        color = color,
-        topLeft = Offset(size.width - SCROLLBAR_WIDTH_PX, thumbOffset),
-        size = Size(SCROLLBAR_WIDTH_PX, thumbHeight),
-        cornerRadius = CornerRadius(SCROLLBAR_WIDTH_PX / 2f),
-    )
-}
-
-private const val MAX_VISIBLE_ITEMS = 4
-private val MAX_LIST_HEIGHT = 240.dp
-private const val SCROLLBAR_WIDTH_PX = 8f
-private const val SCROLLBAR_MIN_HEIGHT_PX = 40f
+private const val AUTO_HIDE_MS = 8000
