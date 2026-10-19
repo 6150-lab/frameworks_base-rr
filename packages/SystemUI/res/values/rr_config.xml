@@ -25,4 +25,8 @@
 
     <!-- Use Oplus GLES charging ring (libnativeChargingRing) when the .so and textures are present. -->
     <bool name="config_chargingAnimUseStockVfx">true</bool>
+
+    <!-- Optional overlays for the SuperVOOC ring: the wordmark and the slanted wattage pill. -->
+    <array name="config_chargingAnimLogo"/>
+    <array name="config_chargingAnimWattageBg"/>
 </resources>
