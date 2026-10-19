@@ -35,7 +35,12 @@ import android.graphics.RecordingCanvas;
 import android.graphics.Rect;
 import android.graphics.RenderNode;
 import android.os.Build;
+import android.os.SystemClock;
+import android.os.Vibrator;
+import android.provider.Settings;
 import android.util.AttributeSet;
+import android.view.HapticFeedbackConstants;
+import android.view.InputDevice;
 import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
@@ -208,6 +213,12 @@ public class EdgeEffect {
 
     private float mPullDistance;
 
+    // RR: a tap when a scroll runs into its end.
+    private static final String SCROLL_HAPTICS = "rr_scroll_haptics";
+    private static final long SCROLL_HAPTIC_GAP_MS = 150;
+    private static long sLastScrollHaptic;
+    private final Context mContext;
+
     private final Rect mBounds = new Rect();
     private float mWidth;
     private float mHeight;
@@ -241,6 +252,7 @@ public class EdgeEffect {
      * @param attrs The attributes of the XML tag that is inflating the view
      */
     public EdgeEffect(@NonNull Context context, @Nullable AttributeSet attrs) {
+        mContext = context;
         final TypedArray a = context.obtainStyledAttributes(
                 attrs, com.android.internal.R.styleable.EdgeEffect);
         final int themeColor = a.getColor(
@@ -253,6 +265,29 @@ public class EdgeEffect {
         mPaint.setColor((themeColor & 0xffffff) | 0x33000000);
         mPaint.setStyle(Paint.Style.FILL);
         mPaint.setBlendMode(DEFAULT_BLEND_MODE);
+    }
+
+    private void performScrollHaptic() {
+        final long now = SystemClock.uptimeMillis();
+        // Two edges hit at once, or a fling right after a pull: one tap.
+        if (now - sLastScrollHaptic < SCROLL_HAPTIC_GAP_MS) {
+            return;
+        }
+        try {
+            if (Settings.System.getInt(mContext.getContentResolver(), SCROLL_HAPTICS, 1) == 0) {
+                return;
+            }
+            final Vibrator vibrator = mContext.getSystemService(Vibrator.class);
+            if (vibrator == null) {
+                return;
+            }
+            sLastScrollHaptic = now;
+            vibrator.performHapticFeedbackForInputDevice(HapticFeedbackConstants.SCROLL_LIMIT,
+                    /* inputDeviceId= */ -1, InputDevice.SOURCE_TOUCHSCREEN, "EdgeEffect",
+                    /* flags= */ 0, /* privFlags= */ 0);
+        } catch (RuntimeException e) {
+            // Isolated processes reach neither settings nor the vibrator.
+        }
     }
 
     @EdgeEffectType
@@ -351,6 +386,9 @@ public class EdgeEffect {
             return;
         }
         if (mState != STATE_PULL) {
+            if (deltaDistance > 0 && mDistance == 0) {
+                performScrollHaptic();
+            }
             if (edgeEffectBehavior == TYPE_STRETCH) {
                 // Restore the mPullDistance to the fraction it is currently showing -- we want
                 // to "catch" the current stretch value.
@@ -493,6 +531,9 @@ public class EdgeEffect {
      */
     public void onAbsorb(int velocity) {
         int edgeEffectBehavior = getCurrentEdgeEffectBehavior();
+        if (edgeEffectBehavior != TYPE_NONE) {
+            performScrollHaptic();
+        }
         if (edgeEffectBehavior == TYPE_STRETCH) {
             mState = STATE_RECEDE;
             mVelocity = velocity * ON_ABSORB_VELOCITY_ADJUSTMENT;
