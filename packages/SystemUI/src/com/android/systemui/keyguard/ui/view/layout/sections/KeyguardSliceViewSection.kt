@@ -63,16 +63,24 @@ constructor(
 ) : KeyguardSection() {
     private lateinit var sliceView: KeyguardSliceView
     private var disposableHandle: DisposableHandle? = null
+    private var shown = false
 
     override fun addViews(constraintLayout: ConstraintLayout) {
-        if (smartspaceController.isEnabled) return
+        // Custom clock faces show their own date and have no small clock for it to sit under.
+        shown = !smartspaceController.isEnabled && !smartspaceController.isCustomClockEnabled
+        if (!shown) {
+            if (smartspaceController.isCustomClockEnabled) {
+                constraintLayout.removeView(R.id.keyguard_slice_view)
+            }
+            return
+        }
         sliceView =
             layoutInflater.inflate(R.layout.keyguard_slice_view, null, false) as KeyguardSliceView
         constraintLayout.addView(sliceView)
     }
 
     override fun bindData(constraintLayout: ConstraintLayout) {
-        if (smartspaceController.isEnabled) return
+        if (!shown) return
         val controller =
             KeyguardSliceViewController(
                 handler,
@@ -99,7 +107,7 @@ constructor(
     }
 
     override fun applyConstraints(constraintSet: ConstraintSet) {
-        if (smartspaceController.isEnabled) return
+        if (!shown) return
         val dateWeatherPaddingStart = KeyguardSmartspaceViewModel.getDateWeatherStartMargin(context)
         constraintSet.apply {
             connect(
