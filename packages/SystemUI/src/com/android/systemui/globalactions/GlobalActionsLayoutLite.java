@@ -17,6 +17,7 @@
 package com.android.systemui.globalactions;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
@@ -76,6 +77,20 @@ public class GlobalActionsLayoutLite extends GlobalActionsLayout {
         flow.setMaxElementsWrap(nElementsWrap);
         flow.setVerticalGap(getResources().getDimensionPixelSize(mSingleColumn
                 ? R.dimen.rr_power_row_gap : R.dimen.rr_power_gap));
+        // Tiles, gap and padding round to pixels separately, so a row that fits in dp can come
+        // out a pixel too wide at some densities and wrap. The gap takes what the tiles leave.
+        final Resources res = getResources();
+        final int gap = res.getDimensionPixelSize(R.dimen.rr_power_gap);
+        if (nElementsWrap > 1) {
+            final int inner = res.getDimensionPixelSize(R.dimen.rr_power_panel_width)
+                    - 2 * res.getDimensionPixelSize(R.dimen.rr_power_panel_padding);
+            final int tiles =
+                    nElementsWrap * res.getDimensionPixelSize(R.dimen.rr_power_tile_width);
+            flow.setHorizontalGap(
+                    Math.max(0, Math.min(gap, (inner - tiles) / (nElementsWrap - 1))));
+        } else {
+            flow.setHorizontalGap(gap);
+        }
     }
 
     @Override
