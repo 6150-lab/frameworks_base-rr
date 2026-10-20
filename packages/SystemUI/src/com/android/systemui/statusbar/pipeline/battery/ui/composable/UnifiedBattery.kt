@@ -576,8 +576,9 @@ fun NeonRingBattery(
         // Dark icons mean a light status bar: a deeper accent and a darker track.
         val lightBar = colors is BatteryColors.LightTheme
         val accent = if (lightBar) accentLight else accentDark
-        val stroke = size.height / 6.5f
-        val radius = size.height / 2f - stroke
+        // Thin enough that the glow leaves room for the level inside.
+        val stroke = size.height / 9f
+        val radius = size.height / 2f - stroke * 1.1f
         val center = Offset(size.width / 2, size.height / 2)
         val color = when (prefs.color) {
             NeonRingPrefs.COLOR_WHITE -> colors.attribution
@@ -596,16 +597,16 @@ fun NeonRingBattery(
             val arc = Size(radius * 2, radius * 2)
             drawArc(color.copy(alpha = (if (lightBar) 0.2f else 0.35f) * alpha), 270f,
                 3.6f * level, false, topLeft, arc,
-                style = Stroke(stroke * 2.2f, cap = StrokeCap.Round))
+                style = Stroke(stroke * 2f, cap = StrokeCap.Round))
             drawArc(color.copy(alpha = alpha), 270f, 3.6f * level, false, topLeft, arc,
                 style = Stroke(stroke, cap = StrokeCap.Round))
         }
         if (showLevelProvider() && level != null) {
-            drawRingLevel(textMeasurer, level, colors.attribution, size.height - stroke * 3f)
+            drawRingLevel(textMeasurer, level, colors.attribution, size.height - stroke * 4.4f)
         }
         if (charging && prefs.spark) {
             val a = Math.toRadians((spin - 90f).toDouble())
-            drawCircle(if (lightBar) colors.attribution else Color.White, stroke * 0.8f,
+            drawCircle(if (lightBar) colors.attribution else Color.White, stroke * 0.75f,
                 Offset(center.x + radius * kotlin.math.cos(a).toFloat(),
                     center.y + radius * kotlin.math.sin(a).toFloat()))
         }
