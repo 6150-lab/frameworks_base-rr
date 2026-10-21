@@ -16,6 +16,7 @@ import com.android.systemui.ambient.statusbar.shared.flag.OngoingActivityChipsOn
 import com.android.systemui.dagger.SysUISingleton
 import com.android.systemui.dagger.qualifiers.Main
 import com.android.systemui.plugins.statusbar.StatusBarStateController
+import com.android.systemui.rr.nowbar.NowBarRepository
 import com.android.systemui.securelockdevice.domain.interactor.SecureLockDeviceInteractor
 import com.android.systemui.settings.UserTracker
 import com.android.systemui.statusbar.NotificationLockscreenUserManager
@@ -186,6 +187,9 @@ constructor(
             }
         )
         userTracker.addCallback(userTrackerCallback, HandlerExecutor(handler))
+        NowBarRepository.lockscreenListener = {
+            if (isLockedOrLocking) notifyStateChanged("nowBar")
+        }
     }
 
     override fun addOnStateChangedListener(listener: Consumer<String>) {
@@ -208,6 +212,8 @@ constructor(
                 SHOW
             // Keyguard state doesn't matter if the keyguard is not showing.
             !isLockedOrLocking -> SHOW
+            // That call is already in the Now Bar.
+            NowBarRepository.instance?.showsCallOnLockscreen(entry.key) == true -> HIDE
             // Notifications not allowed on the lockscreen, always hide.
             !lockscreenUserManager.shouldShowLockscreenNotifications() -> HIDE
             // secure lock device mode is enabled always disallow

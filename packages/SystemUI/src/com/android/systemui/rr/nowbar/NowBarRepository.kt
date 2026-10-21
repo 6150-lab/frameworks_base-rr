@@ -63,6 +63,7 @@ constructor(
     private val listeners = ArrayList<Listener>()
     private val notificationItems = LinkedHashMap<String, NowBarItem>()
     private val hidden = HashSet<String>()
+    private var lockscreenCallKeys = emptySet<String>()
     private val controllers = ArrayList<MediaController>()
     private var mediaItem: NowBarItem? = null
     private var chargingItem: NowBarItem? = null
@@ -175,8 +176,20 @@ constructor(
         hidden.retainAll(all.map { it.key }.toSet())
         items = all.filter { settings.shows(it.type) && it.key !in hidden }
             .sortedBy { it.type.ordinal }
+        val callKeys = if (settings.hidesLockscreenCalls()) {
+            items.filter { it.type == NowBarType.CALL }.map { it.key }.toSet()
+        } else {
+            emptySet()
+        }
+        val callsChanged = callKeys != lockscreenCallKeys
+        lockscreenCallKeys = callKeys
         listeners.toList().forEach { it.onNowBarChanged(items) }
+        if (callsChanged) lockscreenListener?.invoke()
     }
+
+    /** True while this notification is the call the Now Bar is showing. */
+    fun showsCallOnLockscreen(key: String) =
+        settings.hidesLockscreenCalls() && items.any { it.type == NowBarType.CALL && it.key == key }
 
     // Media
 
@@ -420,6 +433,10 @@ constructor(
         @Volatile
         var instance: NowBarRepository? = null
             private set
+
+        /** Lock screen list refreshes when a call enters or leaves the bar. */
+        @Volatile
+        var lockscreenListener: (() -> Unit)? = null
 
         private const val TAG = "NowBar"
         private const val KEY_CHARGING = "charging"

@@ -22,6 +22,8 @@ class NowBarSettings(private val context: Context) {
         private set
     var chip = true
         private set
+    var hideCall = true
+        private set
     /** Where live scores come from: [NowBarScores.SOURCE_OFF], At a Glance or Smartspacer. */
     var scores = NowBarScores.SOURCE_GLANCE
         private set
@@ -36,6 +38,7 @@ class NowBarSettings(private val context: Context) {
         wave = get(KEY_WAVE, true)
         aod = get(KEY_AOD, true)
         chip = get(KEY_CHIP, true)
+        hideCall = get(KEY_HIDE_CALL, true)
         scores = Settings.System.getIntForUser(context.contentResolver, KEY_SCORES,
             NowBarScores.SOURCE_GLANCE, UserHandle.USER_CURRENT)
         shown[NowBarType.SPORTS] = scores != NowBarScores.SOURCE_OFF
@@ -52,6 +55,9 @@ class NowBarSettings(private val context: Context) {
 
     fun shows(type: NowBarType) = enabled && shown[type] == true
 
+    /** The lock screen call row steps aside while that call is in the Now Bar. */
+    fun hidesLockscreenCalls() = shows(NowBarType.CALL) && hideCall
+
     private fun get(key: String, def: Boolean) = get(context, key, def)
 
     companion object {
@@ -59,6 +65,7 @@ class NowBarSettings(private val context: Context) {
         const val KEY_MUSIC = "now_bar_music"
         const val KEY_TIMERS = "now_bar_timers"
         const val KEY_CALLS = "now_bar_calls"
+        const val KEY_HIDE_CALL = "now_bar_hide_call"
         const val KEY_LIVE = "now_bar_live_updates"
         const val KEY_RECORDING = "now_bar_recording"
         const val KEY_CHARGING = "now_bar_charging"
@@ -68,7 +75,8 @@ class NowBarSettings(private val context: Context) {
         const val KEY_CHIP = "now_bar_chip"
         const val KEY_SCORES = "now_bar_scores"
         val KEYS = arrayOf(
-            KEY_ENABLED, KEY_MUSIC, KEY_TIMERS, KEY_CALLS, KEY_LIVE, KEY_RECORDING, KEY_CHARGING,
+            KEY_ENABLED, KEY_MUSIC, KEY_TIMERS, KEY_CALLS, KEY_HIDE_CALL, KEY_LIVE,
+            KEY_RECORDING, KEY_CHARGING,
             KEY_FLASHLIGHT, KEY_WAVE, KEY_AOD, KEY_CHIP, KEY_SCORES,
         )
 
