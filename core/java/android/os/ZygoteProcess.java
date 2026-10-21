@@ -73,6 +73,11 @@ public class ZygoteProcess implements IZygoteProcess {
 
     private static final int ZYGOTE_CONNECT_TIMEOUT_MS = 60000;
 
+    // A native app zygote either listens almost immediately or it has already
+    // died. The process starter is single-threaded, so the boot-time 60s wait
+    // would freeze every other launch behind one dead child.
+    private static final int NATIVE_ZYGOTE_CONNECT_TIMEOUT_MS = 3000;
+
     // How long we wait for an AppZygote to complete pre-loading; this is a pretty conservative
     // value that we can probably decrease over time, but we want to be careful here.
     public static volatile int sAppZygotePreloadTimeoutMs = 15000;
@@ -1177,7 +1182,7 @@ public class ZygoteProcess implements IZygoteProcess {
      * @param zygoteSocketAddress The name of the socket to connect to.
      */
     public static void waitForConnectionToZygote(LocalSocketAddress zygoteSocketAddress) {
-        waitForConnectionToZygote(zygoteSocketAddress, false);
+        waitForConnectionToZygote(zygoteSocketAddress, false, ZYGOTE_CONNECT_TIMEOUT_MS);
     }
 
     /**
@@ -1185,12 +1190,12 @@ public class ZygoteProcess implements IZygoteProcess {
      * @param zygoteSocketAddress The name of the socket to connect to.
      */
     public static void waitForConnectionToNativeZygote(LocalSocketAddress zygoteSocketAddress) {
-        waitForConnectionToZygote(zygoteSocketAddress, true);
+        waitForConnectionToZygote(zygoteSocketAddress, true, NATIVE_ZYGOTE_CONNECT_TIMEOUT_MS);
     }
 
     private static void waitForConnectionToZygote(LocalSocketAddress zygoteSocketAddress,
-                                                  boolean isNativeZygote) {
-        int numRetries = ZYGOTE_CONNECT_TIMEOUT_MS / ZYGOTE_CONNECT_RETRY_DELAY_MS;
+                                                  boolean isNativeZygote, int timeoutMs) {
+        int numRetries = timeoutMs / ZYGOTE_CONNECT_RETRY_DELAY_MS;
         for (int n = numRetries; n >= 0; n--) {
             try {
                 if (isNativeZygote) {
@@ -1203,8 +1208,10 @@ public class ZygoteProcess implements IZygoteProcess {
                 }
                 return;
             } catch (IOException ioe) {
-                Log.w(LOG_TAG,
-                        "Got error connecting to zygote, retrying. msg= " + ioe.getMessage());
+                if (n == numRetries) {
+                    Log.w(LOG_TAG,
+                            "Got error connecting to zygote, retrying. msg= " + ioe.getMessage());
+                }
             }
 
             try {
