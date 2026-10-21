@@ -26,6 +26,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.ContentObserver;
 import android.net.Uri;
+import android.os.Binder;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.UserHandle;
@@ -54,6 +55,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.regex.Pattern;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class RrSpoofManager implements IRrSpoofManager {
@@ -1020,7 +1022,59 @@ public class RrSpoofManager implements IRrSpoofManager {
     @Override
     public String getTrickyStoreKeyBox() {
         if (!mActivated || !mTrickyStoreOn) return null;
+        if (!canReadTrickyStoreKeybox()) return null;
         return getCached(Settings.Secure.SPOOF_TRICKYSTORE_KEYBOX);
+    }
+
+    /**
+     * The keybox holds a signing key, so only system_server and packages that are
+     * actually attested (listed in the target setting and not skipped) may read it.
+     */
+    private boolean canReadTrickyStoreKeybox() {
+        int uid = Binder.getCallingUid();
+        if (uid == android.os.Process.SYSTEM_UID || uid == android.os.Process.ROOT_UID) return true;
+        if (UserHandle.getUserId(uid) != ActivityManager.getCurrentUser()
+                && UserHandle.getUserId(uid) != UserHandle.USER_SYSTEM) return false;
+        String[] packages = mContext.getPackageManager().getPackagesForUid(uid);
+        if (packages == null) return false;
+        for (String pkg : packages) {
+            if (TrickyStoreService.XPOSED_PACKAGES.contains(pkg)) return false;
+        }
+        String targets = getCached(Settings.Secure.SPOOF_TRICKYSTORE_TARGET);
+        if (targets == null) return false;
+        boolean allowed = false;
+        try {
+            if (targets.trim().startsWith("[")) {
+                JSONArray entries = new JSONArray(targets);
+                for (int i = 0; i < entries.length(); i++) {
+                    JSONObject entry = entries.getJSONObject(i);
+                    for (String pkg : packages) {
+                        if (pkg.equals(entry.optString("package"))) {
+                            if ("SKIP".equalsIgnoreCase(entry.optString("mode"))) return false;
+                            allowed = true;
+                        }
+                    }
+                }
+            } else {
+                for (String raw : targets.split("\n")) {
+                    String target = raw.trim();
+                    if (target.isEmpty() || target.startsWith("#")) continue;
+                    boolean skipped = target.endsWith("-");
+                    if (skipped || target.endsWith("!") || target.endsWith("?")) {
+                        target = target.substring(0, target.length() - 1).trim();
+                    }
+                    for (String pkg : packages) {
+                        if (pkg.equals(target)) {
+                            if (skipped) return false;
+                            allowed = true;
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            return false;
+        }
+        return allowed;
     }
 
     @Override
