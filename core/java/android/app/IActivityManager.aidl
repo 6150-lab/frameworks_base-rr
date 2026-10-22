@@ -1076,4 +1076,13 @@ interface IActivityManager {
     String getSpoofTrickyStoreKeyBox();
 
     String getSpoofTrickyStorePatch();
+
+    /** @hide Device RKP (Duck V1) provisioning state for the TrickyStore settings page. */
+    Bundle getDuckRkpState();
+
+    /** @hide Enable or disable using a device-generated Duck V1 keybox. */
+    void setDuckRkpEnabled(boolean enabled);
+
+    /** @hide Request a keybox from Google using this device's V1 provisioning interface. */
+    void provisionDuckRkp();
 }

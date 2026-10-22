@@ -93,6 +93,7 @@ public class RrSpoofManager implements IRrSpoofManager {
 
     private static final String KEYBOX_SOURCE_KEY = "spoof_trickystore_keybox_source";
     private static final String KEYBOX_SOURCE_USER = "user";
+    private static final String KEYBOX_SOURCE_DUCK = "duck_rkp";
     private static final String OFFICIAL_KEYBOX_URL =
             "https://git.evolution-x.org/EvoX/keybox/raw/branch/main/keybox.xml";
 
@@ -434,9 +435,13 @@ public class RrSpoofManager implements IRrSpoofManager {
 
         String keyboxSource = Settings.Secure.getStringForUser(
                 mResolver, KEYBOX_SOURCE_KEY, UserHandle.USER_SYSTEM);
+        boolean duckEnabled = Settings.Secure.getIntForUser(
+                mResolver, Settings.Secure.SPOOF_DUCK_RKP_ENABLED, 0, UserHandle.USER_SYSTEM) == 1;
         boolean keyboxMissing = isEmpty(Settings.Secure.getStringForUser(
                         mResolver, Settings.Secure.SPOOF_TRICKYSTORE_KEYBOX, UserHandle.USER_SYSTEM))
                 && !KEYBOX_SOURCE_USER.equals(keyboxSource)
+                && !KEYBOX_SOURCE_DUCK.equals(keyboxSource)
+                && !duckEnabled
                 && Settings.System.getIntForUser(
                         mResolver, TRICKYSTORE_ENABLED_KEY, 1, UserHandle.USER_SYSTEM) != 0;
 
@@ -585,8 +590,10 @@ public class RrSpoofManager implements IRrSpoofManager {
 
         String source = Settings.Secure.getStringForUser(
                 mResolver, KEYBOX_SOURCE_KEY, UserHandle.USER_SYSTEM);
-        if (KEYBOX_SOURCE_USER.equals(source)) {
-            return; // user manages their own keybox — never overwrite it
+        if (KEYBOX_SOURCE_USER.equals(source) || KEYBOX_SOURCE_DUCK.equals(source)
+                || Settings.Secure.getIntForUser(mResolver,
+                        Settings.Secure.SPOOF_DUCK_RKP_ENABLED, 0, UserHandle.USER_SYSTEM) == 1) {
+            return; // user or Duck RKP manages this keybox — never overwrite it
         }
 
         String xml = runBounded(mNetworkExecutor, () -> {

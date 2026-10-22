@@ -20981,6 +20981,21 @@ public class ActivityManagerService extends IActivityManager.Stub
         return RrExtServiceFactory.getSpoofManager().getTrickyStorePatch();
     }
 
+    @Override
+    public android.os.Bundle getDuckRkpState() {
+        return com.android.server.spoof.DuckRkpService.get(mContext).getState();
+    }
+
+    @Override
+    public void setDuckRkpEnabled(boolean enabled) {
+        com.android.server.spoof.DuckRkpService.get(mContext).setEnabled(enabled);
+    }
+
+    @Override
+    public void provisionDuckRkp() {
+        com.android.server.spoof.DuckRkpService.get(mContext).provision();
+    }
+
     // Set of IntentCreatorToken objects that are currently active.
     private static final Map<IntentCreatorToken.Key, WeakReference<IntentCreatorToken>>
             sIntentCreatorTokenCache = new ConcurrentHashMap<>();
