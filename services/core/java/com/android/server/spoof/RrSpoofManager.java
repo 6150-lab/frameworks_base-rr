@@ -435,17 +435,20 @@ public class RrSpoofManager implements IRrSpoofManager {
 
         String keyboxSource = Settings.Secure.getStringForUser(
                 mResolver, KEYBOX_SOURCE_KEY, UserHandle.USER_SYSTEM);
-        boolean duckEnabled = Settings.Secure.getIntForUser(
-                mResolver, Settings.Secure.SPOOF_DUCK_RKP_ENABLED, 0, UserHandle.USER_SYSTEM) == 1;
         boolean keyboxMissing = isEmpty(Settings.Secure.getStringForUser(
                         mResolver, Settings.Secure.SPOOF_TRICKYSTORE_KEYBOX, UserHandle.USER_SYSTEM))
                 && !KEYBOX_SOURCE_USER.equals(keyboxSource)
-                && !KEYBOX_SOURCE_DUCK.equals(keyboxSource)
-                && !duckEnabled
+                && !isDuckManaged(keyboxSource)
                 && Settings.System.getIntForUser(
                         mResolver, TRICKYSTORE_ENABLED_KEY, 1, UserHandle.USER_SYSTEM) != 0;
 
         return pifMissing || keyboxMissing;
+    }
+
+    private boolean isDuckManaged(String source) {
+        return DuckRkpService.isSupported() && (KEYBOX_SOURCE_DUCK.equals(source)
+                || Settings.Secure.getIntForUser(mResolver,
+                        Settings.Secure.SPOOF_DUCK_RKP_ENABLED, 0, UserHandle.USER_SYSTEM) == 1);
     }
 
     private static boolean isEmpty(String s) {
@@ -590,9 +593,7 @@ public class RrSpoofManager implements IRrSpoofManager {
 
         String source = Settings.Secure.getStringForUser(
                 mResolver, KEYBOX_SOURCE_KEY, UserHandle.USER_SYSTEM);
-        if (KEYBOX_SOURCE_USER.equals(source) || KEYBOX_SOURCE_DUCK.equals(source)
-                || Settings.Secure.getIntForUser(mResolver,
-                        Settings.Secure.SPOOF_DUCK_RKP_ENABLED, 0, UserHandle.USER_SYSTEM) == 1) {
+        if (KEYBOX_SOURCE_USER.equals(source) || isDuckManaged(source)) {
             return; // user or Duck RKP manages this keybox — never overwrite it
         }
 

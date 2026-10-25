@@ -116,12 +116,19 @@ public final class DuckRkpService {
         return sInstance;
     }
 
+    static boolean isSupported() {
+        return SystemProperties.getBoolean("ro.rr.duck_rkp", false);
+    }
+
     private DuckRkpService(Context context) {
         mContext = context;
     }
 
     public Bundle getState() {
         enforceCaller("getDuckRkpState");
+        if (!isSupported()) {
+            return new Bundle();
+        }
         final boolean available = isHalAvailable();
         final Bundle state = new Bundle();
         synchronized (mLock) {
@@ -153,6 +160,9 @@ public final class DuckRkpService {
 
     public void setEnabled(boolean enabled) {
         enforceCaller("setDuckRkpEnabled");
+        if (!isSupported()) {
+            return;
+        }
         final long ident = Binder.clearCallingIdentity();
         try {
             Settings.Secure.putIntForUser(mContext.getContentResolver(),
@@ -171,6 +181,9 @@ public final class DuckRkpService {
 
     public void provision() {
         enforceCaller("provisionDuckRkp");
+        if (!isSupported()) {
+            throw new IllegalStateException("unsupported");
+        }
         synchronized (mLock) {
             if (mBusy) {
                 throw new IllegalStateException("Duck RKP is already running");
