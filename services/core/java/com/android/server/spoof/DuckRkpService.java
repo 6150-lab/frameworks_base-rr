@@ -227,8 +227,9 @@ public final class DuckRkpService {
         final byte[] maced = forgeMacedPublicKey((ECPublicKey) keyPair.getPublic());
         final byte[] coseKey = coseKeyFromMaced(maced);
         final byte[] fingerprint = android.os.Build.FINGERPRINT.getBytes(StandardCharsets.UTF_8);
+        byte[] challenge = null;
         if (info.versionNumber >= 3) {
-            final byte[] challenge = fetchChallenge(fingerprint);
+            challenge = fetchChallenge(fingerprint);
             try {
                 runProvisionV2(hal, keyPair, maced, challenge);
                 return;
@@ -239,13 +240,24 @@ public final class DuckRkpService {
                 Slog.w(TAG, "KeyMint rejected the V2 CSR (" + e.errorCode + "); trying V1");
             }
         }
-        runProvisionV1(hal, keyPair, maced, coseKey, fingerprint, info.supportedEekCurve);
+        try {
+            runProvisionV1(hal, keyPair, maced, coseKey, fingerprint, info.supportedEekCurve);
+            return;
+        } catch (DuckRkpException e) {
+            if (!"hal_rejected".equals(e.code) && !"native_rejected".equals(e.code)
+                    && !"native_unavailable".equals(e.code)) {
+                throw e;
+            }
+            Slog.w(TAG, "Hardware CSR unavailable (" + e.code + "/" + e.detail
+                    + "); building a software CSR");
+        }
+        if (challenge == null) {
+            challenge = fetchChallenge(fingerprint);
+        }
+        runProvisionSoftware(keyPair, maced, challenge);
     }
 
-    /**
-     * Zero-seed framework BCC. The provisioning server rejects this chain.
-     * {@link #runProvision} does not call it.
-     */
+    /** Last resort when no TEE path works: a zero-seed framework BCC CSR. */
     private void runProvisionSoftware(KeyPair keyPair, byte[] maced, byte[] challenge)
             throws Exception {
         throwIfCanceled();
