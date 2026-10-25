@@ -317,12 +317,14 @@ public final class DuckRkpService {
     }
 
     /**
-     * Bootloader property when it is published. These devices do not publish it,
-     * so the boot script stores the same AVB digest in vendor.rr.vbmeta_digest.
-     * KeyMint 3 reads it only after the TEE rejects the CSR.
+     * AVB digest for the device record. debug.rr.vbmeta_digest overrides it for
+     * testing; otherwise the bootloader property or the staged vendor property.
      */
     private static byte[] vbmetaDigest() throws Exception {
-        String digest = SystemProperties.get("ro.boot.vbmeta.digest", "");
+        String digest = SystemProperties.get("debug.rr.vbmeta_digest", "");
+        if (digest.length() != 64) {
+            digest = SystemProperties.get("ro.boot.vbmeta.digest", "");
+        }
         if (digest.length() != 64) {
             digest = SystemProperties.get("vendor.rr.vbmeta_digest", "");
         }
