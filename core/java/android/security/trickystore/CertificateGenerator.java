@@ -194,9 +194,14 @@ public final class CertificateGenerator {
         }
         builder.addExtension(buildAttestExtension(params, securityLevel, uid));
 
-        String sigAlg = params.algorithm == 3 ? "SHA256withECDSA" : "SHA256withRSA";
-        JcaContentSignerBuilder signerBuilder = new JcaContentSignerBuilder(sigAlg);
-        ContentSigner signer = signerBuilder.build(keybox.keyPair.getPrivate());
+        ContentSigner signer;
+        if (params.algorithm == 3) {
+            signer = CertificateHacker.createBCSigner(
+                "SHA256withECDSA", keybox.keyPair.getPrivate());
+        } else {
+            signer = new JcaContentSignerBuilder("SHA256withRSA")
+                .build(keybox.keyPair.getPrivate());
+        }
 
         X509CertificateHolder holder = builder.build(signer);
         CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
