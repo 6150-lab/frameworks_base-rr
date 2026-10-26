@@ -383,7 +383,8 @@ public abstract class AppsFilterBase implements AppsFilterSnapshot {
                 || packageName.startsWith("org.evolution.")
                 || packageName.startsWith("org.lunaris.")
                 || packageName.startsWith("org.omnirom.")
-                || packageName.startsWith("org.protonaosp.");
+                || packageName.startsWith("org.protonaosp.")
+                || packageName.startsWith("com.resurrection.");
     }
 
     public static boolean shouldHideFromUid(@NonNull Computer snapshot, int callingUid,
