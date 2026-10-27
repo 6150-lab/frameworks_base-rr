@@ -133,10 +133,19 @@ public final class CertificateGenerator {
             return null;
         }
 
+        if (keyPair == null || keyPair.getPublic() == null
+                || (params.algorithm != 3 && params.algorithm != 1)) {
+            Log.e(TAG, "Invalid key pair or unsupported requested algorithm");
+            return null;
+        }
         KeyBoxManager keyboxManager = TrickyStoreService.getInstance().getKeyBoxManager();
         String algorithm = params.algorithm == 3 ? "EC" : "RSA";
-        KeyBoxManager.KeyBox keybox = keyboxManager.getKeybox(algorithm);
-        
+        if (!algorithm.equalsIgnoreCase(keyPair.getPublic().getAlgorithm())) {
+            Log.e(TAG, "Requested algorithm differs from generated key material");
+            return null;
+        }
+        KeyBoxManager.KeyBox keybox = keyboxManager.getKeyboxForLeaf(algorithm);
+
         if (keybox == null) {
             Log.e(TAG, "No keybox found for algorithm: " + algorithm);
             return null;
@@ -193,8 +202,10 @@ public final class CertificateGenerator {
         }
         builder.addExtension(buildAttestExtension(params, securityLevel, uid));
 
+        // Sign for the keybox's key, which is not the leaf's when the keybox only has the
+        // other algorithm (see KeyBoxManager.getKeyboxForLeaf()).
         ContentSigner signer;
-        if (params.algorithm == 3) {
+        if ("EC".equals(keybox.algorithm)) {
             signer = CertificateHacker.createBCSigner(
                 "SHA256withECDSA", keybox.keyPair.getPrivate());
         } else {
@@ -204,8 +215,10 @@ public final class CertificateGenerator {
 
         X509CertificateHolder holder = builder.build(signer);
         CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
-        return (X509Certificate) certFactory.generateCertificate(
+        X509Certificate result = (X509Certificate) certFactory.generateCertificate(
             new ByteArrayInputStream(holder.getEncoded()));
+        result.verify(((X509Certificate) keybox.certificates.get(0)).getPublicKey());
+        return result;
     }
 
     private static Extension buildAttestExtension(KeyGenParameters params, int securityLevel, int uid) {
@@ -346,8 +359,12 @@ public final class CertificateGenerator {
     private static DEROctetString createApplicationId(int uid, String[] knownPackages)
             throws Throwable {
         Context context = ActivityThread.currentApplication();
+        if (context == null && ActivityThread.currentActivityThread() != null) {
+            // Framework callbacks can execute before an Application exists.
+            context = ActivityThread.currentActivityThread().getSystemContext();
+        }
         if (context == null) {
-            throw new IllegalStateException("createApplicationId: context not available from ActivityThread!");
+            throw new IllegalStateException("createApplicationId: no application or system context");
         }
 
         PackageManager pm = context.getPackageManager();
