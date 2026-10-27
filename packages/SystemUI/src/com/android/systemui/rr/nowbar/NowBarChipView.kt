@@ -15,7 +15,6 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.android.systemui.Dependency
-import com.android.systemui.plugins.ActivityStarter
 import com.android.systemui.plugins.statusbar.StatusBarStateController
 import com.android.systemui.res.R
 import com.android.systemui.statusbar.StatusBarState
@@ -49,7 +48,7 @@ class NowBarChipView @JvmOverloads constructor(
         }
         setOnClickListener {
             item?.contentIntent?.let {
-                Dependency.get(ActivityStarter::class.java).postStartActivityDismissingKeyguard(it)
+                NowBarRepository.instance?.activityStarter?.postStartActivityDismissingKeyguard(it)
             }
         }
     }

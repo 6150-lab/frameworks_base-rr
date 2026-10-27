@@ -27,6 +27,7 @@ import androidx.core.graphics.drawable.toBitmap
 import com.android.settingslib.utils.StringUtil
 import com.android.systemui.CoreStartable
 import com.android.systemui.dagger.SysUISingleton
+import com.android.systemui.plugins.ActivityStarter
 import com.android.systemui.res.R
 import com.android.systemui.statusbar.NotificationListener
 import com.android.systemui.statusbar.policy.BatteryController
@@ -47,6 +48,7 @@ constructor(
     private val notificationListener: NotificationListener,
     private val batteryController: BatteryController,
     private val flashlightController: FlashlightController,
+    val activityStarter: ActivityStarter,
 ) : CoreStartable, NotificationListener.NotificationHandler {
 
     fun interface Listener {
