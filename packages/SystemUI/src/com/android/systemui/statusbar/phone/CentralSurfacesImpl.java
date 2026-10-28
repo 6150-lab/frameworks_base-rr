@@ -121,6 +121,7 @@ import com.android.systemui.dagger.qualifiers.Main;
 import com.android.systemui.dagger.qualifiers.UiBackground;
 import com.android.systemui.demomode.DemoMode;
 import com.android.systemui.demomode.DemoModeController;
+import com.android.systemui.dt2s.DoubleTapToSleepController;
 import com.android.systemui.edgelight.EdgeLightViewController;
 import com.android.systemui.emergency.EmergencyGesture;
 import com.android.systemui.emergency.EmergencyGestureModule.EmergencyGestureIntentFactory;
@@ -494,6 +495,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
     private final Lazy<NotificationShadeDepthController> mNotificationShadeDepthControllerLazy;
     private final Optional<Bubbles> mBubblesOptional;
     private final Lazy<NoteTaskController> mNoteTaskControllerLazy;
+    private final Lazy<DoubleTapToSleepController> mDoubleTapToSleepControllerLazy;
     private final Optional<StartingSurface> mStartingSurfaceOptional;
 
     private final ActivityIntentHelper mActivityIntentHelper;
@@ -556,6 +558,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
             SysuiStatusBarStateController statusBarStateController,
             Optional<Bubbles> bubblesOptional,
             Lazy<NoteTaskController> noteTaskControllerLazy,
+            Lazy<DoubleTapToSleepController> doubleTapToSleepControllerLazy,
             DeviceProvisionedController deviceProvisionedController,
             NavigationBarController navigationBarController,
             AccessibilityFloatingMenuController accessibilityFloatingMenuController,
@@ -658,6 +661,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
         mStatusBarStateController = statusBarStateController;
         mBubblesOptional = bubblesOptional;
         mNoteTaskControllerLazy = noteTaskControllerLazy;
+        mDoubleTapToSleepControllerLazy = doubleTapToSleepControllerLazy;
         mDeviceProvisionedController = deviceProvisionedController;
         mNavigationBarController = navigationBarController;
         mAccessibilityFloatingMenuController = accessibilityFloatingMenuController;
@@ -748,6 +752,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
                 mContext.getMainExecutor().execute(() -> {
                     updateScrimController();
                     mNoteTaskControllerLazy.get().onBubbleExpandChanged(isExpanding, key);
+                    mDoubleTapToSleepControllerLazy.get().onBubbleExpandChanged(isExpanding);
                 });
         bubbles.setExpandListener(listener);
     }
