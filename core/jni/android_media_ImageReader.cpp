@@ -112,6 +112,31 @@ static int32_t createProcessUniqueId() {
 
 // ----------------------------------------------------------------------------
 
+class OplusBufferConsumer : public RefBase {
+public:
+    explicit OplusBufferConsumer(const sp<IGraphicBufferConsumer>& consumer)
+          : mConsumer(consumer) {}
+
+    virtual status_t acquireBuffer(BufferItem* buffer, nsecs_t presentWhen,
+                                   uint64_t maxFrameNumber) {
+        return mConsumer->acquireBuffer(buffer, presentWhen, maxFrameNumber);
+    }
+
+    virtual status_t detachBuffer(int slot) { return mConsumer->detachBuffer(slot); }
+
+    virtual status_t attachBuffer(int* outSlot, const sp<GraphicBuffer>& buffer) {
+        return mConsumer->attachBuffer(outSlot, buffer);
+    }
+
+    virtual status_t releaseBuffer(int buf, uint64_t frameNumber, EGLDisplay /*display*/,
+                                   EGLSyncKHR /*fence*/, const sp<Fence>& releaseFence) {
+        return mConsumer->releaseBuffer(buf, frameNumber, releaseFence);
+    }
+
+private:
+    sp<IGraphicBufferConsumer> mConsumer;
+};
+
 class JNIImageReaderContext : public ConsumerBase::FrameAvailableListener
 {
 public:
@@ -127,6 +152,17 @@ public:
 
     void setBufferConsumer(const sp<BufferItemConsumer>& consumer) { mConsumer = consumer; }
     BufferItemConsumer* getBufferConsumer() { return mConsumer.get(); }
+
+    OplusBufferConsumer* getOplusBufferConsumer() {
+        if (mOplusConsumer == nullptr && mConsumer != nullptr) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+            mOplusConsumer =
+                    sp<OplusBufferConsumer>::make(mConsumer->getIGraphicBufferConsumer());
+#pragma clang diagnostic pop
+        }
+        return mOplusConsumer.get();
+    }
 
 #if COM_ANDROID_GRAPHICS_LIBGUI_FLAGS(WB_MEDIA_MIGRATION)
     void setSurface(const sp<Surface>& surface) {
@@ -159,6 +195,7 @@ private:
 
     List<BufferItem*> mBuffers;
     sp<BufferItemConsumer> mConsumer;
+    sp<OplusBufferConsumer> mOplusConsumer;
 #if COM_ANDROID_GRAPHICS_LIBGUI_FLAGS(WB_MEDIA_MIGRATION)
     sp<Surface> mSurface;
 #else
@@ -756,14 +793,14 @@ static jobject ImageReader_getSurface(JNIEnv* env, jobject thiz)
 #endif
 
 // Oplus Live Photo: stock libandroid_runtime exposes nativeGetConsumer() which returns
-// the BufferItemConsumer* for this ImageReader. OplusCamera reflects on it and passes
+// the IGraphicBufferConsumer* for this ImageReader. OplusCamera reflects on it and passes
 // the pointer into HardwareBufferUtils.generateAddress() / attach-to-buffer-queue.
 static jlong ImageReader_getConsumer(JNIEnv* env, jobject thiz) {
-    BufferItemConsumer* consumer = ImageReader_getBufferConsumer(env, thiz);
-    if (consumer == nullptr) {
+    JNIImageReaderContext* const ctx = ImageReader_getContext(env, thiz);
+    if (ctx == nullptr) {
         return 0;
     }
-    return reinterpret_cast<jlong>(consumer);
+    return reinterpret_cast<jlong>(ctx->getOplusBufferConsumer());
 }
 
 static void Image_getLockedImage(JNIEnv* env, jobject thiz, LockedImage *image,
