@@ -756,18 +756,14 @@ static jobject ImageReader_getSurface(JNIEnv* env, jobject thiz)
 #endif
 
 // Oplus Live Photo: stock libandroid_runtime exposes nativeGetConsumer() which returns
-// the IGraphicBufferConsumer* behind this ImageReader. OplusCamera reflects on it and passes
+// the BufferItemConsumer* for this ImageReader. OplusCamera reflects on it and passes
 // the pointer into HardwareBufferUtils.generateAddress() / attach-to-buffer-queue.
 static jlong ImageReader_getConsumer(JNIEnv* env, jobject thiz) {
     BufferItemConsumer* consumer = ImageReader_getBufferConsumer(env, thiz);
     if (consumer == nullptr) {
         return 0;
     }
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    sp<IGraphicBufferConsumer> bufferQueue = consumer->getIGraphicBufferConsumer();
-#pragma clang diagnostic pop
-    return reinterpret_cast<jlong>(bufferQueue.get());
+    return reinterpret_cast<jlong>(consumer);
 }
 
 static void Image_getLockedImage(JNIEnv* env, jobject thiz, LockedImage *image,
