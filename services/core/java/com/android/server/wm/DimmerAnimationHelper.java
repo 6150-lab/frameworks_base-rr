@@ -255,8 +255,15 @@ public class DimmerAnimationHelper {
             @NonNull Change to) {
         final float startAlpha = Math.max(from.mAlpha, 0f);
         final int startBlur = Math.max(from.mBlurRadius, 0);
+        // Scale by the larger of the alpha change and the blur change. An alpha-only
+        // scale finishes in 0 ms when the dim was already cleared and only the blur
+        // is dropping, which pops the shade sharp.
+        final float alphaDelta = Math.abs(to.mAlpha - startAlpha);
+        final int blurDelta = Math.abs(to.mBlurRadius - startBlur);
+        final float blurFraction = blurDelta == 0 ? 0f
+                : blurDelta / (float) Math.max(Math.max(startBlur, to.mBlurRadius), 1);
         long duration = (long) (getDimDuration(to.mDimmingContainer)
-                * Math.abs(to.mAlpha - startAlpha));
+                * Math.max(alphaDelta, blurFraction));
 
         final AnimationSpec spec =  new AnimationSpec(
                 new AnimationSpec.AnimationExtremes<>(startAlpha, to.mAlpha),

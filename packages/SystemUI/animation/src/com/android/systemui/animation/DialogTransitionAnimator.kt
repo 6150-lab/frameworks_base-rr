@@ -1003,8 +1003,13 @@ class AnimatedDialog(
             controller = endController,
             isLaunching = false,
             onLaunchAnimationStart = {
-                // Remove the dim background as soon as we start the animation.
-                dialog.window?.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
+                // Drop dim and blur in one update. Blur alone keeps the dimmer alive, so
+                // Quick Settings stays blurred until this window is removed and then pops
+                // sharp.
+                dialog.window?.clearFlags(
+                    WindowManager.LayoutParams.FLAG_DIM_BEHIND or
+                        WindowManager.LayoutParams.FLAG_BLUR_BEHIND
+                )
 
                 // While collapsing the dialog with animation, allow other quick tiles to be
                 // clickable.
