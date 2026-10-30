@@ -76,6 +76,7 @@ import android.hardware.display.DisplayManager;
 import android.hardware.display.DisplayManagerInternal;
 import android.hardware.power.Boost;
 import android.hardware.power.Mode;
+import android.util.BoostFramework;
 import android.net.Uri;
 import android.os.BatteryManager;
 import android.os.BatteryManagerInternal;
@@ -5217,6 +5218,9 @@ public final class PowerManagerService extends SystemService
     private void setPowerBoostInternal(int boost, int durationMs) {
         // Maybe filter the event.
         mNativeWrapper.nativeSetPowerBoost(boost, durationMs);
+        if (boost == Boost.INTERACTION) {
+            BoostFramework.onInteraction(durationMs);
+        }
     }
 
     private boolean setPowerModeInternal(int mode, boolean enabled) {
@@ -5224,6 +5228,9 @@ public final class PowerManagerService extends SystemService
         if (mode == Mode.LAUNCH && enabled && mBatterySaverStateMachine != null
                 && mBatterySaverStateMachine.getBatterySaverController().isLaunchBoostDisabled()) {
             return false;
+        }
+        if (mode == Mode.LAUNCH) {
+            BoostFramework.onLaunch(enabled);
         }
         return mNativeWrapper.nativeSetPowerMode(mode, enabled);
     }
