@@ -32,6 +32,8 @@ import android.provider.Settings;
 import android.view.ICrossWindowBlurEnabledListener;
 import android.view.TunnelModeEnabledListener;
 
+import com.android.internal.util.catalyxx.GlassSettings;
+
 /**
  * Keeps track of the different factors that determine whether cross-window blur is enabled
  * or disabled. Also keeps a list of all interested listeners and notifies them when the
@@ -46,6 +48,8 @@ final class BlurController {
     private final Object mLock = new Object();
     private volatile boolean mBlurEnabled;
     private boolean mInPowerSaveMode;
+    // Catalyxx glass with 'Solid in Battery Saver' off keeps blur on in Battery Saver
+    private boolean mGlassKeepsBlurInPowerSave;
     private boolean mDisabledByThermal;
     private boolean mBlurDisabledSetting;
     private boolean mTunnelModeEnabled = false;
@@ -91,6 +95,23 @@ final class BlurController {
                 });
         mBlurDisabledSetting = getBlurDisabledSetting();
 
+        final ContentObserver glassObserver = new ContentObserver(null) {
+            @Override
+            public void onChange(boolean selfChange) {
+                super.onChange(selfChange);
+                mGlassKeepsBlurInPowerSave =
+                        GlassSettings.keepsBlurInBatterySaver(mContext.getContentResolver());
+                updateBlurEnabled();
+            }
+        };
+        for (String key : new String[] {
+                GlassSettings.ENABLED, GlassSettings.SOLID_IN_BATTERY_SAVER}) {
+            context.getContentResolver().registerContentObserver(
+                    Settings.Global.getUriFor(key), false, glassObserver);
+        }
+        mGlassKeepsBlurInPowerSave =
+                GlassSettings.keepsBlurInBatterySaver(context.getContentResolver());
+
         powerManager.addThermalStatusListener((status) -> {
             mDisabledByThermal = status >= THERMAL_STATUS_SEVERE;
             updateBlurEnabled();
@@ -120,7 +141,8 @@ final class BlurController {
     private void updateBlurEnabled() {
         synchronized (mLock) {
             final boolean newEnabled = CROSS_WINDOW_BLUR_SUPPORTED && !mBlurDisabledSetting
-                    && !mInPowerSaveMode && !mTunnelModeEnabled && !mDisabledByThermal;
+                    && (!mInPowerSaveMode || mGlassKeepsBlurInPowerSave)
+                    && !mTunnelModeEnabled && !mDisabledByThermal;
             if (mBlurEnabled == newEnabled) {
                 return;
             }
