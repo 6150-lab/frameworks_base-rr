@@ -19,10 +19,12 @@ package com.android.systemui.volume.panel.component.mediastream.ui.composable
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.android.compose.theme.LocalAndroidColorScheme
+import com.android.internal.util.catalyxx.GlassSettings
 import com.android.systemui.Flags
 import com.android.systemui.shared.system.BlurUtils.isVolumeAndPowerBlurEnabled
 
@@ -54,8 +56,14 @@ data class MediaStreamStyle(
             } else {
                 MediaStreamStyle(
                     paddingStart = 0.dp,
+                    // The volume panel is a bottom sheet, so it's glass with menus and dialogs
                     backgroundColor =
-                        if (isVolumeAndPowerBlurEnabled()) {
+                        if (
+                            isVolumeAndPowerBlurEnabled(
+                                LocalContext.current,
+                                GlassSettings.PLACE_DIALOGS,
+                            )
+                        ) {
                             Color.Transparent
                         } else {
                             MaterialTheme.colorScheme.surface

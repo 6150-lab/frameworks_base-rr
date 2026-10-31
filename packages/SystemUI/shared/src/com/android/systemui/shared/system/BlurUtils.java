@@ -21,8 +21,11 @@ import static android.view.CrossWindowBlurListeners.CROSS_WINDOW_BLUR_SUPPORTED;
 import static com.android.systemui.Flags.blurOnMoreSurfaces;
 
 import android.app.ActivityManager;
+import android.content.Context;
 import android.content.res.Resources;
 import android.os.SystemProperties;
+
+import com.android.internal.util.catalyxx.GlassSettings;
 
 public abstract class BlurUtils {
 
@@ -38,6 +41,16 @@ public abstract class BlurUtils {
 
     public static boolean isVolumeAndPowerBlurEnabled() {
         return blurOnMoreSurfaces() && isBlurExpansionEnabledOnDevice();
+    }
+
+    /**
+     * {@link #isVolumeAndPowerBlurEnabled()}, also true where Catalyxx glass is on.
+     *
+     * @param glassPlace the {@link GlassSettings} place key of the surface asking
+     */
+    public static boolean isVolumeAndPowerBlurEnabled(Context context, String glassPlace) {
+        return isBlurExpansionEnabledOnDevice() && (blurOnMoreSurfaces()
+                || GlassSettings.isOn(context.getContentResolver(), glassPlace));
     }
 
     private static boolean isBlurExpansionEnabledOnDevice() {

@@ -16,6 +16,9 @@
 
 package com.android.systemui.volume.dialog.sliders.ui.viewmodel
 
+import android.content.Context
+import com.android.internal.util.catalyxx.GlassSettings
+import com.android.systemui.dagger.qualifiers.Application
 import com.android.systemui.shared.system.BlurUtils.isVolumeAndPowerBlurEnabled
 import com.android.systemui.volume.dialog.dagger.scope.VolumeDialog
 import com.android.systemui.volume.dialog.dagger.scope.VolumeDialogScope
@@ -35,6 +38,7 @@ import kotlinx.coroutines.flow.stateIn
 class VolumeDialogSlidersViewModel
 @Inject
 constructor(
+    @Application applicationContext: Context,
     @VolumeDialog coroutineScope: CoroutineScope,
     slidersInteractor: VolumeDialogSlidersInteractor,
     private val sliderComponentFactory: VolumeDialogSliderComponent.Factory,
@@ -45,8 +49,14 @@ constructor(
     // Use horizontal volume dialog if the audio tile details view is enabled
     val isVolumeDialogVertical = !expandedAudioTileDetailsFeatureInteractor.isDialogHorizontal()
 
-    // Show blur if the flag is enabled and the volume dialog is vertical
-    val showBlur = isVolumeAndPowerBlurEnabled() && isVolumeDialogVertical
+    // Show blur if the flag or Catalyxx glass is enabled and the volume dialog is vertical
+    val showBlur =
+        isVolumeAndPowerBlurEnabled(applicationContext, GlassSettings.PLACE_VOLUME) &&
+            isVolumeDialogVertical
+
+    /** What Catalyxx glass multiplies the sliders' blur radius by. */
+    val blurRadiusScale =
+        GlassSettings.blurScale(applicationContext.contentResolver, GlassSettings.PLACE_VOLUME)
 
     val sliders: Flow<VolumeDialogSliderUiModel> =
         slidersInteractor.sliders

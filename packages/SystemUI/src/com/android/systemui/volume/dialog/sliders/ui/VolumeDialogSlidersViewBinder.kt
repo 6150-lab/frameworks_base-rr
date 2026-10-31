@@ -27,6 +27,7 @@ import androidx.compose.ui.util.fastForEachIndexed
 import com.android.app.tracing.coroutines.launchInTraced
 import com.android.app.tracing.coroutines.launchTraced
 import com.android.internal.graphics.drawable.BackgroundBlurDrawable
+import com.android.internal.util.catalyxx.GlassSettings
 import com.android.systemui.res.R
 import com.android.systemui.util.children
 import com.android.systemui.volume.dialog.dagger.scope.VolumeDialogScope
@@ -122,8 +123,11 @@ constructor(
         val layers = (background as LayerDrawable)
         (layers.getDrawable(0) as BackgroundBlurDrawable).setBlurRadius(
             if (supported) {
-                context.resources.getDimensionPixelSize(
-                    R.dimen.volume_dialog_background_surface_blur_radius
+                GlassSettings.scaleBlurRadius(
+                    context.resources.getDimensionPixelSize(
+                        R.dimen.volume_dialog_background_surface_blur_radius
+                    ),
+                    viewModel.blurRadiusScale,
                 )
             } else {
                 0

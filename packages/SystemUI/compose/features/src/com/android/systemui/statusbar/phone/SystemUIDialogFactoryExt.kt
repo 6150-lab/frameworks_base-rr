@@ -76,6 +76,7 @@ import com.android.compose.theme.LocalAndroidColorScheme
 import com.android.compose.theme.PlatformTheme
 import com.android.internal.graphics.ColorUtils
 import com.android.internal.graphics.drawable.BackgroundBlurDrawable
+import com.android.internal.util.catalyxx.GlassSettings
 import com.android.systemui.keyboard.shortcut.ui.composable.hasCompactWindowSize
 import com.android.systemui.res.R
 import com.android.systemui.shared.system.BlurUtils.isVolumeAndPowerBlurEnabled
@@ -203,18 +204,31 @@ fun SystemUIDialogFactory.createBottomSheet(
                 val radius = dimensionResource(R.dimen.bottom_sheet_corner_radius)
                 val isBlurSupported by
                     dialog.blurInteractor!!.isBlurCurrentlySupported.collectAsStateWithLifecycle()
-                val isBlurEnabled = isVolumeAndPowerBlurEnabled()
+                val isBlurEnabled = remember {
+                    isVolumeAndPowerBlurEnabled(dialog.context, GlassSettings.PLACE_DIALOGS)
+                }
                 val backgroundBlurModifier =
                     if (isBlurEnabled) {
                         val bottomsheetBlurRadius =
                             dimensionResource(R.dimen.bottomsheet_blur_radius)
+                        val glassBlurScale = remember {
+                            GlassSettings.blurScale(
+                                dialog.context.contentResolver,
+                                GlassSettings.PLACE_DIALOGS,
+                            )
+                        }
                         val cornerRadius = dimensionResource(R.dimen.bottom_sheet_corner_radius)
                         val drawable = remember { createBackgroundBlurDrawable(dialog) }
 
                         if (isBlurSupported) {
                             Modifier.drawBehind {
                                 drawable.apply {
-                                    setBlurRadius(bottomsheetBlurRadius.roundToPx())
+                                    setBlurRadius(
+                                        GlassSettings.scaleBlurRadius(
+                                            bottomsheetBlurRadius.roundToPx(),
+                                            glassBlurScale,
+                                        )
+                                    )
                                     setCornerRadius(cornerRadius.toPx())
                                 }
                                 drawIntoCanvas { canvas ->

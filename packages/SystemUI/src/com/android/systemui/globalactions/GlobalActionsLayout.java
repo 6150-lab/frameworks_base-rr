@@ -27,6 +27,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.android.internal.annotations.VisibleForTesting;
+import com.android.internal.util.catalyxx.GlassSettings;
 import com.android.systemui.HardwareBgDrawable;
 import com.android.systemui.MultiListLayout;
 import com.android.systemui.res.R;
@@ -82,7 +83,8 @@ public abstract class GlobalActionsLayout extends MultiListLayout {
     }
 
     private void updateIsBlurSupported() {
-        if (isVolumeAndPowerBlurEnabled() && mBackgroundsSet && mIsBlurSupported != null) {
+        if (isVolumeAndPowerBlurEnabled(mContext, GlassSettings.PLACE_POWER_MENU)
+                && mBackgroundsSet && mIsBlurSupported != null) {
             updateBackground(mContext.getColor(
                     mIsBlurSupported && mTranslucentPowerMenu
                             ? R.color.global_actions_grid_background_blur

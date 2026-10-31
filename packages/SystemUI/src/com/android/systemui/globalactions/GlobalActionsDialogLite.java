@@ -127,6 +127,7 @@ import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
 import com.android.internal.util.EmergencyAffordanceManager;
 import com.android.internal.util.ScreenshotHelper;
 import com.android.internal.util.UserIcons;
+import com.android.internal.util.catalyxx.GlassSettings;
 import com.android.internal.widget.LockPatternUtils;
 import com.android.keyguard.KeyguardUpdateMonitor;
 import com.android.systemui.Flags;
@@ -687,10 +688,14 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
         WindowManager.LayoutParams attrs = dialog.getWindow().getAttributes();
         attrs.setTitle("GlobalActionsDialogLite");
         attrs.layoutInDisplayCutoutMode = LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS;
-        if (isVolumeAndPowerBlurEnabled() && mTranslucentPowerMenu) {
+        if (isVolumeAndPowerBlurEnabled(mContext, GlassSettings.PLACE_POWER_MENU)
+                && mTranslucentPowerMenu) {
             attrs.flags |= WindowManager.LayoutParams.FLAG_BLUR_BEHIND;
-            attrs.setBlurBehindRadius(mContext.getResources().getDimensionPixelSize(
-                    com.android.systemui.res.R.dimen.global_actions_blur_radius));
+            attrs.setBlurBehindRadius(GlassSettings.scaleBlurRadius(
+                    mContext.getResources().getDimensionPixelSize(
+                            com.android.systemui.res.R.dimen.global_actions_blur_radius),
+                    GlassSettings.blurScale(mContext.getContentResolver(),
+                            GlassSettings.PLACE_POWER_MENU)));
         }
         dialog.getWindow().setAttributes(attrs);
         // Don't acquire soft keyboard focus, to avoid destroying state when capturing bugreports

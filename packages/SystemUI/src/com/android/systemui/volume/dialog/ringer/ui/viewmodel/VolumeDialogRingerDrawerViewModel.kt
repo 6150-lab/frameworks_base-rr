@@ -26,6 +26,7 @@ import android.os.VibrationEffect
 import android.widget.Toast
 import com.android.internal.R as internalR
 import com.android.internal.logging.UiEventLogger
+import com.android.internal.util.catalyxx.GlassSettings
 import com.android.settingslib.Utils
 import com.android.settingslib.notification.domain.interactor.NotificationsSoundPolicyInteractor
 import com.android.settingslib.volume.shared.model.AudioStream
@@ -85,8 +86,14 @@ constructor(
     // Use horizontal volume dialog if the audio tile details view is enabled
     val isVolumeDialogVertical = !expandedAudioTileDetailsFeatureInteractor.isDialogHorizontal()
 
-    // Show blur if the flag is enabled and the volume dialog is vertical
-    val showBlur = isVolumeAndPowerBlurEnabled() && isVolumeDialogVertical
+    // Show blur if the flag or Catalyxx glass is enabled and the volume dialog is vertical
+    val showBlur =
+        isVolumeAndPowerBlurEnabled(applicationContext, GlassSettings.PLACE_VOLUME) &&
+            isVolumeDialogVertical
+
+    /** What Catalyxx glass multiplies the dialog's blur radius by. */
+    val blurRadiusScale =
+        GlassSettings.blurScale(applicationContext.contentResolver, GlassSettings.PLACE_VOLUME)
 
     private val drawerState = MutableStateFlow<RingerDrawerState>(RingerDrawerState.Initial)
     private val orientation: StateFlow<Int> =
