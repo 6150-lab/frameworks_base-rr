@@ -335,7 +335,7 @@ object DeviceEntryIconViewBinder {
                                     blurDrawable =
                                         bgView.viewRootImpl.createBackgroundBlurDrawable().apply {
                                             setVisible(false, false)
-                                            alpha = (255 * bgView.alpha).toInt()
+                                            alpha = (255 * bgView.alpha * view.alpha).toInt()
                                             // Already laid out when glass is turned on later
                                             if (bgView.width > 0 && bgView.height > 0) {
                                                 setCornerRadius(
@@ -364,10 +364,16 @@ object DeviceEntryIconViewBinder {
                     }
 
                     launch("$TAG#bgViewModel.alpha") {
-                        bgViewModel.alpha.collect { alpha ->
-                            bgView.alpha = alpha
-                            blurDrawable?.alpha = (255 * alpha).toInt()
-                        }
+                        // SurfaceFlinger draws the blur region at the drawable's own alpha,
+                        // whatever its views' alpha, so it takes the icon's fade too. The
+                        // background's own alpha has no transition to GONE: after an unlock from
+                        // the lock screen it stayed at 1 while the icon faded out, and the blur
+                        // stayed on screen over the apps.
+                        combine(bgViewModel.alpha, viewModel.deviceEntryViewAlpha, ::Pair)
+                            .collect { (alpha, iconAlpha) ->
+                                bgView.alpha = alpha
+                                blurDrawable?.alpha = (255 * alpha * iconAlpha).toInt()
+                            }
                     }
                     launch("$TAG#bgViewModel.color") {
                         bgViewModel.color.collect { color ->
