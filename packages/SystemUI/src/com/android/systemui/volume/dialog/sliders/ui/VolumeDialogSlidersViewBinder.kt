@@ -16,6 +16,7 @@
 
 package com.android.systemui.volume.dialog.sliders.ui
 
+import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.LayerDrawable
@@ -133,18 +134,21 @@ constructor(
                 0
             }
         )
-        // Catalyxx glass's curved rim, if it's on here
-        (layers.getDrawable(0) as BackgroundBlurDrawable).setGlass(
-            if (supported) GlassSettings.look(context, GlassSettings.PLACE_VOLUME) else null
-        )
-        (layers.getDrawable(1) as GradientDrawable).setColor(
+        val androidColor = context.getColor(R.color.volume_dialog_view_background_blur)
+        // Catalyxx glass's curved rim, if it's on here. It brings its own color.
+        val glassLook =
             if (supported) {
+                GlassSettings.look(context, GlassSettings.PLACE_VOLUME, androidColor)
+            } else {
+                null
+            }
+        (layers.getDrawable(0) as BackgroundBlurDrawable).setGlass(glassLook)
+        (layers.getDrawable(1) as GradientDrawable).setColor(
+            if (glassLook != null) {
+                Color.TRANSPARENT
+            } else if (supported) {
                 // Catalyxx glass's tint, if it's on here
-                GlassSettings.tintColor(
-                    context,
-                    GlassSettings.PLACE_VOLUME,
-                    context.getColor(R.color.volume_dialog_view_background_blur),
-                )
+                GlassSettings.tintColor(context, GlassSettings.PLACE_VOLUME, androidColor)
             } else {
                 context.getColor(R.color.volume_dialog_view_background_blur_fallback)
             }

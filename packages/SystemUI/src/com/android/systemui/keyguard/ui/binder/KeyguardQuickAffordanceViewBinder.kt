@@ -19,6 +19,7 @@ package com.android.systemui.keyguard.ui.binder
 
 import android.annotation.SuppressLint
 import android.content.res.ColorStateList
+import android.graphics.Color
 import android.graphics.drawable.Animatable2
 import android.graphics.drawable.LayerDrawable
 import android.util.Size
@@ -175,6 +176,18 @@ constructor(
         val isBlurShown = isBlurAllowed && isBlurSupported
         val layers = blurLayers(view)
         if (layers != null) {
+            // Catalyxx glass's curved rim, if it's on here. It brings its own color.
+            val glassLook =
+                if (isBlurShown) {
+                    glassRim?.look(
+                        view.context,
+                        view.context.getColor(
+                            com.android.internal.R.color.customColorSurfaceEffect1
+                        ),
+                    )
+                } else {
+                    null
+                }
             (layers.getDrawable(0) as BackgroundBlurDrawable).apply {
                 setBlurRadius(
                     GlassSettings.scaleBlurRadius(
@@ -187,16 +200,20 @@ constructor(
                         ),
                     )
                 )
-                // Catalyxx glass's curved rim, if it's on here
-                setGlass(if (isBlurShown) glassRim?.look(view.context) else null)
+                setGlass(glassLook)
                 // Blur behind the see-through color getBackgroundTintList picks, so on the lock
                 // screen itself. The stock code had isSelected here, which is only true for the
                 // highlighted button in the wallpaper picker's preview, so it never showed.
                 setVisible(isBlurShown && !viewModel.isSelected && !viewModel.isActivated, false)
             }
-            layers.getDrawable(1).setTintList(getBackgroundTintList(viewModel, view, isBlurShown))
+            layers
+                .getDrawable(1)
+                .setTintList(
+                    getBackgroundTintList(viewModel, view, isBlurShown, glassLook != null)
+                )
         } else {
-            view.backgroundTintList = getBackgroundTintList(viewModel, view, isBlurShown)
+            view.backgroundTintList =
+                getBackgroundTintList(viewModel, view, isBlurShown, isGlassTinted = false)
         }
     }
 
@@ -362,15 +379,19 @@ constructor(
             }
     }
 
+    /** [isGlassTinted]: Catalyxx glass draws the color behind the button itself. */
     private fun getBackgroundTintList(
         viewModel: KeyguardQuickAffordanceViewModel,
         view: View,
         isBlurShown: Boolean,
+        isGlassTinted: Boolean,
     ): ColorStateList? {
         return if (!viewModel.isSelected) {
             ColorStateList.valueOf(
                 if (viewModel.isActivated) {
                     view.context.getColor(com.android.internal.R.color.materialColorPrimaryFixed)
+                } else if (isGlassTinted) {
+                    Color.TRANSPARENT
                 } else if (isBlurShown) {
                     // Catalyxx glass's tint, if it's on here
                     GlassSettings.tintColor(

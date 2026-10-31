@@ -332,10 +332,10 @@ object DeviceEntryIconViewBinder {
                         combine(
                                 bgViewModel.isBlurShown,
                                 bgViewModel.blurRadiusScale,
-                                bgViewModel.glassRim,
+                                bgViewModel.glassLook,
                                 ::Triple,
                             )
-                            .collect { (isBlurShown, blurRadiusScale, glassRim) ->
+                            .collect { (isBlurShown, blurRadiusScale, glassLook) ->
                                 if (isBlurShown && blurDrawable == null) {
                                     blurDrawable =
                                         bgView.viewRootImpl.createBackgroundBlurDrawable().apply {
@@ -364,9 +364,7 @@ object DeviceEntryIconViewBinder {
                                         )
                                     )
                                     // Catalyxx glass's curved rim, if it's on here
-                                    setGlass(
-                                        if (isBlurShown) glassRim?.look(bgView.context) else null
-                                    )
+                                    setGlass(glassLook)
                                     setVisible(isBlurShown, false)
                                 }
                             }

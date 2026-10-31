@@ -18,6 +18,8 @@
 package com.android.systemui.keyguard.ui.viewmodel
 
 import android.content.Context
+import android.graphics.Color
+import com.android.internal.util.catalyxx.GlassLook
 import com.android.internal.util.catalyxx.GlassSettings
 import com.android.settingslib.Utils
 import com.android.systemui.Flags.enableLockscreenBlur
@@ -25,7 +27,6 @@ import com.android.systemui.common.shared.colors.SurfaceEffectColors
 import com.android.systemui.common.ui.domain.interactor.ConfigurationInteractor
 import com.android.systemui.dagger.SysUISingleton
 import com.android.systemui.glass.data.repository.GlassRepository
-import com.android.systemui.glass.data.repository.GlassRim
 import com.android.systemui.keyguard.domain.interactor.KeyguardTransitionInteractor
 import com.android.systemui.keyguard.shared.model.KeyguardState
 import com.android.systemui.scene.domain.interactor.SceneInteractor
@@ -98,8 +99,22 @@ constructor(
     /** What Catalyxx glass multiplies the background's blur radius by. */
     val blurRadiusScale: Flow<Float> = glassRepository.blurScale(GlassSettings.PLACE_LOCKSCREEN)
 
-    /** Catalyxx glass's curved rim for the background, or null while glass is off here. */
-    val glassRim: Flow<GlassRim?> = glassRepository.rim(GlassSettings.PLACE_LOCKSCREEN)
+    /**
+     * How Catalyxx glass's curved rim draws the background, or null while it's plain blur. The
+     * glass brings its own color, so [color] leaves the background clear while this isn't null.
+     */
+    val glassLook: Flow<GlassLook?> =
+        combine(
+            configurationInteractor.onAnyConfigurationChange,
+            isBlurShown,
+            glassRepository.rim(GlassSettings.PLACE_LOCKSCREEN),
+        ) { _, isBlurShown, rim ->
+            if (isBlurShown) {
+                rim?.look(context, SurfaceEffectColors.surfaceEffect1(context))
+            } else {
+                null
+            }
+        }
 
     val color: Flow<Int> =
         deviceEntryIconViewModel.useBackgroundProtection.flatMapLatest { useBackground ->
@@ -108,8 +123,11 @@ constructor(
                     configurationInteractor.onAnyConfigurationChange,
                     isBlurShown,
                     glassRepository.tint(GlassSettings.PLACE_LOCKSCREEN),
-                ) { _, isBlurShown, glassTint ->
-                    if (isBlurShown) {
+                    glassLook,
+                ) { _, isBlurShown, glassTint, glassLook ->
+                    if (isBlurShown && glassLook != null) {
+                        Color.TRANSPARENT
+                    } else if (isBlurShown) {
                         val androidColor = SurfaceEffectColors.surfaceEffect1(context)
                         glassTint?.over(context, androidColor) ?: androidColor
                     } else {
