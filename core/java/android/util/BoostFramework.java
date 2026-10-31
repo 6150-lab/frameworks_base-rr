@@ -5,6 +5,10 @@
 
 package android.util;
 
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Process;
+
 import dalvik.system.PathClassLoader;
 
 import java.lang.reflect.Method;
@@ -24,62 +28,104 @@ public final class BoostFramework {
     private static final int SCROLL_TYPE = 5;
     /** Enabled sun config: activity launch. Types 1, 2, 3, and 6 are off. */
     private static final int LAUNCH_TYPE = 10;
+    private static final int DEFAULT_INTERACTION_MS = 1000;
+    private static final int CONFIG_TIMEOUT = -1;
 
+    private static volatile Handler sHandler;
     private static BoostFramework sInstance;
 
     private final Object mPerf;
     private Method mHint;
+    private Method mRelease;
+    private int mLaunchHandle = -1;
 
     private BoostFramework() {
         Object perf = null;
         Method hint = null;
+        Method release = null;
         try {
             PathClassLoader loader = new PathClassLoader("/system/framework/QPerformance.jar",
                     ClassLoader.getSystemClassLoader());
             Class<?> perfClass = loader.loadClass("com.qualcomm.qti.Performance");
             perf = perfClass.getDeclaredConstructor().newInstance();
             hint = perfClass.getMethod("perfHint", int.class, String.class, int.class, int.class);
+            release = perfClass.getMethod("perfLockReleaseHandler", int.class);
         } catch (Throwable t) {
             Log.w(TAG, "QPerformance unavailable", t);
         }
         mPerf = perf;
         mHint = hint;
+        mRelease = release;
     }
 
     /** Touch, fling, and window animation boost. */
     public static void onInteraction(int durationMs) {
-        hint(VENDOR_HINT_SCROLL_BOOST, durationMs, SCROLL_TYPE);
+        final int duration = durationMs > 0 ? durationMs : DEFAULT_INTERACTION_MS;
+        post(() -> instance().hint(VENDOR_HINT_SCROLL_BOOST, duration, SCROLL_TYPE));
     }
 
     /** App launch boost. Pass enabled false when the launch mode ends. */
     public static void onLaunch(boolean enabled) {
-        hint(VENDOR_HINT_FIRST_LAUNCH_BOOST, enabled ? 0 : -1, LAUNCH_TYPE);
+        post(() -> instance().launch(enabled));
     }
 
-    private static void hint(int hintId, int durationMs, int type) {
-        BoostFramework inst = instance();
-        if (inst.mHint == null) {
+    private void launch(boolean enabled) {
+        if (mLaunchHandle > 0) {
+            release(mLaunchHandle);
+            mLaunchHandle = -1;
+        }
+        if (enabled) {
+            mLaunchHandle = hint(VENDOR_HINT_FIRST_LAUNCH_BOOST, CONFIG_TIMEOUT, LAUNCH_TYPE);
+        }
+    }
+
+    private int hint(int hintId, int durationMs, int type) {
+        if (mHint == null) {
+            return -1;
+        }
+        try {
+            Object handle = mHint.invoke(mPerf, hintId, null, durationMs, type);
+            return handle instanceof Integer ? (Integer) handle : -1;
+        } catch (Throwable t) {
+            Log.w(TAG, "perfHint failed", t);
+            mHint = null;
+            return -1;
+        }
+    }
+
+    private void release(int handle) {
+        if (mRelease == null) {
             return;
         }
         try {
-            inst.mHint.invoke(inst.mPerf, hintId, null, durationMs, type);
+            mRelease.invoke(mPerf, handle);
         } catch (Throwable t) {
-            Log.w(TAG, "perfHint failed", t);
-            inst.mHint = null;
+            Log.w(TAG, "perfLockReleaseHandler failed", t);
+            mRelease = null;
         }
     }
 
-    private static BoostFramework instance() {
-        BoostFramework inst = sInstance;
-        if (inst == null) {
+    private static void post(Runnable r) {
+        Handler handler = sHandler;
+        if (handler == null) {
             synchronized (BoostFramework.class) {
-                inst = sInstance;
-                if (inst == null) {
-                    inst = new BoostFramework();
-                    sInstance = inst;
+                handler = sHandler;
+                if (handler == null) {
+                    HandlerThread thread =
+                            new HandlerThread(TAG, Process.THREAD_PRIORITY_FOREGROUND);
+                    thread.start();
+                    handler = new Handler(thread.getLooper());
+                    sHandler = handler;
                 }
             }
         }
-        return inst;
+        handler.post(r);
+    }
+
+    private static BoostFramework instance() {
+        if (sInstance == null) {
+            sInstance = new BoostFramework();
+        }
+        return sInstance;
     }
 }
