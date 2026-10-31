@@ -86,7 +86,8 @@ class DefaultBlurChoreographer(
     private val newFrameCallback =
         Choreographer.FrameCallback {
             wasUpdateScheduledForThisFrame = false
-            blurUtils.applyBlur(
+            // Only made for the shade window (ShadeWindowBlurChoreographer)
+            blurUtils.applyShadeBlur(
                 rootView.viewRootImpl,
                 lastScheduledBlurEffect.radius.toInt(),
                 false,

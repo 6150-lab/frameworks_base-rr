@@ -34,11 +34,13 @@ import android.view.SurfaceControl
 import android.view.SyncRtSurfaceTransactionApplier
 import android.view.ViewRootImpl
 import androidx.annotation.VisibleForTesting
+import com.android.internal.util.catalyxx.GlassSettings
 import com.android.systemui.Dumpable
 import com.android.systemui.Flags
 import com.android.systemui.dagger.SysUISingleton
 import com.android.systemui.dagger.qualifiers.Main
 import com.android.systemui.dump.DumpManager
+import com.android.systemui.glass.data.repository.GlassRepository
 import com.android.systemui.keyguard.ui.transitions.BlurConfig
 import com.android.systemui.res.R
 import java.io.PrintWriter
@@ -52,6 +54,7 @@ constructor(
     blurConfig: BlurConfig,
     private val crossWindowBlurListeners: CrossWindowBlurListeners,
     dumpManager: DumpManager,
+    private val glassRepository: GlassRepository,
 ) : Dumpable {
     val minBlurRadius = resources.getDimensionPixelSize(R.dimen.min_window_blur_radius).toFloat()
     val maxBlurRadius =
@@ -167,6 +170,21 @@ constructor(
         }
         builder.withOpaque(opaque)
         transactionApplier.scheduleApply(builder.build())
+    }
+
+    /**
+     * [applyBlur] for the notification shade window. Catalyxx glass scales the radius here, as it
+     * goes to SurfaceFlinger, so every shade, Quick Settings and bouncer blur is scaled alike
+     * while the callers keep working in the unscaled radius.
+     */
+    fun applyShadeBlur(
+        viewRootImpl: ViewRootImpl?,
+        radius: Int,
+        opaque: Boolean,
+        scale: Float = 1.0f,
+    ) {
+        val glassScale = glassRepository.currentBlurScale(GlassSettings.PLACE_SHADE)
+        applyBlur(viewRootImpl, GlassSettings.scaleBlurRadius(radius, glassScale), opaque, scale)
     }
 
     private fun updateTransactionApplier(viewRootImpl: ViewRootImpl) {
