@@ -85,10 +85,11 @@ public abstract class GlobalActionsLayout extends MultiListLayout {
     private void updateIsBlurSupported() {
         if (isVolumeAndPowerBlurEnabled(mContext, GlassSettings.PLACE_POWER_MENU)
                 && mBackgroundsSet && mIsBlurSupported != null) {
-            updateBackground(mContext.getColor(
-                    mIsBlurSupported && mTranslucentPowerMenu
-                            ? R.color.global_actions_grid_background_blur
-                            : R.color.global_actions_grid_background_blur_fallback));
+            updateBackground(mIsBlurSupported && mTranslucentPowerMenu
+                    // Catalyxx glass's tint, if it's on here
+                    ? GlassSettings.tintColor(mContext, GlassSettings.PLACE_POWER_MENU,
+                            mContext.getColor(R.color.global_actions_grid_background_blur))
+                    : mContext.getColor(R.color.global_actions_grid_background_blur_fallback));
         }
     }
 

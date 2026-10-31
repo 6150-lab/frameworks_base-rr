@@ -5,6 +5,8 @@
 
 package com.android.systemui.glass.data.repository
 
+import android.content.Context
+import androidx.annotation.ColorInt
 import com.android.internal.util.catalyxx.GlassSettings
 import com.android.systemui.dagger.SysUISingleton
 import com.android.systemui.dagger.qualifiers.Application
@@ -54,6 +56,10 @@ constructor(
     /** [blurScale] right now, for code that applies blur every frame. */
     fun currentBlurScale(place: String): Float = state.value.blurScale(place)
 
+    /** Glass's color and tint for [place], or null while glass is off there. */
+    fun tint(place: String): Flow<GlassTint?> =
+        state.map { it.tint(place) }.distinctUntilChanged()
+
     private fun readState() =
         GlassState(
             enabled = globalSettings.getInt(GlassSettings.ENABLED, 0) == 1,
@@ -62,6 +68,11 @@ constructor(
                     GlassSettings.BLUR_STRENGTH,
                     GlassSettings.DEFAULT_BLUR_STRENGTH,
                 ),
+            tint =
+                GlassTint(
+                    color = globalSettings.getInt(GlassSettings.COLOR, GlassSettings.COLOR_FROSTED),
+                    tint = globalSettings.getInt(GlassSettings.TINT, GlassSettings.DEFAULT_TINT),
+                ),
             placesOff =
                 GlassSettings.PLACES.filterTo(HashSet()) { globalSettings.getInt(it, 1) == 0 },
         )
@@ -69,11 +80,14 @@ constructor(
     private data class GlassState(
         val enabled: Boolean,
         val strength: Int,
+        val tint: GlassTint,
         val placesOff: Set<String>,
     ) {
         fun isOn(place: String) = enabled && place !in placesOff
 
         fun blurScale(place: String) = if (isOn(place)) GlassSettings.blurScale(strength) else 1f
+
+        fun tint(place: String) = if (isOn(place)) tint else null
 
         companion object {
             /** Until the settings are read: glass off, as it is by default. */
@@ -81,8 +95,18 @@ constructor(
                 GlassState(
                     enabled = false,
                     strength = GlassSettings.DEFAULT_BLUR_STRENGTH,
+                    tint = GlassTint(GlassSettings.COLOR_FROSTED, GlassSettings.DEFAULT_TINT),
                     placesOff = emptySet(),
                 )
         }
     }
+}
+
+/** Glass's [GlassSettings.COLOR] and [GlassSettings.TINT]. */
+data class GlassTint(val color: Int, val tint: Int) {
+
+    /** The color this glass tints with, over a place where Android tints with [androidColor]. */
+    @ColorInt
+    fun over(context: Context, @ColorInt androidColor: Int): Int =
+        GlassSettings.tintColor(context, color, tint, androidColor)
 }

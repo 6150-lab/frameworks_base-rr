@@ -100,11 +100,14 @@ constructor(
     val color: Flow<Int> =
         deviceEntryIconViewModel.useBackgroundProtection.flatMapLatest { useBackground ->
             if (useBackground) {
-                configurationInteractor.onAnyConfigurationChange.combine(isBlurShown) {
-                    _,
-                    isBlurShown ->
+                combine(
+                    configurationInteractor.onAnyConfigurationChange,
+                    isBlurShown,
+                    glassRepository.tint(GlassSettings.PLACE_LOCKSCREEN),
+                ) { _, isBlurShown, glassTint ->
                     if (isBlurShown) {
-                        SurfaceEffectColors.surfaceEffect1(context)
+                        val androidColor = SurfaceEffectColors.surfaceEffect1(context)
+                        glassTint?.over(context, androidColor) ?: androidColor
                     } else {
                         Utils.getColorAttrDefaultColor(
                             context,

@@ -269,12 +269,21 @@ fun SystemUIDialogFactory.createBottomSheet(
                     color =
                         if (isBlurEnabled) {
                             if (isBlurSupported) {
-                                Color(
+                                val androidColor =
                                     ColorUtils.compositeColors(
                                         LocalAndroidColorScheme.current.surfaceEffect0.toArgb(),
                                         LocalAndroidColorScheme.current.surfaceEffect2.toArgb(),
                                     )
-                                )
+                                // Catalyxx glass's tint, if it's on here
+                                val glassColor =
+                                    remember(androidColor) {
+                                        GlassSettings.tintColor(
+                                            dialog.context,
+                                            GlassSettings.PLACE_DIALOGS,
+                                            androidColor,
+                                        )
+                                    }
+                                Color(glassColor)
                             } else {
                                 LocalAndroidColorScheme.current.surfaceEffect0Fallback
                             }

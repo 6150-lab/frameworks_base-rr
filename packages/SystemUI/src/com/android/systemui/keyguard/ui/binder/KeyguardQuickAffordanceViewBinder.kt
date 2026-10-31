@@ -130,11 +130,12 @@ constructor(
                     }
 
                     launch {
-                        // Also follows Catalyxx glass being turned on, off, softer or stronger.
+                        // Also follows Catalyxx glass being turned on, off, softer, stronger or
+                        // recolored (its tint is null while it's off).
                         // (Collected now: the stock code built this flow but never collected it.)
                         combine(
                                 windowRootViewBlurInteractor.isBlurCurrentlySupported,
-                                glassRepository.isOn(GlassSettings.PLACE_LOCKSCREEN),
+                                glassRepository.tint(GlassSettings.PLACE_LOCKSCREEN),
                                 glassRepository.blurScale(GlassSettings.PLACE_LOCKSCREEN),
                                 viewModel,
                             ) { isSupported, _, _, viewModel ->
@@ -362,15 +363,22 @@ constructor(
     ): ColorStateList? {
         return if (!viewModel.isSelected) {
             ColorStateList.valueOf(
-                view.context.getColor(
-                    if (viewModel.isActivated) {
-                        com.android.internal.R.color.materialColorPrimaryFixed
-                    } else if (isBlurShown) {
-                        com.android.internal.R.color.customColorSurfaceEffect1
-                    } else {
+                if (viewModel.isActivated) {
+                    view.context.getColor(com.android.internal.R.color.materialColorPrimaryFixed)
+                } else if (isBlurShown) {
+                    // Catalyxx glass's tint, if it's on here
+                    GlassSettings.tintColor(
+                        view.context,
+                        GlassSettings.PLACE_LOCKSCREEN,
+                        view.context.getColor(
+                            com.android.internal.R.color.customColorSurfaceEffect1
+                        ),
+                    )
+                } else {
+                    view.context.getColor(
                         com.android.internal.R.color.materialColorSurfaceContainerHigh
-                    }
-                )
+                    )
+                }
             )
         } else {
             null

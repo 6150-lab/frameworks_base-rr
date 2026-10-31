@@ -354,10 +354,16 @@ constructor(
                 }
             )
             (layers.getDrawable(1) as GradientDrawable).setColor(
-                context.getColor(
-                    if (supported) R.color.volume_dialog_view_background_blur
-                    else R.color.volume_dialog_view_background_blur_fallback
-                )
+                if (supported) {
+                    // Catalyxx glass's tint, if it's on here
+                    GlassSettings.tintColor(
+                        context,
+                        GlassSettings.PLACE_VOLUME,
+                        context.getColor(R.color.volume_dialog_view_background_blur),
+                    )
+                } else {
+                    context.getColor(R.color.volume_dialog_view_background_blur_fallback)
+                }
             )
         }
     }
