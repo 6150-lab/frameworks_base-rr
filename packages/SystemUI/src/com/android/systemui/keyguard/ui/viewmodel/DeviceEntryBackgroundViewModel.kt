@@ -18,11 +18,13 @@
 package com.android.systemui.keyguard.ui.viewmodel
 
 import android.content.Context
+import com.android.internal.util.catalyxx.GlassSettings
 import com.android.settingslib.Utils
 import com.android.systemui.Flags.enableLockscreenBlur
 import com.android.systemui.common.shared.colors.SurfaceEffectColors
 import com.android.systemui.common.ui.domain.interactor.ConfigurationInteractor
 import com.android.systemui.dagger.SysUISingleton
+import com.android.systemui.glass.data.repository.GlassRepository
 import com.android.systemui.keyguard.domain.interactor.KeyguardTransitionInteractor
 import com.android.systemui.keyguard.shared.model.KeyguardState
 import com.android.systemui.scene.domain.interactor.SceneInteractor
@@ -36,7 +38,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onStart
 
@@ -74,39 +75,41 @@ constructor(
     toAodEndStateTransitionViewModel: ToAodEndStateTransitionViewModel,
     toDozingEndStateTransitionViewModel: ToDozingEndStateTransitionViewModel,
     windowRootViewBlurInteractor: WindowRootViewBlurInteractor,
+    glassRepository: GlassRepository,
     private val sceneInteractor: Lazy<SceneInteractor>,
 ) {
+    /**
+     * Whether the background blurs what's behind it: blur works now, and the stock flag or
+     * Catalyxx glass is on for the lock screen.
+     */
+    val isBlurShown: Flow<Boolean> =
+        if (enableLockscreenBlur()) {
+            windowRootViewBlurInteractor.isBlurCurrentlySupported
+        } else {
+            combine(
+                windowRootViewBlurInteractor.isBlurCurrentlySupported,
+                glassRepository.isOn(GlassSettings.PLACE_LOCKSCREEN),
+            ) { isSupported, isGlassOn ->
+                isSupported && isGlassOn
+            }
+        }
+
+    /** What Catalyxx glass multiplies the background's blur radius by. */
+    val blurRadiusScale: Flow<Float> = glassRepository.blurScale(GlassSettings.PLACE_LOCKSCREEN)
+
     val color: Flow<Int> =
         deviceEntryIconViewModel.useBackgroundProtection.flatMapLatest { useBackground ->
             if (useBackground) {
-                if (!enableLockscreenBlur()) {
-                    configurationInteractor.onAnyConfigurationChange
-                        .map {
-                            Utils.getColorAttrDefaultColor(
-                                context,
-                                com.android.internal.R.attr.colorSurface,
-                            )
-                        }
-                        .onStart {
-                            emit(
-                                Utils.getColorAttrDefaultColor(
-                                    context,
-                                    com.android.internal.R.attr.colorSurface,
-                                )
-                            )
-                        }
-                } else {
-                    configurationInteractor.onAnyConfigurationChange.combine(
-                        windowRootViewBlurInteractor.isBlurCurrentlySupported
-                    ) { config, isSupported ->
-                        if (isSupported) {
-                            SurfaceEffectColors.surfaceEffect1(context)
-                        } else {
-                            Utils.getColorAttrDefaultColor(
-                                context,
-                                com.android.internal.R.attr.colorSurface,
-                            )
-                        }
+                configurationInteractor.onAnyConfigurationChange.combine(isBlurShown) {
+                    _,
+                    isBlurShown ->
+                    if (isBlurShown) {
+                        SurfaceEffectColors.surfaceEffect1(context)
+                    } else {
+                        Utils.getColorAttrDefaultColor(
+                            context,
+                            com.android.internal.R.attr.colorSurface,
+                        )
                     }
                 }
             } else {

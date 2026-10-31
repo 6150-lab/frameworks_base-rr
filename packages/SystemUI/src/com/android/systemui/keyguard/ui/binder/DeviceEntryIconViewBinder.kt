@@ -31,9 +31,9 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import com.android.app.tracing.coroutines.launchTraced as launch
 import com.android.internal.graphics.drawable.BackgroundBlurDrawable
+import com.android.internal.util.catalyxx.GlassSettings
 import com.android.systemui.Dependency
 import com.android.systemui.Flags
-import com.android.systemui.Flags.enableLockscreenBlur
 import com.android.systemui.biometrics.UdfpsIconDrawable
 import com.android.systemui.common.ui.view.TouchHandlingView
 import com.android.systemui.keyguard.ui.view.DeviceEntryIconView
@@ -61,6 +61,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import android.provider.Settings
 import android.os.UserHandle
 import com.android.internal.util.rr.Utils
+import kotlinx.coroutines.flow.combine
 
 object DeviceEntryIconViewBinder {
     private const val TAG = "DeviceEntryIconViewBinder"
@@ -323,35 +324,49 @@ object DeviceEntryIconViewBinder {
         disposables +=
             bgView.repeatWhenAttached(mainImmediateDispatcher) {
                 repeatOnLifecycle(Lifecycle.State.CREATED) {
-                    if (enableLockscreenBlur()) {
-                        bgView.background =
-                            bgView.viewRootImpl.createBackgroundBlurDrawable().apply {
-                                setBlurRadius(
-                                    bgView.context.resources.getDimensionPixelOffset(
-                                        R.dimen.fingerprint_icon_blur_radius
-                                    )
-                                )
-                                setVisible(false, false)
-                            }
-                        bgView.addOnLayoutChangeListener(layoutChangeListener)
-                        bgView.doOnDetach {
-                            bgView.removeOnLayoutChangeListener(layoutChangeListener)
-                        }
+                    // Made the first time blur shows while attached: at once with the stock
+                    // flag, or when Catalyxx glass is turned on for the lock screen.
+                    var blurDrawable: BackgroundBlurDrawable? = null
 
-                        launch("$TAG#windowRootViewBlurInteractor.isBlurCurrentlySupported") {
-                            windowRootViewBlurInteractor.isBlurCurrentlySupported.collect {
-                                isSupported ->
-                                bgView.background?.setVisible(isSupported, false)
+                    launch("$TAG#bgViewModel.isBlurShown") {
+                        combine(bgViewModel.isBlurShown, bgViewModel.blurRadiusScale, ::Pair)
+                            .collect { (isBlurShown, blurRadiusScale) ->
+                                if (isBlurShown && blurDrawable == null) {
+                                    blurDrawable =
+                                        bgView.viewRootImpl.createBackgroundBlurDrawable().apply {
+                                            setVisible(false, false)
+                                            alpha = (255 * bgView.alpha).toInt()
+                                            // Already laid out when glass is turned on later
+                                            if (bgView.width > 0 && bgView.height > 0) {
+                                                setCornerRadius(
+                                                    min(bgView.height, bgView.width).toFloat() / 2f
+                                                )
+                                            }
+                                        }
+                                    bgView.background = blurDrawable
+                                    bgView.addOnLayoutChangeListener(layoutChangeListener)
+                                    bgView.doOnDetach {
+                                        bgView.removeOnLayoutChangeListener(layoutChangeListener)
+                                    }
+                                }
+                                blurDrawable?.apply {
+                                    setBlurRadius(
+                                        GlassSettings.scaleBlurRadius(
+                                            bgView.context.resources.getDimensionPixelOffset(
+                                                R.dimen.fingerprint_icon_blur_radius
+                                            ),
+                                            blurRadiusScale,
+                                        )
+                                    )
+                                    setVisible(isBlurShown, false)
+                                }
                             }
-                        }
                     }
 
                     launch("$TAG#bgViewModel.alpha") {
                         bgViewModel.alpha.collect { alpha ->
                             bgView.alpha = alpha
-                            if (enableLockscreenBlur()) {
-                                bgView.background?.alpha = (255 * alpha).toInt()
-                            }
+                            blurDrawable?.alpha = (255 * alpha).toInt()
                         }
                     }
                     launch("$TAG#bgViewModel.color") {
