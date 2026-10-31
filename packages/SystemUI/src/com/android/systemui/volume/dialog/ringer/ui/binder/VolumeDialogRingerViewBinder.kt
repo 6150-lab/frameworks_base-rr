@@ -153,6 +153,12 @@ constructor(
 
         volumeDialogBackgroundView.updateBackground()
         ringerBackgroundView.updateBackground()
+        if (viewModel.showBlur) {
+            // Catalyxx glass: the drawer's glass carries on into the dialog's below it
+            ((ringerBackgroundView.background as LayerDrawable).getDrawable(0)
+                    as BackgroundBlurDrawable)
+                .setGlassJoinedSides(BackgroundBlurDrawable.GLASS_SIDE_BOTTOM)
+        }
         launchTraced("VDRVB#addTouchableBounds") {
             dialogViewModel.addTouchableBounds(ringerBackgroundView)
         }
@@ -217,6 +223,8 @@ constructor(
                                 bottomDefaultRadius,
                                 bottomDefaultRadius,
                             )
+                            // Catalyxx glass: the ringer drawer's glass carries on into this
+                            blurDrawable.setGlassJoinedSides(BackgroundBlurDrawable.GLASS_SIDE_TOP)
                             (layers.getDrawable(1) as GradientDrawable).cornerRadii =
                                 bottomCornerRadii
                         } else {
@@ -319,6 +327,7 @@ constructor(
                             val layers = (volumeDialogBackgroundView.background as LayerDrawable)
                             val blurDrawable = layers.getDrawable(0) as BackgroundBlurDrawable
                             blurDrawable.setCornerRadius(volumeDialogBgFullRadius.toFloat())
+                            blurDrawable.setGlassJoinedSides(0)
                             (layers.getDrawable(1) as GradientDrawable).cornerRadius =
                                 volumeDialogBgFullRadius.toFloat()
                         } else {
@@ -352,6 +361,10 @@ constructor(
                 } else {
                     0
                 }
+            )
+            // Catalyxx glass's curved rim, if it's on here
+            (layers.getDrawable(0) as BackgroundBlurDrawable).setGlass(
+                if (supported) GlassSettings.look(context, GlassSettings.PLACE_VOLUME) else null
             )
             (layers.getDrawable(1) as GradientDrawable).setColor(
                 if (supported) {

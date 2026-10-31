@@ -133,6 +133,10 @@ constructor(
                 0
             }
         )
+        // Catalyxx glass's curved rim, if it's on here
+        (layers.getDrawable(0) as BackgroundBlurDrawable).setGlass(
+            if (supported) GlassSettings.look(context, GlassSettings.PLACE_VOLUME) else null
+        )
         (layers.getDrawable(1) as GradientDrawable).setColor(
             if (supported) {
                 // Catalyxx glass's tint, if it's on here
