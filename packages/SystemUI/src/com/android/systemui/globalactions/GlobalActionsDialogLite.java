@@ -689,7 +689,10 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
         attrs.setTitle("GlobalActionsDialogLite");
         attrs.layoutInDisplayCutoutMode = LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS;
         if (isVolumeAndPowerBlurEnabled(mContext, GlassSettings.PLACE_POWER_MENU)
-                && mTranslucentPowerMenu) {
+                && mTranslucentPowerMenu
+                // With Catalyxx glass's curved rim the panel is the glass, and the screen behind
+                // is only dimmed unless asked, so the rim has something sharp to bend
+                && GlassSettings.blursBehindPowerMenu(mContext.getContentResolver())) {
             attrs.flags |= WindowManager.LayoutParams.FLAG_BLUR_BEHIND;
             attrs.setBlurBehindRadius(GlassSettings.scaleBlurRadius(
                     mContext.getResources().getDimensionPixelSize(

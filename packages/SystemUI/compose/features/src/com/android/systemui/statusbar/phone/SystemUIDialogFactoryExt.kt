@@ -207,6 +207,24 @@ fun SystemUIDialogFactory.createBottomSheet(
                 val isBlurEnabled = remember {
                     isVolumeAndPowerBlurEnabled(dialog.context, GlassSettings.PLACE_DIALOGS)
                 }
+                val androidBlurColor =
+                    ColorUtils.compositeColors(
+                        LocalAndroidColorScheme.current.surfaceEffect0.toArgb(),
+                        LocalAndroidColorScheme.current.surfaceEffect2.toArgb(),
+                    )
+                // Catalyxx glass's curved rim, if it's on here. It brings its own color.
+                val glassLook =
+                    remember(androidBlurColor, isBlurSupported) {
+                        if (isBlurEnabled && isBlurSupported) {
+                            GlassSettings.look(
+                                dialog.context,
+                                GlassSettings.PLACE_DIALOGS,
+                                androidBlurColor,
+                            )
+                        } else {
+                            null
+                        }
+                    }
                 val backgroundBlurModifier =
                     if (isBlurEnabled) {
                         val bottomsheetBlurRadius =
@@ -230,6 +248,20 @@ fun SystemUIDialogFactory.createBottomSheet(
                                         )
                                     )
                                     setCornerRadius(cornerRadius.toPx())
+                                    setGlass(glassLook)
+                                    // The sheet sits on the screen's bottom edge, and on its side
+                                    // edges too where it fills the width: no rim there.
+                                    val isFullWidth =
+                                        size.width >= dialog.window!!.decorView.width - 1
+                                    setGlassJoinedSides(
+                                        BackgroundBlurDrawable.GLASS_SIDE_BOTTOM or
+                                            if (isFullWidth) {
+                                                BackgroundBlurDrawable.GLASS_SIDE_LEFT or
+                                                    BackgroundBlurDrawable.GLASS_SIDE_RIGHT
+                                            } else {
+                                                0
+                                            }
+                                    )
                                 }
                                 drawIntoCanvas { canvas ->
                                     drawable.setBounds(
@@ -268,19 +300,16 @@ fun SystemUIDialogFactory.createBottomSheet(
                     shape = RoundedCornerShape(topStart = radius, topEnd = radius),
                     color =
                         if (isBlurEnabled) {
-                            if (isBlurSupported) {
-                                val androidColor =
-                                    ColorUtils.compositeColors(
-                                        LocalAndroidColorScheme.current.surfaceEffect0.toArgb(),
-                                        LocalAndroidColorScheme.current.surfaceEffect2.toArgb(),
-                                    )
+                            if (glassLook != null) {
+                                Color.Transparent
+                            } else if (isBlurSupported) {
                                 // Catalyxx glass's tint, if it's on here
                                 val glassColor =
-                                    remember(androidColor) {
+                                    remember(androidBlurColor) {
                                         GlassSettings.tintColor(
                                             dialog.context,
                                             GlassSettings.PLACE_DIALOGS,
-                                            androidColor,
+                                            androidBlurColor,
                                         )
                                     }
                                 Color(glassColor)

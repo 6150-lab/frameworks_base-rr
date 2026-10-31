@@ -18,15 +18,21 @@ package com.android.systemui.globalactions;
 
 import static com.android.systemui.shared.system.BlurUtils.isVolumeAndPowerBlurEnabled;
 
+import android.annotation.Nullable;
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.LayerDrawable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewRootImpl;
 
 import com.android.internal.annotations.VisibleForTesting;
+import com.android.internal.graphics.drawable.BackgroundBlurDrawable;
+import com.android.internal.util.catalyxx.GlassLook;
 import com.android.internal.util.catalyxx.GlassSettings;
 import com.android.systemui.HardwareBgDrawable;
 import com.android.systemui.MultiListLayout;
@@ -85,16 +91,65 @@ public abstract class GlobalActionsLayout extends MultiListLayout {
     private void updateIsBlurSupported() {
         if (isVolumeAndPowerBlurEnabled(mContext, GlassSettings.PLACE_POWER_MENU)
                 && mBackgroundsSet && mIsBlurSupported != null) {
-            updateBackground(mIsBlurSupported && mTranslucentPowerMenu
+            final boolean isBlurShown = mIsBlurSupported && mTranslucentPowerMenu;
+            final int androidColor = mContext.getColor(R.color.global_actions_grid_background_blur);
+            // Catalyxx glass's curved rim, if it's on here. It brings its own color.
+            final GlassLook glassLook = isBlurShown
+                    ? GlassSettings.look(mContext, GlassSettings.PLACE_POWER_MENU, androidColor)
+                    : null;
+            final boolean hasGlass = updateGlass(glassLook);
+            updateBackground(hasGlass
+                    ? Color.TRANSPARENT
+                    : isBlurShown
                     // Catalyxx glass's tint, if it's on here
                     ? GlassSettings.tintColor(mContext, GlassSettings.PLACE_POWER_MENU,
-                            mContext.getColor(R.color.global_actions_grid_background_blur))
+                            androidColor)
                     : mContext.getColor(R.color.global_actions_grid_background_blur_fallback));
         }
     }
 
+    /**
+     * Puts Catalyxx glass with {@code look} under the panel's own background, or takes it away
+     * when {@code look} is null. Returns whether the panel has glass now.
+     */
+    private boolean updateGlass(@Nullable GlassLook look) {
+        final ViewGroup listView = getListView();
+        final Drawable background = listView.getBackground();
+        BackgroundBlurDrawable glass = null;
+        if (background instanceof LayerDrawable layers
+                && layers.getDrawable(0) instanceof BackgroundBlurDrawable existing) {
+            glass = existing;
+        }
+        if (look == null) {
+            if (glass != null) {
+                glass.setGlass(null);
+                glass.setBlurRadius(0);
+            }
+            return false;
+        }
+        if (glass == null) {
+            final ViewRootImpl viewRoot = listView.getViewRootImpl();
+            if (viewRoot == null || background == null) {
+                return false;
+            }
+            glass = viewRoot.createBackgroundBlurDrawable();
+            glass.setCornerRadius(getResources().getDimension(R.dimen.global_actions_corner_radius));
+            listView.setBackground(new LayerDrawable(new Drawable[] {glass, background}));
+        }
+        glass.setBlurRadius(GlassSettings.scaleBlurRadius(
+                getResources().getDimensionPixelSize(R.dimen.global_actions_blur_radius),
+                GlassSettings.blurScale(mContext.getContentResolver(),
+                        GlassSettings.PLACE_POWER_MENU)));
+        glass.setGlass(look);
+        return true;
+    }
+
     private void updateBackground(int color) {
         Drawable drawable = getListView().getBackground();
+        if (drawable instanceof LayerDrawable layers) {
+            // The panel's own background, over its glass
+            drawable = layers.getDrawable(1);
+        }
         if (drawable instanceof GradientDrawable gradientDrawable) {
             gradientDrawable.setColor(color);
         } else {
