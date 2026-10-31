@@ -5,6 +5,7 @@
 
 package com.android.internal.util.catalyxx;
 
+import android.annotation.Nullable;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.graphics.Color;
@@ -42,6 +43,36 @@ public final class GlassSettings {
     /** How much the glass color covers what's behind, from 0 (clear) to 100 (solid). */
     public static final String TINT = "catalyxx_glass_tint";
 
+    // How glass with a curved rim is drawn, see look(). So far only the volume dialog has the rim;
+    // other places are plain blur.
+
+    /**
+     * {@link #STYLE_CLEAR} (the default), {@link #STYLE_FROSTED} or {@link #STYLE_FLAT}.
+     */
+    public static final String STYLE = "catalyxx_glass_style";
+
+    /** Plain blur without a rim. */
+    public static final int STYLE_FLAT = 0;
+    /** A clear middle, with a curved rim that bends in what's past the edge. */
+    public static final int STYLE_CLEAR = 1;
+    /** The same rim around a frosted middle. */
+    public static final int STYLE_FROSTED = 2;
+
+    /** How far the rim reaches past the edge to bend in what's there, from 0 (flat) to 100. */
+    public static final String BEND = "catalyxx_glass_bend";
+
+    /** Width of the curved rim, in dp. */
+    public static final String RIM_WIDTH = "catalyxx_glass_rim_width";
+
+    /** Light on the rim, from 0 (none) to 100. */
+    public static final String RIM_LIGHT = "catalyxx_glass_rim_light";
+
+    /** How much the rim splits light into rainbow colors, from 0 (none) to 100. */
+    public static final String RAINBOW = "catalyxx_glass_rainbow";
+
+    /** The soft shadow around the glass, from 0 (none) to 100. */
+    public static final String SHADOW = "catalyxx_glass_shadow";
+
     /**
      * 1 (the default) turns glass back into plain panels in Battery Saver, like all other blur.
      * 0 keeps blur on in Battery Saver while glass is on; Android has one blur switch for the
@@ -73,7 +104,8 @@ public final class GlassSettings {
 
     /** Every glass key, for watching all of them at once. */
     public static final String[] KEYS = {
-        ENABLED, BLUR_STRENGTH, COLOR, TINT, SOLID_IN_BATTERY_SAVER,
+        ENABLED, BLUR_STRENGTH, COLOR, TINT, STYLE, BEND, RIM_WIDTH, RIM_LIGHT, RAINBOW, SHADOW,
+        SOLID_IN_BATTERY_SAVER,
         PLACE_SHADE, PLACE_LOCKSCREEN, PLACE_VOLUME, PLACE_POWER_MENU, PLACE_DIALOGS,
     };
 
@@ -86,6 +118,25 @@ public final class GlassSettings {
     public static final int MAX_TINT = 100;
     /** Light enough that what's behind shows clearly, enough to tell glass from a hole. */
     public static final int DEFAULT_TINT = 20;
+
+    public static final int DEFAULT_STYLE = STYLE_CLEAR;
+
+    // BEND, RIM_LIGHT, RAINBOW and SHADOW all run from 0 to 100
+    public static final int MIN_PERCENT = 0;
+    public static final int MAX_PERCENT = 100;
+
+    public static final int DEFAULT_BEND = 50;
+    public static final int DEFAULT_RIM_LIGHT = 70;
+    public static final int DEFAULT_RAINBOW = 50;
+    public static final int DEFAULT_SHADOW = 35;
+
+    public static final int MIN_RIM_WIDTH = 4;
+    public static final int MAX_RIM_WIDTH = 32;
+    public static final int DEFAULT_RIM_WIDTH = 16;
+
+    // How far the rim reaches at BEND 100, in rim widths, and the shadow's darkness at SHADOW 100
+    private static final float MAX_BEND = 2.4f;
+    private static final float MAX_SHADOW = 0.6f;
 
     // What a place's blur radius is multiplied by at the lowest and highest strength
     private static final float MIN_BLUR_SCALE = 0.2f;
@@ -163,6 +214,38 @@ public final class GlassSettings {
         }
         final int t = Math.max(MIN_TINT, Math.min(MAX_TINT, tint));
         return (Math.round(t * 255f / MAX_TINT) << 24) | (rgb & 0xffffff);
+    }
+
+    /**
+     * How glass with a curved rim is drawn at {@code place} now, with sizes in pixels for
+     * {@code context}'s display; null where it's plain blur, because glass is off there or set
+     * to {@link #STYLE_FLAT}.
+     */
+    @Nullable
+    public static GlassLook look(Context context, String place) {
+        final ContentResolver resolver = context.getContentResolver();
+        if (!isOn(resolver, place)) {
+            return null;
+        }
+        final int style = Settings.Global.getInt(resolver, STYLE, DEFAULT_STYLE);
+        if (style == STYLE_FLAT) {
+            return null;
+        }
+        final int rimWidth = Math.max(MIN_RIM_WIDTH, Math.min(MAX_RIM_WIDTH,
+                Settings.Global.getInt(resolver, RIM_WIDTH, DEFAULT_RIM_WIDTH)));
+        return new GlassLook(
+                rimWidth * context.getResources().getDisplayMetrics().density,
+                MAX_BEND * fraction(resolver, BEND, DEFAULT_BEND),
+                style == STYLE_FROSTED ? 1f : 0f,
+                fraction(resolver, RIM_LIGHT, DEFAULT_RIM_LIGHT),
+                fraction(resolver, RAINBOW, DEFAULT_RAINBOW),
+                MAX_SHADOW * fraction(resolver, SHADOW, DEFAULT_SHADOW));
+    }
+
+    /** A 0 to 100 setting as 0 to 1. */
+    private static float fraction(ContentResolver resolver, String key, int def) {
+        final int value = Settings.Global.getInt(resolver, key, def);
+        return Math.max(MIN_PERCENT, Math.min(MAX_PERCENT, value)) / (float) MAX_PERCENT;
     }
 
     /** Whether glass keeps the system's blur on while Battery Saver is on. */

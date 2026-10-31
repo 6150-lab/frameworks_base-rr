@@ -923,6 +923,8 @@ static void nativeSetBlurRegions(JNIEnv* env, jclass clazz, jlong transactionObj
     std::vector<BlurRegion> blurRegionVector;
     const int size = regionsLength;
     float region[14];
+    // Catalyxx glass regions carry 7 more values: the glass look and its joined sides.
+    float glass[7];
     for (int i = 0; i < size; i++) {
         jfloatArray regionArray = (jfloatArray)env->GetObjectArrayElement(regions, i);
         env->GetFloatArrayRegion(regionArray, 0, 14, region);
@@ -941,20 +943,31 @@ static void nativeSetBlurRegions(JNIEnv* env, jclass clazz, jlong transactionObj
         float cornerRadiusBRX = region[12];
         float cornerRadiusBRY = region[13];
 
-        blurRegionVector.push_back(BlurRegion{.blurRadius = static_cast<uint32_t>(blurRadius),
-                                              .cornerRadiusTLX = cornerRadiusTLX,
-                                              .cornerRadiusTLY = cornerRadiusTLY,
-                                              .cornerRadiusTRX = cornerRadiusTRX,
-                                              .cornerRadiusTRY = cornerRadiusTRY,
-                                              .cornerRadiusBLX = cornerRadiusBLX,
-                                              .cornerRadiusBLY = cornerRadiusBLY,
-                                              .cornerRadiusBRX = cornerRadiusBRX,
-                                              .cornerRadiusBRY = cornerRadiusBRY,
-                                              .alpha = alpha,
-                                              .left = static_cast<int>(left),
-                                              .top = static_cast<int>(top),
-                                              .right = static_cast<int>(right),
-                                              .bottom = static_cast<int>(bottom)});
+        BlurRegion blurRegion{.blurRadius = static_cast<uint32_t>(blurRadius),
+                              .cornerRadiusTLX = cornerRadiusTLX,
+                              .cornerRadiusTLY = cornerRadiusTLY,
+                              .cornerRadiusTRX = cornerRadiusTRX,
+                              .cornerRadiusTRY = cornerRadiusTRY,
+                              .cornerRadiusBLX = cornerRadiusBLX,
+                              .cornerRadiusBLY = cornerRadiusBLY,
+                              .cornerRadiusBRX = cornerRadiusBRX,
+                              .cornerRadiusBRY = cornerRadiusBRY,
+                              .alpha = alpha,
+                              .left = static_cast<int>(left),
+                              .top = static_cast<int>(top),
+                              .right = static_cast<int>(right),
+                              .bottom = static_cast<int>(bottom)};
+        if (env->GetArrayLength(regionArray) >= 21) {
+            env->GetFloatArrayRegion(regionArray, 14, 7, glass);
+            blurRegion.glassRimWidth = glass[0];
+            blurRegion.glassBend = glass[1];
+            blurRegion.glassFrost = glass[2];
+            blurRegion.glassRimLight = glass[3];
+            blurRegion.glassDispersion = glass[4];
+            blurRegion.glassShadow = glass[5];
+            blurRegion.glassJoinedSides = static_cast<uint32_t>(glass[6]);
+        }
+        blurRegionVector.push_back(blurRegion);
     }
 
     transaction->setBlurRegions(ctrl, blurRegionVector);

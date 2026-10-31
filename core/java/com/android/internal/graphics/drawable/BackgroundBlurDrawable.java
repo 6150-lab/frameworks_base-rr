@@ -40,10 +40,12 @@ import android.view.ViewRootImpl;
 import android.view.ViewTreeObserver;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 import com.android.internal.R;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
+import com.android.internal.util.catalyxx.GlassLook;
 
 /**
  * A drawable that keeps track of a blur region, pokes a hole under it, and propagates its state
@@ -53,6 +55,13 @@ public final class BackgroundBlurDrawable extends Drawable {
 
     private static final String TAG = BackgroundBlurDrawable.class.getSimpleName();
     private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
+
+    // Sides of the drawable, for setGlassJoinedSides(). They match BlurRegion::kGlassSide* in
+    // SurfaceFlinger.
+    public static final int GLASS_SIDE_LEFT = 1;
+    public static final int GLASS_SIDE_TOP = 1 << 1;
+    public static final int GLASS_SIDE_RIGHT = 1 << 2;
+    public static final int GLASS_SIDE_BOTTOM = 1 << 3;
 
     private final Aggregator mAggregator;
     private final RenderNode mRenderNode;
@@ -75,6 +84,8 @@ public final class BackgroundBlurDrawable extends Drawable {
     private float mCornerRadiusBRX;
     private float mCornerRadiusBRY;
     private int mAlpha = 255;
+    private GlassLook mGlassLook;
+    private int mGlassJoinedSides;
 
     // Do not update from UiThread. This holds the latest position for this drawable. It is used
     // by the Aggregator from RenderThread to get the final position of the blur region sent to SF
@@ -225,6 +236,30 @@ public final class BackgroundBlurDrawable extends Drawable {
         }
     }
 
+    /**
+     * Draws the blur as Catalyxx glass with {@code look}, or as plain blur when it's null.
+     */
+    public void setGlass(@Nullable GlassLook look) {
+        if (!Objects.equals(mGlassLook, look)) {
+            mGlassLook = look;
+            invalidateSelf();
+            mAggregator.onBlurDrawableUpdated(this);
+        }
+    }
+
+    /**
+     * Sets the sides ({@code GLASS_SIDE_} bits) where this drawable's glass carries on into
+     * another blur drawable of the same window. Those sides get no rim and no shadow, so the
+     * pieces read as one.
+     */
+    public void setGlassJoinedSides(int sides) {
+        if (mGlassJoinedSides != sides) {
+            mGlassJoinedSides = sides;
+            invalidateSelf();
+            mAggregator.onBlurDrawableUpdated(this);
+        }
+    }
+
     @Override
     public void setBounds(int left, int top, int right, int bottom) {
         super.setBounds(left, top, right, bottom);
@@ -274,6 +309,8 @@ public final class BackgroundBlurDrawable extends Drawable {
             + "," + mCornerRadiusBRY
             + "}, alpha=" + mAlpha
             + ", visible=" + mVisible
+            + ", glass=" + mGlassLook
+            + ", glassJoinedSides=" + mGlassJoinedSides
             + "}";
     }
 
@@ -507,6 +544,8 @@ public final class BackgroundBlurDrawable extends Drawable {
         public final float cornerRadiusBRY;
         public final float alpha;
         public final Rect rect;
+        public final GlassLook glassLook;
+        public final int glassJoinedSides;
 
         BlurRegion(BackgroundBlurDrawable drawable) {
             alpha = drawable.mAlpha / 255f;
@@ -520,13 +559,15 @@ public final class BackgroundBlurDrawable extends Drawable {
             cornerRadiusBRX = drawable.mCornerRadiusBRX;
             cornerRadiusBRY = drawable.mCornerRadiusBRY;
             rect = drawable.mRect;
+            glassLook = drawable.mGlassLook;
+            glassJoinedSides = drawable.mGlassJoinedSides;
         }
 
         /**
          * Serializes this class into a float array that's more JNI friendly.
          */
         float[] toFloatArray() {
-            final float[] floatArray = new float[14];
+            final float[] floatArray = new float[glassLook != null ? 21 : 14];
             floatArray[0] = blurRadius;
             floatArray[1] = alpha;
             floatArray[2] = rect.left;
@@ -541,6 +582,16 @@ public final class BackgroundBlurDrawable extends Drawable {
             floatArray[11] = cornerRadiusBLY;
             floatArray[12] = cornerRadiusBRX;
             floatArray[13] = cornerRadiusBRY;
+            if (glassLook != null) {
+                // Catalyxx glass, which nativeSetBlurRegions reads when it's there
+                floatArray[14] = glassLook.rimWidth;
+                floatArray[15] = glassLook.bend;
+                floatArray[16] = glassLook.frost;
+                floatArray[17] = glassLook.rimLight;
+                floatArray[18] = glassLook.dispersion;
+                floatArray[19] = glassLook.shadow;
+                floatArray[20] = glassJoinedSides;
+            }
             return floatArray;
         }
 
@@ -558,6 +609,8 @@ public final class BackgroundBlurDrawable extends Drawable {
                     + "," + cornerRadiusBRY
                     + "}, alpha=" + alpha
                     + ", rect=" + rect
+                    + ", glass=" + glassLook
+                    + ", glassJoinedSides=" + glassJoinedSides
                     + "}";
         }
     }
