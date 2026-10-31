@@ -377,7 +377,10 @@ public class RrSpoofManager implements IRrSpoofManager {
      */
     private void onPackageAdded(String pkg) {
         if (!mActivated) return;
-        if (mResolver == null || TrickyStoreService.XPOSED_PACKAGES.contains(pkg)) return;
+        if (mResolver == null || TrickyStoreService.XPOSED_PACKAGES.contains(pkg)
+                || TrickyStoreService.UNNECESSARY_PACKAGES.contains(pkg)) {
+            return;
+        }
         // Spoofing being active isn't enough: with TrickyStore switched off its target list
         // is none of our business.
         if (Settings.System.getIntForUser(
