@@ -6,6 +6,8 @@
 package com.android.internal.util.catalyxx;
 
 import android.content.ContentResolver;
+import android.content.Context;
+import android.graphics.Color;
 import android.provider.Settings;
 
 /**
@@ -23,6 +25,22 @@ public final class GlassSettings {
 
     /** How much glass blurs what's behind it, from 0 (light haze) to 100 (fully frosted). */
     public static final String BLUR_STRENGTH = "catalyxx_glass_blur_strength";
+
+    /**
+     * The color glass tints what it blurs with: {@link #COLOR_FROSTED} (the default),
+     * {@link #COLOR_THEME} or {@link #COLOR_ANDROID}.
+     */
+    public static final String COLOR = "catalyxx_glass_color";
+
+    /** Frosted white glass. */
+    public static final int COLOR_FROSTED = 0;
+    /** Glass in a light shade of the theme's accent color. */
+    public static final int COLOR_THEME = 1;
+    /** Android's own tint for blurred panels; {@link #TINT} doesn't change it. */
+    public static final int COLOR_ANDROID = 2;
+
+    /** How much the glass color covers what's behind, from 0 (clear) to 100 (solid). */
+    public static final String TINT = "catalyxx_glass_tint";
 
     /**
      * 1 (the default) turns glass back into plain panels in Battery Saver, like all other blur.
@@ -55,7 +73,7 @@ public final class GlassSettings {
 
     /** Every glass key, for watching all of them at once. */
     public static final String[] KEYS = {
-        ENABLED, BLUR_STRENGTH, SOLID_IN_BATTERY_SAVER,
+        ENABLED, BLUR_STRENGTH, COLOR, TINT, SOLID_IN_BATTERY_SAVER,
         PLACE_SHADE, PLACE_LOCKSCREEN, PLACE_VOLUME, PLACE_POWER_MENU, PLACE_DIALOGS,
     };
 
@@ -63,6 +81,11 @@ public final class GlassSettings {
     public static final int MAX_BLUR_STRENGTH = 100;
     /** Keeps each place's own blur radius. */
     public static final int DEFAULT_BLUR_STRENGTH = 50;
+
+    public static final int MIN_TINT = 0;
+    public static final int MAX_TINT = 100;
+    /** Light enough that what's behind shows clearly, enough to tell glass from a hole. */
+    public static final int DEFAULT_TINT = 20;
 
     // What a place's blur radius is multiplied by at the lowest and highest strength
     private static final float MIN_BLUR_SCALE = 0.2f;
@@ -107,6 +130,39 @@ public final class GlassSettings {
             return radius;
         }
         return Math.max(1, Math.round(radius * scale));
+    }
+
+    /**
+     * The color glass tints {@code place} with over its blur: {@code androidColor}, Android's
+     * own tint there, while glass is off there or set to {@link #COLOR_ANDROID}.
+     */
+    public static int tintColor(Context context, String place, int androidColor) {
+        final ContentResolver resolver = context.getContentResolver();
+        if (!isOn(resolver, place)) {
+            return androidColor;
+        }
+        return tintColor(context, Settings.Global.getInt(resolver, COLOR, COLOR_FROSTED),
+                Settings.Global.getInt(resolver, TINT, DEFAULT_TINT), androidColor);
+    }
+
+    /**
+     * The tint of glass color {@code color} at {@code tint}, one of the {@code COLOR_} values
+     * and 0 to 100; {@code androidColor} for {@link #COLOR_ANDROID}.
+     */
+    public static int tintColor(Context context, int color, int tint, int androidColor) {
+        final int rgb;
+        if (color == COLOR_ANDROID) {
+            return androidColor;
+        } else if (color == COLOR_THEME) {
+            // A light accent shade, so it frosts like the white instead of darkening
+            rgb = context.getColor(context.getResources().getConfiguration().isNightModeActive()
+                    ? android.R.color.system_accent1_200
+                    : android.R.color.system_accent1_100);
+        } else {
+            rgb = Color.WHITE;
+        }
+        final int t = Math.max(MIN_TINT, Math.min(MAX_TINT, tint));
+        return (Math.round(t * 255f / MAX_TINT) << 24) | (rgb & 0xffffff);
     }
 
     /** Whether glass keeps the system's blur on while Battery Saver is on. */
