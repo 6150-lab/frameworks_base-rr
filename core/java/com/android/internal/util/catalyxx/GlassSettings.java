@@ -43,8 +43,9 @@ public final class GlassSettings {
     /** How much the glass color covers what's behind, from 0 (clear) to 100 (solid). */
     public static final String TINT = "catalyxx_glass_tint";
 
-    // How glass with a curved rim is drawn, see look(). So far the volume dialog and the lock
-    // screen's buttons have the rim; other places are plain blur.
+    // How glass with a curved rim is drawn, see look(). So far the volume dialog, the lock
+    // screen's buttons, the power menu and SystemUI's bottom sheets have the rim; other places
+    // are plain blur.
 
     /**
      * {@link #STYLE_CLEAR} (the default), {@link #STYLE_FROSTED} or {@link #STYLE_FLAT}.
@@ -53,7 +54,10 @@ public final class GlassSettings {
 
     /** Plain blur without a rim. */
     public static final int STYLE_FLAT = 0;
-    /** A clear middle, with a curved rim that bends in what's past the edge. */
+    /**
+     * A clear middle, with a curved rim that bends in what's past the edge. Only for buttons and
+     * sliders: places with text on their glass get a frosted middle, so the text reads.
+     */
     public static final int STYLE_CLEAR = 1;
     /** The same rim around a frosted middle. */
     public static final int STYLE_FROSTED = 2;
@@ -114,6 +118,12 @@ public final class GlassSettings {
     /** The power menu. */
     public static final String PLACE_POWER_MENU = "catalyxx_glass_power_menu";
 
+    /**
+     * 1 blurs the whole screen behind the power menu when its panel is glass with a curved rim.
+     * 0 (the default) only dims it, so the rim has something sharp to bend.
+     */
+    public static final String POWER_MENU_BLUR_BEHIND = "catalyxx_glass_power_menu_blur_behind";
+
     /** SystemUI menus and dialogs, such as the Internet, Bluetooth and volume panel sheets. */
     public static final String PLACE_DIALOGS = "catalyxx_glass_dialogs";
 
@@ -127,6 +137,7 @@ public final class GlassSettings {
         ENABLED, BLUR_STRENGTH, COLOR, TINT, STYLE, BEND, RIM_WIDTH, RIM_LIGHT, RAINBOW, SHADOW,
         ADAPTIVE, SMOKE, SMOKE_COLOR, SWITCH_POINT, SOLID_IN_BATTERY_SAVER,
         PLACE_SHADE, PLACE_LOCKSCREEN, PLACE_VOLUME, PLACE_POWER_MENU, PLACE_DIALOGS,
+        POWER_MENU_BLUR_BEHIND,
     };
 
     public static final int MIN_BLUR_STRENGTH = 0;
@@ -166,6 +177,10 @@ public final class GlassSettings {
     private static final float MAX_BEND = 2.4f;
     private static final float MAX_SHADOW = 0.6f;
 
+    // How much more smoke glass with text on it gets over light content: the default 45 becomes
+    // 61, enough for white text on smoke over a white page to read (about 5.7:1)
+    private static final float TEXT_SMOKE_SCALE = 1.35f;
+
     // What a place's blur radius is multiplied by at the lowest and highest strength
     private static final float MIN_BLUR_SCALE = 0.2f;
     private static final float MAX_BLUR_SCALE = 2f;
@@ -180,6 +195,21 @@ public final class GlassSettings {
     /** Whether glass is on for {@code place}, one of the {@code PLACE_} keys. */
     public static boolean isOn(ContentResolver resolver, String place) {
         return isEnabled(resolver) && Settings.Global.getInt(resolver, place, 1) == 1;
+    }
+
+    /** Whether glass at {@code place} has a curved rim: it's on there and not Flat. */
+    public static boolean hasRim(ContentResolver resolver, String place) {
+        return isOn(resolver, place)
+                && Settings.Global.getInt(resolver, STYLE, DEFAULT_STYLE) != STYLE_FLAT;
+    }
+
+    /**
+     * Whether the power menu blurs the whole screen behind it: always as Android does, except
+     * that glass with a curved rim only dims it unless {@link #POWER_MENU_BLUR_BEHIND} is on.
+     */
+    public static boolean blursBehindPowerMenu(ContentResolver resolver) {
+        return !hasRim(resolver, PLACE_POWER_MENU)
+                || Settings.Global.getInt(resolver, POWER_MENU_BLUR_BEHIND, 0) == 1;
     }
 
     /**
@@ -257,15 +287,21 @@ public final class GlassSettings {
         if (!isOn(resolver, place)) {
             return null;
         }
+        final int style = Settings.Global.getInt(resolver, STYLE, DEFAULT_STYLE);
+        final int smoke = Settings.Global.getInt(resolver, SMOKE, DEFAULT_SMOKE);
+        // Glass with text on it gets a frosted middle whatever the style, and more smoke over
+        // light content, so the text on it reads
+        final boolean carriesText = PLACE_DIALOGS.equals(place)
+                || PLACE_POWER_MENU.equals(place) || PLACE_SHADE.equals(place);
         return look(context,
-                Settings.Global.getInt(resolver, STYLE, DEFAULT_STYLE),
+                carriesText && style == STYLE_CLEAR ? STYLE_FROSTED : style,
                 Settings.Global.getInt(resolver, BEND, DEFAULT_BEND),
                 Settings.Global.getInt(resolver, RIM_WIDTH, DEFAULT_RIM_WIDTH),
                 Settings.Global.getInt(resolver, RIM_LIGHT, DEFAULT_RIM_LIGHT),
                 Settings.Global.getInt(resolver, RAINBOW, DEFAULT_RAINBOW),
                 Settings.Global.getInt(resolver, SHADOW, DEFAULT_SHADOW),
                 tintColor(context, place, androidColor),
-                Settings.Global.getInt(resolver, SMOKE, DEFAULT_SMOKE),
+                carriesText ? Math.min(MAX_PERCENT, Math.round(smoke * TEXT_SMOKE_SCALE)) : smoke,
                 Settings.Global.getInt(resolver, SMOKE_COLOR, SMOKE_BLACK),
                 Settings.Global.getInt(resolver, ADAPTIVE, 1),
                 Settings.Global.getInt(resolver, SWITCH_POINT, DEFAULT_SWITCH_POINT));
