@@ -25,6 +25,7 @@ import com.android.systemui.common.shared.colors.SurfaceEffectColors
 import com.android.systemui.common.ui.domain.interactor.ConfigurationInteractor
 import com.android.systemui.dagger.SysUISingleton
 import com.android.systemui.glass.data.repository.GlassRepository
+import com.android.systemui.glass.data.repository.GlassRim
 import com.android.systemui.keyguard.domain.interactor.KeyguardTransitionInteractor
 import com.android.systemui.keyguard.shared.model.KeyguardState
 import com.android.systemui.scene.domain.interactor.SceneInteractor
@@ -96,6 +97,9 @@ constructor(
 
     /** What Catalyxx glass multiplies the background's blur radius by. */
     val blurRadiusScale: Flow<Float> = glassRepository.blurScale(GlassSettings.PLACE_LOCKSCREEN)
+
+    /** Catalyxx glass's curved rim for the background, or null while glass is off here. */
+    val glassRim: Flow<GlassRim?> = glassRepository.rim(GlassSettings.PLACE_LOCKSCREEN)
 
     val color: Flow<Int> =
         deviceEntryIconViewModel.useBackgroundProtection.flatMapLatest { useBackground ->

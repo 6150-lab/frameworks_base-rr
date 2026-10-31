@@ -44,6 +44,7 @@ import com.android.systemui.common.ui.binder.IconViewBinder
 import com.android.systemui.common.ui.view.updateLongClickListener
 import com.android.systemui.dagger.SysUISingleton
 import com.android.systemui.glass.data.repository.GlassRepository
+import com.android.systemui.glass.data.repository.GlassRim
 import com.android.systemui.keyguard.ui.viewmodel.KeyguardQuickAffordanceHapticViewModel
 import com.android.systemui.keyguard.ui.viewmodel.KeyguardQuickAffordanceViewModel
 import com.android.systemui.lifecycle.repeatWhenAttached
@@ -130,19 +131,20 @@ constructor(
                     }
 
                     launch {
-                        // Also follows Catalyxx glass being turned on, off, softer, stronger or
-                        // recolored (its tint is null while it's off).
+                        // Also follows Catalyxx glass being turned on, off, softer, stronger,
+                        // recolored or reshaped (its tint and rim are null while it's off).
                         // (Collected now: the stock code built this flow but never collected it.)
                         combine(
                                 windowRootViewBlurInteractor.isBlurCurrentlySupported,
                                 glassRepository.tint(GlassSettings.PLACE_LOCKSCREEN),
                                 glassRepository.blurScale(GlassSettings.PLACE_LOCKSCREEN),
+                                glassRepository.rim(GlassSettings.PLACE_LOCKSCREEN),
                                 viewModel,
-                            ) { isSupported, _, _, viewModel ->
-                                viewModel to isSupported
+                            ) { isSupported, _, _, rim, viewModel ->
+                                Triple(viewModel, isSupported, rim)
                             }
-                            .collect { (viewModel, isSupported) ->
-                                updateBackground(viewModel, view, isSupported)
+                            .collect { (viewModel, isSupported, rim) ->
+                                updateBackground(viewModel, view, isSupported, rim)
                             }
                     }
                 }
@@ -164,6 +166,7 @@ constructor(
         viewModel: KeyguardQuickAffordanceViewModel,
         view: View,
         isBlurSupported: Boolean,
+        glassRim: GlassRim?,
     ) {
         val isBlurAllowed = isBlurAllowed(view)
         if (isBlurAllowed) {
@@ -184,6 +187,8 @@ constructor(
                         ),
                     )
                 )
+                // Catalyxx glass's curved rim, if it's on here
+                setGlass(if (isBlurShown) glassRim?.look(view.context) else null)
                 // Blur behind the see-through color getBackgroundTintList picks, so on the lock
                 // screen itself. The stock code had isSelected here, which is only true for the
                 // highlighted button in the wallpaper picker's preview, so it never showed.
@@ -284,6 +289,7 @@ constructor(
             viewModel,
             view,
             windowRootViewBlurInteractor.isBlurCurrentlySupported.value,
+            glassRepository.currentRim(GlassSettings.PLACE_LOCKSCREEN),
         )
 
         view

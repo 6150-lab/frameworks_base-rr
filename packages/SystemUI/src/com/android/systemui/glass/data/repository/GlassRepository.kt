@@ -7,6 +7,7 @@ package com.android.systemui.glass.data.repository
 
 import android.content.Context
 import androidx.annotation.ColorInt
+import com.android.internal.util.catalyxx.GlassLook
 import com.android.internal.util.catalyxx.GlassSettings
 import com.android.systemui.dagger.SysUISingleton
 import com.android.systemui.dagger.qualifiers.Application
@@ -60,6 +61,12 @@ constructor(
     fun tint(place: String): Flow<GlassTint?> =
         state.map { it.tint(place) }.distinctUntilChanged()
 
+    /** How glass's curved rim is drawn at [place], or null while glass is off there. */
+    fun rim(place: String): Flow<GlassRim?> = state.map { it.rim(place) }.distinctUntilChanged()
+
+    /** [rim] right now. */
+    fun currentRim(place: String): GlassRim? = state.value.rim(place)
+
     private fun readState() =
         GlassState(
             enabled = globalSettings.getInt(GlassSettings.ENABLED, 0) == 1,
@@ -73,6 +80,25 @@ constructor(
                     color = globalSettings.getInt(GlassSettings.COLOR, GlassSettings.COLOR_FROSTED),
                     tint = globalSettings.getInt(GlassSettings.TINT, GlassSettings.DEFAULT_TINT),
                 ),
+            rim =
+                GlassRim(
+                    style = globalSettings.getInt(GlassSettings.STYLE, GlassSettings.DEFAULT_STYLE),
+                    bend = globalSettings.getInt(GlassSettings.BEND, GlassSettings.DEFAULT_BEND),
+                    width =
+                        globalSettings.getInt(
+                            GlassSettings.RIM_WIDTH,
+                            GlassSettings.DEFAULT_RIM_WIDTH,
+                        ),
+                    light =
+                        globalSettings.getInt(
+                            GlassSettings.RIM_LIGHT,
+                            GlassSettings.DEFAULT_RIM_LIGHT,
+                        ),
+                    rainbow =
+                        globalSettings.getInt(GlassSettings.RAINBOW, GlassSettings.DEFAULT_RAINBOW),
+                    shadow =
+                        globalSettings.getInt(GlassSettings.SHADOW, GlassSettings.DEFAULT_SHADOW),
+                ),
             placesOff =
                 GlassSettings.PLACES.filterTo(HashSet()) { globalSettings.getInt(it, 1) == 0 },
         )
@@ -81,6 +107,7 @@ constructor(
         val enabled: Boolean,
         val strength: Int,
         val tint: GlassTint,
+        val rim: GlassRim,
         val placesOff: Set<String>,
     ) {
         fun isOn(place: String) = enabled && place !in placesOff
@@ -89,6 +116,8 @@ constructor(
 
         fun tint(place: String) = if (isOn(place)) tint else null
 
+        fun rim(place: String) = if (isOn(place)) rim else null
+
         companion object {
             /** Until the settings are read: glass off, as it is by default. */
             val OFF =
@@ -96,6 +125,15 @@ constructor(
                     enabled = false,
                     strength = GlassSettings.DEFAULT_BLUR_STRENGTH,
                     tint = GlassTint(GlassSettings.COLOR_FROSTED, GlassSettings.DEFAULT_TINT),
+                    rim =
+                        GlassRim(
+                            GlassSettings.DEFAULT_STYLE,
+                            GlassSettings.DEFAULT_BEND,
+                            GlassSettings.DEFAULT_RIM_WIDTH,
+                            GlassSettings.DEFAULT_RIM_LIGHT,
+                            GlassSettings.DEFAULT_RAINBOW,
+                            GlassSettings.DEFAULT_SHADOW,
+                        ),
                     placesOff = emptySet(),
                 )
         }
@@ -109,4 +147,22 @@ data class GlassTint(val color: Int, val tint: Int) {
     @ColorInt
     fun over(context: Context, @ColorInt androidColor: Int): Int =
         GlassSettings.tintColor(context, color, tint, androidColor)
+}
+
+/**
+ * Glass's [GlassSettings.STYLE], [GlassSettings.BEND], [GlassSettings.RIM_WIDTH],
+ * [GlassSettings.RIM_LIGHT], [GlassSettings.RAINBOW] and [GlassSettings.SHADOW].
+ */
+data class GlassRim(
+    val style: Int,
+    val bend: Int,
+    val width: Int,
+    val light: Int,
+    val rainbow: Int,
+    val shadow: Int,
+) {
+
+    /** How this rim is drawn on [context]'s display, or null for the Flat style. */
+    fun look(context: Context): GlassLook? =
+        GlassSettings.look(context, style, bend, width, light, rainbow, shadow)
 }
