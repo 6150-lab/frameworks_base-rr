@@ -74,6 +74,26 @@ public final class GlassSettings {
     public static final String SHADOW = "catalyxx_glass_shadow";
 
     /**
+     * 1 (the default) lets glass with a curved rim turn smoky where what's behind it is light, so
+     * what sits on it stays readable; 0 keeps its color everywhere.
+     */
+    public static final String ADAPTIVE = "catalyxx_glass_adaptive";
+
+    /** How smoky glass with a curved rim turns over light content, from 0 (not at all) to 100. */
+    public static final String SMOKE = "catalyxx_glass_smoke";
+
+    /** {@link #SMOKE_BLACK} (the default) or {@link #SMOKE_THEME}. */
+    public static final String SMOKE_COLOR = "catalyxx_glass_smoke_color";
+
+    /** Smoke of plain black. */
+    public static final int SMOKE_BLACK = 0;
+    /** Smoke in a dark shade of the theme's accent color. */
+    public static final int SMOKE_THEME = 1;
+
+    /** How light what's behind has to be before glass turns smoky, from 10 (soon) to 90 (late). */
+    public static final String SWITCH_POINT = "catalyxx_glass_switch_point";
+
+    /**
      * 1 (the default) turns glass back into plain panels in Battery Saver, like all other blur.
      * 0 keeps blur on in Battery Saver while glass is on; Android has one blur switch for the
      * whole system there, so apps keep their blur too.
@@ -105,7 +125,7 @@ public final class GlassSettings {
     /** Every glass key, for watching all of them at once. */
     public static final String[] KEYS = {
         ENABLED, BLUR_STRENGTH, COLOR, TINT, STYLE, BEND, RIM_WIDTH, RIM_LIGHT, RAINBOW, SHADOW,
-        SOLID_IN_BATTERY_SAVER,
+        ADAPTIVE, SMOKE, SMOKE_COLOR, SWITCH_POINT, SOLID_IN_BATTERY_SAVER,
         PLACE_SHADE, PLACE_LOCKSCREEN, PLACE_VOLUME, PLACE_POWER_MENU, PLACE_DIALOGS,
     };
 
@@ -133,6 +153,14 @@ public final class GlassSettings {
     public static final int MIN_RIM_WIDTH = 4;
     public static final int MAX_RIM_WIDTH = 32;
     public static final int DEFAULT_RIM_WIDTH = 16;
+
+    /** Dark enough that white icons and text on glass over a white page stay readable. */
+    public static final int DEFAULT_SMOKE = 45;
+
+    public static final int MIN_SWITCH_POINT = 10;
+    public static final int MAX_SWITCH_POINT = 90;
+    /** A little past mid-grey, so glass over everyday dark content keeps its own color. */
+    public static final int DEFAULT_SWITCH_POINT = 55;
 
     // How far the rim reaches at BEND 100, in rim widths, and the shadow's darkness at SHADOW 100
     private static final float MAX_BEND = 2.4f;
@@ -219,10 +247,12 @@ public final class GlassSettings {
     /**
      * How glass with a curved rim is drawn at {@code place} now, with sizes in pixels for
      * {@code context}'s display; null where it's plain blur, because glass is off there or set
-     * to {@link #STYLE_FLAT}.
+     * to {@link #STYLE_FLAT}. Its color over dark content is {@link #tintColor}'s, with
+     * {@code androidColor} as Android's own tint there; the glass draws it itself, so the place
+     * leaves its own tint out.
      */
     @Nullable
-    public static GlassLook look(Context context, String place) {
+    public static GlassLook look(Context context, String place, int androidColor) {
         final ContentResolver resolver = context.getContentResolver();
         if (!isOn(resolver, place)) {
             return null;
@@ -233,28 +263,43 @@ public final class GlassSettings {
                 Settings.Global.getInt(resolver, RIM_WIDTH, DEFAULT_RIM_WIDTH),
                 Settings.Global.getInt(resolver, RIM_LIGHT, DEFAULT_RIM_LIGHT),
                 Settings.Global.getInt(resolver, RAINBOW, DEFAULT_RAINBOW),
-                Settings.Global.getInt(resolver, SHADOW, DEFAULT_SHADOW));
+                Settings.Global.getInt(resolver, SHADOW, DEFAULT_SHADOW),
+                tintColor(context, place, androidColor),
+                Settings.Global.getInt(resolver, SMOKE, DEFAULT_SMOKE),
+                Settings.Global.getInt(resolver, SMOKE_COLOR, SMOKE_BLACK),
+                Settings.Global.getInt(resolver, ADAPTIVE, 1),
+                Settings.Global.getInt(resolver, SWITCH_POINT, DEFAULT_SWITCH_POINT));
     }
 
     /**
      * The look of glass with these {@link #STYLE}, {@link #BEND}, {@link #RIM_WIDTH},
-     * {@link #RIM_LIGHT}, {@link #RAINBOW} and {@link #SHADOW} settings, with sizes in pixels for
-     * {@code context}'s display; null for {@link #STYLE_FLAT}.
+     * {@link #RIM_LIGHT}, {@link #RAINBOW}, {@link #SHADOW}, {@link #SMOKE},
+     * {@link #SMOKE_COLOR}, {@link #ADAPTIVE} and {@link #SWITCH_POINT} settings, and
+     * {@code tint} as its ARGB color over dark content (see {@link #tintColor}); sizes in pixels
+     * for {@code context}'s display, null for {@link #STYLE_FLAT}.
      */
     @Nullable
     public static GlassLook look(Context context, int style, int bend, int rimWidth,
-            int rimLight, int rainbow, int shadow) {
+            int rimLight, int rainbow, int shadow, int tint, int smoke, int smokeColor,
+            int adaptive, int switchPoint) {
         if (style == STYLE_FLAT) {
             return null;
         }
         final int width = Math.max(MIN_RIM_WIDTH, Math.min(MAX_RIM_WIDTH, rimWidth));
+        final int smokeRgb = smokeColor == SMOKE_THEME
+                ? context.getColor(android.R.color.system_accent1_900)
+                : Color.BLACK;
+        final int point = Math.max(MIN_SWITCH_POINT, Math.min(MAX_SWITCH_POINT, switchPoint));
         return new GlassLook(
                 width * context.getResources().getDisplayMetrics().density,
                 MAX_BEND * fraction(bend),
                 style == STYLE_FROSTED ? 1f : 0f,
                 fraction(rimLight),
                 fraction(rainbow),
-                MAX_SHADOW * fraction(shadow));
+                MAX_SHADOW * fraction(shadow),
+                tint,
+                (Math.round(fraction(smoke) * 255) << 24) | (smokeRgb & 0xffffff),
+                adaptive == 1 ? point / 100f : 0f);
     }
 
     /** A 0 to 100 setting as 0 to 1. */

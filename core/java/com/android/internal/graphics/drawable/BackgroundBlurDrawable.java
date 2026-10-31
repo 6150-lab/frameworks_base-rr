@@ -568,7 +568,7 @@ public final class BackgroundBlurDrawable extends Drawable {
          * Serializes this class into a float array that's more JNI friendly.
          */
         float[] toFloatArray() {
-            final float[] floatArray = new float[glassLook != null ? 21 : 14];
+            final float[] floatArray = new float[glassLook != null ? 30 : 14];
             floatArray[0] = blurRadius;
             floatArray[1] = alpha;
             floatArray[2] = rect.left;
@@ -592,8 +592,19 @@ public final class BackgroundBlurDrawable extends Drawable {
                 floatArray[18] = glassLook.dispersion;
                 floatArray[19] = glassLook.shadow;
                 floatArray[20] = glassJoinedSides;
+                putColor(floatArray, 21, glassLook.tintOverDark);
+                putColor(floatArray, 25, glassLook.tintOverLight);
+                floatArray[29] = glassLook.adaptPoint;
             }
             return floatArray;
+        }
+
+        /** Puts ARGB {@code color} at {@code index} as red, green, blue and alpha from 0 to 1. */
+        private static void putColor(float[] floatArray, int index, int color) {
+            floatArray[index] = Color.red(color) / 255f;
+            floatArray[index + 1] = Color.green(color) / 255f;
+            floatArray[index + 2] = Color.blue(color) / 255f;
+            floatArray[index + 3] = Color.alpha(color) / 255f;
         }
 
         @Override

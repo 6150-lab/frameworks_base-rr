@@ -8,8 +8,8 @@ package com.android.internal.util.catalyxx;
 /**
  * How a piece of Catalyxx glass is drawn. SurfaceFlinger draws a blur region with a look as a
  * slab of glass: its curved rim bends in the content just past the edge and catches the light,
- * and its flat middle shows the content behind it, clear or frosted. Made by
- * {@link GlassSettings#look}.
+ * and its flat middle shows the content behind it, clear or frosted, under the glass's own color,
+ * which can turn smoky where what's behind is light. Made by {@link GlassSettings#look}.
  */
 public final class GlassLook {
 
@@ -31,14 +31,32 @@ public final class GlassLook {
     /** Darkness of the glass's shadow, 0 to 1. */
     public final float shadow;
 
+    /**
+     * The glass's own color over dark content, ARGB; its alpha is how much of the glass it
+     * covers.
+     */
+    public final int tintOverDark;
+
+    /** The glass's own color over light content, ARGB. */
+    public final int tintOverLight;
+
+    /**
+     * How bright what's behind is, 0 to 1, where the glass turns from {@link #tintOverDark} to
+     * {@link #tintOverLight}; 0 keeps {@link #tintOverDark} everywhere.
+     */
+    public final float adaptPoint;
+
     public GlassLook(float rimWidth, float bend, float frost, float rimLight, float dispersion,
-            float shadow) {
+            float shadow, int tintOverDark, int tintOverLight, float adaptPoint) {
         this.rimWidth = rimWidth;
         this.bend = bend;
         this.frost = frost;
         this.rimLight = rimLight;
         this.dispersion = dispersion;
         this.shadow = shadow;
+        this.tintOverDark = tintOverDark;
+        this.tintOverLight = tintOverLight;
+        this.adaptPoint = adaptPoint;
     }
 
     @Override
@@ -52,7 +70,8 @@ public final class GlassLook {
         final GlassLook other = (GlassLook) o;
         return rimWidth == other.rimWidth && bend == other.bend && frost == other.frost
                 && rimLight == other.rimLight && dispersion == other.dispersion
-                && shadow == other.shadow;
+                && shadow == other.shadow && tintOverDark == other.tintOverDark
+                && tintOverLight == other.tintOverLight && adaptPoint == other.adaptPoint;
     }
 
     @Override
@@ -63,6 +82,9 @@ public final class GlassLook {
         result = 31 * result + Float.hashCode(rimLight);
         result = 31 * result + Float.hashCode(dispersion);
         result = 31 * result + Float.hashCode(shadow);
+        result = 31 * result + tintOverDark;
+        result = 31 * result + tintOverLight;
+        result = 31 * result + Float.hashCode(adaptPoint);
         return result;
     }
 
@@ -70,6 +92,8 @@ public final class GlassLook {
     public String toString() {
         return "GlassLook{rimWidth=" + rimWidth + ", bend=" + bend + ", frost=" + frost
                 + ", rimLight=" + rimLight + ", dispersion=" + dispersion + ", shadow=" + shadow
-                + "}";
+                + ", tintOverDark=#" + Integer.toHexString(tintOverDark)
+                + ", tintOverLight=#" + Integer.toHexString(tintOverLight)
+                + ", adaptPoint=" + adaptPoint + "}";
     }
 }
