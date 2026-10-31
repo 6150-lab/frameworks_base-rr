@@ -43,8 +43,8 @@ public final class GlassSettings {
     /** How much the glass color covers what's behind, from 0 (clear) to 100 (solid). */
     public static final String TINT = "catalyxx_glass_tint";
 
-    // How glass with a curved rim is drawn, see look(). So far only the volume dialog has the rim;
-    // other places are plain blur.
+    // How glass with a curved rim is drawn, see look(). So far the volume dialog and the lock
+    // screen's buttons have the rim; other places are plain blur.
 
     /**
      * {@link #STYLE_CLEAR} (the default), {@link #STYLE_FROSTED} or {@link #STYLE_FLAT}.
@@ -227,24 +227,38 @@ public final class GlassSettings {
         if (!isOn(resolver, place)) {
             return null;
         }
-        final int style = Settings.Global.getInt(resolver, STYLE, DEFAULT_STYLE);
+        return look(context,
+                Settings.Global.getInt(resolver, STYLE, DEFAULT_STYLE),
+                Settings.Global.getInt(resolver, BEND, DEFAULT_BEND),
+                Settings.Global.getInt(resolver, RIM_WIDTH, DEFAULT_RIM_WIDTH),
+                Settings.Global.getInt(resolver, RIM_LIGHT, DEFAULT_RIM_LIGHT),
+                Settings.Global.getInt(resolver, RAINBOW, DEFAULT_RAINBOW),
+                Settings.Global.getInt(resolver, SHADOW, DEFAULT_SHADOW));
+    }
+
+    /**
+     * The look of glass with these {@link #STYLE}, {@link #BEND}, {@link #RIM_WIDTH},
+     * {@link #RIM_LIGHT}, {@link #RAINBOW} and {@link #SHADOW} settings, with sizes in pixels for
+     * {@code context}'s display; null for {@link #STYLE_FLAT}.
+     */
+    @Nullable
+    public static GlassLook look(Context context, int style, int bend, int rimWidth,
+            int rimLight, int rainbow, int shadow) {
         if (style == STYLE_FLAT) {
             return null;
         }
-        final int rimWidth = Math.max(MIN_RIM_WIDTH, Math.min(MAX_RIM_WIDTH,
-                Settings.Global.getInt(resolver, RIM_WIDTH, DEFAULT_RIM_WIDTH)));
+        final int width = Math.max(MIN_RIM_WIDTH, Math.min(MAX_RIM_WIDTH, rimWidth));
         return new GlassLook(
-                rimWidth * context.getResources().getDisplayMetrics().density,
-                MAX_BEND * fraction(resolver, BEND, DEFAULT_BEND),
+                width * context.getResources().getDisplayMetrics().density,
+                MAX_BEND * fraction(bend),
                 style == STYLE_FROSTED ? 1f : 0f,
-                fraction(resolver, RIM_LIGHT, DEFAULT_RIM_LIGHT),
-                fraction(resolver, RAINBOW, DEFAULT_RAINBOW),
-                MAX_SHADOW * fraction(resolver, SHADOW, DEFAULT_SHADOW));
+                fraction(rimLight),
+                fraction(rainbow),
+                MAX_SHADOW * fraction(shadow));
     }
 
     /** A 0 to 100 setting as 0 to 1. */
-    private static float fraction(ContentResolver resolver, String key, int def) {
-        final int value = Settings.Global.getInt(resolver, key, def);
+    private static float fraction(int value) {
         return Math.max(MIN_PERCENT, Math.min(MAX_PERCENT, value)) / (float) MAX_PERCENT;
     }
 
