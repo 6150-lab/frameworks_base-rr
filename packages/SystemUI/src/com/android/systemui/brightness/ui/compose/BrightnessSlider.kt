@@ -42,6 +42,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
@@ -109,7 +110,14 @@ import com.android.systemui.brightness.ui.compose.InternalDimensions.ThumbTrackG
 import com.android.systemui.brightness.ui.viewmodel.BrightnessSliderViewModel
 import com.android.systemui.brightness.ui.viewmodel.Drag
 import com.android.systemui.common.shared.colors.SystemUISliderColors
+import com.android.systemui.qs.panels.shared.model.LocalQsGlass
+import com.android.systemui.qs.panels.shared.model.LocalQsGlassTune
 import com.android.systemui.qs.panels.shared.model.LocalQsStyle
+import com.android.systemui.qs.panels.shared.model.QsGlass
+import com.android.systemui.qs.panels.ui.compose.glassy
+import com.android.systemui.qs.panels.ui.compose.infinitegrid.glassAlphas
+import com.android.systemui.qs.panels.ui.compose.infinitegrid.liquidRim
+import com.android.systemui.qs.panels.ui.compose.infinitegrid.rimStrength
 import com.android.systemui.qs.panels.ui.compose.qsStyleSliderColors
 import com.android.systemui.qs.panels.ui.compose.qsStyleSliderDimensions
 import com.android.systemui.common.shared.model.Icon
@@ -165,7 +173,11 @@ fun BrightnessSlider(
                 SeekableSliderTrackerConfig(),
             )
         }
-    val colors = qsStyleSliderColors(LocalQsStyle.current) ?: SystemUISliderColors.Defaults
+    val glass = LocalQsGlass.current
+    val tune = LocalQsGlassTune.current
+    val colors =
+        (qsStyleSliderColors(LocalQsStyle.current) ?: SystemUISliderColors.Defaults)
+            .glassy(glass, tune)
 
     // The value state is recreated every time gammaValue changes, so we recreate this derivedState
     // We have to use value as that's the value that changes when the user is dragging (gammaValue
@@ -329,6 +341,12 @@ fun BrightnessSlider(
                                 BrightnessSliderMotionTestKeys.InactiveIconAlpha
                         }
                         .height(dimensions.trackHeight)
+                        .thenIf(glass == QsGlass.LIQUID && dimensions.trackHeight >= 20.dp) {
+                            Modifier.liquidRim(
+                                RoundedCornerShape(SliderTrackRoundedCorner),
+                                tune.rimStrength,
+                            )
+                        }
                         .drawWithContent {
                             drawContent()
 
@@ -440,13 +458,20 @@ private fun drawAutoBrightnessButton(
     } else {
         R.drawable.ic_qs_brightness_auto_off
     }
+    val glass = LocalQsGlass.current
+    val tune = LocalQsGlassTune.current
+    val fill =
+        glassAlphas(glass, tune)?.let { (on, off) ->
+            backgroundColor.copy(alpha = backgroundColor.alpha * if (autoMode) on else off)
+        } ?: backgroundColor
 
     IconButton(
         onClick = { coroutineScope.launch { onIconClick() } },
         modifier = Modifier
             .size(52.dp)
             .clip(CircleShape)
-            .background(backgroundColor)
+            .background(fill)
+            .thenIf(glass == QsGlass.LIQUID) { Modifier.liquidRim(CircleShape, tune.rimStrength) }
     ) {
         Icon(
             painter = painterResource(painterRes),

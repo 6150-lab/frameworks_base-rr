@@ -148,6 +148,8 @@ import com.android.systemui.qs.composefragment.viewmodel.QSFragmentComposeViewMo
 import com.android.systemui.qs.footer.ui.compose.FooterActions
 import com.android.systemui.qs.panels.data.repository.QsStyleRepository
 import com.android.systemui.qs.panels.shared.model.LocalQsGlass
+import com.android.systemui.qs.panels.shared.model.LocalQsGlassTune
+import com.android.systemui.qs.panels.shared.model.LocalQsMediaStyle
 import com.android.systemui.qs.panels.shared.model.LocalQsStyle
 import com.android.systemui.qs.panels.shared.model.QsStyle
 import com.android.systemui.qs.panels.shared.model.QSFragmentComposeClippingTableLog
@@ -288,8 +290,15 @@ constructor(
     private fun Content(modifier: Modifier = Modifier) {
         val qsStyle by qsStyleRepository.style.collectAsStateWithLifecycle()
         val qsGlass by qsStyleRepository.glass.collectAsStateWithLifecycle()
+        val qsGlassTune by qsStyleRepository.glassTune.collectAsStateWithLifecycle()
+        val qsMediaStyle by qsStyleRepository.qsMediaStyle.collectAsStateWithLifecycle()
         PlatformTheme(isDarkTheme = if (notificationShadeBlur()) isSystemInDarkTheme() else true) {
-            CompositionLocalProvider(LocalQsStyle provides qsStyle, LocalQsGlass provides qsGlass) {
+            CompositionLocalProvider(
+                LocalQsStyle provides qsStyle,
+                LocalQsGlass provides qsGlass,
+                LocalQsGlassTune provides qsGlassTune,
+                LocalQsMediaStyle provides qsMediaStyle,
+            ) {
                 ProvideShortcutHelperIndication(interactionsConfig = interactionsConfig()) {
                     Box(
                         modifier =
@@ -917,6 +926,7 @@ constructor(
                             // Circles puts tall brightness and volume sliders next to the media card.
                             val circlesRow =
                                 LocalQsStyle.current == QsStyle.CIRCLES &&
+                                    LocalQsMediaStyle.current == QsStyle.CIRCLES &&
                                     viewModel.qsMediaVisible &&
                                     !viewModel.qsMediaInRow
                             val brightnessShown = rememberQsBrightnessSettings().showSlider != 0
@@ -1445,16 +1455,20 @@ private fun ContentScope.MediaObject(
                     }
                 },
         ) {
-            Media(
-                viewModelFactory = mediaViewModelFactory,
-                presentationStyle = mediaPresentationStyle,
-                behavior = behavior,
-                onDismissed = onSwipeToDismiss,
-                modifier = Modifier,
-                visible = visible,
-                location = location,
-                expansion = expansion,
-            )
+            CompositionLocalProvider(
+                LocalQsStyle provides (LocalQsMediaStyle.current ?: LocalQsStyle.current)
+            ) {
+                Media(
+                    viewModelFactory = mediaViewModelFactory,
+                    presentationStyle = mediaPresentationStyle,
+                    behavior = behavior,
+                    onDismissed = onSwipeToDismiss,
+                    modifier = Modifier,
+                    visible = visible,
+                    location = location,
+                    expansion = expansion,
+                )
+            }
         }
     } else {
         Box {

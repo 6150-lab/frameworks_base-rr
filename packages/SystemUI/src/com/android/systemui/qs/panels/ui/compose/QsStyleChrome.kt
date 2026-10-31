@@ -29,8 +29,24 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.android.systemui.brightness.ui.compose.BrightnessSliderDimensions
+import com.android.systemui.qs.panels.shared.model.LocalQsGlass
+import com.android.systemui.qs.panels.shared.model.LocalQsGlassTune
+import com.android.systemui.qs.panels.shared.model.QsGlass
+import com.android.systemui.qs.panels.shared.model.QsGlassTune
 import com.android.systemui.qs.panels.shared.model.QsStyle
+import com.android.systemui.qs.panels.ui.compose.infinitegrid.glassAlphas
+import com.android.systemui.qs.panels.ui.compose.infinitegrid.liquidRim
+import com.android.systemui.qs.panels.ui.compose.infinitegrid.rimStrength
 import com.android.systemui.res.R
+
+fun SliderColors.glassy(glass: QsGlass, tune: QsGlassTune): SliderColors {
+    val (on, off) = glassAlphas(glass, tune) ?: return this
+    return copy(
+        activeTrackColor = activeTrackColor.copy(alpha = activeTrackColor.alpha * on),
+        inactiveTrackColor =
+            inactiveTrackColor.copy(alpha = inactiveTrackColor.alpha * off.coerceAtLeast(.5f)),
+    )
+}
 
 /** Brightness slider colors for [style], or null for the stock ones. */
 @Composable
@@ -173,10 +189,15 @@ fun qsStyleSliderDimensions(
 /** What sits around the brightness slider: Remix puts it in an accent card, Classic adds a sun. */
 @Composable
 fun QsStyleSliderFrame(style: QsStyle, content: @Composable () -> Unit) {
+    val glass = LocalQsGlass.current
+    val tune = LocalQsGlassTune.current
+    val see = glassAlphas(glass, tune)?.first ?: 1f
+    val rim = if (glass == QsGlass.LIQUID) tune.rimStrength else 0f
     when (style) {
         QsStyle.REMIX -> {
             val top = colorResource(android.R.color.system_accent1_600)
             val bottom = colorResource(android.R.color.system_accent1_900)
+            val shape = RoundedCornerShape(28.dp)
             Box(
                 modifier =
                     Modifier.fillMaxWidth()
@@ -186,8 +207,10 @@ fun QsStyleSliderFrame(style: QsStyle, content: @Composable () -> Unit) {
                                 start = Offset.Zero,
                                 end = Offset(900f, 600f),
                             ),
-                            RoundedCornerShape(28.dp),
+                            shape,
+                            alpha = see,
                         )
+                        .liquidRim(shape, rim)
                         .padding(horizontal = 14.dp, vertical = 14.dp)
             ) {
                 content()
@@ -224,14 +247,14 @@ fun QsStyleSliderFrame(style: QsStyle, content: @Composable () -> Unit) {
                 horizontalArrangement = Arrangement.spacedBy(3.dp),
                 modifier = Modifier.fillMaxWidth(),
             ) {
+                val segment = RoundedCornerShape(18.dp, 6.dp, 6.dp, 18.dp)
+                val fill = colorResource(android.R.color.system_primary_dark)
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier =
                         Modifier.size(52.dp)
-                            .background(
-                                colorResource(android.R.color.system_primary_dark),
-                                RoundedCornerShape(18.dp, 6.dp, 6.dp, 18.dp),
-                            ),
+                            .background(fill.copy(alpha = fill.alpha * see), segment)
+                            .liquidRim(segment, rim),
                 ) {
                     Image(
                         painter = painterResource(R.drawable.ic_brightness_full),

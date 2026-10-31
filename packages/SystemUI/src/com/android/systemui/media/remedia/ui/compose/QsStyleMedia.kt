@@ -34,10 +34,16 @@ import androidx.compose.ui.unit.dp
 import com.android.compose.theme.LocalAndroidColorScheme
 import com.android.systemui.common.shared.model.Icon
 import com.android.systemui.common.shared.model.asImageBitmap
+import com.android.systemui.qs.panels.shared.model.LocalQsGlass
+import com.android.systemui.qs.panels.shared.model.LocalQsGlassTune
 import com.android.systemui.qs.panels.shared.model.LocalQsStyle
+import com.android.systemui.qs.panels.shared.model.QsGlass
 import com.android.systemui.qs.panels.shared.model.QsStyle
 import com.android.systemui.qs.panels.ui.compose.infinitegrid.BlobShape
 import com.android.systemui.qs.panels.ui.compose.infinitegrid.SoftSurface
+import com.android.systemui.qs.panels.ui.compose.infinitegrid.glassAlphas
+import com.android.systemui.qs.panels.ui.compose.infinitegrid.liquidRim
+import com.android.systemui.qs.panels.ui.compose.infinitegrid.rimStrength
 
 /** Media card look for the QS style: a plain card with the artwork as a thumbnail. */
 internal data class MediaCardLook(
@@ -312,16 +318,22 @@ internal fun mediaCardLook(): MediaCardLook? {
 @Composable
 internal fun StyledCardBackground(look: MediaCardLook, modifier: Modifier = Modifier) {
     val shape = remember(look.radius) { RoundedCornerShape(look.radius) }
-    val base =
-        if (look.translucent && LocalMediaOnLockscreen.current) LockscreenBase else Color.Transparent
+    val lockscreen = LocalMediaOnLockscreen.current
+    val base = if (look.translucent && lockscreen) LockscreenBase else Color.Transparent
+    val glass = if (lockscreen) QsGlass.SOLID else LocalQsGlass.current
+    val tune = LocalQsGlassTune.current
+    val see = glassAlphas(glass, tune)?.first ?: 1f
     Box(
         modifier =
             modifier
                 .clip(shape)
                 .background(base)
-                .background(look.background)
+                .background(look.background.copy(alpha = look.background.alpha * see))
                 .let { if (look.border != null) it.border(look.borderWidth, look.border, shape) else it }
                 .let { if (look.bevel) it.bevel(shape) else it }
+                .let {
+                    if (glass == QsGlass.LIQUID) it.liquidRim(shape, tune.rimStrength) else it
+                }
     )
 }
 

@@ -89,6 +89,7 @@ import com.android.systemui.haptics.msdl.qs.TileHapticsViewModel
 import com.android.systemui.lifecycle.rememberViewModel
 import com.android.systemui.qs.flags.QsDetailedView
 import com.android.systemui.qs.panels.shared.model.LocalQsGlass
+import com.android.systemui.qs.panels.shared.model.LocalQsGlassTune
 import com.android.systemui.qs.panels.shared.model.LocalQsStyle
 import com.android.systemui.qs.panels.shared.model.QsGlass
 import com.android.systemui.qs.panels.shared.model.QsStyle
@@ -177,9 +178,11 @@ fun ContentScope.Tile(
 
         val style = LocalQsStyle.current
         val glass = LocalQsGlass.current
+        val tune = LocalQsGlassTune.current
         val look = tileLook(style)
         val active = uiState.visualState == STATE_ACTIVE
-        val colors = TileDefaults.getColorForState(uiState, iconOnly, style).glassy(glass, active)
+        val colors =
+            TileDefaults.getColorForState(uiState, iconOnly, style).glassy(glass, active, tune)
         val hapticsViewModel: TileHapticsViewModel =
             rememberViewModel(traceName = "TileHapticsViewModel") {
                 tileHapticsViewModelFactory.create(tile)
@@ -196,7 +199,8 @@ fun ContentScope.Tile(
             }
         val fillModifier =
             when {
-                style == QsStyle.REMIX -> Modifier.remixFill(active)
+                style == QsStyle.REMIX ->
+                    Modifier.remixFill(active, glassAlphas(glass, tune)?.first ?: 1f)
                 // Liquid Glass draws its own rim.
                 style == QsStyle.GLASS && glass != QsGlass.LIQUID ->
                     Modifier.glassBorder(active, tileShape)
@@ -207,7 +211,10 @@ fun ContentScope.Tile(
                     Modifier.styleOutline(active, tileShape, Color.White.copy(alpha = .18f), 1.dp)
                 style == QsStyle.SOFT -> Modifier.softInset(active, tileShape)
                 else -> Modifier
-            }.then(if (glass == QsGlass.LIQUID) Modifier.liquidRim(tileShape) else Modifier)
+            }.then(
+                if (glass == QsGlass.LIQUID) Modifier.liquidRim(tileShape, tune.rimStrength)
+                else Modifier
+            )
         val animatedColor by animateColorAsState(colors.background, label = "QSTileBackgroundColor")
         val isDualTarget = uiState.handlesToggleClick
         val interactionSource = remember { MutableInteractionSource() }

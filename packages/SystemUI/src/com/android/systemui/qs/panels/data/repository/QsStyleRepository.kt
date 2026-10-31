@@ -8,6 +8,7 @@ package com.android.systemui.qs.panels.data.repository
 import com.android.systemui.dagger.SysUISingleton
 import com.android.systemui.dagger.qualifiers.Background
 import com.android.systemui.qs.panels.shared.model.QsGlass
+import com.android.systemui.qs.panels.shared.model.QsGlassTune
 import com.android.systemui.qs.panels.shared.model.QsStyle
 import com.android.systemui.shared.settings.data.repository.SystemSettingsRepository
 import com.android.systemui.window.domain.interactor.WindowRootViewBlurInteractor
@@ -33,9 +34,17 @@ constructor(
             .map { QsStyle.of(it) }
             .stateIn(scope, SharingStarted.Eagerly, QsStyle.STOCK)
 
-    /** Lockscreen media card look; follows [style] unless one is picked. */
+    val qsMediaStyle: StateFlow<QsStyle> =
+        combine(style, systemSettings.intSetting(QsStyle.QS_MEDIA_SETTING, -1)) { qs, media ->
+                if (media < 0) qs else QsStyle.of(media)
+            }
+            .stateIn(scope, SharingStarted.Eagerly, QsStyle.STOCK)
+
+    /** Lockscreen media card look; follows [qsMediaStyle] unless one is picked. */
     val lockscreenMediaStyle: StateFlow<QsStyle> =
-        combine(style, systemSettings.intSetting(QsStyle.LOCKSCREEN_MEDIA_SETTING, -1)) { qs, media ->
+        combine(qsMediaStyle, systemSettings.intSetting(QsStyle.LOCKSCREEN_MEDIA_SETTING, -1)) {
+                qs,
+                media ->
                 if (media < 0) qs else QsStyle.of(media)
             }
             .stateIn(scope, SharingStarted.Eagerly, QsStyle.STOCK)
@@ -55,4 +64,13 @@ constructor(
                 }
             }
             .stateIn(scope, SharingStarted.Eagerly, QsGlass.SOLID)
+
+    val glassTune: StateFlow<QsGlassTune> =
+        combine(
+                systemSettings.intSetting(QsGlass.SETTING_TINT, 0),
+                systemSettings.intSetting(QsGlass.SETTING_REFRACTION, 60),
+            ) { tint, refraction ->
+                QsGlassTune(tint.coerceIn(0, 100) / 100f, refraction.coerceIn(0, 100) / 100f)
+            }
+            .stateIn(scope, SharingStarted.Eagerly, QsGlassTune())
 }

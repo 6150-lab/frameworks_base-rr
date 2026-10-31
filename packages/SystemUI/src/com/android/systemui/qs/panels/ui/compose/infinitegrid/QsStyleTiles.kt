@@ -70,9 +70,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.util.lerp
 import com.android.compose.theme.LocalAndroidColorScheme
 import com.android.systemui.common.shared.model.Icon
 import com.android.systemui.qs.panels.shared.model.QsGlass
+import com.android.systemui.qs.panels.shared.model.QsGlassTune
 import com.android.systemui.qs.panels.shared.model.QsStyle
 import com.android.systemui.qs.panels.ui.viewmodel.AccessibilityUiState
 import com.android.systemui.qs.panels.ui.viewmodel.TileUiState
@@ -364,48 +366,58 @@ internal fun Modifier.glassBorder(active: Boolean, shape: Shape): Modifier {
 }
 
 /** Liquid Glass: lets the blurred shade show through the tile. */
-internal fun TileColors.glassy(glass: QsGlass, active: Boolean): TileColors {
-    val alpha =
-        when (glass) {
-            QsGlass.SOLID -> return this
-            QsGlass.FROSTED -> if (active) .86f else .55f
-            QsGlass.LIQUID -> if (active) .72f else .24f
-        }
+internal fun TileColors.glassy(glass: QsGlass, active: Boolean, tune: QsGlassTune): TileColors {
+    val (on, off) = glassAlphas(glass, tune) ?: return this
+    val alpha = if (active) on else off
     return copy(
         background = background.copy(alpha = background.alpha * alpha),
         iconBackground = iconBackground.copy(alpha = iconBackground.alpha * alpha),
     )
 }
 
+internal fun glassAlphas(glass: QsGlass, tune: QsGlassTune): Pair<Float, Float>? =
+    when (glass) {
+        QsGlass.SOLID -> null
+        QsGlass.FROSTED -> lerp(.86f, .97f, tune.tint) to lerp(.55f, .85f, tune.tint)
+        QsGlass.LIQUID -> lerp(.72f, .94f, tune.tint) to lerp(.24f, .7f, tune.tint)
+    }
+
+internal val QsGlassTune.rimStrength: Float
+    get() = refraction / .6f
+
 /** Liquid Glass: a lit rim and a soft sheen, where light catches the glass. */
-internal fun Modifier.liquidRim(shape: Shape): Modifier = drawWithCache {
-    val outline = shape.createOutline(size, layoutDirection, this)
-    val rim =
-        Brush.linearGradient(
-            0f to Color.White.copy(alpha = .6f),
-            .45f to Color.White.copy(alpha = .06f),
-            1f to Color.White.copy(alpha = .24f),
-            start = Offset.Zero,
-            end = Offset(size.width, size.height),
-        )
-    val sheen =
-        Brush.radialGradient(
-            listOf(Color.White.copy(alpha = .14f), Color.Transparent),
-            center = Offset(size.width * .2f, 0f),
-            radius = maxOf(size.width, size.height) * .8f,
-        )
-    // The tile clips to its shape, so half the stroke shows.
-    val stroke = Stroke(width = 2.dp.toPx())
-    onDrawWithContent {
-        drawOutline(outline, sheen)
-        drawContent()
-        drawOutline(outline, rim, style = stroke)
+internal fun Modifier.liquidRim(shape: Shape, strength: Float = 1f): Modifier {
+    if (strength <= 0f) return this
+    fun white(alpha: Float) = Color.White.copy(alpha = (alpha * strength).coerceAtMost(1f))
+    return drawWithCache {
+        val outline = shape.createOutline(size, layoutDirection, this)
+        val rim =
+            Brush.linearGradient(
+                0f to white(.6f),
+                .45f to white(.06f),
+                1f to white(.24f),
+                start = Offset.Zero,
+                end = Offset(size.width, size.height),
+            )
+        val sheen =
+            Brush.radialGradient(
+                listOf(white(.14f), Color.Transparent),
+                center = Offset(size.width * .2f, 0f),
+                radius = maxOf(size.width, size.height) * .8f,
+            )
+        // The tile clips to its shape, so half the stroke shows.
+        val stroke = Stroke(width = 2.dp.toPx())
+        onDrawWithContent {
+            drawOutline(outline, sheen)
+            drawContent()
+            drawOutline(outline, rim, style = stroke)
+        }
     }
 }
 
 /** Remix: on tiles fill with an accent gradient. */
 @Composable
-internal fun Modifier.remixFill(active: Boolean): Modifier {
+internal fun Modifier.remixFill(active: Boolean, opacity: Float = 1f): Modifier {
     val fill by animateFloatAsState(if (active) 1f else 0f, label = "QSTileRemixFill")
     val start = colorResource(android.R.color.system_accent1_500)
     val end = colorResource(android.R.color.system_accent1_700)
@@ -413,7 +425,7 @@ internal fun Modifier.remixFill(active: Boolean): Modifier {
         if (fill > 0f) {
             drawRect(
                 Brush.linearGradient(listOf(start, end), Offset.Zero, Offset(size.width, size.height)),
-                alpha = fill,
+                alpha = fill * opacity,
             )
         }
     }
@@ -592,6 +604,8 @@ internal fun Modifier.softRaise(pressed: Boolean, shape: Shape): Modifier {
             if (raise <= 0f) return@onDrawBehind
             drawIntoCanvas { canvas ->
                 val native = canvas.nativeCanvas
+                native.save()
+                native.clipOutPath(path)
                 paint.color = SoftDark.copy(alpha = .9f * raise).toArgb()
                 native.save()
                 native.translate(offset, offset)
@@ -601,6 +615,7 @@ internal fun Modifier.softRaise(pressed: Boolean, shape: Shape): Modifier {
                 native.save()
                 native.translate(-offset * .8f, -offset * .8f)
                 native.drawPath(path, paint)
+                native.restore()
                 native.restore()
             }
         }

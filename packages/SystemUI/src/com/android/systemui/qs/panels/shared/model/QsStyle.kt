@@ -39,12 +39,15 @@ enum class QsStyle(val value: Int) {
     companion object {
         const val SETTING = "rr_qs_style"
         const val LOCKSCREEN_MEDIA_SETTING = "rr_lockscreen_media_style"
+        const val QS_MEDIA_SETTING = "rr_qs_media_style"
 
         fun of(value: Int): QsStyle = entries.firstOrNull { it.value == value } ?: STOCK
     }
 }
 
 val LocalQsStyle = staticCompositionLocalOf { QsStyle.STOCK }
+
+val LocalQsMediaStyle = staticCompositionLocalOf<QsStyle?> { null }
 
 /** Liquid Glass material on the tiles; [SOLID] while glass is off for QS or blur is off. */
 enum class QsGlass {
@@ -55,7 +58,13 @@ enum class QsGlass {
     companion object {
         const val SETTING_QS = "rr_glass_qs"
         const val SETTING_MATERIAL = "rr_glass_material"
+        const val SETTING_TINT = "rr_glass_tint"
+        const val SETTING_REFRACTION = "rr_glass_refraction"
     }
 }
 
 val LocalQsGlass = staticCompositionLocalOf { QsGlass.SOLID }
+
+data class QsGlassTune(val tint: Float = 0f, val refraction: Float = .6f)
+
+val LocalQsGlassTune = staticCompositionLocalOf { QsGlassTune() }
