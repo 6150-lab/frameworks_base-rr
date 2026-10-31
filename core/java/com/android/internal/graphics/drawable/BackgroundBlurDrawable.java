@@ -277,9 +277,10 @@ public final class BackgroundBlurDrawable extends Drawable {
         mTmpRadii[6] = mCornerRadiusBRX;
         mTmpRadii[7] = mCornerRadiusBRY;
         mRectPath.reset();
-        if (getAlpha() == 0 || !isVisible()) {
-            return;
-        }
+        // Kept whatever the alpha and visibility: draw() already skips a hidden or see-through
+        // drawable, and neither setAlpha() nor setVisible() rebuilds the path. A drawable laid out
+        // while hidden or at alpha 0 (as on the lock screen, which fades in) used to keep an empty
+        // path, so it never drew, never got a position and never reached SurfaceFlinger.
         Rect bounds = getBounds();
         mRectPath.addRoundRect(bounds.left, bounds.top, bounds.right, bounds.bottom, mTmpRadii,
                 Path.Direction.CW);
