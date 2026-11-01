@@ -185,6 +185,20 @@ object OwnGlass {
         get() = settings.scrollFade
 
     /**
+     * Whether glass at [place] has the glass selector now: the lens on a picker's chosen option
+     * and on slider knobs while they're dragged.
+     */
+    fun hasSelector(place: String): Boolean = isOn(place) && settings.selector
+
+    /** How much the glass selector magnifies: one of GlassSettings' `MAGNIFY_` values. */
+    val selectorMagnify: Int
+        get() = settings.selectorMagnify
+
+    /** Whether the glass selector and slider knobs stretch like jelly as they move. */
+    val stretch: Boolean
+        get() = settings.stretch
+
+    /**
      * A tap on glass at [place], in [view]: buzzes as the tap buzz setting says while glass is on
      * there. Only for taps Android doesn't buzz for itself.
      */
@@ -257,6 +271,10 @@ object OwnGlass {
             squish = get(GlassSettings.SQUISH, GlassSettings.DEFAULT_SQUISH),
             tapBuzz = get(GlassSettings.TAP_BUZZ, GlassSettings.TAP_BUZZ_OFF),
             scrollFade = get(GlassSettings.SCROLL_FADE, 1) == 1,
+            selector = get(GlassSettings.SELECTOR, 1) == 1,
+            selectorMagnify =
+                get(GlassSettings.SELECTOR_MAGNIFY, GlassSettings.DEFAULT_SELECTOR_MAGNIFY),
+            stretch = get(GlassSettings.STRETCH, 1) == 1,
         )
     }
 
@@ -284,6 +302,9 @@ object OwnGlass {
         val squish: Int,
         val tapBuzz: Int,
         val scrollFade: Boolean,
+        val selector: Boolean,
+        val selectorMagnify: Int,
+        val stretch: Boolean,
     ) {
         fun isOn(place: String) = enabled && place !in placesOff
 
@@ -309,6 +330,9 @@ object OwnGlass {
                     squish = GlassSettings.DEFAULT_SQUISH,
                     tapBuzz = GlassSettings.TAP_BUZZ_OFF,
                     scrollFade = true,
+                    selector = true,
+                    selectorMagnify = GlassSettings.DEFAULT_SELECTOR_MAGNIFY,
+                    stretch = true,
                 )
         }
     }

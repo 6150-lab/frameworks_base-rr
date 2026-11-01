@@ -100,6 +100,7 @@ import com.android.compose.modifiers.sliderPercentage
 import com.android.compose.modifiers.thenIf
 import com.android.compose.theme.LocalAndroidColorScheme
 import com.android.compose.ui.graphics.drawInOverlay
+import com.android.internal.util.catalyxx.GlassSettings
 import com.android.systemui.biometrics.Utils.toBitmap
 import com.android.systemui.brightness.domain.model.GammaBrightness
 import com.android.systemui.brightness.ui.compose.AnimationSpecs.IconAppearSpec
@@ -122,6 +123,9 @@ import com.android.systemui.qs.panels.ui.compose.qsStyleSliderColors
 import com.android.systemui.qs.panels.ui.compose.qsStyleSliderDimensions
 import com.android.systemui.common.shared.model.Icon
 import com.android.systemui.compose.modifiers.sysuiResTag
+import com.android.systemui.glass.ui.compose.ownGlassLensKnob
+import com.android.systemui.glass.ui.compose.ownGlassSliderLens
+import com.android.systemui.glass.ui.compose.rememberOwnGlassSliderLens
 import com.android.systemui.haptics.slider.SeekableSliderTrackerConfig
 import com.android.systemui.haptics.slider.SliderHapticFeedbackConfig
 import com.android.systemui.haptics.slider.compose.ui.SliderHapticsViewModel
@@ -161,6 +165,14 @@ fun BrightnessSlider(
     val isRestricted = restriction is PolicyRestriction.Restricted
     val contentDescription = stringResource(R.string.accessibility_brightness)
     val interactionSource = remember { MutableInteractionSource() }
+    // Catalyxx glass: the knob turns into a glass lens while it's dragged
+    val lens =
+        rememberOwnGlassSliderLens(
+            GlassSettings.PLACE_SHADE,
+            vertical = false,
+            trackThickness = dimensions.trackHeight,
+            interactionSource = interactionSource,
+        )
     val hapticsViewModel: SliderHapticsViewModel =
         rememberViewModel(traceName = "SliderHapticsViewModel") {
             hapticsViewModelFactory.create(
@@ -293,17 +305,20 @@ fun BrightnessSlider(
                             onRestrictedClick(restriction)
                         }
                     }
-                },
+                }
+                .ownGlassSliderLens(lens),
         interactionSource = interactionSource,
         thumb = {
             SliderDefaults.Thumb(
                 interactionSource = interactionSource,
                 enabled = enabled,
-                thumbSize = DpSize(dimensions.thumbWidth, dimensions.thumbHeight),
+                thumbSize = lens.knobSize(DpSize(dimensions.thumbWidth, dimensions.thumbHeight)),
                 colors = colors,
+                modifier = Modifier.ownGlassLensKnob(lens),
             )
         },
         track = { sliderState ->
+            val gap = lens.trackGap(ThumbTrackGapSize)
             var showIconActive by remember { mutableStateOf(true) }
             val iconActiveAlphaAnimatable = remember {
                 Animatable(
@@ -353,9 +368,8 @@ fun BrightnessSlider(
                             val yOffset = size.height / 2 - iconSize.toSize().height / 2
                             val activeTrackStart = 0f
                             val activeTrackEnd =
-                                size.width * sliderState.coercedValueAsFraction -
-                                    ThumbTrackGapSize.toPx()
-                            val inactiveTrackStart = activeTrackEnd + ThumbTrackGapSize.toPx() * 2
+                                size.width * sliderState.coercedValueAsFraction - gap.toPx()
+                            val inactiveTrackStart = activeTrackEnd + gap.toPx() * 2
                             val inactiveTrackEnd = size.width
 
                             val activeTrackWidth = activeTrackEnd - activeTrackStart
@@ -385,7 +399,7 @@ fun BrightnessSlider(
                 trackCornerSize = SliderTrackRoundedCorner,
                 trackInsideCornerSize = 2.dp,
                 drawStopIndicator = null,
-                thumbTrackGapSize = ThumbTrackGapSize,
+                thumbTrackGapSize = gap,
                 colors = colors,
             )
         },

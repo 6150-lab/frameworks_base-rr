@@ -60,7 +60,11 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.android.compose.theme.PlatformTheme
+import com.android.internal.util.catalyxx.GlassSettings
 import com.android.systemui.common.ui.compose.Icon
+import com.android.systemui.glass.ui.compose.ownGlassLensKnob
+import com.android.systemui.glass.ui.compose.ownGlassSliderLens
+import com.android.systemui.glass.ui.compose.rememberOwnGlassSliderLens
 import com.android.systemui.haptics.slider.SliderHapticFeedbackFilter
 import com.android.systemui.haptics.slider.compose.ui.SliderHapticsViewModel
 import com.android.systemui.res.R
@@ -217,6 +221,14 @@ private fun VolumeDialogSlider(
     val collectedSliderStateModel by viewModel.state.collectAsStateWithLifecycle(null)
     val sliderStateModel = collectedSliderStateModel ?: return
     val interactionSource = remember { MutableInteractionSource() }
+    // Catalyxx glass: the knob turns into a glass lens while it's dragged
+    val lens =
+        rememberOwnGlassSliderLens(
+            GlassSettings.PLACE_VOLUME,
+            vertical = isVolumeDialogVertical,
+            trackThickness = dimensions.trackSize,
+            interactionSource = interactionSource,
+        )
 
     LaunchedEffect(interactionSource) {
         interactionSource.interactions.collect {
@@ -333,6 +345,8 @@ private fun VolumeDialogSlider(
                         )
                     },
                     trackSize = dimensions.trackSize,
+                    // SliderTrack's own gap
+                    thumbTrackGapSize = lens.trackGap(6.dp),
                 )
                 }
             },
@@ -342,21 +356,25 @@ private fun VolumeDialogSlider(
                     interactionSource = interactions,
                     enabled = !sliderStateModel.isDisabled,
                     colors = colors,
-                    thumbSize = DpSize(dimensions.thumbWidth, dimensions.thumbHeight),
+                    thumbSize =
+                        lens.knobSize(DpSize(dimensions.thumbWidth, dimensions.thumbHeight)),
+                    modifier = Modifier.ownGlassLensKnob(lens),
                 )
             },
             accessibilityParams = AccessibilityParams(contentDescription = sliderStateModel.label),
             modifier =
-                sliderModifier.pointerInput(Unit) {
-                    coroutineScope {
-                        val currentContext = currentCoroutineContext()
-                        awaitPointerEventScope {
-                            while (currentContext.isActive) {
-                                viewModel.onTouchEvent(awaitPointerEvent())
+                sliderModifier
+                    .pointerInput(Unit) {
+                        coroutineScope {
+                            val currentContext = currentCoroutineContext()
+                            awaitPointerEventScope {
+                                while (currentContext.isActive) {
+                                    viewModel.onTouchEvent(awaitPointerEvent())
+                                }
                             }
                         }
                     }
-                },
+                    .ownGlassSliderLens(lens),
         )
     }
 }
