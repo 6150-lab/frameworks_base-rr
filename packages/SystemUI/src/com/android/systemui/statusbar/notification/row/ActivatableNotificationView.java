@@ -49,6 +49,7 @@ import com.android.internal.util.catalyxx.GlassSettings;
 import com.android.systemui.Flags;
 import com.android.systemui.Gefingerpoken;
 import com.android.systemui.glass.ui.OwnGlass;
+import com.android.systemui.glass.ui.OwnGlassViewSquish;
 import com.android.systemui.common.shared.colors.SurfaceEffectColors;
 import com.android.systemui.res.R;
 import com.android.systemui.shade.TouchLogger;
@@ -140,6 +141,9 @@ public abstract class ActivatableNotificationView extends ExpandableOutlineView 
     private boolean mGlassOn;
     private int mGlassVersion = -1;
     private final Runnable mGlassListener = this::onGlassChanged;
+    // Catalyxx glass squishes the notification a little while it's pressed
+    private final OwnGlassViewSquish mGlassSquish =
+            new OwnGlassViewSquish(this, GlassSettings.PLACE_NOTIFICATIONS, this::invalidate);
 
     public ActivatableNotificationView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -276,6 +280,14 @@ public abstract class ActivatableNotificationView extends ExpandableOutlineView 
     protected void drawableStateChanged() {
         super.drawableStateChanged();
         mBackgroundNormal.setState(getDrawableState());
+        mGlassSquish.setPressed(isPressed());
+    }
+
+    @Override
+    public boolean performClick() {
+        // Catalyxx glass: a tap on the notification buzzes, as the tap buzz setting says
+        OwnGlass.INSTANCE.tapBuzz(this, GlassSettings.PLACE_NOTIFICATIONS);
+        return super.performClick();
     }
 
     private void updateOutlineAlpha() {
@@ -857,12 +869,23 @@ public abstract class ActivatableNotificationView extends ExpandableOutlineView 
 
     @Override
     protected void dispatchDraw(Canvas canvas) {
-        if (mDrawingAppearAnimation) {
+        // Catalyxx glass squishes the notification around the middle of what's shown of it. Only
+        // its drawing: the stack keeps placing it as it is.
+        final int shownTop = getClipTopAmount();
+        final int shownBottom = getActualHeight() - getClipBottomAmount();
+        final float squish = mGlassSquish.scale(getWidth(), shownBottom - shownTop);
+        final boolean transformed = mDrawingAppearAnimation || squish != 1f;
+        if (transformed) {
             canvas.save();
+        }
+        if (mDrawingAppearAnimation) {
             canvas.translate(0, mAppearAnimationTranslation);
         }
+        if (squish != 1f) {
+            canvas.scale(squish, squish, getWidth() / 2f, (shownTop + shownBottom) / 2f);
+        }
         super.dispatchDraw(canvas);
-        if (mDrawingAppearAnimation) {
+        if (transformed) {
             canvas.restore();
         }
     }

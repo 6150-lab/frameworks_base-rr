@@ -5,10 +5,14 @@
 
 package com.android.systemui.glass.ui.compose
 
+import android.os.SystemClock
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.interaction.InteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -29,6 +33,7 @@ import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
@@ -39,6 +44,9 @@ import androidx.compose.ui.unit.LayoutDirection
 import com.android.app.tracing.coroutines.launchTraced as launch
 import com.android.systemui.glass.ui.GlassRimShader
 import com.android.systemui.glass.ui.OwnGlass
+import com.android.systemui.glass.ui.OwnGlassSquish
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 
 // How fast the touch glow comes up under a finger and fades once it lifts, in ms
 private const val GLOW_IN_MS = 120
@@ -116,6 +124,66 @@ fun Modifier.ownGlassRim(place: String, shape: Shape, touch: OwnGlassTouch? = nu
             if (ready) {
                 drawRect(ShaderBrush(shader.shader))
             }
+        }
+    }
+
+/**
+ * Squishes glass at [place] a little while [interactionSource] says it's pressed and springs it
+ * back, as the squish setting says. Put it outside the glass's clip and rim, so they squish too.
+ */
+fun Modifier.ownGlassSquish(place: String, interactionSource: InteractionSource): Modifier =
+    composed {
+        val context = LocalContext.current
+        remember(context) { OwnGlass.start(context) }
+        val density = LocalDensity.current.density
+        val depth = remember { Animatable(0f) }
+        // How the glass squishes for the press now, kept until it has sprung back
+        var squish by remember { mutableStateOf<OwnGlassSquish?>(null) }
+        LaunchedEffect(interactionSource) {
+            val presses = mutableSetOf<PressInteraction.Press>()
+            var pressedAt = 0L
+            var release: Job? = null
+            interactionSource.interactions.collect { interaction ->
+                when (interaction) {
+                    is PressInteraction.Press -> {
+                        presses += interaction
+                        if (presses.size == 1) {
+                            release?.cancel()
+                            val now = OwnGlassSquish.now(place) ?: return@collect
+                            squish = now
+                            pressedAt = SystemClock.uptimeMillis()
+                            launch {
+                                depth.animateTo(1f, spring(now.pressDamping, now.pressStiffness))
+                            }
+                        }
+                    }
+                    is PressInteraction.Release,
+                    is PressInteraction.Cancel -> {
+                        presses -=
+                            if (interaction is PressInteraction.Release) interaction.press
+                            else (interaction as PressInteraction.Cancel).press
+                        val s = squish
+                        if (presses.isEmpty() && s != null) {
+                            // A quick tap lifts before its squish shows, so it stays pressed a
+                            // moment longer
+                            val left =
+                                pressedAt + OwnGlassSquish.MIN_PRESS_MS - SystemClock.uptimeMillis()
+                            release = launch {
+                                if (left > 0) {
+                                    delay(left)
+                                }
+                                depth.animateTo(0f, spring(s.releaseDamping, s.releaseStiffness))
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        graphicsLayer {
+            val s = squish ?: return@graphicsLayer
+            val scale = s.scale(depth.value, size.width, size.height, density)
+            scaleX = scale
+            scaleY = scale
         }
     }
 

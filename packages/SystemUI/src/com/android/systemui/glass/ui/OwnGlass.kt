@@ -12,6 +12,8 @@ import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
 import android.util.ArraySet
+import android.view.HapticFeedbackConstants
+import android.view.View
 import android.view.WindowManager
 import androidx.annotation.ColorInt
 import androidx.annotation.MainThread
@@ -174,6 +176,32 @@ object OwnGlass {
     val musicPlayer: Int
         get() = settings.musicPlayer
 
+    /** How glass squishes under a finger: one of GlassSettings' `SQUISH_` values. */
+    val squish: Int
+        get() = settings.squish
+
+    /** Whether notifications fade under the shade's header as they scroll up to it. */
+    val scrollFade: Boolean
+        get() = settings.scrollFade
+
+    /**
+     * A tap on glass at [place], in [view]: buzzes as the tap buzz setting says while glass is on
+     * there. Only for taps Android doesn't buzz for itself.
+     */
+    fun tapBuzz(view: View, place: String) {
+        if (!isOn(place)) {
+            return
+        }
+        val feedback =
+            when (settings.tapBuzz) {
+                GlassSettings.TAP_BUZZ_LIGHT -> HapticFeedbackConstants.CONTEXT_CLICK
+                GlassSettings.TAP_BUZZ_MEDIUM -> HapticFeedbackConstants.VIRTUAL_KEY
+                else -> return
+            }
+        // Still follows the system's touch vibration setting
+        view.performHapticFeedback(feedback, HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING)
+    }
+
     /**
      * How SurfaceFlinger draws glass at [place] now, where Android tints it with [androidColor]
      * (see [GlassSettings.look]); null while glass is off there or Flat, or the blur is off.
@@ -226,6 +254,9 @@ object OwnGlass {
             glowColor = get(GlassSettings.TOUCH_GLOW_COLOR, GlassSettings.GLOW_WHITE),
             glowSize = get(GlassSettings.TOUCH_GLOW_SIZE, GlassSettings.DEFAULT_TOUCH_GLOW_SIZE),
             musicPlayer = get(GlassSettings.MUSIC_PLAYER, GlassSettings.PLAYER_TINTED),
+            squish = get(GlassSettings.SQUISH, GlassSettings.DEFAULT_SQUISH),
+            tapBuzz = get(GlassSettings.TAP_BUZZ, GlassSettings.TAP_BUZZ_OFF),
+            scrollFade = get(GlassSettings.SCROLL_FADE, 1) == 1,
         )
     }
 
@@ -250,6 +281,9 @@ object OwnGlass {
         val glowColor: Int,
         val glowSize: Int,
         val musicPlayer: Int,
+        val squish: Int,
+        val tapBuzz: Int,
+        val scrollFade: Boolean,
     ) {
         fun isOn(place: String) = enabled && place !in placesOff
 
@@ -272,6 +306,9 @@ object OwnGlass {
                     glowColor = GlassSettings.GLOW_WHITE,
                     glowSize = GlassSettings.DEFAULT_TOUCH_GLOW_SIZE,
                     musicPlayer = GlassSettings.PLAYER_TINTED,
+                    squish = GlassSettings.DEFAULT_SQUISH,
+                    tapBuzz = GlassSettings.TAP_BUZZ_OFF,
+                    scrollFade = true,
                 )
         }
     }

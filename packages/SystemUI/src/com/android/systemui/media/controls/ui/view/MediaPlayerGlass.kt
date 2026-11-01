@@ -28,6 +28,7 @@ import com.android.internal.util.catalyxx.GlassLook
 import com.android.internal.util.catalyxx.GlassSettings
 import com.android.systemui.glass.ui.OwnGlass
 import com.android.systemui.glass.ui.OwnGlassViewRim
+import com.android.systemui.glass.ui.OwnGlassViewSquish
 import com.android.systemui.res.R
 import com.android.systemui.statusbar.notification.stack.MediaContainerView
 import com.google.ux.material.libmonet.hct.Hct
@@ -55,6 +56,9 @@ class MediaPlayerGlass(private val albumView: ImageView, private val effectViews
     private val rimRadii = FloatArray(8) { cornerRadius }
     private val rim = OwnGlassViewRim(albumView, GlassSettings.PLACE_NOTIFICATIONS)
     private val foreground = Foreground()
+    // The player squishes a little while it's pressed: all of it, which nothing else scales
+    private val squish =
+        OwnGlassViewSquish(albumView, GlassSettings.PLACE_NOTIFICATIONS) { applySquish() }
 
     // STYLE_STOCK, or the GlassSettings PLAYER_ value the card has now
     private var style = STYLE_STOCK
@@ -125,6 +129,11 @@ class MediaPlayerGlass(private val albumView: ImageView, private val effectViews
                 }
             }
         }
+
+    /** A tap on the player or one of its buttons: buzzes as the tap buzz setting says. */
+    fun tapBuzz() {
+        OwnGlass.tapBuzz(albumView, GlassSettings.PLACE_NOTIFICATIONS)
+    }
 
     init {
         albumView.foreground = foreground
@@ -391,6 +400,13 @@ class MediaPlayerGlass(private val albumView: ImageView, private val effectViews
         return !visible.isEmpty
     }
 
+    private fun applySquish() {
+        val player = albumView.parent as? View ?: return
+        val scale = squish.scale(player.width, player.height)
+        player.scaleX = scale
+        player.scaleY = scale
+    }
+
     private fun findLockScreen(): MediaContainerView? {
         var parent = albumView.parent
         while (parent != null) {
@@ -433,6 +449,14 @@ class MediaPlayerGlass(private val albumView: ImageView, private val effectViews
             }
             blur?.setVisible(visible, restart)
             return changed
+        }
+
+        override fun isStateful(): Boolean = true
+
+        // The player passes its pressed state on to the card
+        override fun onStateChange(state: IntArray): Boolean {
+            squish.setPressed(state.contains(android.R.attr.state_pressed))
+            return false
         }
 
         override fun setAlpha(alpha: Int) {}

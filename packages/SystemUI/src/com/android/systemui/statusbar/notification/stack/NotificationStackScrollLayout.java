@@ -50,8 +50,11 @@ import android.annotation.Nullable;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.graphics.BlendMode;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.LinearGradient;
+import android.graphics.Matrix;
 import android.graphics.Outline;
 import android.graphics.Paint;
 import android.graphics.Path;
@@ -91,11 +94,13 @@ import com.android.app.animation.Interpolators;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.jank.InteractionJankMonitor;
 import com.android.internal.policy.SystemBarUtils;
+import com.android.internal.util.catalyxx.GlassSettings;
 import com.android.keyguard.BouncerPanelExpansionCalculator;
 import com.android.keyguard.KeyguardSliceView;
 import com.android.systemui.Dependency;
 import com.android.systemui.Dumpable;
 import com.android.systemui.ExpandHelper;
+import com.android.systemui.glass.ui.OwnGlass;
 import com.android.systemui.notifications.ui.YSpace;
 import com.android.systemui.res.R;
 import com.android.systemui.scene.shared.flag.SceneContainerFlag;
@@ -186,6 +191,8 @@ public class NotificationStackScrollLayout
     static final float RUBBER_BAND_FACTOR_NORMAL = 0.1f;
     private static final float RUBBER_BAND_FACTOR_AFTER_EXPAND = 0.15f;
     private static final float RUBBER_BAND_FACTOR_ON_PANEL_EXPAND = 0.21f;
+    /** How far notifications fade out under the shade's header, with Catalyxx glass. */
+    private static final float SCROLL_FADE_LENGTH_DP = 40f;
     /**
      * Sentinel value for no current active pointer. Used by {@link #mActivePointerId}.
      */
@@ -573,6 +580,15 @@ public class NotificationStackScrollLayout
     private final float[] mRoundedClipCornerRadii = new float[8];
 
     /**
+     * Catalyxx glass: notifications fade out toward the top of {@link #mRoundedClipPath} as they
+     * scroll up under the shade's header, by this gradient taking them away there.
+     */
+    private final LinearGradient mScrollFadeShader = new LinearGradient(
+            0, 0, 0, 1, Color.BLACK, Color.TRANSPARENT, Shader.TileMode.CLAMP);
+    private final Paint mScrollFadePaint = new Paint();
+    private final Matrix mScrollFadeMatrix = new Matrix();
+
+    /**
      * Whether stackY should be animated in case the view is getting shorter than the scroll
      * position and this scrolling will lead to the top scroll inset getting smaller.
      */
@@ -682,6 +698,8 @@ public class NotificationStackScrollLayout
 
     public NotificationStackScrollLayout(Context context, AttributeSet attrs) {
         super(context, attrs, 0, 0);
+        mScrollFadePaint.setShader(mScrollFadeShader);
+        mScrollFadePaint.setBlendMode(BlendMode.DST_OUT);
         Resources res = getResources();
         mDebugLines = notificationDebugDrawing();
         mDebugRemoveAnimation = SPEW;
@@ -6902,8 +6920,58 @@ public class NotificationStackScrollLayout
                 //  of in dispatchDraw
                 applyClipToCanvas(canvas);
             }
-            super.dispatchDraw(canvas);
+            final float scrollFade = getScrollFade();
+            if (scrollFade > 0f) {
+                dispatchDrawWithScrollFade(canvas, scrollFade);
+            } else {
+                super.dispatchDraw(canvas);
+            }
         }
+    }
+
+    /**
+     * How much notifications fade out under the shade's header now, from 0 for not at all to 1:
+     * with Catalyxx glass on notifications, while they're scrolled up toward the header. It comes
+     * in over the first scroll, as Android's own fading edges do.
+     */
+    private float getScrollFade() {
+        if (!mShouldUseRoundedRectClipping || mLaunchingNotification || mOwnScrollY <= 0
+                || mAmbientState.isOnKeyguard()
+                || !OwnGlass.INSTANCE.isOn(GlassSettings.PLACE_NOTIFICATIONS)
+                || !OwnGlass.INSTANCE.getScrollFade()) {
+            return 0f;
+        }
+        return Math.min(1f, mOwnScrollY / getScrollFadeLength());
+    }
+
+    private float getScrollFadeLength() {
+        return SCROLL_FADE_LENGTH_DP * getResources().getDisplayMetrics().density;
+    }
+
+    /**
+     * Draws the notifications fading out by {@code fade} (0 to 1) toward the top of the clip,
+     * where they scroll up under the shade's header. Only that band goes through a layer, so
+     * scrolling stays as smooth as without it; the children draw twice, in and outside of it.
+     */
+    private void dispatchDrawWithScrollFade(Canvas canvas, float fade) {
+        final float top = mRoundedRectClippingTop + mRoundedRectClippingYTranslation;
+        final float length = getScrollFadeLength();
+        final float bottom = top + length;
+        final int width = getWidth();
+        // Outside the band, as Android draws them; the clip keeps them within its sides
+        int count = canvas.save();
+        canvas.clipOutRect(0, top, width, bottom);
+        super.dispatchDraw(canvas);
+        canvas.restoreToCount(count);
+        // In it, taken away toward the top
+        count = canvas.saveLayer(0, top, width, bottom, null);
+        super.dispatchDraw(canvas);
+        mScrollFadeMatrix.setScale(1f, length);
+        mScrollFadeMatrix.postTranslate(0f, top);
+        mScrollFadeShader.setLocalMatrix(mScrollFadeMatrix);
+        mScrollFadePaint.setAlpha(Math.round(fade * 255));
+        canvas.drawRect(0, top, width, bottom, mScrollFadePaint);
+        canvas.restoreToCount(count);
     }
 
     private void applyClipToCanvas(Canvas canvas) {

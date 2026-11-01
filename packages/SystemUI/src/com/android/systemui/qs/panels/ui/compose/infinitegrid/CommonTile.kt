@@ -27,8 +27,10 @@ import androidx.compose.animation.graphics.res.animatedVectorResource
 import androidx.compose.animation.graphics.res.rememberAnimatedVectorPainter
 import androidx.compose.animation.graphics.vector.AnimatedImageVector
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -133,6 +135,8 @@ fun LargeTileContent(
     alwaysBacked: Boolean = false,
     textScale: () -> Float = { 1f },
     toggleClick: (() -> Unit)? = null,
+    // Catalyxx glass: where the toggle's presses go too, so the tile squishes for them
+    toggleInteractionSource: MutableInteractionSource? = null,
     onLongClick: (() -> Unit)? = null,
     toggleSize: Dp = CommonTileDefaults.ToggleTargetSize,
     iconSize: Dp = CommonTileDefaults.LargeTileIconSize,
@@ -141,6 +145,7 @@ fun LargeTileContent(
     showChevron: Boolean = false,
 ) {
     val isDualTarget = toggleClick != null
+    val indication = LocalIndication.current
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = tileHorizontalArrangement(),
@@ -164,6 +169,8 @@ fun LargeTileContent(
                         // apply the squish effect after the bg is drawn
                         .verticalSquish(squishiness)
                         .combinedClickable(
+                            interactionSource = toggleInteractionSource,
+                            indication = indication,
                             onClick = toggleClick!!,
                             onLongClick = onLongClick,
                             onLongClickLabel = longPressLabel,

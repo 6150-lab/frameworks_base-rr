@@ -60,6 +60,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalResources
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
@@ -86,8 +87,10 @@ import com.android.systemui.animation.Expandable
 import com.android.systemui.animation.TransitionAnimator.Companion.dynamicTargetResolutionEnabled
 import com.android.systemui.common.shared.model.Icon
 import com.android.systemui.compose.modifiers.sysuiResTag
+import com.android.systemui.glass.ui.OwnGlass
 import com.android.systemui.glass.ui.compose.OwnGlassShown
 import com.android.systemui.glass.ui.compose.ownGlassRim
+import com.android.systemui.glass.ui.compose.ownGlassSquish
 import com.android.systemui.glass.ui.compose.ownGlassTouchPool
 import com.android.systemui.glass.ui.compose.rememberOwnGlassTouch
 import com.android.systemui.haptics.msdl.qs.TileHapticsViewModel
@@ -281,6 +284,16 @@ fun ContentScope.Tile(
         // A tile that only shows its icon toggles on tap, whatever its size.
         val tapToggles = iconOnly || layout == TileLayout.Icon
         val interactionSource = remember { MutableInteractionSource() }
+        // Bounce the tile's container if it is toggleable and is not a large
+        // dual target tile. These don't toggle on main click.
+        val bounceContainer = uiState.isToggleable && (tapToggles || !isDualTarget)
+        // Catalyxx glass: the tile squishes while it, or its toggle, is pressed. A tile that bounces
+        // its container shares the bounce's presses; the others get their own, so they still don't
+        // bounce.
+        val glassPress = remember { MutableInteractionSource() }
+        val pressSource =
+            if (bounceContainer && volume == null) interactionSource else glassPress
+        val view = LocalView.current
 
         val surfaceRevealModifier: Modifier
         val contentRevealModifier: Modifier
@@ -343,7 +356,8 @@ fun ContentScope.Tile(
                             orientation = Orientation.Horizontal,
                             bounceEnd = currentBounceableInfo.bounceEnd,
                             interactionSource = interactionSource,
-                        ),
+                        )
+                        .ownGlassSquish(GlassSettings.PLACE_SHADE, pressSource),
             ) { expandable ->
                 // Use main click on long press for small, available dual target tiles.
                 // Open settings otherwise.
@@ -367,12 +381,8 @@ fun ContentScope.Tile(
                         }
                         .takeIf { !useLongClickToSettings || uiState.handlesSettingsClick }
 
-                // Bounce the tile's container if it is toggleable and is not a large
-                // dual target tile. These don't toggle on main click.
-                val bounceContainer = uiState.isToggleable && (tapToggles || !isDualTarget)
                 TileContainer(
-                    interactionSource =
-                        interactionSource.takeIf { bounceContainer && volume == null },
+                    interactionSource = pressSource.takeIf { volume == null },
                     onClick = onClick@{
                             if (volume != null) {
                                 volume.onIcon()
@@ -382,6 +392,10 @@ fun ContentScope.Tile(
                                 return@onClick
                             }
                             if (!isClickable) return@onClick
+                            // Catalyxx glass: Android buzzes for a toggle itself
+                            if (!bounceContainer) {
+                                OwnGlass.tapBuzz(view, GlassSettings.PLACE_SHADE)
+                            }
 
                             if (tapToggles && isDualTarget) {
                                 tile.toggleClick()
@@ -543,6 +557,7 @@ fun ContentScope.Tile(
                                 iconClip = chipShape ?: iconShape,
                                 alwaysBacked = chipShape != null,
                                 toggleClick = secondaryClick,
+                                toggleInteractionSource = glassPress,
                                 onLongClick = longClick,
                                 accessibilityUiState = uiState.accessibilityUiState,
                                 squishiness = squishiness,

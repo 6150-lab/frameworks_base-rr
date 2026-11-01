@@ -523,6 +523,8 @@ public class MediaControlPanel {
                 if (mFalsingManager.isFalseTap(FalsingManager.LOW_PENALTY)) return;
                 if (mMediaViewController.isGutsVisible()) return;
                 mLogger.logTapContentView(mUid, mPackageName, mInstanceId);
+                // Catalyxx glass
+                mMediaViewHolder.getGlass().tapBuzz();
 
                 boolean showOverLockscreen = mKeyguardStateController.isShowing()
                         && mActivityIntentHelper.wouldPendingShowOverLockscreen(clickIntent,
@@ -1216,6 +1218,8 @@ public class MediaControlPanel {
                 button.setOnClickListener(v -> {
                     if (!mFalsingManager.isFalseTap(FalsingManager.MODERATE_PENALTY)) {
                         mLogger.logTapAction(button.getId(), mUid, mPackageName, mInstanceId);
+                        // Catalyxx glass
+                        mMediaViewHolder.getGlass().tapBuzz();
                         // Used to determine whether to play turbulence noise.
                         mWasPlaying = isPlaying();
                         mButtonClicked = true;
