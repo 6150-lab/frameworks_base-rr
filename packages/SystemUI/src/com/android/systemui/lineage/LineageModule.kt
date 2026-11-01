@@ -228,6 +228,21 @@ interface LineageModule {
 
         @Provides
         @IntoMap
+        @StringKey(RrMediaTile.TILE_SPEC)
+        fun provideRrMediaTileConfig(uiEventLogger: QsEventLogger): QSTileConfig =
+            QSTileConfig(
+                tileSpec = TileSpec.create(RrMediaTile.TILE_SPEC),
+                uiConfig =
+                    QSTileUIConfig.Resource(
+                        iconRes = R.drawable.ic_now_playing_note,
+                        labelRes = R.string.qs_media_tile_label
+                    ),
+                instanceId = uiEventLogger.getNewInstanceId(),
+                category = TileCategory.UTILITIES,
+            )
+
+        @Provides
+        @IntoMap
         @StringKey(SYNC_TILE_SPEC)
         fun provideSyncTileConfig(uiEventLogger: QsEventLogger): QSTileConfig =
             QSTileConfig(
