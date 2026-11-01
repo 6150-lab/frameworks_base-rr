@@ -11,11 +11,13 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.ColorFilter
 import android.graphics.ColorMatrixColorFilter
+import android.graphics.Matrix
 import android.graphics.Paint
 import android.graphics.PixelFormat
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
 import android.graphics.Rect
+import android.graphics.RectF
 import android.graphics.drawable.Drawable
 import android.view.View
 import android.view.ViewTreeObserver
@@ -79,7 +81,8 @@ class MediaPlayerGlass(private val albumView: ImageView, private val effectViews
     private var baseLook: GlassLook? = null
     private var blurObserver: ViewTreeObserver? = null
     private val visible = Rect()
-    private val location = IntArray(2)
+    private val visibleF = RectF()
+    private val windowToCard = Matrix()
     private val containerLocation = IntArray(2)
 
     // How the effects' layers draw on a glass card: their light alone, screened on as Android
@@ -385,19 +388,29 @@ class MediaPlayerGlass(private val albumView: ImageView, private val effectViews
      * off as it shrinks. False when none of it is on screen.
      */
     private fun findVisibleCard(): Boolean {
-        if (!albumView.getLocalVisibleRect(visible)) {
+        // Found in the window, then taken back into the card's coordinates: the player scales
+        // while it squishes, and the local visible rect would keep that scale, which the card's
+        // own drawing then applies again
+        if (!albumView.getGlobalVisibleRect(visible)) {
             return false
         }
         val container = lockScreen
         if (container != null) {
-            albumView.getLocationInWindow(location)
             container.getLocationInWindow(containerLocation)
-            val bottom = containerLocation[1] + container.clipHeight - location[1]
+            val bottom = containerLocation[1] + container.clipHeight
             if (visible.bottom > bottom) {
                 visible.bottom = bottom
             }
         }
-        return !visible.isEmpty
+        if (visible.isEmpty) {
+            return false
+        }
+        visibleF.set(visible)
+        windowToCard.reset()
+        albumView.transformMatrixToLocal(windowToCard)
+        windowToCard.mapRect(visibleF)
+        visibleF.roundOut(visible)
+        return visible.intersect(0, 0, albumView.width, albumView.height)
     }
 
     private fun applySquish() {
