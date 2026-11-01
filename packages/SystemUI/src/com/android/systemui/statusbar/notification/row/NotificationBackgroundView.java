@@ -316,6 +316,9 @@ public class NotificationBackgroundView extends View implements Dumpable,
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         mGlassRim.onDetachedFromWindow();
+        // The blurred background belongs to the window it was made for. The notification asks for
+        // a new one when it's attached again (ActivatableNotificationView.onAttachedToWindow()).
+        setBlurBackgroundEnabled(false);
         updateBlurAlphaUpdater(false);
     }
 
@@ -419,7 +422,9 @@ public class NotificationBackgroundView extends View implements Dumpable,
 
     @Override
     protected boolean verifyDrawable(Drawable who) {
-        return super.verifyDrawable(who) || who == mBackground;
+        // The blurred background redraws when it changes too: it draws nothing at alpha 0, so it
+        // needs a new frame to show again once its alpha comes back (as the lock screen fades in)
+        return super.verifyDrawable(who) || who == mBackground || who == mBackgroundBlurDrawable;
     }
 
     @Override
@@ -549,6 +554,9 @@ public class NotificationBackgroundView extends View implements Dumpable,
                 mOnAttachStateChangeListener = null;
             }
             if (mBackgroundBlurDrawable != null) {
+                // The window's blur only lets go of a hidden drawable; until then it keeps it, and
+                // Catalyxx glass's tilt keeps lighting it
+                mBackgroundBlurDrawable.setVisible(false, false);
                 mBackgroundBlurDrawable.setCallback(null);
             }
             mBackgroundBlurDrawable = null;
