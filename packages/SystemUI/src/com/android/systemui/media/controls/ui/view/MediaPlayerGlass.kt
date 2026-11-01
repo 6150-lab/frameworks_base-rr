@@ -9,6 +9,8 @@ import android.content.res.ColorStateList
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.ColorFilter
+import android.graphics.ColorMatrixColorFilter
+import android.graphics.Paint
 import android.graphics.PixelFormat
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
@@ -39,9 +41,13 @@ import kotlin.math.roundToInt
  * the card stays as Android draws it and gets the rim on top.
  *
  * The player's text is light on every card, so the glass under it stays dark.
+ *
+ * [effectViews] are the player's effects screened over the card, such as the turbulence noise
+ * when it starts playing. Screening opaque black leaves an opaque card as it is, so they draw it
+ * even while idle (TransitionLayout keeps them visible), but it makes a see-through card black.
  */
 @MainThread
-class MediaPlayerGlass(private val albumView: ImageView) {
+class MediaPlayerGlass(private val albumView: ImageView, private val effectViews: List<View>) {
 
     private val cornerRadius =
         albumView.resources.getDimension(R.dimen.notification_corner_radius)
@@ -147,9 +153,18 @@ class MediaPlayerGlass(private val albumView: ImageView) {
             style == GlassSettings.PLAYER_TINTED || style == GlassSettings.PLAYER_CLEAR
         // A glass card leaves out the album art and its scrim. That takes a color filter: the
         // player crossfades art in a TransitionDrawable, which sets its layers' alpha itself.
+        // Its effects then draw in layers that only keep their light, so their black doesn't
+        // fill the card.
         if (glassCard != artHidden) {
             artHidden = glassCard
             if (glassCard) albumView.colorFilter = HIDE_ART else albumView.clearColorFilter()
+            for (view in effectViews) {
+                if (glassCard) {
+                    view.setLayerType(View.LAYER_TYPE_HARDWARE, EFFECT_LIGHT_ONLY)
+                } else {
+                    view.setLayerType(View.LAYER_TYPE_NONE, null)
+                }
+            }
         }
         if (glassCard && lockScreen != null) {
             baseLook = OwnGlass.look(GlassSettings.PLACE_NOTIFICATIONS, Color.TRANSPARENT)
@@ -418,6 +433,21 @@ class MediaPlayerGlass(private val albumView: ImageView) {
         const val OPAQUE = 255
 
         val HIDE_ART = PorterDuffColorFilter(Color.TRANSPARENT, PorterDuff.Mode.SRC)
+
+        // An effect's layer as light alone: as see-through as it is dark, so its black is gone
+        // and its brighter parts still glow on the glass
+        val EFFECT_LIGHT_ONLY =
+            Paint().apply {
+                colorFilter =
+                    ColorMatrixColorFilter(
+                        floatArrayOf(
+                            1f, 0f, 0f, 0f, 0f,
+                            0f, 1f, 0f, 0f, 0f,
+                            0f, 0f, 1f, 0f, 0f,
+                            0.2126f, 0.7152f, 0.0722f, 0f, 0f,
+                        )
+                    )
+            }
 
         // The art's color on glass: the card color's chroma times about what Android's neutral
         // palette takes from the art, as a deep shade

@@ -47,12 +47,12 @@ class MediaViewHolder constructor(itemView: View) {
 
     // Player information
     val albumView = itemView.requireViewById<ImageView>(R.id.album_art)
-    // Catalyxx glass on the card the album view draws
-    val glass = MediaPlayerGlass(albumView)
     val multiRippleView = itemView.requireViewById<MultiRippleView>(R.id.touch_ripple_view)
     val turbulenceNoiseView =
         itemView.requireViewById<TurbulenceNoiseView>(R.id.turbulence_noise_view)
     val loadingEffectView = itemView.requireViewById<LoadingEffectView>(R.id.loading_effect_view)
+    // Catalyxx glass on the card the album view draws, under the effects screened over it
+    val glass = MediaPlayerGlass(albumView, listOf(turbulenceNoiseView, loadingEffectView))
     val appIcon = itemView.requireViewById<ImageView>(R.id.icon)
     val titleText = itemView.requireViewById<TextView>(R.id.header_title)
     val artistText = itemView.requireViewById<TextView>(R.id.header_artist)
