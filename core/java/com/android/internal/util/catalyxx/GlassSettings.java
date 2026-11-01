@@ -137,12 +137,27 @@ public final class GlassSettings {
      */
     public static final String SOLID_IN_BATTERY_SAVER = "catalyxx_glass_solid_in_battery_saver";
 
+    /**
+     * How the music player looks where notifications have glass: {@link #PLAYER_TINTED} (the
+     * default), {@link #PLAYER_CLEAR} or {@link #PLAYER_ALBUM_ART}.
+     */
+    public static final String MUSIC_PLAYER = "catalyxx_glass_music_player";
+
+    /** Glass tinted with the album art's color. */
+    public static final int PLAYER_TINTED = 0;
+    /** Clear glass, as notifications have it. */
+    public static final int PLAYER_CLEAR = 1;
+    /** The album art, as Android shows it, with the glass rim on it. */
+    public static final int PLAYER_ALBUM_ART = 2;
+
     // Places glass can show. Each is on by default once glass is on; 0 turns it off there.
 
     /** Quick Settings and the notification shade. */
     public static final String PLACE_SHADE = "catalyxx_glass_shade";
 
-    /** Notifications: in the shade, on the lock screen and as heads-up. */
+    /**
+     * Notifications and the music player: in the shade, on the lock screen and as heads-up.
+     */
     public static final String PLACE_NOTIFICATIONS = "catalyxx_glass_notifications";
 
     /** The lock screen's shortcut buttons and fingerprint button. */
@@ -173,7 +188,7 @@ public final class GlassSettings {
     public static final String[] KEYS = {
         ENABLED, BLUR_STRENGTH, COLOR, TINT, STYLE, BEND, RIM_WIDTH, RIM_LIGHT, RAINBOW, SHADOW,
         TILT, TILT_AMOUNT, ADAPTIVE, SMOKE, SMOKE_COLOR, SWITCH_POINT, TOUCH_GLOW,
-        TOUCH_GLOW_COLOR, TOUCH_GLOW_SIZE, SOLID_IN_BATTERY_SAVER,
+        TOUCH_GLOW_COLOR, TOUCH_GLOW_SIZE, SOLID_IN_BATTERY_SAVER, MUSIC_PLAYER,
         PLACE_SHADE, PLACE_NOTIFICATIONS, PLACE_LOCKSCREEN, PLACE_VOLUME, PLACE_POWER_MENU,
         PLACE_DIALOGS, POWER_MENU_BLUR_BEHIND,
     };
