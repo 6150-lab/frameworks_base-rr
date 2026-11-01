@@ -44,9 +44,10 @@ public final class GlassSettings {
     public static final String TINT = "catalyxx_glass_tint";
 
     // How glass with a curved rim is drawn, see look(). So far SurfaceFlinger draws the rim on
-    // the volume dialog, the lock screen's buttons, the power menu and SystemUI's bottom sheets;
-    // Quick Settings tiles and notifications draw its light themselves, over the shade's blur
-    // (SystemUI's GlassRimShader); other places are plain blur.
+    // the volume dialog, the lock screen's buttons, the power menu, SystemUI's bottom sheets and
+    // notifications over the lock screen or an app; Quick Settings tiles and notifications in the
+    // shade draw its light themselves, over the shade's blur (SystemUI's GlassRimShader); other
+    // places are plain blur.
 
     /**
      * {@link #STYLE_CLEAR} (the default), {@link #STYLE_FROSTED} or {@link #STYLE_FLAT}.
@@ -337,7 +338,8 @@ public final class GlassSettings {
         // Glass with text on it gets a frosted middle whatever the style, and more smoke over
         // light content, so the text on it reads
         final boolean carriesText = PLACE_DIALOGS.equals(place)
-                || PLACE_POWER_MENU.equals(place) || PLACE_SHADE.equals(place);
+                || PLACE_POWER_MENU.equals(place) || PLACE_SHADE.equals(place)
+                || PLACE_NOTIFICATIONS.equals(place);
         return look(context,
                 carriesText && style == STYLE_CLEAR ? STYLE_FROSTED : style,
                 Settings.Global.getInt(resolver, BEND, DEFAULT_BEND),
