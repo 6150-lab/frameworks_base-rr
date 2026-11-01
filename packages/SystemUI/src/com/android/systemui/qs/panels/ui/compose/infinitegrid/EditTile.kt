@@ -1321,7 +1321,7 @@ private fun editPreviewColors(tile: EditTileViewModel, iconOnly: Boolean): TileC
     val active = tile.isDualTarget || own != null
     val state = if (active) STATE_ACTIVE else STATE_INACTIVE
     val base =
-        styledTileColors(tilePaintStyle(), state, tile.isDualTarget, iconOnly, tone)
+        styledTileColors(tilePaintStyle(), state, iconOnly, tone)
             ?: EditModeTileDefaults.editTileColors()
     return base
         .withFills(tweaks, state, tone, own != null, chipFills = false)

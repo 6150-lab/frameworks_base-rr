@@ -704,12 +704,6 @@ private fun styledButtonColors(footerAction: FooterActionsButtonViewModel): Butt
             } else {
                 ButtonColors(if (user) Color.Unspecified else scheme.onSurface, Color.Transparent)
             }
-        QsStyle.MONO ->
-            if (power) {
-                ButtonColors(Color(0xFF111111), Color(0xFFF2F2F2))
-            } else {
-                ButtonColors(if (user) Color.Unspecified else Color(0xFFEDEDED), Color(0xFF161616))
-            }
         QsStyle.NEON,
         QsStyle.BLUEPRINT,
         QsStyle.SOFT -> {

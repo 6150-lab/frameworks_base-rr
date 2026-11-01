@@ -116,7 +116,6 @@ private val QsStyle.label: Int
             QsStyle.CIRCLES -> R.string.qs_custom_theme_circles
             QsStyle.CLASSIC -> R.string.qs_custom_theme_classic
             QsStyle.CARDS -> R.string.qs_custom_theme_cards
-            QsStyle.MONO -> R.string.qs_custom_theme_mono
             QsStyle.NEON -> R.string.qs_custom_theme_neon
             QsStyle.BENTO -> R.string.qs_custom_theme_bento
             QsStyle.SHAPES -> R.string.qs_custom_theme_shapes

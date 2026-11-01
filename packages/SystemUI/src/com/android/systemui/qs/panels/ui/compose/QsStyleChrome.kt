@@ -91,15 +91,6 @@ fun qsStyleSliderColors(style: QsStyle): SliderColors? {
                     activeTrackColor = scheme.primary,
                     inactiveTrackColor = Color.White.copy(alpha = .18f),
                 )
-        QsStyle.MONO ->
-            SliderDefaults.colors()
-                .copy(
-                    thumbColor = Color(0xFFF2F2F2),
-                    activeTrackColor = Color(0xFFF2F2F2),
-                    inactiveTrackColor = Color(0xFF1C1C1C),
-                    activeTickColor = Color(0xFF111111),
-                    inactiveTickColor = Color(0xFFEDEDED),
-                )
         QsStyle.NEON,
         QsStyle.BLUEPRINT ->
             SliderDefaults.colors()

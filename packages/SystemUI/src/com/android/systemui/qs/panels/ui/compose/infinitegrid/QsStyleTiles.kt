@@ -168,7 +168,6 @@ internal fun themeTileLook(style: QsStyle): TileLook {
             look(48, 24, 36, 18, 20, type.labelLarge.copy(fontWeight = FontWeight.SemiBold),
                 type.labelSmall)
         QsStyle.GLASS -> look(64, 22, 44, 22, 24, type.titleSmall, type.labelMedium)
-        QsStyle.MONO -> look(64, 18, 40, 20, 24, type.titleSmall, type.labelMedium)
         QsStyle.CIRCLES -> look(80, 26, 48, 22, 24, type.titleSmall, type.labelMedium)
         QsStyle.CLASSIC -> look(78, 16, 0, 0, 26)
         QsStyle.CARDS -> look(104, 26, 38, 20, 20)
@@ -203,13 +202,6 @@ private val RemixOff = Color(0xFF1E2024)
 private val RemixOffChip = Color(0xFF2B2E33)
 private val RemixOffText = Color(0xFFE9EAEC)
 private val RemixOffMuted = Color(0xFF9DA1A7)
-private val MonoOn = Color(0xFFF2F2F2)
-private val MonoOnMuted = Color(0xFF4A4A4A)
-private val MonoInk = Color(0xFF111111)
-private val MonoOff = Color(0xFF161616)
-private val MonoOffChip = Color(0xFF232323)
-private val MonoOffText = Color(0xFFEDEDED)
-private val MonoOffMuted = Color(0xFF8A8A8A)
 
 /** A dark version of a light color, or white on a dark one, to draw on top of it. */
 fun Color.inkOn(): Color =
@@ -224,7 +216,6 @@ fun Color.inkOn(): Color =
 internal fun styledTileColors(
     style: QsStyle,
     visualState: Int,
-    dualTarget: Boolean,
     iconOnly: Boolean,
     tone: Color? = null,
 ): TileColors? {
@@ -233,7 +224,6 @@ internal fun styledTileColors(
     val scheme = if (tone == null) theme else theme.copy(primary = tone, onPrimary = tone.inkOn())
     val surface = LocalAndroidColorScheme.current.surfaceEffect1
     val active = visualState == STATE_ACTIVE
-    val dualLarge = dualTarget && !iconOnly
     val vivid = tone ?: colorResource(android.R.color.system_primary_dark)
     val vividInk = tone?.inkOn() ?: colorResource(android.R.color.system_on_primary_dark)
     val colors =
@@ -267,12 +257,6 @@ internal fun styledTileColors(
                         secondaryLabel = scheme.onSurfaceVariant,
                         icon = scheme.onSurface,
                     )
-                }
-            QsStyle.MONO ->
-                if (active) {
-                    TileColors(MonoOn, MonoInk, MonoInk, MonoOnMuted, if (dualLarge) MonoOn else MonoInk)
-                } else {
-                    TileColors(MonoOff, MonoOffChip, MonoOffText, MonoOffMuted, MonoOffText)
                 }
             QsStyle.CLASSIC ->
                 TileColors(

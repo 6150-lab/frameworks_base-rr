@@ -16,7 +16,6 @@ enum class QsStyle(val value: Int) {
     CIRCLES(4),
     CLASSIC(5),
     CARDS(6),
-    MONO(7),
     NEON(8),
     BENTO(9),
     SHAPES(10),

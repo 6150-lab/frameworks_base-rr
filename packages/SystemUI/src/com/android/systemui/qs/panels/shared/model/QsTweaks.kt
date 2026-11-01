@@ -313,7 +313,7 @@ object QsTweaksCodec {
     private fun JSONObject.intOrNull(key: String): Int? = if (has(key)) optInt(key) else null
 
     private fun JSONObject.styleOrNull(key: String): QsStyle? =
-        intOrNull(key)?.let { QsStyle.of(it) }
+        intOrNull(key)?.let { value -> QsStyle.entries.firstOrNull { it.value == value } }
 
     private inline fun <reified T : Enum<T>> JSONObject.enumOrNull(key: String): T? {
         val name = optString(key)

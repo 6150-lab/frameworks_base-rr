@@ -201,19 +201,6 @@ internal fun mediaCardLook(): MediaCardLook? {
                 artShape = RoundedCornerShape(10.dp),
                 translucent = true,
             )
-        QsStyle.MONO ->
-            MediaCardLook(
-                background = Color(0xFF161616),
-                border = null,
-                radius = 18.dp,
-                text = Color(0xFFEDEDED),
-                accent = Color(0xFFF2F2F2),
-                onAccent = Color(0xFF111111),
-                playButton = Color(0xFFF2F2F2),
-                playIcon = Color(0xFF111111),
-                playBorder = null,
-                artShape = RoundedCornerShape(12.dp),
-            )
         QsStyle.NEON ->
             MediaCardLook(
                 background = Color(0xFF0B080C),
