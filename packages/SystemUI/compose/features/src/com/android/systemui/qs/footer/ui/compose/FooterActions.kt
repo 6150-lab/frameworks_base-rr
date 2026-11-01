@@ -88,7 +88,9 @@ import com.android.compose.lifecycle.LaunchedEffectWithLifecycle
 import com.android.compose.modifiers.animatedBackground
 import com.android.compose.theme.LocalAndroidColorScheme
 import com.android.systemui.qs.panels.shared.model.LocalQsStyle
+import com.android.systemui.qs.panels.shared.model.LocalQsTweaks
 import com.android.systemui.qs.panels.shared.model.QsStyle
+import com.android.systemui.qs.panels.ui.compose.infinitegrid.inkOn
 import com.android.compose.theme.colorAttr
 import com.android.systemui.Flags.notificationShadeBlur
 import com.android.systemui.animation.Expandable
@@ -675,11 +677,15 @@ private fun buttonColorsForModel(footerAction: FooterActionsButtonViewModel): Bu
 private fun styledButtonColors(footerAction: FooterActionsButtonViewModel): ButtonColors? {
     val power = footerAction is FooterActionsButtonViewModel.PowerActionViewModel
     val user = footerAction is FooterActionsButtonViewModel.UserSwitcherViewModel
-    val scheme = MaterialTheme.colorScheme
-    return when (LocalQsStyle.current) {
+    val tone = LocalQsTweaks.current.accent?.let { Color(it) }
+    val ink = tone?.inkOn()
+    val theme = MaterialTheme.colorScheme
+    val scheme = if (tone == null) theme else theme.copy(primary = tone)
+    val style = LocalQsTweaks.current.footerFrom ?: LocalQsStyle.current
+    return when (style) {
         QsStyle.REMIX ->
             if (power) {
-                ButtonColors(Color.White, colorResource(android.R.color.system_accent1_600))
+                ButtonColors(ink ?: Color.White, tone ?: colorResource(android.R.color.system_accent1_600))
             } else {
                 ButtonColors(if (user) Color.Unspecified else Color(0xFFE9EAEC), Color(0xFF24262A))
             }
@@ -707,9 +713,9 @@ private fun styledButtonColors(footerAction: FooterActionsButtonViewModel): Butt
         QsStyle.NEON,
         QsStyle.BLUEPRINT,
         QsStyle.SOFT -> {
-            val vivid = colorResource(android.R.color.system_primary_dark)
+            val vivid = tone ?: colorResource(android.R.color.system_primary_dark)
             val base =
-                when (LocalQsStyle.current) {
+                when (style) {
                     QsStyle.NEON -> Color.White.copy(alpha = .04f)
                     QsStyle.SOFT -> Color(0xFF1C1716)
                     else -> Color.Transparent
@@ -725,8 +731,8 @@ private fun styledButtonColors(footerAction: FooterActionsButtonViewModel): Butt
         QsStyle.DUO ->
             if (power) {
                 ButtonColors(
-                    colorResource(android.R.color.system_on_primary_dark),
-                    colorResource(android.R.color.system_primary_dark),
+                    ink ?: colorResource(android.R.color.system_on_primary_dark),
+                    tone ?: colorResource(android.R.color.system_primary_dark),
                 )
             } else {
                 ButtonColors(

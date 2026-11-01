@@ -112,12 +112,12 @@ import com.android.systemui.brightness.ui.viewmodel.Drag
 import com.android.systemui.common.shared.colors.SystemUISliderColors
 import com.android.systemui.qs.panels.shared.model.LocalQsGlass
 import com.android.systemui.qs.panels.shared.model.LocalQsGlassTune
-import com.android.systemui.qs.panels.shared.model.LocalQsStyle
 import com.android.systemui.qs.panels.shared.model.QsGlass
 import com.android.systemui.qs.panels.ui.compose.glassy
 import com.android.systemui.qs.panels.ui.compose.infinitegrid.glassAlphas
 import com.android.systemui.qs.panels.ui.compose.infinitegrid.liquidRim
 import com.android.systemui.qs.panels.ui.compose.infinitegrid.rimStrength
+import com.android.systemui.qs.panels.ui.compose.qsSliderStyle
 import com.android.systemui.qs.panels.ui.compose.qsStyleSliderColors
 import com.android.systemui.qs.panels.ui.compose.qsStyleSliderDimensions
 import com.android.systemui.common.shared.model.Icon
@@ -176,7 +176,7 @@ fun BrightnessSlider(
     val glass = LocalQsGlass.current
     val tune = LocalQsGlassTune.current
     val colors =
-        (qsStyleSliderColors(LocalQsStyle.current) ?: SystemUISliderColors.Defaults)
+        (qsStyleSliderColors(qsSliderStyle()) ?: SystemUISliderColors.Defaults)
             .glassy(glass, tune)
 
     // The value state is recreated every time gammaValue changes, so we recreate this derivedState
@@ -488,7 +488,7 @@ fun BrightnessSliderContainer(
     containerColors: ContainerColors,
     dimensions: BrightnessSliderDimensions = BrightnessSliderDimensions.Default,
 ) {
-    val styled = qsStyleSliderDimensions(LocalQsStyle.current, dimensions)
+    val styled = qsStyleSliderDimensions(qsSliderStyle(), dimensions)
     val gamma = viewModel.currentBrightness.value
     if (gamma == BrightnessSliderViewModel.initialValue.value) { // Ignore initial negative value.
         return

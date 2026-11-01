@@ -37,11 +37,16 @@ import com.android.systemui.common.shared.model.asImageBitmap
 import com.android.systemui.qs.panels.shared.model.LocalQsGlass
 import com.android.systemui.qs.panels.shared.model.LocalQsGlassTune
 import com.android.systemui.qs.panels.shared.model.LocalQsStyle
+import com.android.systemui.qs.panels.shared.model.LocalQsTweaks
 import com.android.systemui.qs.panels.shared.model.QsGlass
+import com.android.systemui.qs.panels.shared.model.QsMediaArt
+import com.android.systemui.qs.panels.shared.model.QsMediaBar
 import com.android.systemui.qs.panels.shared.model.QsStyle
+import com.android.systemui.qs.panels.shared.model.QsTweaks
 import com.android.systemui.qs.panels.ui.compose.infinitegrid.BlobShape
 import com.android.systemui.qs.panels.ui.compose.infinitegrid.SoftSurface
 import com.android.systemui.qs.panels.ui.compose.infinitegrid.glassAlphas
+import com.android.systemui.qs.panels.ui.compose.infinitegrid.inkOn
 import com.android.systemui.qs.panels.ui.compose.infinitegrid.liquidRim
 import com.android.systemui.qs.panels.ui.compose.infinitegrid.rimStrength
 
@@ -77,6 +82,7 @@ internal enum class MediaProgress {
     Wave,
     /** Soft: pressed into the card. */
     Channel,
+    None,
 }
 
 /** True for the lockscreen card, where see-through styles get a dark base over the wallpaper. */
@@ -129,13 +135,16 @@ internal fun qsMediaCardGrowsToTall(): Boolean =
 @Composable
 @ReadOnlyComposable
 internal fun mediaCardLook(): MediaCardLook? {
-    val scheme = MaterialTheme.colorScheme
+    val tweaks = LocalQsTweaks.current
+    val tone = tweaks.accent?.let { Color(it) }
+    val theme = MaterialTheme.colorScheme
+    val scheme = if (tone == null) theme else theme.copy(primary = tone, onPrimary = tone.inkOn())
     val surface = LocalAndroidColorScheme.current.surfaceEffect1
     val art = RoundedCornerShape(14.dp)
     val lock = LocalMediaOnLockscreen.current
-    val vivid = colorResource(android.R.color.system_primary_dark)
-    val vividInk = colorResource(android.R.color.system_on_primary_dark)
-    return when (LocalQsStyle.current) {
+    val vivid = tone ?: colorResource(android.R.color.system_primary_dark)
+    val vividInk = tone?.inkOn() ?: colorResource(android.R.color.system_on_primary_dark)
+    val look: MediaCardLook? = when (LocalQsStyle.current) {
         QsStyle.STOCK -> null
         QsStyle.REMIX ->
             MediaCardLook(
@@ -145,8 +154,8 @@ internal fun mediaCardLook(): MediaCardLook? {
                 text = Color(0xFFEDEEF0),
                 accent = scheme.primary,
                 onAccent = scheme.onPrimary,
-                playButton = colorResource(android.R.color.system_accent1_600),
-                playIcon = Color.White,
+                playButton = tone ?: colorResource(android.R.color.system_accent1_600),
+                playIcon = tone?.inkOn() ?: Color.White,
                 playBorder = null,
                 artShape = art,
             )
@@ -312,7 +321,29 @@ internal fun mediaCardLook(): MediaCardLook? {
                 translucent = true,
             )
     }
+    return look?.withTweaks(tweaks)
 }
+
+/** The artwork shape and progress picked in the customizer. */
+internal fun MediaCardLook.withTweaks(tweaks: QsTweaks): MediaCardLook =
+    copy(
+        artShape =
+            when (tweaks.mediaArt) {
+                QsMediaArt.ROUNDED -> RoundedCornerShape(14.dp)
+                QsMediaArt.CIRCLE -> CircleShape
+                QsMediaArt.BLOB -> ShapesArt
+                else -> artShape
+            },
+        progress =
+            when (tweaks.mediaBar) {
+                QsMediaBar.LINE -> MediaProgress.Line
+                QsMediaBar.GLOW -> MediaProgress.Glow
+                QsMediaBar.BLOCKS -> MediaProgress.Segments
+                QsMediaBar.WAVE -> MediaProgress.Wave
+                QsMediaBar.NONE -> MediaProgress.None
+                null -> progress
+            },
+    )
 
 /** The card fill that replaces the album art background. */
 @Composable
@@ -359,6 +390,7 @@ internal fun Modifier.bevel(shape: Shape): Modifier = drawWithCache {
 /** The artwork, shown small next to the title. */
 @Composable
 internal fun ArtThumbnail(image: Icon?, shape: Shape, size: Dp, modifier: Modifier = Modifier) {
+    if (LocalQsTweaks.current.mediaArt == QsMediaArt.NONE) return
     val bitmap = remember(image) { (image as? Icon.Loaded)?.asImageBitmap() }
     Box(modifier = modifier.size(size).clip(shape).background(Color.White.copy(alpha = .1f))) {
         if (bitmap != null) {
@@ -369,5 +401,30 @@ internal fun ArtThumbnail(image: Icon?, shape: Shape, size: Dp, modifier: Modifi
                 modifier = Modifier.fillMaxSize(),
             )
         }
+    }
+}
+
+/** The artwork filling the card, darkened so the text stays readable. */
+@Composable
+internal fun CoverBackground(image: Icon?, modifier: Modifier = Modifier) {
+    val bitmap = remember(image) { (image as? Icon.Loaded)?.asImageBitmap() }
+    Box(modifier = modifier.background(Color.White.copy(alpha = .1f))) {
+        if (bitmap != null) {
+            Image(
+                bitmap = bitmap,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize(),
+            )
+        }
+        Box(
+            modifier =
+                Modifier.fillMaxSize()
+                    .background(
+                        Brush.verticalGradient(
+                            listOf(Color.Black.copy(alpha = .35f), Color.Black.copy(alpha = .7f))
+                        )
+                    )
+        )
     }
 }

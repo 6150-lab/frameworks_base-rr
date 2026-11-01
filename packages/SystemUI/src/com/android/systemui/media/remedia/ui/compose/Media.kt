@@ -1226,6 +1226,7 @@ private fun ProgressLine(
         ((navigation as? MediaNavigationViewModel.Showing)?.progress ?: 0f).coerceIn(0f, 1f)
     val track = look.text.copy(alpha = .16f)
     when (look.progress) {
+        MediaProgress.None -> {}
         MediaProgress.Line,
         MediaProgress.Glow ->
             // Not clipped, so Neon's glow spills past the line.

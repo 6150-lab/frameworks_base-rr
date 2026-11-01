@@ -26,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastMap
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.android.compose.animation.scene.ContentScope
@@ -33,10 +34,11 @@ import com.android.systemui.compose.modifiers.sysuiResTag
 import com.android.systemui.grid.ui.compose.VerticalSpannedGrid
 import com.android.systemui.media.remedia.ui.compose.QsMediaTile
 import com.android.systemui.qs.composefragment.ui.GridAnchor
-import com.android.systemui.qs.panels.shared.model.LocalQsStyle
+import com.android.systemui.qs.panels.shared.model.LocalQsTweaks
 import com.android.systemui.qs.panels.shared.model.QsMediaTileSize
 import com.android.systemui.qs.panels.ui.compose.infinitegrid.Tile
 import com.android.systemui.qs.panels.ui.compose.infinitegrid.tileLook
+import com.android.systemui.qs.panels.ui.compose.infinitegrid.tileShapeStyle
 import com.android.systemui.qs.panels.ui.viewmodel.BounceableTileViewModel
 import com.android.systemui.qs.panels.ui.viewmodel.QuickQuickSettingsViewModel
 import com.android.systemui.qs.shared.ui.QuickSettings.Elements.toElementKey
@@ -53,7 +55,8 @@ fun ContentScope.QuickQuickSettings(
     val tiles = sizedTiles.fastMap { it.tile }
     val squishiness by viewModel.squishinessViewModel.squishiness.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
-    val tileHeight = tileLook(LocalQsStyle.current).height
+    val tileHeight = tileLook(tileShapeStyle()).height
+    val spacing = LocalQsTweaks.current.spacing?.dp
 
     Box(modifier = modifier) {
         GridAnchor()
@@ -63,8 +66,8 @@ fun ContentScope.QuickQuickSettings(
         val spans by remember(sizedTiles) { derivedStateOf { sizedTiles.fastMap { it.width } } }
         VerticalSpannedGrid(
             columns = columns,
-            columnSpacing = dimensionResource(R.dimen.qs_tile_margin_horizontal),
-            rowSpacing = dimensionResource(R.dimen.qs_tile_margin_vertical),
+            columnSpacing = spacing ?: dimensionResource(R.dimen.qs_tile_margin_horizontal),
+            rowSpacing = spacing ?: dimensionResource(R.dimen.qs_tile_margin_vertical),
             spans = spans,
             modifier = Modifier.sysuiResTag("qqs_tile_layout"),
             keys = { sizedTiles[it].tile.spec },

@@ -39,7 +39,6 @@ enum class QsStyle(val value: Int) {
     companion object {
         const val SETTING = "rr_qs_style"
         const val LOCKSCREEN_MEDIA_SETTING = "rr_lockscreen_media_style"
-        const val QS_MEDIA_SETTING = "rr_qs_media_style"
 
         fun of(value: Int): QsStyle = entries.firstOrNull { it.value == value } ?: STOCK
     }
@@ -49,16 +48,15 @@ val LocalQsStyle = staticCompositionLocalOf { QsStyle.STOCK }
 
 val LocalQsMediaStyle = staticCompositionLocalOf<QsStyle?> { null }
 
-enum class QsMediaTileSize(val value: Int) {
-    SMALL(0),
-    SQUARE(1),
-    WIDE(2);
+enum class QsMediaTileSize {
+    SMALL,
+    SQUARE,
+    WIDE,
+    TALL,
+    FULL;
 
     companion object {
-        const val SETTING = "rr_qs_media_tile_size"
         const val TILE_SPEC = "rrmedia"
-
-        fun of(value: Int): QsMediaTileSize = entries.firstOrNull { it.value == value } ?: SQUARE
     }
 }
 

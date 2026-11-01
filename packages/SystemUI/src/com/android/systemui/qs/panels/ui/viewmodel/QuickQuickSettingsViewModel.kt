@@ -27,7 +27,9 @@ import com.android.systemui.media.remedia.ui.viewmodel.MediaCarouselVisibility
 import com.android.systemui.media.remedia.ui.viewmodel.MediaViewModel
 import com.android.systemui.qs.panels.data.repository.QsStyleRepository
 import com.android.systemui.qs.panels.domain.interactor.QuickQuickSettingsRowInteractor
+import com.android.systemui.qs.panels.shared.model.QsMediaPlace
 import com.android.systemui.qs.panels.shared.model.QsMediaTileSize
+import com.android.systemui.qs.panels.shared.model.cellsOf
 import com.android.systemui.qs.panels.shared.model.SizedTileImpl
 import com.android.systemui.qs.panels.shared.model.splitInRowsSequence
 import com.android.systemui.qs.pipeline.domain.interactor.CurrentTilesInteractor
@@ -52,6 +54,8 @@ constructor(
 ) : HydratedActivatable() {
 
     private val style by qsStyleRepository.style.hydratedStateOf()
+
+    private val tweaks by qsStyleRepository.tweaks.hydratedStateOf()
 
     private val qsColumnsViewModel = qsColumnsViewModelFactory.create(LOCATION_QQS, mediaUiBehavior)
     private val mediaInRowViewModel =
@@ -81,7 +85,9 @@ constructor(
     private val currentTiles by tilesInteractor.currentTiles.hydratedStateOf()
 
     val tileViewModels by derivedStateOf {
+        val mediaInGrid = tweaks.mediaPlaceIn(style) == QsMediaPlace.GRID
         currentTiles
+            .filter { mediaInGrid || it.spec.spec != QsMediaTileSize.TILE_SPEC }
             .map { SizedTileImpl(TileViewModel(it.tile, it.spec, it.expandable), it.spec.width()) }
             .let { splitInRowsSequence(it, columns).take(rows).toList().flatten() }
     }
@@ -98,11 +104,12 @@ constructor(
         fun create(): QuickQuickSettingsViewModel
     }
 
+    // Rows stay one tile tall here, only the width carries over.
     private fun TileSpec.width(): Int =
-        when {
-            spec == QsMediaTileSize.TILE_SPEC -> columns
-            !style.uniformTiles && largeTiles.contains(this) -> largeTilesSpan
-            else -> 1
+        if (spec == QsMediaTileSize.TILE_SPEC) {
+            columns
+        } else {
+            tweaks.cellsOf(spec, style, largeTiles.contains(this), largeTilesSpan, columns).columns
         }
 
     companion object {

@@ -50,6 +50,9 @@ constructor(
                     ShadeMode.Single -> repo.columns
                 }
             }
-            .combine(qsStyleRepository.style) { columns, style -> style.columns(columns) }
+            .combine(qsStyleRepository.style) { columns, style -> columns to style }
+            .combine(qsStyleRepository.tweaks) { (columns, style), tweaks ->
+                tweaks.columns ?: (tweaks.shapeFrom ?: style).columns(columns)
+            }
             .stateIn(scope, SharingStarted.WhileSubscribed(), repo.defaultColumns)
 }

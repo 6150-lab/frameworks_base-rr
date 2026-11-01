@@ -28,6 +28,7 @@ import com.android.systemui.media.remedia.shared.flag.MediaControlsInComposeFlag
 import com.android.systemui.media.remedia.ui.compose.MediaUiBehavior
 import com.android.systemui.media.remedia.ui.viewmodel.MediaCarouselVisibility
 import com.android.systemui.qs.composefragment.dagger.QSFragmentComposeModule
+import com.android.systemui.qs.panels.domain.interactor.QsMediaCardInteractor
 import com.android.systemui.shade.ShadeDisplayAware
 import com.android.systemui.shade.domain.interactor.ShadeModeInteractor
 import com.android.systemui.shade.shared.model.ShadeMode
@@ -54,12 +55,15 @@ constructor(
     private val mediaHostStatesManager: MediaHostStatesManager,
     @Named(QSFragmentComposeModule.QS_USING_MEDIA_PLAYER) private val usingMedia: Boolean,
     mediaCarouselInteractor: MediaCarouselInteractor,
+    mediaCardInteractor: QsMediaCardInteractor,
     @Assisted @MediaLocation private val inLocation: Int,
     @Assisted private val mediaUiBehavior: MediaUiBehavior,
 ) : HydratedActivatable(traceName = "MediaInRowInLandscapeViewModel - $inLocation") {
 
     val shouldMediaShowInRow: Boolean
-        get() = usingMedia && inSingleShade && isLandscapeAndLong && isMediaVisible
+        get() = usingMedia && inSingleShade && isLandscapeAndLong && isMediaVisible && cardShown
+
+    private val cardShown: Boolean by mediaCardInteractor.cardShown.hydratedStateOf()
 
     private val inSingleShade: Boolean by
         shadeModeInteractor.shadeMode

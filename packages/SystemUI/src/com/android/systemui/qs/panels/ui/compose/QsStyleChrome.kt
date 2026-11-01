@@ -18,6 +18,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SliderColors
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -31,10 +32,13 @@ import androidx.compose.ui.unit.dp
 import com.android.systemui.brightness.ui.compose.BrightnessSliderDimensions
 import com.android.systemui.qs.panels.shared.model.LocalQsGlass
 import com.android.systemui.qs.panels.shared.model.LocalQsGlassTune
+import com.android.systemui.qs.panels.shared.model.LocalQsStyle
+import com.android.systemui.qs.panels.shared.model.LocalQsTweaks
 import com.android.systemui.qs.panels.shared.model.QsGlass
 import com.android.systemui.qs.panels.shared.model.QsGlassTune
 import com.android.systemui.qs.panels.shared.model.QsStyle
 import com.android.systemui.qs.panels.ui.compose.infinitegrid.glassAlphas
+import com.android.systemui.qs.panels.ui.compose.infinitegrid.inkOn
 import com.android.systemui.qs.panels.ui.compose.infinitegrid.liquidRim
 import com.android.systemui.qs.panels.ui.compose.infinitegrid.rimStrength
 import com.android.systemui.res.R
@@ -48,12 +52,19 @@ fun SliderColors.glassy(glass: QsGlass, tune: QsGlassTune): SliderColors {
     )
 }
 
+/** The style the brightness slider takes its look from. */
+@Composable
+@ReadOnlyComposable
+fun qsSliderStyle(): QsStyle = LocalQsTweaks.current.sliderFrom ?: LocalQsStyle.current
+
 /** Brightness slider colors for [style], or null for the stock ones. */
 @Composable
 fun qsStyleSliderColors(style: QsStyle): SliderColors? {
-    val scheme = MaterialTheme.colorScheme
-    val vivid = colorResource(android.R.color.system_primary_dark)
-    val vividInk = colorResource(android.R.color.system_on_primary_dark)
+    val tone = LocalQsTweaks.current.accent?.let { Color(it) }
+    val theme = MaterialTheme.colorScheme
+    val scheme = if (tone == null) theme else theme.copy(primary = tone, onPrimary = tone.inkOn())
+    val vivid = tone ?: colorResource(android.R.color.system_primary_dark)
+    val vividInk = tone?.inkOn() ?: colorResource(android.R.color.system_on_primary_dark)
     return when (style) {
         QsStyle.REMIX ->
             SliderDefaults.colors()
@@ -61,7 +72,7 @@ fun qsStyleSliderColors(style: QsStyle): SliderColors? {
                     thumbColor = Color.White,
                     activeTrackColor = Color.White,
                     inactiveTrackColor = Color.White.copy(alpha = .16f),
-                    activeTickColor = colorResource(android.R.color.system_accent1_800),
+                    activeTickColor = tone ?: colorResource(android.R.color.system_accent1_800),
                     inactiveTickColor = Color.White,
                 )
         QsStyle.GLASS ->
@@ -193,10 +204,12 @@ fun QsStyleSliderFrame(style: QsStyle, content: @Composable () -> Unit) {
     val tune = LocalQsGlassTune.current
     val see = glassAlphas(glass, tune)?.first ?: 1f
     val rim = if (glass == QsGlass.LIQUID) tune.rimStrength else 0f
+    val tone = LocalQsTweaks.current.accent?.let { Color(it) }
     when (style) {
         QsStyle.REMIX -> {
-            val top = colorResource(android.R.color.system_accent1_600)
-            val bottom = colorResource(android.R.color.system_accent1_900)
+            val top = tone ?: colorResource(android.R.color.system_accent1_600)
+            val bottom =
+                tone?.copy(alpha = .55f) ?: colorResource(android.R.color.system_accent1_900)
             val shape = RoundedCornerShape(28.dp)
             Box(
                 modifier =
@@ -222,8 +235,8 @@ fun QsStyleSliderFrame(style: QsStyle, content: @Composable () -> Unit) {
         QsStyle.SOFT -> {
             val sun =
                 when (style) {
-                    QsStyle.CLASSIC -> MaterialTheme.colorScheme.primary
-                    QsStyle.NEON -> colorResource(android.R.color.system_primary_dark)
+                    QsStyle.CLASSIC -> tone ?: MaterialTheme.colorScheme.primary
+                    QsStyle.NEON -> tone ?: colorResource(android.R.color.system_primary_dark)
                     else -> MaterialTheme.colorScheme.onSurface.copy(alpha = .7f)
                 }
             Row(
@@ -248,7 +261,7 @@ fun QsStyleSliderFrame(style: QsStyle, content: @Composable () -> Unit) {
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 val segment = RoundedCornerShape(18.dp, 6.dp, 6.dp, 18.dp)
-                val fill = colorResource(android.R.color.system_primary_dark)
+                val fill = tone ?: colorResource(android.R.color.system_primary_dark)
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier =
@@ -260,7 +273,10 @@ fun QsStyleSliderFrame(style: QsStyle, content: @Composable () -> Unit) {
                         painter = painterResource(R.drawable.ic_brightness_full),
                         contentDescription = null,
                         colorFilter =
-                            ColorFilter.tint(colorResource(android.R.color.system_on_primary_dark)),
+                            ColorFilter.tint(
+                                tone?.inkOn()
+                                    ?: colorResource(android.R.color.system_on_primary_dark)
+                            ),
                         modifier = Modifier.size(22.dp),
                     )
                 }

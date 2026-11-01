@@ -68,6 +68,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.DefaultAlpha
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.graphicsLayer
@@ -128,6 +129,8 @@ fun LargeTileContent(
     isVisible: () -> Boolean = { true },
     accessibilityUiState: AccessibilityUiState? = null,
     iconShape: RoundedCornerShape = RoundedCornerShape(CommonTileDefaults.InactiveIconCornerRadius),
+    iconClip: Shape = iconShape,
+    alwaysBacked: Boolean = false,
     textScale: () -> Float = { 1f },
     toggleClick: (() -> Unit)? = null,
     onLongClick: (() -> Unit)? = null,
@@ -150,9 +153,13 @@ fun LargeTileContent(
         val focusBorderColor = MaterialTheme.colorScheme.secondary
         Box(
             modifier =
-                Modifier.size(toggleSize).thenIf(isDualTarget) {
+                Modifier.size(toggleSize)
+                    .thenIf(alwaysBacked && !isDualTarget) {
+                        Modifier.clip(iconClip).drawBehind { drawRect(animatedBackgroundColor) }
+                    }
+                    .thenIf(isDualTarget) {
                     Modifier.borderOnFocus(color = focusBorderColor, iconShape.topEnd)
-                        .clip(iconShape)
+                        .clip(iconClip)
                         .drawBehind { drawRect(animatedBackgroundColor) }
                         // apply the squish effect after the bg is drawn
                         .verticalSquish(squishiness)

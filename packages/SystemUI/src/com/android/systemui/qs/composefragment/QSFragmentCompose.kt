@@ -152,10 +152,12 @@ import com.android.systemui.qs.panels.shared.model.LocalQsGlassTune
 import com.android.systemui.qs.panels.shared.model.LocalQsMediaStyle
 import com.android.systemui.qs.panels.shared.model.LocalQsMediaTileSize
 import com.android.systemui.qs.panels.shared.model.LocalQsStyle
-import com.android.systemui.qs.panels.shared.model.QsStyle
+import com.android.systemui.qs.panels.shared.model.LocalQsTweaks
+import com.android.systemui.qs.panels.shared.model.QsMediaPlace
 import com.android.systemui.qs.panels.shared.model.QSFragmentComposeClippingTableLog
 import com.android.systemui.qs.panels.ui.compose.QsCirclesMediaRow
 import com.android.systemui.qs.panels.ui.compose.QsStyleSliderFrame
+import com.android.systemui.qs.panels.ui.compose.qsSliderStyle
 import com.android.systemui.qs.panels.ui.compose.EditMode
 import com.android.systemui.qs.panels.ui.compose.QuickQuickSettings
 import com.android.systemui.qs.panels.ui.compose.TileGrid
@@ -294,6 +296,7 @@ constructor(
         val qsGlassTune by qsStyleRepository.glassTune.collectAsStateWithLifecycle()
         val qsMediaStyle by qsStyleRepository.qsMediaStyle.collectAsStateWithLifecycle()
         val qsMediaTileSize by qsStyleRepository.mediaTileSize.collectAsStateWithLifecycle()
+        val qsTweaks by qsStyleRepository.tweaks.collectAsStateWithLifecycle()
         PlatformTheme(isDarkTheme = if (notificationShadeBlur()) isSystemInDarkTheme() else true) {
             CompositionLocalProvider(
                 LocalQsStyle provides qsStyle,
@@ -301,6 +304,7 @@ constructor(
                 LocalQsGlassTune provides qsGlassTune,
                 LocalQsMediaStyle provides qsMediaStyle,
                 LocalQsMediaTileSize provides qsMediaTileSize,
+                LocalQsTweaks provides qsTweaks,
             ) {
                 ProvideShortcutHelperIndication(interactionsConfig = interactionsConfig()) {
                     Box(
@@ -926,10 +930,10 @@ constructor(
                                         end = qsHorizontalMargin(),
                                     )
                         ) {
-                            // Circles puts tall brightness and volume sliders next to the media card.
+                            // Tall brightness and volume sliders can sit next to the media card.
+                            val tweaks = LocalQsTweaks.current
                             val circlesRow =
-                                LocalQsStyle.current == QsStyle.CIRCLES &&
-                                    LocalQsMediaStyle.current == QsStyle.CIRCLES &&
+                                tweaks.slidersByMediaIn(LocalQsStyle.current) &&
                                     viewModel.qsMediaVisible &&
                                     !viewModel.qsMediaInRow
                             val brightnessShown = rememberQsBrightnessSettings().showSlider != 0
@@ -960,6 +964,8 @@ constructor(
                                         Media
                                     },
                                 mediaInRow = viewModel.qsMediaInRow,
+                                mediaAbove =
+                                    tweaks.mediaPlaceIn(LocalQsStyle.current) == QsMediaPlace.ABOVE,
                             )
                         }
                     }
@@ -999,7 +1005,7 @@ constructor(
             )
         ) {
             AlwaysDarkMode {
-                QsStyleSliderFrame(LocalQsStyle.current) {
+                QsStyleSliderFrame(qsSliderStyle()) {
                     BrightnessSliderContainer(
                         viewModel =
                             viewModel.containerViewModel.brightnessSliderViewModel,
@@ -1499,6 +1505,7 @@ fun QuickQuickSettingsLayout(
     tiles: @Composable () -> Unit,
     media: @Composable () -> Unit,
     mediaInRow: Boolean,
+    mediaAbove: Boolean = false,
 ) {
     val brightnessSettings = rememberQsBrightnessSettings()
     val sliderAtTop = brightnessSettings.sliderAtTop
@@ -1536,6 +1543,7 @@ fun QuickSettingsLayout(
     tiles: @Composable () -> Unit,
     media: @Composable () -> Unit,
     mediaInRow: Boolean,
+    mediaAbove: Boolean = false,
 ) {
     val brightnessSettings = rememberQsBrightnessSettings()
     val sliderAtTop = brightnessSettings.sliderAtTop
@@ -1558,11 +1566,16 @@ fun QuickSettingsLayout(
                 Box(modifier = Modifier.weight(1f)) { media() }
             }
         } else {
+            if (mediaAbove) {
+                media()
+            }
             tiles()
             if (showSlider != 0 && !sliderAtTop) {
                 brightness()
             }
-            media()
+            if (!mediaAbove) {
+                media()
+            }
         }
     }
 }

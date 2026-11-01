@@ -47,6 +47,7 @@ import com.android.systemui.development.ui.compose.BuildNumber
 import com.android.systemui.development.ui.viewmodel.BuildNumberViewModel
 import com.android.systemui.lifecycle.rememberViewModel
 import com.android.systemui.qs.panels.dagger.PaginatedBaseLayoutType
+import com.android.systemui.qs.panels.shared.model.LocalQsTweaks
 import com.android.systemui.qs.panels.ui.compose.Dimensions.FooterHeight
 import com.android.systemui.qs.panels.ui.compose.Dimensions.InterPageSpacing
 import com.android.systemui.qs.panels.ui.compose.toolbar.EditModeButton
@@ -78,7 +79,14 @@ constructor(
                 delegateGridLayout.viewModelFactory.create()
             }
 
-        val rows = integerResource(R.integer.quick_settings_paginated_grid_num_rows)
+        val tweaks = LocalQsTweaks.current
+        val rows =
+            if (tweaks.scroll) {
+                ONE_PAGE_ROWS
+            } else {
+                tweaks.rowsPerPage
+                    ?: integerResource(R.integer.quick_settings_paginated_grid_num_rows)
+            }
         val pages =
             remember(tiles, rows, *delegateGridViewModel.pageKeys) {
                 delegateGridViewModel.splitIntoPages(tiles, rows)
@@ -158,6 +166,8 @@ constructor(
         }
     }
 }
+
+private const val ONE_PAGE_ROWS = 1000
 
 private object Dimensions {
     val FooterHeight = 48.dp

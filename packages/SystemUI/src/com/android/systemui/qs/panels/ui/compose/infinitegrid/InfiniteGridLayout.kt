@@ -16,45 +16,45 @@
 
 package com.android.systemui.qs.panels.ui.compose.infinitegrid
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.semantics.CollectionInfo
+import androidx.compose.ui.semantics.CollectionItemInfo
+import androidx.compose.ui.semantics.collectionInfo
+import androidx.compose.ui.semantics.collectionItemInfo
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.fastMap
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.android.compose.animation.scene.ContentScope
 import com.android.systemui.dagger.SysUISingleton
-import com.android.systemui.grid.ui.compose.VerticalSpannedGrid
 import com.android.systemui.haptics.msdl.qs.TileHapticsViewModel
 import com.android.systemui.lifecycle.rememberViewModel
 import com.android.systemui.media.remedia.ui.compose.QsMediaTile
 import com.android.systemui.media.remedia.ui.viewmodel.MediaViewModel
 import com.android.systemui.qs.panels.shared.model.LocalQsMediaTileSize
-import com.android.systemui.qs.panels.shared.model.LocalQsStyle
+import com.android.systemui.qs.panels.shared.model.LocalQsTweaks
 import com.android.systemui.qs.panels.shared.model.QsMediaTileSize
-import com.android.systemui.qs.panels.shared.model.SizedTile
 import com.android.systemui.qs.panels.shared.model.SizedTileImpl
+import com.android.systemui.qs.panels.shared.model.TilePlacement
+import com.android.systemui.qs.panels.shared.model.packTiles
 import com.android.systemui.qs.panels.ui.compose.EditTileListState
 import com.android.systemui.qs.panels.ui.compose.PaginatableGridLayout
 import com.android.systemui.qs.panels.ui.compose.TileListener
@@ -105,108 +105,73 @@ constructor(
             }
 
         val columns = viewModel.columnsWithMediaViewModel.columns
-        val largeTilesSpan = viewModel.columnsWithMediaViewModel.largeSpan
         val largeTiles by viewModel.iconTilesViewModel.largeTilesState
-        val style = LocalQsStyle.current
-        val uniformTiles = style.uniformTiles
+        val tweaks = LocalQsTweaks.current
         val mediaTileSize = LocalQsMediaTileSize.current
-        val tileHeight = tileLook(style).height
-        val blockRows = if (tileHeight < 56.dp) 3 else 2
-        // Tiles or largeTiles may be updated while this is composed, so listen to any changes
-        val sizedTiles =
-            remember(tiles, largeTiles, largeTilesSpan, uniformTiles, mediaTileSize, columns) {
-                tiles.map {
-                    val span =
-                        when {
-                            it.spec.isMediaTile() ->
-                                if (mediaTileSize == QsMediaTileSize.SMALL) 1 else columns
-                            !uniformTiles && largeTiles.contains(it.spec) -> largeTilesSpan
-                            else -> 1
-                        }
-                    SizedTileImpl(it, span)
-                }
-            }
+        val tileHeight = tileLook(tileShapeStyle()).height
+        val shownTiles = remember(tiles, viewModel.pageKeys.toList()) {
+            tiles.filter { viewModel.isInGrid(it.spec) }
+        }
         val cells =
-            remember(sizedTiles, columns, mediaTileSize, blockRows) {
-                gridCells(sizedTiles, columns, mediaTileSize, blockRows)
+            remember(shownTiles, largeTiles, columns, viewModel.pageKeys.toList()) {
+                shownTiles.map { viewModel.cellsOf(it.spec) }
             }
+        val placements = remember(cells, columns) { packTiles(cells, columns) }
         val squishiness by viewModel.squishinessViewModel.squishiness.collectAsStateWithLifecycle()
         val scope = rememberCoroutineScope()
 
         val bounceables =
-            remember(sizedTiles) { List(sizedTiles.size) { BounceableTileViewModel() } }
-        val spans by remember(cells) { derivedStateOf { cells.fastMap { it.span } } }
-        val columnSpacing = dimensionResource(R.dimen.qs_tile_margin_horizontal)
-        val rowSpacing = dimensionResource(R.dimen.qs_tile_margin_vertical)
+            remember(shownTiles) { List(shownTiles.size) { BounceableTileViewModel() } }
+        val columnSpacing =
+            tweaks.spacing?.dp ?: dimensionResource(R.dimen.qs_tile_margin_horizontal)
+        val rowSpacing = tweaks.spacing?.dp ?: dimensionResource(R.dimen.qs_tile_margin_vertical)
 
-        val tile: @Composable (Int, Int, Boolean, Boolean) -> Unit =
-            { index, column, isFirstInRow, isLastInRow ->
-                val it = sizedTiles[index]
-                Element(it.tile.spec.toElementKey(), Modifier) {
-                    if (it.tile.spec.isMediaTile()) {
-                        QsMediaTile(
-                            viewModelFactory = mediaViewModelFactory,
-                            size =
-                                if (mediaTileSize == QsMediaTileSize.SMALL) QsMediaTileSize.SMALL
-                                else QsMediaTileSize.WIDE,
-                            modifier = Modifier.fillMaxWidth().height(tileHeight),
-                        )
-                    } else {
-                        Tile(
-                            tile = it.tile,
-                            iconOnly = uniformTiles || iconTilesViewModel.isIconTile(it.tile.spec),
-                            squishiness = { squishiness },
-                            tileHapticsViewModelFactory = tileHapticsViewModelFactory,
-                            coroutineScope = scope,
-                            bounceableInfo =
-                                bounceables.bounceableInfo(
-                                    it,
-                                    index = index,
-                                    column = column,
-                                    columns = columns,
-                                    isFirstInRow = isFirstInRow,
-                                    isLastInRow = isLastInRow,
-                                ),
-                            detailsViewModel = detailsViewModel,
-                            isVisible = listening,
-                            requestToggleTextFeedback = textFeedbackViewModel::requestShowFeedback,
-                            enableRevealEffect = enableRevealEffect,
-                        )
-                    }
-                }
-            }
-
-        VerticalSpannedGrid(
+        TilePlacementGrid(
+            placements = placements,
             columns = columns,
             columnSpacing = columnSpacing,
             rowSpacing = rowSpacing,
-            spans = spans,
-            keys = { cells[it].key },
+            keys = { shownTiles[it].spec },
             modifier = modifier,
-        ) { spanIndex, column, isFirstInColumn, isLastInColumn ->
-            when (val cell = cells[spanIndex]) {
-                is GridCell.Single -> tile(cell.index, column, isFirstInColumn, isLastInColumn)
-                is GridCell.MediaBlock ->
-                    MediaBlock(
-                        cell = cell,
-                        columns = columns,
-                        columnSpacing = columnSpacing,
-                        rowSpacing = rowSpacing,
-                        minHeight = tileHeight * blockRows + rowSpacing * (blockRows - 1),
-                        widthOf = { sizedTiles[it].width },
-                        media = {
-                            Element(sizedTiles[cell.index].tile.spec.toElementKey(), Modifier) {
-                                QsMediaTile(
-                                    viewModelFactory = mediaViewModelFactory,
-                                    size = QsMediaTileSize.SQUARE,
-                                    modifier = Modifier.fillMaxSize(),
-                                )
-                            }
-                        },
-                        sideTile = { index, sideColumn, isLast ->
-                            tile(index, sideColumn, false, isLast)
-                        },
+        ) { index ->
+            val tile = shownTiles[index]
+            val place = placements[index]
+            val height = tileHeight * place.rows + rowSpacing * (place.rows - 1)
+            Element(tile.spec.toElementKey(), Modifier) {
+                if (tile.spec.isMediaTile()) {
+                    QsMediaTile(
+                        viewModelFactory = mediaViewModelFactory,
+                        size = mediaTileSize,
+                        modifier =
+                            Modifier.fillMaxWidth()
+                                .clipToBounds()
+                                .verticalSquish { squishiness }
+                                .height(height),
                     )
+                } else {
+                    Tile(
+                        tile = tile,
+                        iconOnly = place.columns == 1,
+                        squishiness = { squishiness },
+                        tileHapticsViewModelFactory = tileHapticsViewModelFactory,
+                        coroutineScope = scope,
+                        bounceableInfo =
+                            bounceables.bounceableInfo(
+                                SizedTileImpl(tile, place.columns),
+                                index = index,
+                                column = place.column,
+                                columns = columns,
+                                isFirstInRow = place.column == 0,
+                                isLastInRow = placements.getOrNull(index + 1)?.row != place.row,
+                            ),
+                        detailsViewModel = detailsViewModel,
+                        isVisible = listening,
+                        requestToggleTextFeedback = textFeedbackViewModel::requestShowFeedback,
+                        enableRevealEffect = enableRevealEffect,
+                        rows = place.rows,
+                        height = height,
+                    )
+                }
             }
         }
 
@@ -313,121 +278,80 @@ constructor(
     }
 }
 
-private sealed interface GridCell {
-    val span: Int
-    val key: Any
-
-    data class Single(val index: Int, override val span: Int, override val key: Any) : GridCell
-
-    data class MediaBlock(
-        val index: Int,
-        val mediaColumns: Int,
-        val rows: List<List<Int>>,
-        override val span: Int,
-        override val key: Any,
-    ) : GridCell
-}
-
 private fun TileSpec.isMediaTile() = spec == QsMediaTileSize.TILE_SPEC
 
-private fun gridCells(
-    tiles: List<SizedTile<TileViewModel>>,
-    columns: Int,
-    size: QsMediaTileSize,
-    blockRows: Int,
-): List<GridCell> {
-    val media = tiles.indexOfFirst { it.tile.spec.isMediaTile() }
-    if (media < 0 || size != QsMediaTileSize.SQUARE || columns < 3) {
-        return tiles.mapIndexed { i, t -> GridCell.Single(i, t.width, t.tile.spec) }
-    }
-    val mediaColumns = if (columns >= 5) 3 else 2
-    val sideColumns = columns - mediaColumns
-    val rows = List(blockRows) { mutableListOf<Int>() }
-    var row = 0
-    var used = 0
-    var next = media + 1
-    while (next < tiles.size && row < blockRows) {
-        val width = tiles[next].width
-        if (width > sideColumns) break
-        if (used + width > sideColumns) {
-            row++
-            used = 0
-            continue
-        }
-        rows[row].add(next)
-        used += width
-        next++
-    }
-    return buildList {
-        for (i in 0 until media) add(GridCell.Single(i, tiles[i].width, tiles[i].tile.spec))
-        add(
-            GridCell.MediaBlock(
-                index = media,
-                mediaColumns = mediaColumns,
-                rows = rows.filter { it.isNotEmpty() },
-                span = columns,
-                key = tiles[media].tile.spec,
-            )
-        )
-        for (i in next until tiles.size) add(GridCell.Single(i, tiles[i].width, tiles[i].tile.spec))
-    }
-}
-
+/**
+ * A grid whose tiles can span rows as well as columns. One row tiles set the height of their row,
+ * and a taller tile only stretches the rows it spans when it doesn't fit in them.
+ */
 @Composable
-private fun MediaBlock(
-    cell: GridCell.MediaBlock,
+private fun TilePlacementGrid(
+    placements: List<TilePlacement>,
     columns: Int,
     columnSpacing: Dp,
     rowSpacing: Dp,
-    minHeight: Dp,
-    widthOf: (Int) -> Int,
-    media: @Composable () -> Unit,
-    sideTile: @Composable (index: Int, column: Int, isLastInRow: Boolean) -> Unit,
+    keys: (index: Int) -> Any,
+    modifier: Modifier = Modifier,
+    content: @Composable (index: Int) -> Unit,
 ) {
-    val sideColumns = columns - cell.mediaColumns
     Layout(
-        contents =
-            listOf(
-                media,
-                {
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(rowSpacing),
-                    ) {
-                        cell.rows.forEach { row ->
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(columnSpacing),
-                            ) {
-                                var used = 0
-                                row.forEach { index ->
-                                    val width = widthOf(index)
-                                    val column = cell.mediaColumns + used
-                                    Box(Modifier.weight(width.toFloat())) {
-                                        sideTile(index, column, used + width == sideColumns)
-                                    }
-                                    used += width
-                                }
-                                if (used < sideColumns) {
-                                    Spacer(Modifier.weight((sideColumns - used).toFloat()))
-                                }
-                            }
+        content = {
+            placements.indices.forEach { index ->
+                key(keys(index)) {
+                    Box(
+                        Modifier.semantics {
+                            collectionItemInfo = CollectionItemInfo(index, 1, 0, 1)
                         }
+                    ) {
+                        content(index)
                     }
-                },
-            ),
-        modifier = Modifier.fillMaxWidth(),
-    ) { (mediaMeasurables, sideMeasurables), constraints ->
-        val spacing = columnSpacing.roundToPx()
-        val cellWidth = (constraints.maxWidth - spacing * (columns - 1)) / columns.toFloat()
-        val mediaWidth = (cellWidth * cell.mediaColumns + spacing * (cell.mediaColumns - 1)).roundToInt()
-        val sideWidth = (constraints.maxWidth - mediaWidth - spacing).coerceAtLeast(0)
-        val side = sideMeasurables.first().measure(Constraints.fixedWidth(sideWidth))
-        val height = maxOf(side.height, minHeight.roundToPx())
-        val mediaPlaceable = mediaMeasurables.first().measure(Constraints.fixed(mediaWidth, height))
-        layout(constraints.maxWidth, height) {
-            mediaPlaceable.place(0, 0)
-            side.place(mediaWidth + spacing, 0)
+                }
+            }
+        },
+        modifier = modifier.semantics { collectionInfo = CollectionInfo(placements.size, 1) },
+    ) { measurables, constraints ->
+        val width = constraints.maxWidth
+        val gapX = columnSpacing.roundToPx()
+        val gapY = rowSpacing.roundToPx()
+        val cellWidth = (width - gapX * (columns - 1)) / columns.toFloat()
+        val placeables =
+            measurables.mapIndexed { index, measurable ->
+                val cells = placements[index].columns
+                measurable.measure(
+                    Constraints.fixedWidth((cellWidth * cells + gapX * (cells - 1)).roundToInt())
+                )
+            }
+        val rows = placements.maxOfOrNull { it.row + it.rows } ?: 0
+        val heights = IntArray(rows)
+        placements.forEachIndexed { index, place ->
+            if (place.rows == 1) {
+                heights[place.row] = maxOf(heights[place.row], placeables[index].height)
+            }
+        }
+        placements.forEachIndexed { index, place ->
+            if (place.rows > 1) {
+                val spanned = place.row until place.row + place.rows
+                val missing =
+                    placeables[index].height - gapY * (place.rows - 1) -
+                        spanned.sumOf { heights[it] }
+                if (missing > 0) {
+                    val empty = spanned.filter { heights[it] == 0 }
+                    val growing = empty.ifEmpty { spanned.toList() }
+                    growing.forEach { heights[it] += (missing + growing.size - 1) / growing.size }
+                }
+            }
+        }
+        val tops = IntArray(rows)
+        for (row in 1 until rows) tops[row] = tops[row - 1] + heights[row - 1] + gapY
+        val height = if (rows == 0) 0 else tops[rows - 1] + heights[rows - 1]
+        layout(width, height) {
+            placeables.forEachIndexed { index, placeable ->
+                val place = placements[index]
+                placeable.placeRelative(
+                    (place.column * (cellWidth + gapX)).roundToInt(),
+                    tops[place.row],
+                )
+            }
         }
     }
 }

@@ -90,9 +90,12 @@ import com.android.systemui.lifecycle.rememberViewModel
 import com.android.systemui.qs.flags.QsDetailedView
 import com.android.systemui.qs.panels.shared.model.LocalQsGlass
 import com.android.systemui.qs.panels.shared.model.LocalQsGlassTune
-import com.android.systemui.qs.panels.shared.model.LocalQsStyle
+import com.android.systemui.qs.panels.shared.model.LocalQsTweaks
 import com.android.systemui.qs.panels.shared.model.QsGlass
+import com.android.systemui.qs.panels.shared.model.QsOffFill
+import com.android.systemui.qs.panels.shared.model.QsOnFill
 import com.android.systemui.qs.panels.shared.model.QsStyle
+import com.android.systemui.qs.panels.shared.model.QsTileDepth
 import com.android.systemui.qs.panels.ui.compose.BounceableInfo
 import com.android.systemui.qs.panels.ui.compose.Tooltip
 import com.android.systemui.qs.panels.ui.compose.infinitegrid.CommonTileDefaults.ActiveIconCornerRadius
@@ -141,6 +144,8 @@ private val TileViewModel.traceName
  * @param detailsViewModel An optional [DetailsViewModel] used to handle navigation to a detailed
  *   view when a tile is clicked, if applicable.
  * @param enableRevealEffect If `true`, the tiles will animate using the reveal animation.
+ * @param rows How many grid rows the tile spans.
+ * @param height The tile's height when it spans more than one row.
  */
 @Composable
 fun ContentScope.Tile(
@@ -155,6 +160,8 @@ fun ContentScope.Tile(
     requestToggleTextFeedback: (TileSpec) -> Unit = {},
     detailsViewModel: DetailsViewModel?,
     enableRevealEffect: Boolean = false,
+    rows: Int = 1,
+    height: Dp? = null,
 ) {
     trace(tile.traceName) {
         val currentBounceableInfo by rememberUpdatedState(bounceableInfo)
@@ -176,13 +183,25 @@ fun ContentScope.Tile(
                 tile.state.collect { value = it.toIconProvider() }
             }
 
-        val style = LocalQsStyle.current
+        val tweaks = LocalQsTweaks.current
+        val tileTweak = tweaks.tiles[tile.spec.spec]
+        val shape = tileShapeStyle()
+        val paint = tilePaintStyle()
         val glass = LocalQsGlass.current
         val tune = LocalQsGlassTune.current
-        val look = tileLook(style)
+        val look = tileLook(shape)
         val active = uiState.visualState == STATE_ACTIVE
+        val ownColor = tileTweak?.color?.let { Color(it) }
+        val tone = ownColor ?: tweaks.accent?.let { Color(it) }
+        val layout = tileLayout(shape, tweaks.label, tileTweak?.hideLabel == true, iconOnly, rows)
+        val chipFills =
+            layout == TileLayout.Under && (shape == QsStyle.CIRCLES || shape == QsStyle.SHAPES)
+        val chipShape = tweaks.iconBacking.chipShape(uiState.label)
         val colors =
-            TileDefaults.getColorForState(uiState, iconOnly, style).glassy(glass, active, tune)
+            TileDefaults.getColorForState(uiState, iconOnly, paint, tone)
+                .withFills(tweaks, uiState.visualState, tone, ownColor != null, chipFills)
+                .withBacking(tweaks.iconBacking, active, tone)
+                .glassy(glass, active, tune)
         val hapticsViewModel: TileHapticsViewModel =
             rememberViewModel(traceName = "TileHapticsViewModel") {
                 tileHapticsViewModelFactory.create(tile)
@@ -190,26 +209,48 @@ fun ContentScope.Tile(
 
         // TODO(b/361789146): Draw the shapes instead of clipping
         val tileShape by TileDefaults.animateTileShapeAsState(uiState, look)
+        // A picked fill replaces the theme's outline and glow.
+        val repainted =
+            if (active) tweaks.onFill != null || ownColor != null else tweaks.offFill != null
         val styleModifier =
-            when (style) {
-                QsStyle.GLASS -> Modifier.glassGlow(active, look.activeRadius)
-                QsStyle.NEON -> Modifier.neonGlow(active, look.activeRadius)
-                QsStyle.SOFT -> Modifier.softRaise(active, tileShape)
+            when {
+                tweaks.glow != null ->
+                    Modifier.tweakGlow(active, look.activeRadius, tweaks.glow, tone)
+                repainted -> Modifier
+                paint == QsStyle.GLASS -> Modifier.glassGlow(active, look.activeRadius, tone)
+                paint == QsStyle.NEON -> Modifier.neonGlow(active, look.activeRadius, tone)
                 else -> Modifier
-            }
+            }.then(
+                when {
+                    tweaks.depth == QsTileDepth.FLAT -> Modifier
+                    tweaks.depth == QsTileDepth.RAISED -> Modifier.softRaise(active, tileShape)
+                    repainted -> Modifier
+                    paint == QsStyle.SOFT -> Modifier.softRaise(active, tileShape)
+                    else -> Modifier
+                }
+            )
+        val see = glassAlphas(glass, tune)?.first ?: 1f
         val fillModifier =
             when {
-                style == QsStyle.REMIX ->
-                    Modifier.remixFill(active, glassAlphas(glass, tune)?.first ?: 1f)
+                active && tweaks.onFill == QsOnFill.GRADIENT && !chipFills ->
+                    Modifier.remixFill(true, see, tone)
+                active && tweaks.onFill == QsOnFill.OUTLINE ->
+                    Modifier.styleOutline(true, tileShape, Color.Transparent, 1.5.dp, tone)
+                !active && tweaks.offFill == QsOffFill.OUTLINE ->
+                    Modifier.styleOutline(false, tileShape, Color.White.copy(alpha = .18f), 1.dp)
+                repainted -> Modifier
+                paint == QsStyle.REMIX -> Modifier.remixFill(active, see, tone)
                 // Liquid Glass draws its own rim.
-                style == QsStyle.GLASS && glass != QsGlass.LIQUID ->
-                    Modifier.glassBorder(active, tileShape)
-                style == QsStyle.NEON ->
+                paint == QsStyle.GLASS && glass != QsGlass.LIQUID ->
+                    Modifier.glassBorder(active, tileShape, tone)
+                paint == QsStyle.NEON ->
                     Modifier.styleOutline(active, tileShape, Color.White.copy(alpha = .12f),
-                        if (active) 1.5.dp else 1.dp)
-                style == QsStyle.BLUEPRINT ->
-                    Modifier.styleOutline(active, tileShape, Color.White.copy(alpha = .18f), 1.dp)
-                style == QsStyle.SOFT -> Modifier.softInset(active, tileShape)
+                        if (active) 1.5.dp else 1.dp, tone)
+                paint == QsStyle.BLUEPRINT ->
+                    Modifier.styleOutline(active, tileShape, Color.White.copy(alpha = .18f), 1.dp,
+                        tone)
+                paint == QsStyle.SOFT && tweaks.depth != QsTileDepth.FLAT ->
+                    Modifier.softInset(active, tileShape)
                 else -> Modifier
             }.then(
                 if (glass == QsGlass.LIQUID) Modifier.liquidRim(tileShape, tune.rimStrength)
@@ -217,6 +258,8 @@ fun ContentScope.Tile(
             )
         val animatedColor by animateColorAsState(colors.background, label = "QSTileBackgroundColor")
         val isDualTarget = uiState.handlesToggleClick
+        // A tile that only shows its icon toggles on tap, whatever its size.
+        val tapToggles = iconOnly || layout == TileLayout.Icon
         val interactionSource = remember { MutableInteractionSource() }
 
         val surfaceRevealModifier: Modifier
@@ -283,7 +326,7 @@ fun ContentScope.Tile(
             ) { expandable ->
                 // Use main click on long press for small, available dual target tiles.
                 // Open settings otherwise.
-                val useLongClickToSettings = !(iconOnly && isDualTarget && isClickable)
+                val useLongClickToSettings = !(tapToggles && isDualTarget && isClickable)
                 val longClick: (() -> Unit)? =
                     {
                             hapticsViewModel.setTileInteractionState(
@@ -305,13 +348,13 @@ fun ContentScope.Tile(
 
                 // Bounce the tile's container if it is toggleable and is not a large
                 // dual target tile. These don't toggle on main click.
-                val bounceContainer = uiState.isToggleable && (iconOnly || !isDualTarget)
+                val bounceContainer = uiState.isToggleable && (tapToggles || !isDualTarget)
                 TileContainer(
                     interactionSource = interactionSource.takeIf { bounceContainer },
                     onClick = onClick@{
                             if (!isClickable) return@onClick
 
-                            if (iconOnly && isDualTarget) {
+                            if (tapToggles && isDualTarget) {
                                 tile.toggleClick()
                             } else {
                                 val hasDetails =
@@ -333,121 +376,153 @@ fun ContentScope.Tile(
                                 // Bounce the content of the tile if we're not animating the
                                 // container.
                                 if (!bounceContainer) {
-                                    currentBounceableInfo.bounceable.animateContentBounce(iconOnly)
+                                    currentBounceableInfo.bounceable.animateContentBounce(tapToggles)
                                 }
                             }
-                            if (uiState.isToggleable && iconOnly) {
+                            if (uiState.isToggleable && tapToggles) {
                                 // And show footer text feedback for icons
                                 requestToggleTextFeedback(tile.spec)
                             }
                         },
                     onLongClick = longClick,
                     accessibilityUiState = uiState.accessibilityUiState,
-                    iconOnly = iconOnly,
+                    iconOnly = tapToggles,
                     isDualTarget = isDualTarget,
-                    height = look.height,
+                    height = height ?: look.height,
                     modifier = fillModifier.then(contentRevealModifier),
                 ) {
-                    val iconProvider: Context.() -> Icon = { getTileIcon(icon = icon) }
+                    val iconProvider: Context.() -> Icon = {
+                        tileTweak?.icon?.let { name ->
+                            QsTileIcons[name]?.let { Icon.Resource(it, null) }
+                        } ?: getTileIcon(icon = icon)
+                    }
                     val iconBounce =
                         Modifier.bounceScale { currentBounceableInfo.bounceable.iconBounceScale }
-                    if (style == QsStyle.SHAPES) {
-                        ShapeTileContent(
-                            label = uiState.label,
-                            iconProvider = iconProvider,
-                            colors = colors,
-                            active = active,
-                            iconSize = look.smallIconSize,
-                            iconModifier = iconBounce,
-                        )
-                    } else if (style == QsStyle.CLASSIC || (style == QsStyle.BENTO && iconOnly)) {
-                        ClassicTileContent(
-                            label = uiState.label,
-                            iconProvider = iconProvider,
-                            colors = colors,
-                            iconSize = look.smallIconSize,
-                            iconModifier = iconBounce,
-                        )
-                    } else if (style == QsStyle.CARDS) {
-                        CardTileContent(
-                            label = uiState.label,
-                            secondaryLabel = uiState.secondaryLabel,
-                            iconProvider = iconProvider,
-                            colors = colors,
-                            look = look,
-                            iconModifier = iconBounce,
-                        )
-                    } else if (style == QsStyle.CIRCLES && iconOnly) {
-                        CircleTileContent(
-                            label = uiState.label,
-                            iconProvider = iconProvider,
-                            colors = colors,
-                            iconSize = look.smallIconSize,
-                            iconModifier = iconBounce,
-                        )
-                    } else if (style == QsStyle.DUO && !iconOnly) {
-                        DuoTileContent(
-                            label = uiState.label,
-                            secondaryLabel = uiState.secondaryLabel,
-                            iconProvider = iconProvider,
-                            colors = colors,
-                            look = look,
-                            accessibilityUiState = uiState.accessibilityUiState,
-                            toggleClick =
-                                {
-                                        hapticsViewModel.setTileInteractionState(
-                                            TileHapticsViewModel.TileInteractionState.CLICKED
-                                        )
-                                        tile.toggleClick()
-                                    }
-                                    .takeIf { isDualTarget },
-                            onLongClick = longClick,
-                            iconModifier = iconBounce,
-                        )
-                    } else if (iconOnly) {
-                        SmallTileContent(
-                            iconProvider = iconProvider,
-                            color = colors.icon,
-                            size = { look.smallIconSize },
-                            modifier = Modifier.align(Alignment.Center).then(iconBounce),
-                        )
-                    } else {
-                        val stockIconShape by TileDefaults.animateIconShapeAsState(uiState)
-                        val iconShape = if (style == QsStyle.STOCK) stockIconShape else CircleShape
-                        val secondaryClick: (() -> Unit)? =
-                            {
-                                    hapticsViewModel.setTileInteractionState(
-                                        TileHapticsViewModel.TileInteractionState.CLICKED
+                    val label = if (look.caps) uiState.label.uppercase() else uiState.label
+                    val secondaryLabel =
+                        when {
+                            !tweaks.secondLine -> ""
+                            look.caps -> uiState.secondaryLabel.uppercase()
+                            else -> uiState.secondaryLabel
+                        }
+                    val secondaryClick: (() -> Unit)? =
+                        {
+                                hapticsViewModel.setTileInteractionState(
+                                    TileHapticsViewModel.TileInteractionState.CLICKED
+                                )
+                                tile.toggleClick()
+                            }
+                            .takeIf { isDualTarget && !tapToggles }
+                    when (layout) {
+                        TileLayout.Under ->
+                            when {
+                                chipShape != null ->
+                                    BackedUnderTileContent(
+                                        label = label,
+                                        iconProvider = iconProvider,
+                                        colors = colors,
+                                        shape = chipShape,
+                                        iconSize = look.smallIconSize,
+                                        iconModifier = iconBounce,
                                     )
-                                    tile.toggleClick()
-                                }
-                                .takeIf { isDualTarget }
-                        val caps = style == QsStyle.BLUEPRINT
-                        LargeTileContent(
-                            label = if (caps) uiState.label.uppercase() else uiState.label,
-                            secondaryLabel =
-                                if (caps) uiState.secondaryLabel.uppercase()
-                                else uiState.secondaryLabel,
-                            iconProvider = iconProvider,
-                            sideDrawable = uiState.sideDrawable,
-                            colors = colors,
-                            iconShape = iconShape,
-                            toggleClick = secondaryClick,
-                            onLongClick = longClick,
-                            accessibilityUiState = uiState.accessibilityUiState,
-                            squishiness = squishiness,
-                            isVisible = isVisible,
-                            textScale = { currentBounceableInfo.bounceable.textBounceScale },
-                            toggleSize = look.toggleSize,
-                            iconSize = look.largeIconSize,
-                            labelStyle = look.labelStyle,
-                            secondaryLabelStyle = look.secondaryLabelStyle,
-                            showChevron = style == QsStyle.CIRCLES && isDualTarget,
-                            modifier =
-                                Modifier.largeTilePadding(
-                                    isDualTarget = uiState.handlesSettingsClick
-                                ),
-                        )
+                                shape == QsStyle.SHAPES && tweaks.iconBacking == null ->
+                                    ShapeTileContent(
+                                        label = label,
+                                        iconProvider = iconProvider,
+                                        colors = colors,
+                                        active = active,
+                                        iconSize = look.smallIconSize,
+                                        iconModifier = iconBounce,
+                                    )
+                                shape == QsStyle.CIRCLES && tweaks.iconBacking == null ->
+                                    CircleTileContent(
+                                        label = label,
+                                        iconProvider = iconProvider,
+                                        colors = colors,
+                                        iconSize = look.smallIconSize,
+                                        iconModifier = iconBounce,
+                                    )
+                                else ->
+                                    ClassicTileContent(
+                                        label = label,
+                                        iconProvider = iconProvider,
+                                        colors = colors,
+                                        iconSize = look.smallIconSize,
+                                        iconModifier = iconBounce,
+                                    )
+                            }
+                        TileLayout.Stack ->
+                            CardTileContent(
+                                label = label,
+                                secondaryLabel = secondaryLabel,
+                                iconProvider = iconProvider,
+                                colors = colors,
+                                look = look,
+                                iconModifier = iconBounce,
+                                chipShape = chipShape ?: CircleShape,
+                                toggleClick = secondaryClick,
+                                onLongClick = longClick,
+                            )
+                        TileLayout.Duo ->
+                            DuoTileContent(
+                                label = label,
+                                secondaryLabel = secondaryLabel,
+                                iconProvider = iconProvider,
+                                colors = colors,
+                                look = look,
+                                accessibilityUiState = uiState.accessibilityUiState,
+                                toggleClick = secondaryClick,
+                                onLongClick = longClick,
+                                iconModifier = iconBounce,
+                            )
+                        TileLayout.Icon ->
+                            if (chipShape != null) {
+                                BackedIcon(
+                                    iconProvider = iconProvider,
+                                    colors = colors,
+                                    shape = chipShape,
+                                    chipSize = minOf(look.smallIconSize + 22.dp, look.height - 8.dp),
+                                    iconSize = look.smallIconSize,
+                                    modifier = Modifier.align(Alignment.Center).then(iconBounce),
+                                )
+                            } else {
+                                SmallTileContent(
+                                    iconProvider = iconProvider,
+                                    color = colors.icon,
+                                    size = { look.smallIconSize },
+                                    modifier = Modifier.align(Alignment.Center).then(iconBounce),
+                                )
+                            }
+                        TileLayout.Row -> {
+                            val stockIconShape by TileDefaults.animateIconShapeAsState(uiState)
+                            val iconShape =
+                                if (shape == QsStyle.STOCK) stockIconShape else CircleShape
+                            LargeTileContent(
+                                label = label,
+                                secondaryLabel = secondaryLabel,
+                                iconProvider = iconProvider,
+                                sideDrawable = uiState.sideDrawable,
+                                colors = colors,
+                                iconShape = iconShape,
+                                iconClip = chipShape ?: iconShape,
+                                alwaysBacked = chipShape != null,
+                                toggleClick = secondaryClick,
+                                onLongClick = longClick,
+                                accessibilityUiState = uiState.accessibilityUiState,
+                                squishiness = squishiness,
+                                isVisible = isVisible,
+                                textScale = { currentBounceableInfo.bounceable.textBounceScale },
+                                toggleSize = look.toggleSize,
+                                iconSize = look.largeIconSize,
+                                labelStyle = look.labelStyle,
+                                secondaryLabelStyle = look.secondaryLabelStyle,
+                                showChevron = shape == QsStyle.CIRCLES && isDualTarget,
+                                modifier =
+                                    Modifier.largeTilePadding(
+                                        isDualTarget = uiState.handlesSettingsClick
+                                    ),
+                            )
+                        }
                     }
                 }
             }
@@ -692,8 +767,9 @@ private object TileDefaults {
         uiState: TileUiState,
         iconOnly: Boolean,
         style: QsStyle = QsStyle.STOCK,
+        tone: Color? = null,
     ): TileColors {
-        styledTileColors(style, uiState, iconOnly)?.let {
+        styledTileColors(style, uiState, iconOnly, tone)?.let {
             return it
         }
         return when (uiState.visualState) {

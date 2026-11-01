@@ -50,6 +50,8 @@ import androidx.compose.ui.graphics.asAndroidPath
 import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.lerp as lerpColor
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.colorResource
@@ -73,11 +75,20 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
 import com.android.compose.theme.LocalAndroidColorScheme
 import com.android.systemui.common.shared.model.Icon
+import com.android.systemui.qs.panels.shared.model.LocalQsStyle
+import com.android.systemui.qs.panels.shared.model.LocalQsTweaks
 import com.android.systemui.qs.panels.shared.model.QsGlass
 import com.android.systemui.qs.panels.shared.model.QsGlassTune
+import com.android.systemui.qs.panels.shared.model.QsIconBacking
+import com.android.systemui.qs.panels.shared.model.QsOffFill
+import com.android.systemui.qs.panels.shared.model.QsOnFill
 import com.android.systemui.qs.panels.shared.model.QsStyle
+import com.android.systemui.qs.panels.shared.model.QsTileFont
+import com.android.systemui.qs.panels.shared.model.QsTileLabel
+import com.android.systemui.qs.panels.shared.model.QsTweaks
 import com.android.systemui.qs.panels.ui.viewmodel.AccessibilityUiState
 import com.android.systemui.qs.panels.ui.viewmodel.TileUiState
+import com.android.systemui.res.R
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -92,11 +103,51 @@ internal data class TileLook(
     val smallIconSize: Dp,
     val labelStyle: TextStyle?,
     val secondaryLabelStyle: TextStyle?,
+    val caps: Boolean = false,
 )
 
+/** The style a tile takes its shape and layout from. */
+@Composable
+@ReadOnlyComposable
+internal fun tileShapeStyle(): QsStyle = LocalQsTweaks.current.shapeFrom ?: LocalQsStyle.current
+
+/** The style a tile takes its colors from. */
+@Composable
+@ReadOnlyComposable
+internal fun tilePaintStyle(): QsStyle = LocalQsTweaks.current.paintFrom ?: LocalQsStyle.current
+
+/** The look of [style] with the current changes on top. */
 @Composable
 @ReadOnlyComposable
 internal fun tileLook(style: QsStyle): TileLook {
+    val base = themeTileLook(style)
+    val tweaks = LocalQsTweaks.current
+    val type = MaterialTheme.typography
+    val radius = tweaks.radius?.dp
+    val icon = tweaks.iconSize?.dp
+    return base.copy(
+        height = tweaks.tileHeight?.dp ?: base.height,
+        activeRadius = radius ?: base.activeRadius,
+        inactiveRadius = radius ?: base.inactiveRadius,
+        largeIconSize = icon ?: base.largeIconSize,
+        smallIconSize = icon ?: base.smallIconSize,
+        labelStyle = base.labelStyle.withFont(tweaks.font, type.titleSmall),
+        secondaryLabelStyle = base.secondaryLabelStyle.withFont(tweaks.font, type.labelMedium),
+        caps = if (tweaks.font == null) style == QsStyle.BLUEPRINT else tweaks.font == QsTileFont.CAPS,
+    )
+}
+
+private fun TextStyle?.withFont(font: QsTileFont?, plain: TextStyle): TextStyle? =
+    when (font) {
+        null -> this
+        QsTileFont.MONO -> (this ?: plain).copy(fontFamily = FontFamily.Monospace)
+        QsTileFont.SANS,
+        QsTileFont.CAPS -> (this ?: plain).copy(fontFamily = plain.fontFamily)
+    }
+
+@Composable
+@ReadOnlyComposable
+private fun themeTileLook(style: QsStyle): TileLook {
     val type = MaterialTheme.typography
     fun look(h: Int, r: Int, toggle: Int, large: Int, small: Int, label: TextStyle? = null,
         secondary: TextStyle? = null) =
@@ -161,23 +212,36 @@ private val MonoOffChip = Color(0xFF232323)
 private val MonoOffText = Color(0xFFEDEDED)
 private val MonoOffMuted = Color(0xFF8A8A8A)
 
-/** Tile colors for [style], or null to use the stock ones. */
+/** A dark version of a light color, or white on a dark one, to draw on top of it. */
+fun Color.inkOn(): Color =
+    if (luminance() > .3f) lerpColor(this, Color.Black, .68f) else Color.White
+
+/**
+ * Tile colors for [style], or null to use the stock ones. [tone] replaces the accent, for a tile
+ * or a panel with its own color.
+ */
 @Composable
 @ReadOnlyComposable
-internal fun styledTileColors(style: QsStyle, uiState: TileUiState, iconOnly: Boolean): TileColors? {
-    if (style == QsStyle.STOCK) return null
-    val scheme = MaterialTheme.colorScheme
+internal fun styledTileColors(
+    style: QsStyle,
+    uiState: TileUiState,
+    iconOnly: Boolean,
+    tone: Color? = null,
+): TileColors? {
+    if (style == QsStyle.STOCK && tone == null) return null
+    val theme = MaterialTheme.colorScheme
+    val scheme = if (tone == null) theme else theme.copy(primary = tone, onPrimary = tone.inkOn())
     val surface = LocalAndroidColorScheme.current.surfaceEffect1
     val active = uiState.visualState == STATE_ACTIVE
     val dualLarge = uiState.handlesToggleClick && !iconOnly
-    val vivid = colorResource(android.R.color.system_primary_dark)
-    val vividInk = colorResource(android.R.color.system_on_primary_dark)
+    val vivid = tone ?: colorResource(android.R.color.system_primary_dark)
+    val vividInk = tone?.inkOn() ?: colorResource(android.R.color.system_on_primary_dark)
     val colors =
         when (style) {
             QsStyle.REMIX ->
                 if (active) {
                     TileColors(
-                        background = colorResource(android.R.color.system_accent1_600),
+                        background = tone ?: colorResource(android.R.color.system_accent1_600),
                         iconBackground = Color.White.copy(alpha = .22f),
                         label = Color.White,
                         secondaryLabel = Color.White.copy(alpha = .8f),
@@ -228,7 +292,7 @@ internal fun styledTileColors(style: QsStyle, uiState: TileUiState, iconOnly: Bo
                         icon = if (active) scheme.onPrimary else scheme.onSurface,
                     )
                 } else {
-                    filled(active, surface)
+                    filled(active, surface, tone)
                 }
             QsStyle.NEON ->
                 if (active) {
@@ -292,7 +356,7 @@ internal fun styledTileColors(style: QsStyle, uiState: TileUiState, iconOnly: Bo
                     icon = if (active) vivid else scheme.onSurface.copy(alpha = .75f),
                 )
             // Compact and Cards: stock colors, but dual target tiles fill too.
-            else -> filled(active, surface)
+            else -> filled(active, surface, tone)
         }
     return when (uiState.visualState) {
         STATE_ACTIVE,
@@ -311,15 +375,17 @@ internal fun styledTileColors(style: QsStyle, uiState: TileUiState, iconOnly: Bo
 
 @Composable
 @ReadOnlyComposable
-private fun filled(active: Boolean, surface: Color): TileColors {
+private fun filled(active: Boolean, surface: Color, tone: Color?): TileColors {
     val scheme = MaterialTheme.colorScheme
     return if (active) {
+        val fill = tone ?: scheme.primary
+        val ink = tone?.inkOn() ?: scheme.onPrimary
         TileColors(
-            background = scheme.primary,
-            iconBackground = scheme.onPrimary.copy(alpha = .14f),
-            label = scheme.onPrimary,
-            secondaryLabel = scheme.onPrimary.copy(alpha = .8f),
-            icon = scheme.onPrimary,
+            background = fill,
+            iconBackground = ink.copy(alpha = .14f),
+            label = ink,
+            secondaryLabel = ink.copy(alpha = .8f),
+            icon = ink,
         )
     } else {
         TileColors(
@@ -332,11 +398,230 @@ private fun filled(active: Boolean, surface: Color): TileColors {
     }
 }
 
+/**
+ * The fills picked for on and off tiles. A tile with its own [ownColor] fills with it. On Circles
+ * and Shapes, where the label sits under a chip ([chipFills]), the chip takes the fill instead.
+ */
+@Composable
+@ReadOnlyComposable
+internal fun TileColors.withFills(
+    tweaks: QsTweaks,
+    visualState: Int,
+    tone: Color?,
+    ownColor: Boolean,
+    chipFills: Boolean,
+): TileColors {
+    val scheme = MaterialTheme.colorScheme
+    val surface = LocalAndroidColorScheme.current.surfaceEffect1
+    val vivid = tone ?: colorResource(android.R.color.system_primary_dark)
+    val ink = tone?.inkOn() ?: colorResource(android.R.color.system_on_primary_dark)
+    return when (visualState) {
+        STATE_ACTIVE -> {
+            fun fill(color: Color, on: Color, chip: Color) =
+                if (chipFills) {
+                    TileColors(Color.Transparent, color, scheme.onSurface, scheme.onSurfaceVariant, on)
+                } else {
+                    TileColors(color, chip, on, on.copy(alpha = .8f), on)
+                }
+            when (tweaks.onFill ?: if (ownColor) QsOnFill.SOLID else null) {
+                QsOnFill.SOLID -> fill(vivid, ink, ink.copy(alpha = .14f))
+                QsOnFill.GRADIENT ->
+                    fill(
+                        if (chipFills) vivid else Color.Transparent,
+                        if (chipFills) ink else Color.White,
+                        Color.White.copy(alpha = .22f),
+                    )
+                QsOnFill.TINT ->
+                    TileColors(
+                        vivid.copy(alpha = .18f),
+                        Color.Transparent,
+                        scheme.onSurface,
+                        vivid,
+                        vivid,
+                    )
+                QsOnFill.OUTLINE ->
+                    TileColors(Color.Transparent, Color.Transparent, scheme.onSurface, vivid, vivid)
+                QsOnFill.ICON ->
+                    TileColors(surface, vivid, scheme.onSurface, scheme.onSurfaceVariant, ink)
+                null -> this
+            }
+        }
+        STATE_INACTIVE ->
+            when (tweaks.offFill) {
+                QsOffFill.SURFACE -> copy(background = surface)
+                QsOffFill.CLEAR,
+                QsOffFill.OUTLINE -> copy(background = Color.Transparent)
+                QsOffFill.DARK -> copy(background = TweakOffDark)
+                null -> this
+            }
+        else -> this
+    }
+}
+
+private val TweakOffDark = Color(0xFF141012)
+
+/** The icon backing picked in the customizer, and its fill. */
+@Composable
+@ReadOnlyComposable
+internal fun TileColors.withBacking(backing: QsIconBacking?, active: Boolean, tone: Color?): TileColors =
+    when {
+        backing == null -> this
+        backing == QsIconBacking.NONE -> copy(iconBackground = Color.Transparent)
+        iconBackground.alpha > 0f -> this
+        else ->
+            copy(
+                iconBackground =
+                    if (active) {
+                        (tone ?: colorResource(android.R.color.system_primary_dark)).copy(alpha = .24f)
+                    } else {
+                        Color.White.copy(alpha = .08f)
+                    }
+            )
+    }
+
+/** The clip for an icon backing, or null to leave it to the theme. */
+internal fun QsIconBacking?.chipShape(label: String): Shape? =
+    when (this) {
+        QsIconBacking.CIRCLE -> CircleShape
+        QsIconBacking.ROUNDED -> RoundedCornerShape(30)
+        QsIconBacking.BLOB -> {
+            val (lobes, depth) = ShapeLobes[Math.floorMod(label.hashCode(), ShapeLobes.size)]
+            BlobShape(lobes, depth)
+        }
+        else -> null
+    }
+
+/** Icons a tile can take instead of its own, by the name saved in its tweak. */
+val QsTileIcons: Map<String, Int> =
+    linkedMapOf(
+        "star" to R.drawable.ic_star,
+        "sparkle" to R.drawable.ic_star_shine,
+        "note" to R.drawable.ic_music_note,
+        "coffee" to R.drawable.ic_qs_caffeine,
+        "person" to R.drawable.ic_person,
+        "gear" to R.drawable.ic_settings,
+        "camera" to R.drawable.ic_camera,
+        "alarm" to R.drawable.ic_alarm,
+        "sun" to R.drawable.ic_brightness_full,
+        "pin" to R.drawable.ic_location,
+        "sync" to R.drawable.ic_qs_sync,
+        "notes" to R.drawable.ic_qs_notes,
+    )
+
+/** How a tile lays out its icon and labels. */
+internal enum class TileLayout {
+    Icon,
+    Under,
+    Row,
+    Stack,
+    Duo,
+}
+
+internal fun tileLayout(
+    shape: QsStyle,
+    label: QsTileLabel?,
+    hideLabel: Boolean,
+    small: Boolean,
+    rows: Int,
+): TileLayout =
+    when {
+        hideLabel || label == QsTileLabel.NONE -> TileLayout.Icon
+        label == QsTileLabel.UNDER -> TileLayout.Under
+        label == QsTileLabel.INSIDE ->
+            when {
+                small -> TileLayout.Icon
+                rows >= 2 -> TileLayout.Stack
+                else -> TileLayout.Row
+            }
+        shape == QsStyle.CARDS -> TileLayout.Stack
+        shape == QsStyle.CLASSIC || shape == QsStyle.SHAPES -> TileLayout.Under
+        small ->
+            if (shape == QsStyle.CIRCLES || shape == QsStyle.BENTO) TileLayout.Under
+            else TileLayout.Icon
+        rows >= 2 -> TileLayout.Stack
+        shape == QsStyle.DUO -> TileLayout.Duo
+        else -> TileLayout.Row
+    }
+
+/** A glow of [strength] percent around the tile while on. */
+@Composable
+internal fun Modifier.tweakGlow(active: Boolean, radius: Dp, strength: Int, tone: Color?): Modifier {
+    val glow by animateFloatAsState(if (active) 1f else 0f, label = "QSTileTweakGlow")
+    val glowColor = tone ?: colorResource(android.R.color.system_primary_dark)
+    return drawBehind {
+        if (glow > 0f && strength > 0) {
+            drawIntoCanvas { canvas ->
+                val paint =
+                    android.graphics.Paint().apply {
+                        isAntiAlias = true
+                        color = glowColor.copy(alpha = .7f * strength / 100f * glow).toArgb()
+                        maskFilter =
+                            BlurMaskFilter(
+                                (strength * .34f).coerceAtLeast(1f).dp.toPx(),
+                                BlurMaskFilter.Blur.NORMAL,
+                            )
+                    }
+                val r = radius.toPx()
+                canvas.nativeCanvas.drawRoundRect(0f, 0f, size.width, size.height, r, r, paint)
+            }
+        }
+    }
+}
+
+/** An icon with a backing of any shape. */
+@Composable
+internal fun BackedIcon(
+    iconProvider: Context.() -> Icon,
+    colors: TileColors,
+    shape: Shape,
+    chipSize: Dp,
+    iconSize: Dp,
+    modifier: Modifier = Modifier,
+) {
+    val chip by animateColorAsState(colors.iconBackground, label = "QSTileBackedIconColor")
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier.size(chipSize).clip(shape).drawBehind { drawRect(chip) },
+    ) {
+        SmallTileContent(iconProvider = iconProvider, color = colors.icon, size = { iconSize })
+    }
+}
+
+/** An icon with its backing, its label under it. */
+@Composable
+internal fun BackedUnderTileContent(
+    label: String,
+    iconProvider: Context.() -> Icon,
+    colors: TileColors,
+    shape: Shape,
+    iconSize: Dp,
+    modifier: Modifier = Modifier,
+    iconModifier: Modifier = Modifier,
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterVertically),
+        modifier = modifier.fillMaxSize(),
+    ) {
+        BackedIcon(iconProvider, colors, shape, iconSize + 22.dp, iconSize, iconModifier)
+        StyledLabel(
+            text = label,
+            color = colors.label,
+            style =
+                MaterialTheme.typography.labelSmall.copy(
+                    fontSize = 11.5.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    textAlign = TextAlign.Center,
+                ),
+        )
+    }
+}
+
 /** Glass: a soft accent glow around the tile while on. */
 @Composable
-internal fun Modifier.glassGlow(active: Boolean, radius: Dp): Modifier {
+internal fun Modifier.glassGlow(active: Boolean, radius: Dp, tone: Color? = null): Modifier {
     val glow by animateFloatAsState(if (active) 1f else 0f, label = "QSTileGlassGlow")
-    val glowColor = colorResource(android.R.color.system_accent1_500)
+    val glowColor = tone ?: colorResource(android.R.color.system_accent1_500)
     return drawBehind {
         if (glow > 0f) {
             drawIntoCanvas { canvas ->
@@ -355,10 +640,10 @@ internal fun Modifier.glassGlow(active: Boolean, radius: Dp): Modifier {
 
 /** Glass: the tile outline, accent while on. */
 @Composable
-internal fun Modifier.glassBorder(active: Boolean, shape: Shape): Modifier {
+internal fun Modifier.glassBorder(active: Boolean, shape: Shape, tone: Color? = null): Modifier {
     val color by
         animateColorAsState(
-            if (active) MaterialTheme.colorScheme.primary.copy(alpha = .95f)
+            if (active) (tone ?: MaterialTheme.colorScheme.primary).copy(alpha = .95f)
             else Color.White.copy(alpha = .13f),
             label = "QSTileGlassBorder",
         )
@@ -417,10 +702,12 @@ internal fun Modifier.liquidRim(shape: Shape, strength: Float = 1f): Modifier {
 
 /** Remix: on tiles fill with an accent gradient. */
 @Composable
-internal fun Modifier.remixFill(active: Boolean, opacity: Float = 1f): Modifier {
+internal fun Modifier.remixFill(active: Boolean, opacity: Float = 1f, tone: Color? = null): Modifier {
     val fill by animateFloatAsState(if (active) 1f else 0f, label = "QSTileRemixFill")
-    val start = colorResource(android.R.color.system_accent1_500)
-    val end = colorResource(android.R.color.system_accent1_700)
+    val start = tone ?: colorResource(android.R.color.system_accent1_500)
+    val end =
+        tone?.let { lerpColor(it, Color.Black, .35f) }
+            ?: colorResource(android.R.color.system_accent1_700)
     return drawBehind {
         if (fill > 0f) {
             drawRect(
@@ -434,9 +721,10 @@ internal fun Modifier.remixFill(active: Boolean, opacity: Float = 1f): Modifier 
 @Composable
 private fun StyledLabel(text: String, color: Color, style: TextStyle, modifier: Modifier = Modifier) {
     val animated by animateColorAsState(color, label = "QSTileStyledLabelColor")
+    val font = LocalQsTweaks.current.font
     BasicText(
-        text = text,
-        style = style,
+        text = if (font == QsTileFont.CAPS) text.uppercase() else text,
+        style = if (font == QsTileFont.MONO) style.copy(fontFamily = FontFamily.Monospace) else style,
         color = { animated },
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
@@ -522,6 +810,9 @@ internal fun CardTileContent(
     look: TileLook,
     modifier: Modifier = Modifier,
     iconModifier: Modifier = Modifier,
+    chipShape: Shape = CircleShape,
+    toggleClick: (() -> Unit)? = null,
+    onLongClick: (() -> Unit)? = null,
 ) {
     val chip by animateColorAsState(colors.iconBackground, label = "QSTileCardChipColor")
     Column(
@@ -531,7 +822,21 @@ internal fun CardTileContent(
         Box(
             contentAlignment = Alignment.Center,
             modifier =
-                iconModifier.size(look.toggleSize).clip(CircleShape).drawBehind { drawRect(chip) },
+                iconModifier
+                    .size(look.toggleSize)
+                    .clip(chipShape)
+                    .drawBehind { drawRect(chip) }
+                    .then(
+                        if (toggleClick == null) {
+                            Modifier
+                        } else {
+                            Modifier.combinedClickable(
+                                onClick = toggleClick,
+                                onLongClick = onLongClick,
+                                hapticFeedbackEnabled = false,
+                            )
+                        }
+                    ),
         ) {
             SmallTileContent(
                 iconProvider = iconProvider,
@@ -558,9 +863,9 @@ internal fun CardTileContent(
 
 /** Neon: a tight accent glow around the tile while on. */
 @Composable
-internal fun Modifier.neonGlow(active: Boolean, radius: Dp): Modifier {
+internal fun Modifier.neonGlow(active: Boolean, radius: Dp, tone: Color? = null): Modifier {
     val glow by animateFloatAsState(if (active) 1f else 0f, label = "QSTileNeonGlow")
-    val glowColor = colorResource(android.R.color.system_primary_dark)
+    val glowColor = tone ?: colorResource(android.R.color.system_primary_dark)
     return drawBehind {
         if (glow > 0f) {
             drawIntoCanvas { canvas ->
@@ -579,10 +884,16 @@ internal fun Modifier.neonGlow(active: Boolean, radius: Dp): Modifier {
 
 /** Neon and Blueprint: an outline, accent while on. */
 @Composable
-internal fun Modifier.styleOutline(active: Boolean, shape: Shape, off: Color, width: Dp): Modifier {
+internal fun Modifier.styleOutline(
+    active: Boolean,
+    shape: Shape,
+    off: Color,
+    width: Dp,
+    tone: Color? = null,
+): Modifier {
     val color by
         animateColorAsState(
-            if (active) colorResource(android.R.color.system_primary_dark) else off,
+            if (active) tone ?: colorResource(android.R.color.system_primary_dark) else off,
             label = "QSTileStyleOutline",
         )
     return border(width, color, shape)

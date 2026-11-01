@@ -16,12 +16,17 @@
 
 package com.android.systemui.qs.panels.ui.viewmodel
 
+import androidx.compose.runtime.getValue
 import com.android.systemui.lifecycle.ExclusiveActivatable
 import com.android.systemui.lifecycle.Hydrator
 import com.android.systemui.media.controls.ui.controller.MediaHierarchyManager.Companion.LOCATION_QS
-import com.android.systemui.qs.panels.shared.model.SizedTileImpl
+import com.android.systemui.qs.panels.data.repository.QsStyleRepository
+import com.android.systemui.qs.panels.shared.model.QsMediaPlace
+import com.android.systemui.qs.panels.shared.model.QsMediaTileSize
+import com.android.systemui.qs.panels.shared.model.TileCells
+import com.android.systemui.qs.panels.shared.model.cellsOf
+import com.android.systemui.qs.panels.shared.model.paginateTiles
 import com.android.systemui.qs.panels.ui.dialog.QSResetDialogDelegate
-import com.android.systemui.qs.panels.ui.viewmodel.PaginatableViewModel.Companion.splitInRows
 import com.android.systemui.qs.pipeline.shared.TileSpec
 import com.android.systemui.qs.ui.viewmodel.QuickSettingsContainerViewModel
 import dagger.assisted.AssistedFactory
@@ -39,8 +44,14 @@ constructor(
     val snapshotViewModelFactory: InfiniteGridSnapshotViewModel.Factory,
     val resetDialogDelegateFactory: QSResetDialogDelegate.Factory,
     val editTopBarActionsViewModelFactory: EditTopBarActionsViewModel.Factory,
+    val qsStyleRepository: QsStyleRepository,
 ) : ExclusiveActivatable(), PaginatableViewModel {
     private val hydrator = Hydrator("InfiniteGridViewModel.hydrator")
+
+    private val style by
+        hydrator.hydratedStateOf(traceName = "style", source = qsStyleRepository.style)
+    private val tweaks by
+        hydrator.hydratedStateOf(traceName = "tweaks", source = qsStyleRepository.tweaks)
 
     val iconTilesViewModel = dynamicIconTilesViewModelFactory.create()
     val columnsWithMediaViewModel =
@@ -55,22 +66,32 @@ constructor(
                 columnsWithMediaViewModel.columns,
                 columnsWithMediaViewModel.largeSpan,
                 iconTilesViewModel.largeTilesState.value,
+                style,
+                tweaks,
             )
 
     override fun splitIntoPages(tiles: List<TileViewModel>, rows: Int): List<List<TileViewModel>> {
-        return splitInRows(
-                tiles.map { SizedTileImpl(it, widthOf(it.spec)) },
+        val shown = tiles.filter { isInGrid(it.spec) }
+        return paginateTiles(
+                shown.map { cellsOf(it.spec) },
                 columnsWithMediaViewModel.columns,
+                rows,
             )
-            .chunked(rows)
-            .map { it.flatten().map { it.tile } }
+            .map { page -> page.map { shown[it] } }
     }
 
-    private fun widthOf(spec: TileSpec): Int {
-        return if (iconTilesViewModel.largeTilesState.value.contains(spec))
-            columnsWithMediaViewModel.largeSpan
-        else 1
-    }
+    /** The player leaves the grid when it was moved above or below the tiles. */
+    fun isInGrid(spec: TileSpec): Boolean =
+        spec.spec != QsMediaTileSize.TILE_SPEC || tweaks.mediaPlaceIn(style) == QsMediaPlace.GRID
+
+    fun cellsOf(spec: TileSpec): TileCells =
+        tweaks.cellsOf(
+            spec = spec.spec,
+            theme = style,
+            isLarge = iconTilesViewModel.largeTilesState.value.contains(spec),
+            largeSpan = columnsWithMediaViewModel.largeSpan,
+            columns = columnsWithMediaViewModel.columns,
+        )
 
     override suspend fun onActivated(): Nothing {
         coroutineScope {

@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -53,6 +54,11 @@ import com.android.systemui.media.remedia.ui.viewmodel.MediaNavigationViewModel
 import com.android.systemui.media.remedia.ui.viewmodel.MediaPlayPauseActionViewModel
 import com.android.systemui.media.remedia.ui.viewmodel.MediaSecondaryActionViewModel
 import com.android.systemui.media.remedia.ui.viewmodel.MediaViewModel
+import com.android.systemui.qs.panels.shared.model.LocalQsMediaStyle
+import com.android.systemui.qs.panels.shared.model.LocalQsStyle
+import com.android.systemui.qs.panels.shared.model.LocalQsTweaks
+import com.android.systemui.qs.panels.shared.model.QsMediaArt
+import com.android.systemui.qs.panels.shared.model.QsMediaButtons
 import com.android.systemui.qs.panels.shared.model.QsMediaTileSize
 import com.android.systemui.res.R
 import kotlin.math.PI
@@ -77,26 +83,45 @@ fun QsMediaTile(
         }
     val cards = viewModel.cards
     val card = cards.getOrNull(viewModel.currentIndex) ?: cards.firstOrNull()
-    val look = mediaCardLook() ?: stockLook()
     val expandable = remember { Expandable() }
     val idle = stringResource(R.string.qs_media_tile_idle)
-    Box(
-        modifier =
-            modifier
-                .clip(RoundedCornerShape(look.radius))
-                .clickable(enabled = card != null) { card?.onClick?.invoke(expandable) }
-                .semantics { contentDescription = card?.contentDescription ?: idle }
-    ) {
-        StyledCardBackground(look, Modifier.matchParentSize())
-        CompositionLocalProvider(LocalContentColor provides look.text) {
-            when (size) {
-                QsMediaTileSize.SQUARE -> SquareContent(card, look, idle)
-                QsMediaTileSize.WIDE -> WideContent(card, look, idle)
-                QsMediaTileSize.SMALL -> SmallContent(card, look)
+    CompositionLocalProvider(LocalQsStyle provides (LocalQsMediaStyle.current ?: LocalQsStyle.current)) {
+        val tweaks = LocalQsTweaks.current
+        val cover = tweaks.mediaArt == QsMediaArt.COVER
+        val base = mediaCardLook() ?: stockLook().withTweaks(tweaks)
+        val look = if (cover) base.copy(text = Color.White) else base
+        val parts =
+            TileParts(
+                art = !cover && tweaks.mediaArt != QsMediaArt.NONE,
+                skipButtons = tweaks.mediaButtons != QsMediaButtons.PLAY,
+            )
+        Box(
+            modifier =
+                modifier
+                    .clip(RoundedCornerShape(look.radius))
+                    .clickable(enabled = card != null) { card?.onClick?.invoke(expandable) }
+                    .semantics { contentDescription = card?.contentDescription ?: idle }
+        ) {
+            if (cover) {
+                CoverBackground(card?.background, Modifier.matchParentSize())
+            } else {
+                StyledCardBackground(look, Modifier.matchParentSize())
+            }
+            CompositionLocalProvider(LocalContentColor provides look.text) {
+                when (size) {
+                    QsMediaTileSize.SQUARE -> SquareContent(card, look, idle, parts)
+                    QsMediaTileSize.WIDE -> WideContent(card, look, idle, parts)
+                    QsMediaTileSize.SMALL -> SmallContent(card, look)
+                    QsMediaTileSize.TALL -> TallContent(card, look, idle, parts)
+                    QsMediaTileSize.FULL -> FullContent(card, look, idle, parts)
+                }
             }
         }
     }
 }
+
+/** Which parts of the player show, as picked for the Media tile. */
+private data class TileParts(val art: Boolean, val skipButtons: Boolean)
 
 @Composable
 private fun stockLook(): MediaCardLook {
@@ -117,7 +142,12 @@ private fun stockLook(): MediaCardLook {
 }
 
 @Composable
-private fun SquareContent(card: MediaCardViewModel?, look: MediaCardLook, idle: String) {
+private fun SquareContent(
+    card: MediaCardViewModel?,
+    look: MediaCardLook,
+    idle: String,
+    parts: TileParts,
+) {
     Column(
         modifier = Modifier.fillMaxSize().padding(12.dp),
         verticalArrangement = Arrangement.SpaceBetween,
@@ -126,24 +156,89 @@ private fun SquareContent(card: MediaCardViewModel?, look: MediaCardLook, idle: 
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            ArtThumbnail(card?.background, look.artShape, 48.dp)
+            if (parts.art) ArtThumbnail(card?.background, look.artShape, 48.dp)
             Titles(card, look, idle, Modifier.weight(1f))
         }
         Progress(card, look)
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
+        Controls(card, look, parts)
+    }
+}
+
+@Composable
+private fun TallContent(
+    card: MediaCardViewModel?,
+    look: MediaCardLook,
+    idle: String,
+    parts: TileParts,
+) {
+    Column(
+        modifier = Modifier.fillMaxSize().padding(12.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        if (parts.art) {
+            BoxWithConstraints(
+                modifier = Modifier.weight(1f).fillMaxWidth(),
+                contentAlignment = Alignment.Center,
+            ) {
+                ArtThumbnail(card?.background, look.artShape, minOf(maxWidth, maxHeight))
+            }
+            Titles(card, look, idle, Modifier.fillMaxWidth())
+        } else {
+            Titles(card, look, idle, Modifier.weight(1f).fillMaxWidth())
+        }
+        Progress(card, look)
+        Controls(card, look, parts)
+    }
+}
+
+@Composable
+private fun FullContent(
+    card: MediaCardViewModel?,
+    look: MediaCardLook,
+    idle: String,
+    parts: TileParts,
+) {
+    Row(
+        modifier = Modifier.fillMaxSize().padding(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        if (parts.art) {
+            BoxWithConstraints(Modifier.fillMaxHeight().aspectRatio(1f)) {
+                ArtThumbnail(card?.background, look.artShape, maxHeight)
+            }
+        }
+        Column(
+            modifier = Modifier.weight(1f).fillMaxHeight(),
+            verticalArrangement = Arrangement.SpaceBetween,
         ) {
-            Secondary(card?.navigation?.left, look, 36.dp)
-            PlayPause(card?.playPauseAction, look, 44.dp)
-            Secondary(card?.navigation?.right, look, 36.dp)
+            Titles(card, look, idle, Modifier.fillMaxWidth())
+            Progress(card, look)
+            Controls(card, look, parts)
         }
     }
 }
 
 @Composable
-private fun WideContent(card: MediaCardViewModel?, look: MediaCardLook, idle: String) {
+private fun Controls(card: MediaCardViewModel?, look: MediaCardLook, parts: TileParts) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement =
+            if (parts.skipButtons) Arrangement.SpaceBetween else Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        if (parts.skipButtons) Secondary(card?.navigation?.left, look, 36.dp)
+        PlayPause(card?.playPauseAction, look, 44.dp)
+        if (parts.skipButtons) Secondary(card?.navigation?.right, look, 36.dp)
+    }
+}
+
+@Composable
+private fun WideContent(
+    card: MediaCardViewModel?,
+    look: MediaCardLook,
+    idle: String,
+    parts: TileParts,
+) {
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val art = (maxHeight - 16.dp).coerceIn(28.dp, 44.dp)
         val play = (maxHeight - 12.dp).coerceIn(32.dp, 40.dp)
@@ -152,11 +247,11 @@ private fun WideContent(card: MediaCardViewModel?, look: MediaCardLook, idle: St
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            ArtThumbnail(card?.background, look.artShape, art)
+            if (parts.art) ArtThumbnail(card?.background, look.artShape, art)
             Titles(card, look, idle, Modifier.weight(1f))
-            Secondary(card?.navigation?.left, look, 34.dp)
+            if (parts.skipButtons) Secondary(card?.navigation?.left, look, 34.dp)
             PlayPause(card?.playPauseAction, look, play)
-            Secondary(card?.navigation?.right, look, 34.dp)
+            if (parts.skipButtons) Secondary(card?.navigation?.right, look, 34.dp)
         }
     }
 }
@@ -222,6 +317,7 @@ private fun Progress(card: MediaCardViewModel?, look: MediaCardLook) {
         ((card?.navigation as? MediaNavigationViewModel.Showing)?.progress ?: 0f).coerceIn(0f, 1f)
     val track = look.text.copy(alpha = .16f)
     when (look.progress) {
+        MediaProgress.None -> {}
         MediaProgress.Segments ->
             Row(
                 modifier = Modifier.fillMaxWidth().height(6.dp),
