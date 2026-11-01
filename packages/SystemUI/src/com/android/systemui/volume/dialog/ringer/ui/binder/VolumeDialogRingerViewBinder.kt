@@ -41,6 +41,7 @@ import com.android.app.tracing.coroutines.launchTraced
 import com.android.internal.R as internalR
 import com.android.internal.graphics.drawable.BackgroundBlurDrawable
 import com.android.internal.util.catalyxx.GlassSettings
+import com.android.systemui.glass.ui.OwnGlass
 import com.android.systemui.res.R
 import com.android.systemui.volume.dialog.dagger.scope.VolumeDialogScope
 import com.android.systemui.volume.dialog.ringer.ui.util.VolumeDialogRingerDrawerTransitionListener
@@ -52,6 +53,7 @@ import com.android.systemui.volume.dialog.ringer.ui.viewmodel.RingerDrawerState
 import com.android.systemui.volume.dialog.ringer.ui.viewmodel.RingerViewModel
 import com.android.systemui.volume.dialog.ringer.ui.viewmodel.RingerViewModelState
 import com.android.systemui.volume.dialog.ringer.ui.viewmodel.VolumeDialogRingerDrawerViewModel
+import com.android.systemui.volume.dialog.ringer.ui.view.VolumeRingerDrawerLayout
 import com.android.systemui.volume.dialog.ui.binder.ViewBinder
 import com.android.systemui.volume.dialog.ui.utils.suspendAnimate
 import com.android.systemui.volume.dialog.ui.viewmodel.VolumeDialogViewModel
@@ -119,6 +121,16 @@ constructor(
 
         val unselectedButtonUiModel = RingerButtonUiModel.getUnselectedButton(view.context)
         val selectedButtonUiModel = RingerButtonUiModel.getSelectedButton(view.context)
+        // Catalyxx glass: with the glass selector the modes sit on the dialog's glass, the chosen
+        // one in the lens and the accent color
+        OwnGlass.start(view.context)
+        val glassUnselectedButtonUiModel =
+            unselectedButtonUiModel.copy(backgroundColor = Color.TRANSPARENT)
+        val glassSelectedButtonUiModel =
+            selectedButtonUiModel.copy(
+                tintColor = view.context.getColor(internalR.color.materialColorPrimary),
+                backgroundColor = Color.TRANSPARENT,
+            )
         val volumeDialogBgSmallRadius =
             view.context.resources.getDimensionPixelSize(
                 R.dimen.volume_dialog_background_square_corner_radius
@@ -212,6 +224,12 @@ constructor(
                             } else {
                                 Configuration.ORIENTATION_PORTRAIT
                             }
+                        // Catalyxx glass: as the glass selector setting is now
+                        val glass = OwnGlass.hasSelector(GlassSettings.PLACE_VOLUME)
+                        val selectedModel =
+                            if (glass) glassSelectedButtonUiModel else selectedButtonUiModel
+                        val unselectedModel =
+                            if (glass) glassUnselectedButtonUiModel else unselectedButtonUiModel
 
                         // Set up view background and visibility
                         drawerContainer.visibility = View.VISIBLE
@@ -237,8 +255,9 @@ constructor(
                                 drawerContainer.animateAndBindDrawerButtons(
                                     viewModel,
                                     uiModel,
-                                    selectedButtonUiModel,
-                                    unselectedButtonUiModel,
+                                    selectedModel,
+                                    unselectedModel,
+                                    glass,
                                 )
                                 ringerDrawerTransitionListener.setProgressChangeEnabled(true)
                                 drawerContainer.closeDrawer(
@@ -255,8 +274,9 @@ constructor(
                                     drawerContainer.animateAndBindDrawerButtons(
                                         viewModel,
                                         uiModel,
-                                        selectedButtonUiModel,
-                                        unselectedButtonUiModel,
+                                        selectedModel,
+                                        unselectedModel,
+                                        glass,
                                         onProgressChanged = { progress, isReverse ->
                                             // Let's make button progress when switching matches
                                             // motionLayout transition progress. When full
@@ -295,8 +315,9 @@ constructor(
                                 drawerContainer.animateAndBindDrawerButtons(
                                     viewModel,
                                     uiModel,
-                                    selectedButtonUiModel,
-                                    unselectedButtonUiModel,
+                                    selectedModel,
+                                    unselectedModel,
+                                    glass,
                                 )
                                 // Open drawer
                                 if (
@@ -406,6 +427,7 @@ constructor(
         uiModel: RingerViewModel,
         selectedButtonUiModel: RingerButtonUiModel,
         unselectedButtonUiModel: RingerButtonUiModel,
+        glass: Boolean,
         onProgressChanged: (Float, Boolean) -> Unit = { _, _ -> },
         onAnimationEnd: Runnable? = null,
     ) {
@@ -416,6 +438,8 @@ constructor(
         ) {
             val count = uiModel.availableButtons.size
             val selectedButton = getChildAt(count - uiModel.currentButtonIndex) as ImageButton
+            // Catalyxx glass: the lens slides over to the new mode before the drawer closes
+            (this as? VolumeRingerDrawerLayout)?.glassLens?.slideTo(selectedButton)
             val previousIndex =
                 uiModel.availableButtons.indexOfFirst {
                     it.ringerMode == uiModel.drawerState.previousMode
@@ -456,17 +480,18 @@ constructor(
                 }
                 launchTraced("VDRVB#bindButtons") {
                     delay(CLOSE_DRAWER_DELAY)
-                    bindButtons(viewModel, uiModel, onAnimationEnd, isAnimated = true)
+                    bindButtons(viewModel, uiModel, glass, onAnimationEnd, isAnimated = true)
                 }
             }
         } else {
-            bindButtons(viewModel, uiModel, onAnimationEnd)
+            bindButtons(viewModel, uiModel, glass, onAnimationEnd)
         }
     }
 
     private fun MotionLayout.bindButtons(
         viewModel: VolumeDialogRingerDrawerViewModel,
         uiModel: RingerViewModel,
+        glass: Boolean,
         onAnimationEnd: Runnable? = null,
         isAnimated: Boolean = false,
     ) {
@@ -479,13 +504,24 @@ constructor(
                     if (isOpen) ringerButton else uiModel.selectedButton,
                     viewModel,
                     isOpen,
+                    glass,
                     isSelected = true,
                     isAnimated = isAnimated,
                 )
             } else {
-                view.bindDrawerButton(ringerButton, viewModel, isOpen, isAnimated = isAnimated)
+                view.bindDrawerButton(
+                    ringerButton,
+                    viewModel,
+                    isOpen,
+                    glass,
+                    isAnimated = isAnimated,
+                )
             }
         }
+        // Catalyxx glass: the lens sits on the chosen mode
+        (this as? VolumeRingerDrawerLayout)
+            ?.glassLens
+            ?.choose(getChildAt(count - uiModel.currentButtonIndex))
         onAnimationEnd?.run()
     }
 
@@ -493,6 +529,7 @@ constructor(
         buttonViewModel: RingerButtonViewModel,
         viewModel: VolumeDialogRingerDrawerViewModel,
         isOpen: Boolean,
+        glass: Boolean,
         isSelected: Boolean = false,
         isAnimated: Boolean = false,
     ) {
@@ -511,12 +548,21 @@ constructor(
             }
         if (isSelected && !isAnimated) {
             setBackgroundResource(R.drawable.volume_drawer_selection_bg)
-            setColorFilter(context.getColor(internalR.color.materialColorOnPrimary))
+            setColorFilter(
+                context.getColor(
+                    if (glass) internalR.color.materialColorPrimary
+                    else internalR.color.materialColorOnPrimary
+                )
+            )
             background = background.mutate()
         } else if (!isAnimated) {
             setBackgroundResource(R.drawable.volume_ringer_item_bg)
             setColorFilter(context.getColor(internalR.color.materialColorOnSurface))
             background = background.mutate()
+        }
+        if (glass && !isAnimated) {
+            // Catalyxx glass: the mode sits on the dialog's glass
+            backgroundShape().setColor(Color.TRANSPARENT)
         }
         setOnClickListener {
             viewModel.onRingerButtonClicked(buttonViewModel.ringerMode, isSelected)

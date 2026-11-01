@@ -14,7 +14,8 @@
   ~ limitations under the License.
   -->
 
-<androidx.constraintlayout.motion.widget.MotionLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- Catalyxx glass: a MotionLayout that can put the glass selector's lens on the chosen mode -->
+<com.android.systemui.volume.dialog.ringer.ui.view.VolumeRingerDrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/volume_ringer_drawer"
     android:layout_width="match_parent"
@@ -33,4 +34,4 @@
 
     <!-- add ringer buttons here -->
 
-</androidx.constraintlayout.motion.widget.MotionLayout>
+</com.android.systemui.volume.dialog.ringer.ui.view.VolumeRingerDrawerLayout>
