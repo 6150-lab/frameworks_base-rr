@@ -59,9 +59,11 @@ import com.android.systemui.qs.composefragment.dagger.QSFragmentComposeLog
 import com.android.systemui.qs.composefragment.dagger.QSFragmentComposeModule
 import com.android.systemui.qs.footer.ui.viewmodel.FooterActionsViewModel
 import com.android.systemui.qs.panels.domain.interactor.TileSquishinessInteractor
+import com.android.systemui.qs.panels.shared.model.QsMediaTileSize
 import com.android.systemui.qs.panels.ui.viewmodel.InFirstPageViewModel
 import com.android.systemui.qs.panels.ui.viewmodel.MediaInRowInLandscapeViewModel
 import com.android.systemui.qs.panels.ui.viewmodel.QuickQuickSettingsViewModel
+import com.android.systemui.qs.pipeline.domain.interactor.CurrentTilesInteractor
 import com.android.systemui.qs.ui.viewmodel.QuickSettingsContainerViewModel
 import com.android.systemui.res.R
 import com.android.systemui.scene.shared.model.Overlays
@@ -88,6 +90,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
@@ -119,6 +122,7 @@ constructor(
     private val mediaCarouselInteractor: MediaCarouselInteractor,
     val mediaViewModelFactory: MediaViewModel.Factory,
     shadeStatusBarComponentsInteractor: ShadeStatusBarComponentsInteractor,
+    currentTilesInteractor: CurrentTilesInteractor,
 ) : Dumpable, ExclusiveActivatable() {
 
     val containerViewModel = containerViewModelFactory.create(supportsBrightnessMirroring = true)
@@ -140,6 +144,11 @@ constructor(
         mediaInRowInLandscapeViewModelFactory.create(LOCATION_QQS, qqsMediaUiBehavior)
     private val qsMediaInRowViewModel =
         mediaInRowInLandscapeViewModelFactory.create(LOCATION_QS, qsMediaUiBehavior)
+
+    private val mediaTileInQs: Flow<Boolean> =
+        currentTilesInteractor.currentTiles
+            .map { tiles -> tiles.any { it.spec.spec == QsMediaTileSize.TILE_SPEC } }
+            .distinctUntilChanged()
 
     private val hydrator = Hydrator("QSFragmentComposeViewModel.hydrator", tableLogBuffer)
 
@@ -311,7 +320,12 @@ constructor(
             initialValue = usingMedia,
             source =
                 if (usingMedia) {
-                    mediaHostVisible(qqsMediaHost, qqsMediaUiBehavior, mediaCarouselInteractor)
+                    combine(
+                        mediaHostVisible(qqsMediaHost, qqsMediaUiBehavior, mediaCarouselInteractor),
+                        mediaTileInQs,
+                    ) { visible, tile ->
+                        visible && !tile
+                    }
                 } else {
                     flowOf(false)
                 },
@@ -326,7 +340,12 @@ constructor(
             initialValue = usingMedia,
             source =
                 if (usingMedia) {
-                    mediaHostVisible(qsMediaHost, qsMediaUiBehavior, mediaCarouselInteractor)
+                    combine(
+                        mediaHostVisible(qsMediaHost, qsMediaUiBehavior, mediaCarouselInteractor),
+                        mediaTileInQs,
+                    ) { visible, tile ->
+                        visible && !tile
+                    }
                 } else {
                     flowOf(false)
                 },
