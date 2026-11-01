@@ -22,8 +22,10 @@ import android.hardware.security.keymint.IRemotelyProvisionedComponent;
 import android.hardware.security.keymint.MacedPublicKey;
 import android.hardware.security.keymint.ProtectedData;
 import android.hardware.security.keymint.RpcHardwareInfo;
+import android.net.ConnectivityManager;
 import android.net.LocalSocket;
 import android.net.LocalSocketAddress;
+import android.net.NetworkCapabilities;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.Process;
@@ -93,6 +95,11 @@ public final class DuckRkpService {
     private static final String REVISION_KEY = "spoof_duck_rkp_revision";
     private static final String ERROR_KEY = "spoof_duck_rkp_error";
     private static final String DETAIL_KEY = "spoof_duck_rkp_detail";
+    private static final String MADE_AT_KEY = "spoof_duck_rkp_made_at";
+    private static final String LAST_RENEWAL_KEY = "spoof_duck_rkp_last_renewal";
+    private static final long RENEW_AGE_MS = 7 * 24 * 60 * 60 * 1000L;
+    private static final long RENEW_MARGIN_MS = 3 * 24 * 60 * 60 * 1000L;
+    private static final long RENEW_RETRY_MS = 6 * 60 * 60 * 1000L;
     private static final byte[] ZERO_HBK = new byte[32];
     private static final byte[] MAC_INFO =
             "Key to MAC public keys".getBytes(StandardCharsets.UTF_8);
@@ -199,20 +206,75 @@ public final class DuckRkpService {
             mRetryAfterMs = 0;
             persistError(null, 0);
         }
+        startProvision(false);
+    }
+
+    /** From the hourly refresh: a new keybox about a week in, and always before this one ends. */
+    void renewIfDue() {
+        if (!isSupported() || !isEnabled() || isImported() || !hasStoredKeybox()) {
+            return;
+        }
+        final long now = System.currentTimeMillis();
+        final long madeAt = secureLong(MADE_AT_KEY);
+        long dueAt = secureLong(EXPIRES_AT_KEY) - RENEW_MARGIN_MS;
+        if (madeAt > 0) {
+            dueAt = Math.min(dueAt, madeAt + RENEW_AGE_MS);
+        }
+        if (now < dueAt || now - secureLong(LAST_RENEWAL_KEY) < RENEW_RETRY_MS || !hasInternet()) {
+            return;
+        }
+        synchronized (mLock) {
+            if (mBusy) {
+                return;
+            }
+            mBusy = true;
+            mStage = "fetching";
+            mRetryAfterMs = 0;
+        }
+        Settings.Secure.putLongForUser(mContext.getContentResolver(), LAST_RENEWAL_KEY, now,
+                UserHandle.USER_SYSTEM);
+        Slog.i(TAG, "Renewing the keybox");
+        startProvision(true);
+    }
+
+    private long secureLong(String key) {
+        return Settings.Secure.getLongForUser(mContext.getContentResolver(), key, 0L,
+                UserHandle.USER_SYSTEM);
+    }
+
+    private boolean hasInternet() {
+        final ConnectivityManager connectivity =
+                mContext.getSystemService(ConnectivityManager.class);
+        final NetworkCapabilities capabilities = connectivity == null ? null
+                : connectivity.getNetworkCapabilities(connectivity.getActiveNetwork());
+        return capabilities != null
+                && capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
+    }
+
+    /** A failed renewal stays quiet while the keybox it would replace still works. */
+    private void reportFailure(boolean renewal, String code, int detail) {
+        if (renewal && secureLong(EXPIRES_AT_KEY) > System.currentTimeMillis()) {
+            Slog.w(TAG, "Keybox renewal failed (" + code + "/" + detail + ")");
+            return;
+        }
+        persistError(code, detail);
+    }
+
+    private void startProvision(boolean renewal) {
         new Thread(() -> {
             final long ident = Binder.clearCallingIdentity();
             try {
                 runProvision();
             } catch (DuckRkpException e) {
-                persistError(e.code, e.detail);
-                if ("canceled".equals(e.code) || "timeout".equals(e.code)) {
+                reportFailure(renewal, e.code, e.detail);
+                if (!renewal && ("canceled".equals(e.code) || "timeout".equals(e.code))) {
                     synchronized (mLock) {
                         mRetryAfterMs = 15_000L;
                     }
                 }
             } catch (Exception e) {
                 Slog.w(TAG, "Duck RKP provision failed", e);
-                persistError("network_error", 0);
+                reportFailure(renewal, "network_error", 0);
             } finally {
                 Binder.restoreCallingIdentity(ident);
                 synchronized (mLock) {
@@ -597,6 +659,8 @@ public final class DuckRkpService {
                 UserHandle.USER_SYSTEM);
         Settings.Secure.putLongForUser(mContext.getContentResolver(),
                 EXPIRES_AT_KEY, expiresAt, UserHandle.USER_SYSTEM);
+        Settings.Secure.putLongForUser(mContext.getContentResolver(),
+                MADE_AT_KEY, System.currentTimeMillis(), UserHandle.USER_SYSTEM);
         persistError(null, 0);
         bumpRevision();
     }

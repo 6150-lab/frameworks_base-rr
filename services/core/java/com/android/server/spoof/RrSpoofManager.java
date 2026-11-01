@@ -594,7 +594,11 @@ public class RrSpoofManager implements IRrSpoofManager {
         String source = Settings.Secure.getStringForUser(
                 mResolver, KEYBOX_SOURCE_KEY, UserHandle.USER_SYSTEM);
         if (KEYBOX_SOURCE_USER.equals(source) || isDuckManaged(source)) {
-            return; // user or Duck RKP manages this keybox — never overwrite it
+            // user or Duck RKP manages this keybox — never overwrite it
+            if (!KEYBOX_SOURCE_USER.equals(source)) {
+                DuckRkpService.get(mContext).renewIfDue();
+            }
+            return;
         }
 
         String xml = runBounded(mNetworkExecutor, () -> {
