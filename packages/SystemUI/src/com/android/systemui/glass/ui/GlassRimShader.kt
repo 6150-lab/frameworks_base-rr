@@ -15,7 +15,8 @@ import androidx.annotation.MainThread
  * lit part of the rim and the glint where it faces the light, as SurfaceFlinger draws them on its
  * own glass (frameworks/native BlurFilter). There's nothing sharp behind to bend here, so the rim
  * away from the light gets a little shade instead, where SurfaceFlinger's rim would bend in the
- * darker content past the edge. A finger on the glass lights it up around itself.
+ * darker content past the edge. A finger on the glass lights up the rim near it and, drawn
+ * separately behind what's on the glass, a pool of light under it.
  *
  * It draws over the glass and what's on it, inside the outline only. One shader serves all glass
  * on the main thread: each drawing sets it up just before it draws, and the drawing keeps what it
@@ -31,8 +32,10 @@ class GlassRimShader private constructor() {
      * Sets up the next drawing: glass inside [left], [top], [right], [bottom] with corner radii
      * [radii] (top left, top right, bottom right, bottom left, in pixels), drawn with [rim] in
      * [light]. [overLight] is true where the glass sits on light content, where the bright line
-     * would vanish. [glow] (0 to 1) lights the glass up around ([touchX], [touchY]). False if the
-     * shader failed, so there's nothing to draw.
+     * would vanish. [glow] (0 to 1) lights up the rim near a finger at ([touchX], [touchY]); with
+     * [pool], only the pool of light under the finger is drawn instead, to go behind what's on the
+     * glass so the light doesn't wash it out. False if the shader failed, so there's nothing to
+     * draw.
      */
     fun set(
         left: Float,
@@ -46,9 +49,23 @@ class GlassRimShader private constructor() {
         glow: Float = 0f,
         touchX: Float = 0f,
         touchY: Float = 0f,
+        pool: Boolean = false,
     ): Boolean =
         try {
-            setUniforms(left, top, right, bottom, radii, rim, light, overLight, glow, touchX, touchY)
+            setUniforms(
+                left,
+                top,
+                right,
+                bottom,
+                radii,
+                rim,
+                light,
+                overLight,
+                glow,
+                touchX,
+                touchY,
+                pool,
+            )
             true
         } catch (e: IllegalArgumentException) {
             fail(e)
@@ -67,19 +84,21 @@ class GlassRimShader private constructor() {
         glow: Float,
         touchX: Float,
         touchY: Float,
+        pool: Boolean,
     ) {
         val halfSize = minOf(right - left, bottom - top) / 2f
         shader.setFloatUniform("bounds", left, top, right, bottom)
         shader.setFloatUniform("radii", radii[0], radii[1], radii[2], radii[3])
         // A rim wider than half the glass would meet itself in the middle
         shader.setFloatUniform("rimWidth", rim.rimWidth.coerceIn(1f, maxOf(1f, halfSize * 0.9f)))
-        shader.setFloatUniform("rimLight", rim.rimLight)
+        shader.setFloatUniform("rimLight", if (pool) 0f else rim.rimLight)
         shader.setFloatUniform("dispersion", rim.dispersion)
-        shader.setFloatUniform("bevel", rim.bevel)
-        shader.setFloatUniform("overLight", if (overLight) 1f else 0f)
+        shader.setFloatUniform("bevel", if (pool) 0f else rim.bevel)
+        shader.setFloatUniform("overLight", if (overLight && !pool) 1f else 0f)
         shader.setFloatUniform("lightDir", light.x, light.y)
         shader.setFloatUniform("lightTurn", light.turn)
-        shader.setFloatUniform("touchGlow", glow)
+        shader.setFloatUniform("touchRim", if (pool) 0f else glow)
+        shader.setFloatUniform("touchPool", if (pool) glow else 0f)
         shader.setFloatUniform("touchPoint", touchX, touchY)
         shader.setFloatUniform("touchRadius", rim.glowRadius)
         shader.setFloatUniform(
@@ -138,9 +157,12 @@ class GlassRimShader private constructor() {
             // usual place at the top left, in radians.
             uniform float2 lightDir;
             uniform float lightTurn;
-            // A finger on the glass: how strongly it lights it (0 to 1), where, how far the
-            // light reaches, its color, and 1 for light that turns through the rainbow instead.
-            uniform float touchGlow;
+            // A finger on the glass: how strongly it lights up the rim near it and the glass under
+            // it (0 to 1, drawn apart so the pool can go behind what's on the glass), where, how
+            // far the light reaches, its color, and 1 for light that turns through the rainbow
+            // instead.
+            uniform float touchRim;
+            uniform float touchPool;
             uniform float2 touchPoint;
             uniform float touchRadius;
             uniform float3 touchColor;
@@ -196,7 +218,7 @@ class GlassRimShader private constructor() {
                                (line * catchLight * lineColor +
                                 0.25 * edge * edge * edge * max(facing, 0.0) + 0.6 * glint);
 
-                if (touchGlow > 0.0) {
+                if (touchRim > 0.0 || touchPool > 0.0) {
                     float2 fromTouch = p - touchPoint;
                     float reach = length(fromTouch) / touchRadius;
                     // The rainbow turns around the finger, white where it touches so the colors
@@ -208,9 +230,8 @@ class GlassRimShader private constructor() {
                                   0.6 * smoothstep(0.0, 0.8, reach))
                             : touchColor;
                     // A soft pool of light under the finger, and the rim near it lit up
-                    light += touchGlow * glowColor *
-                             (0.35 * exp(-2.0 * reach * reach) +
-                              0.8 * line * exp(-0.5 * reach * reach));
+                    light += glowColor * (0.35 * touchPool * exp(-2.0 * reach * reach) +
+                                          0.8 * touchRim * line * exp(-0.5 * reach * reach));
                 }
                 light = min(light, float3(1.0));
                 float lit = max(light.r, max(light.g, light.b));

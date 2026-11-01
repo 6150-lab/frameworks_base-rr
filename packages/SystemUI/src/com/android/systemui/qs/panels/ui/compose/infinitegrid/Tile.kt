@@ -88,6 +88,8 @@ import com.android.systemui.common.shared.model.Icon
 import com.android.systemui.compose.modifiers.sysuiResTag
 import com.android.systemui.glass.ui.compose.OwnGlassShown
 import com.android.systemui.glass.ui.compose.ownGlassRim
+import com.android.systemui.glass.ui.compose.ownGlassTouchPool
+import com.android.systemui.glass.ui.compose.rememberOwnGlassTouch
 import com.android.systemui.haptics.msdl.qs.TileHapticsViewModel
 import com.android.systemui.lifecycle.rememberViewModel
 import com.android.systemui.qs.flags.QsDetailedView
@@ -274,6 +276,7 @@ fun ContentScope.Tile(
         val animatedColor by animateColorAsState(colors.background, label = "QSTileBackgroundColor")
         // Catalyxx glass: the tile's rim catches the light, and a finger lights it up
         OwnGlassShown(GlassSettings.PLACE_SHADE, isVisible)
+        val glassTouch = rememberOwnGlassTouch()
         val isDualTarget = uiState.handlesToggleClick
         // A tile that only shows its icon toggles on tap, whatever its size.
         val tapToggles = iconOnly || layout == TileLayout.Icon
@@ -322,8 +325,7 @@ fun ContentScope.Tile(
                 shape = tileShape,
                 squishiness = squishiness,
                 hapticsViewModel = hapticsViewModel,
-                glassRim =
-                    Modifier.ownGlassRim(GlassSettings.PLACE_SHADE, tileShape, touchGlow = true),
+                glassRim = Modifier.ownGlassRim(GlassSettings.PLACE_SHADE, tileShape, glassTouch),
                 modifier =
                     modifier
                         .then(surfaceRevealModifier)
@@ -416,7 +418,12 @@ fun ContentScope.Tile(
                     iconOnly = tapToggles,
                     isDualTarget = isDualTarget,
                     height = height ?: look.height,
-                    modifier = fillModifier.then(contentRevealModifier).then(levelModifier),
+                    // The light under a finger goes behind the icon and label
+                    modifier =
+                        fillModifier
+                            .then(contentRevealModifier)
+                            .then(levelModifier)
+                            .ownGlassTouchPool(GlassSettings.PLACE_SHADE, tileShape, glassTouch),
                 ) {
                     val iconProvider: Context.() -> Icon = {
                         tileTweak?.icon?.let { name ->
