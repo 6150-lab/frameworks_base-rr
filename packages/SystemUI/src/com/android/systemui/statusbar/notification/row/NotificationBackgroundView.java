@@ -16,15 +16,16 @@
 
 package com.android.systemui.statusbar.notification.row;
 
-import static com.android.systemui.Flags.lockscreenBlurForNotifications;
 import static com.android.systemui.Flags.notificationRowTransparency;
 import static com.android.systemui.util.ColorUtilKt.hexColorString;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Path;
 import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
@@ -32,6 +33,8 @@ import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.RippleDrawable;
 import android.util.AttributeSet;
 import android.view.View;
+import android.view.ViewParent;
+import android.view.ViewTreeObserver;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -40,9 +43,11 @@ import androidx.annotation.VisibleForTesting;
 
 import com.android.internal.graphics.drawable.BackgroundBlurDrawable;
 import com.android.internal.util.ContrastColorUtil;
+import com.android.internal.util.catalyxx.GlassLook;
 import com.android.internal.util.catalyxx.GlassSettings;
 import com.android.systemui.Dumpable;
 import com.android.systemui.common.shared.colors.SurfaceEffectColors;
+import com.android.systemui.glass.ui.OwnGlass;
 import com.android.systemui.glass.ui.OwnGlassViewRim;
 import com.android.systemui.res.R;
 import com.android.systemui.statusbar.notification.shared.NotificationAddXOnHoverToDismiss;
@@ -91,6 +96,15 @@ public class NotificationBackgroundView extends View implements Dumpable,
     private boolean mOnKeyguard = true;
     // Catalyxx glass: the rim on the notification's background catches the light
     private final OwnGlassViewRim mGlassRim;
+    // Catalyxx glass over the lock screen or an app: the blurred background draws as glass
+    // (updateGlass()). SurfaceFlinger draws it at the drawable's own alpha and never sees the views
+    // above it fade, so before each frame it takes the alpha the background really has.
+    private boolean mBlurIsGlass;
+    private boolean mBlurAlphaUpdating;
+    private final ViewTreeObserver.OnPreDrawListener mBlurAlphaUpdater = () -> {
+        updateBlurAlpha();
+        return true;
+    };
 
     public NotificationBackgroundView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -133,8 +147,9 @@ public class NotificationBackgroundView extends View implements Dumpable,
             }
 
             if (!NotificationAddXOnHoverToDismiss.isEnabled()) {
-                if (mBackgroundBlurDrawable != null) {
-                    draw(canvas, mBackgroundBlurDrawable);
+                // The blur only draws on the screen's own, hardware canvas
+                if (mBackgroundBlurDrawable != null && canvas.isHardwareAccelerated()) {
+                    drawBlur(canvas);
                 } else {
                     draw(canvas, mBackground);
                 }
@@ -167,20 +182,141 @@ public class NotificationBackgroundView extends View implements Dumpable,
 
     /** Draws glass's rim on the background {@code drawable}, just drawn inside {@code bounds}. */
     private void drawGlassRim(Canvas canvas, Rect bounds, Drawable drawable) {
+        if (drawable == mBackgroundBlurDrawable) {
+            // Blurred glass gets its rim from SurfaceFlinger
+            return;
+        }
         mGlassRim.draw(canvas, bounds.left, bounds.top, bounds.right, bounds.bottom,
                 mCornerRadii, drawable.getAlpha());
+    }
+
+    /**
+     * Draws the blurred background. SurfaceFlinger blurs the drawable's whole bounds whatever the
+     * canvas clips, so they stop where the background is clipped; glass treats a clipped side as
+     * carrying on under what clips it: square, without a rim.
+     */
+    private void drawBlur(Canvas canvas) {
+        final boolean alignedToRight = isAlignedToRight();
+        final int width = getWidth();
+        final int actualWidth = getActualWidth();
+        int left = alignedToRight ? width - actualWidth : 0;
+        int right = alignedToRight ? width : actualWidth;
+        int top = 0;
+        int bottom = getActualHeight();
+        int joinedSides = 0;
+        if (mExpandAnimationRunning) {
+            // Horizontally center this background view inside of the container
+            left = (int) ((width - actualWidth) / 2.0f);
+            right = left + actualWidth;
+        } else {
+            final int clipTop = Math.max(mClipTopAmount, mTopOverlap);
+            final int clipBottom = Math.max(mClipBottomAmount, mBottomOverlap);
+            if (clipTop > 0) {
+                top = clipTop;
+                joinedSides |= BackgroundBlurDrawable.GLASS_SIDE_TOP;
+            }
+            if (clipBottom > 0) {
+                bottom -= clipBottom;
+                // A rounded bottom that the clip moves up stays rounded
+                if (!mBottomIsRounded || !mBottomAmountClips) {
+                    joinedSides |= BackgroundBlurDrawable.GLASS_SIDE_BOTTOM;
+                }
+            }
+        }
+        if (bottom <= top) {
+            return;
+        }
+        final float topRadius =
+                (joinedSides & BackgroundBlurDrawable.GLASS_SIDE_TOP) != 0 ? 0 : mCornerRadii[0];
+        final float bottomRadius =
+                (joinedSides & BackgroundBlurDrawable.GLASS_SIDE_BOTTOM) != 0 ? 0 : mCornerRadii[4];
+        mBackgroundBlurDrawable.setCornerRadius(topRadius, topRadius, topRadius, topRadius,
+                bottomRadius, bottomRadius, bottomRadius, bottomRadius);
+        mBackgroundBlurDrawable.setGlassJoinedSides(joinedSides);
+        mBackgroundBlurDrawable.setBounds(left, top, right, bottom);
+        mBackgroundBlurDrawable.draw(canvas);
+    }
+
+    /**
+     * Applies Catalyxx glass to the blurred background (OwnGlass): how it's drawn, how much it
+     * blurs and its color. A no-op without the blurred background.
+     */
+    public void updateGlass() {
+        if (mBackgroundBlurDrawable == null) {
+            return;
+        }
+        final GlassLook look =
+                OwnGlass.INSTANCE.look(GlassSettings.PLACE_NOTIFICATIONS, mNormalColor);
+        mBlurIsGlass = look != null;
+        mBackgroundBlurDrawable.setGlass(look);
+        mBackgroundBlurDrawable.setBlurRadius(GlassSettings.scaleBlurRadius(
+                getResources().getDimensionPixelSize(R.dimen.notification_background_blur_radius),
+                OwnGlass.INSTANCE.blurScale(GlassSettings.PLACE_NOTIFICATIONS)));
+        updateBlurColor();
+        invalidate();
+    }
+
+    private void updateBlurColor() {
+        if (mBlurIsGlass) {
+            // The glass draws its own color, through anything drawn behind the notification; a
+            // colorized notification keeps its color on it
+            mBackgroundBlurDrawable.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
+            mBackgroundBlurDrawable.setColor(mTintColor != 0 && mTintColor != mNormalColor
+                    ? mTintColor : Color.TRANSPARENT);
+        } else {
+            mBackgroundBlurDrawable.setXfermode(null);
+            mBackgroundBlurDrawable.setColor(mTintColor != 0 ? mTintColor : mNormalColor);
+        }
+    }
+
+    /**
+     * The blurred background takes the alpha it's really drawn with: its own, times that of every
+     * view above it, and none while one of them is hidden.
+     */
+    private void updateBlurAlpha() {
+        if (mBackgroundBlurDrawable == null) {
+            return;
+        }
+        float alpha = mDrawableAlpha / 255f;
+        View view = this;
+        while (view != null && alpha > 0f) {
+            if (view.getVisibility() != VISIBLE) {
+                alpha = 0f;
+                break;
+            }
+            alpha *= view.getAlpha() * view.getTransitionAlpha();
+            final ViewParent parent = view.getParent();
+            view = parent instanceof View ? (View) parent : null;
+        }
+        mBackgroundBlurDrawable.setAlpha(Math.round(alpha * 255));
+    }
+
+    /** Follows the alpha before each frame while there's a blurred background on screen. */
+    private void updateBlurAlphaUpdater(boolean attached) {
+        final boolean updating = attached && mBackgroundBlurDrawable != null;
+        if (updating != mBlurAlphaUpdating) {
+            mBlurAlphaUpdating = updating;
+            if (updating) {
+                getViewTreeObserver().addOnPreDrawListener(mBlurAlphaUpdater);
+                updateBlurAlpha();
+            } else {
+                getViewTreeObserver().removeOnPreDrawListener(mBlurAlphaUpdater);
+            }
+        }
     }
 
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
         mGlassRim.onAttachedToWindow();
+        updateBlurAlphaUpdater(true);
     }
 
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         mGlassRim.onDetachedFromWindow();
+        updateBlurAlphaUpdater(false);
     }
 
     @Override
@@ -363,7 +499,10 @@ public class NotificationBackgroundView extends View implements Dumpable,
      */
     @UiThread
     public void setBlurBackgroundEnabled(boolean enabled) {
-        if (!lockscreenBlurForNotifications()) {
+        // Catalyxx glass uses this blur too, so the callers decide when it's on
+        // (ActivatableNotificationView.usesBlurredBackground()). Rows may be inflated off the main
+        // thread, where it's always off: nothing to do there.
+        if (!enabled && mBackgroundBlurDrawable == null && mOnAttachStateChangeListener == null) {
             return;
         }
         Assert.isMainThread();
@@ -388,6 +527,8 @@ public class NotificationBackgroundView extends View implements Dumpable,
                                 mBackgroundBlurDrawable.setColor(mNormalColor);
 
                                 updateBackgroundRadii();
+                                updateGlass();
+                                updateBlurAlphaUpdater(true);
                                 invalidate();
                             }
                             NotificationBackgroundView.this.removeOnAttachStateChangeListener(this);
@@ -411,6 +552,9 @@ public class NotificationBackgroundView extends View implements Dumpable,
                 mBackgroundBlurDrawable.setCallback(null);
             }
             mBackgroundBlurDrawable = null;
+            mBlurIsGlass = false;
+            updateBlurAlphaUpdater(false);
+            invalidate();
         }
     }
 
@@ -430,10 +574,10 @@ public class NotificationBackgroundView extends View implements Dumpable,
             baseLayer.mutate().setTintMode(PorterDuff.Mode.SRC_ATOP);
             baseLayer.setTint(tintColor);
         }
-        if (mBackgroundBlurDrawable != null) {
-            mBackgroundBlurDrawable.setColor(tintColor);
-        }
         mTintColor = tintColor;
+        if (mBackgroundBlurDrawable != null) {
+            updateBlurColor();
+        }
         setStatefulColors();
         invalidate();
     }
@@ -529,9 +673,7 @@ public class NotificationBackgroundView extends View implements Dumpable,
             return;
         }
         mBackground.setAlpha(drawableAlpha);
-        if (mBackgroundBlurDrawable != null) {
-            mBackgroundBlurDrawable.setAlpha(drawableAlpha);
-        }
+        updateBlurAlpha();
     }
 
     /**

@@ -4712,9 +4712,22 @@ public class ExpandableNotificationRow extends ActivatableNotificationView
         // Row background should be opaque when it's displayed as a heads-up notification or
         // displayed on keyguard.
         // Also, for an unpinned HUN on the unlocked shade, the row bg should be transparent.
+        // Catalyxx glass keeps a heads-up see-through, over glass of its own.
         return super.usesTransparentBackground()
-                && !mustStayOnScreen()
+                && (!mustStayOnScreen() || isGlassOn())
                 && !(isChildInGroup() && !mNotificationParent.usesTransparentBackground())
-                && !mHeadsupDisappearRunning;
+                && (!mHeadsupDisappearRunning || isGlassOn());
+    }
+
+    @Override
+    protected boolean usesBlurredBackground() {
+        // A child sits on its group's glass rather than on glass of its own
+        return super.usesBlurredBackground() && !isChildInGroup();
+    }
+
+    @Override
+    protected boolean isGlassOverContent() {
+        // A heads-up over an app, also while it slides away
+        return isPinned() || mHeadsupDisappearRunning;
     }
 }

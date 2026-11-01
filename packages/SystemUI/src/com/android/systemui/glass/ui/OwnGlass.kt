@@ -18,6 +18,7 @@ import androidx.annotation.MainThread
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.android.internal.util.catalyxx.GlassLook
 import com.android.internal.util.catalyxx.GlassSettings
 import com.android.internal.util.catalyxx.GlassTilt
 import java.util.concurrent.atomic.AtomicBoolean
@@ -51,6 +52,10 @@ object OwnGlass {
     private var blurOn by mutableStateOf(false)
     private var lightNow by mutableStateOf(OwnGlassLight.USUAL)
 
+    /** Goes up whenever the settings or the system's blur change; not when only the light moves. */
+    var version = 0
+        private set
+
     // The light GlassTilt last gave, waiting for the main thread
     private val pendingLight = AtomicLong()
     private val lightPosted = AtomicBoolean()
@@ -67,6 +72,7 @@ object OwnGlass {
             object : ContentObserver(handler) {
                 override fun onChange(selfChange: Boolean) {
                     settings = readSettings()
+                    version++
                     changed()
                 }
             }
@@ -83,6 +89,7 @@ object OwnGlass {
             windowManager.addCrossWindowBlurEnabledListener(this.context.mainExecutor) {
                 if (it != blurOn) {
                     blurOn = it
+                    version++
                     changed()
                 }
             }
@@ -159,6 +166,20 @@ object OwnGlass {
         }
         return GlassSettings.tintColor(context, s.color, s.tint, androidColor)
     }
+
+    /** Whether glass is on at [place] now: on there, with the system's blur on. */
+    fun isOn(place: String): Boolean = blurOn && settings.isOn(place)
+
+    /**
+     * How SurfaceFlinger draws glass at [place] now, where Android tints it with [androidColor]
+     * (see [GlassSettings.look]); null while glass is off there or Flat, or the blur is off.
+     */
+    fun look(place: String, @ColorInt androidColor: Int): GlassLook? =
+        if (isOn(place)) GlassSettings.look(context, place, androidColor) else null
+
+    /** What glass multiplies [place]'s blur radius by now: 1 while it's off there. */
+    fun blurScale(place: String): Float =
+        if (isOn(place)) GlassSettings.blurScale(context.contentResolver, place) else 1f
 
     /** [listener] runs on the main thread whenever the settings, blur or light change. */
     fun addListener(listener: Runnable) {

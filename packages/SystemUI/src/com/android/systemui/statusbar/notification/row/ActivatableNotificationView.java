@@ -33,6 +33,7 @@ import android.graphics.Color;
 import android.graphics.Point;
 import android.util.AttributeSet;
 import android.util.IndentingPrintWriter;
+import android.os.Looper;
 import android.util.MathUtils;
 import android.view.Choreographer;
 import android.view.MotionEvent;
@@ -44,8 +45,10 @@ import androidx.annotation.VisibleForTesting;
 import com.android.app.animation.Interpolators;
 import com.android.internal.jank.InteractionJankMonitor;
 import com.android.internal.jank.InteractionJankMonitor.Configuration;
+import com.android.internal.util.catalyxx.GlassSettings;
 import com.android.systemui.Flags;
 import com.android.systemui.Gefingerpoken;
+import com.android.systemui.glass.ui.OwnGlass;
 import com.android.systemui.common.shared.colors.SurfaceEffectColors;
 import com.android.systemui.res.R;
 import com.android.systemui.shade.TouchLogger;
@@ -132,6 +135,11 @@ public abstract class ActivatableNotificationView extends ExpandableOutlineView 
      */
     protected boolean mOnKeyguard;
     protected boolean mIsBlurSupported;
+    // Catalyxx glass on notifications (OwnGlass): see-through in the shade, and real glass where
+    // the notification sits over the lock screen or an app, see usesBlurredBackground()
+    private boolean mGlassOn;
+    private int mGlassVersion = -1;
+    private final Runnable mGlassListener = this::onGlassChanged;
 
     public ActivatableNotificationView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -318,6 +326,11 @@ public abstract class ActivatableNotificationView extends ExpandableOutlineView 
         if (mBackgroundColorAnimator != null) {
             mBackgroundColorAnimator.cancel();
         }
+        // Glass's blur depends on the same states as the tint. It's only switched on the main
+        // thread; one of the updates there switches it, as attaching to the window does.
+        if (Looper.getMainLooper().isCurrentThread()) {
+            mBackgroundNormal.setBlurBackgroundEnabled(usesBlurredBackground());
+        }
         int rippleColor = getRippleColor();
         mBackgroundNormal.setRippleColor(rippleColor);
         int color = calculateBgColor();
@@ -372,12 +385,48 @@ public abstract class ActivatableNotificationView extends ExpandableOutlineView 
     }
 
     protected boolean usesBlurredBackground() {
-        return usesTransparentBackground() && lockscreenBlurForNotifications();
+        return usesTransparentBackground()
+                && (lockscreenBlurForNotifications()
+                        || (mGlassOn && (mOnKeyguard || isGlassOverContent())));
     }
 
     protected boolean usesTransparentBackground() {
-        return mIsBlurSupported && notificationRowTransparency()
-                && (!mOnKeyguard || lockscreenBlurForNotifications());
+        return (mIsBlurSupported || mGlassOn) && notificationRowTransparency()
+                && (!mOnKeyguard || lockscreenBlurForNotifications() || mGlassOn);
+    }
+
+    /** Whether Catalyxx glass is on for notifications (OwnGlass). */
+    protected boolean isGlassOn() {
+        return mGlassOn;
+    }
+
+    /**
+     * Whether this notification sits over an app, as a heads-up, instead of in the shade. There
+     * its Catalyxx glass blurs what's behind it itself, as it does on the lock screen.
+     */
+    protected boolean isGlassOverContent() {
+        return false;
+    }
+
+    /** Catalyxx glass's settings or the system's blur may have changed. */
+    private void onGlassChanged() {
+        final int version = OwnGlass.INSTANCE.getVersion();
+        if (version == mGlassVersion) {
+            // Only the light moved
+            return;
+        }
+        mGlassVersion = version;
+        mGlassOn = OwnGlass.INSTANCE.isOn(GlassSettings.PLACE_NOTIFICATIONS);
+        updateBackgroundTint();
+        mBackgroundNormal.updateGlass();
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        OwnGlass.INSTANCE.start(getContext());
+        OwnGlass.INSTANCE.addListener(mGlassListener);
+        onGlassChanged();
     }
 
     @Override
@@ -899,6 +948,8 @@ public abstract class ActivatableNotificationView extends ExpandableOutlineView 
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
+        OwnGlass.INSTANCE.removeListener(mGlassListener);
+        mGlassVersion = -1;
         if (!mOnDetachResetRoundness.isEmpty()) {
             for (SourceType sourceType : mOnDetachResetRoundness) {
                 requestRoundnessReset(sourceType);
