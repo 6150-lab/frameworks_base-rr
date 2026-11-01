@@ -204,6 +204,8 @@ internal constructor(
             multiRippleController.updateColor(it)
             turbulenceNoiseController.updateNoiseColor(it)
             loadingEffect?.updateColor(it)
+            // Catalyxx glass keeps their light from it
+            mediaViewHolder.glass.effectColor = it
         }
         mediaViewHolder.gutsViewHolder.setTextColor(getGutsTextColor())
         colorScheme?.let { mediaViewHolder.gutsViewHolder.setColors(it) }

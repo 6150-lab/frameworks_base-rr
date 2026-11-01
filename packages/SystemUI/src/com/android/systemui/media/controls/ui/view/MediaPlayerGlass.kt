@@ -6,6 +6,7 @@
 package com.android.systemui.media.controls.ui.view
 
 import android.content.res.ColorStateList
+import android.graphics.BlendMode
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.ColorFilter
@@ -77,6 +78,14 @@ class MediaPlayerGlass(private val albumView: ImageView, private val effectViews
     private val location = IntArray(2)
     private val containerLocation = IntArray(2)
 
+    // How the effects' layers draw on a glass card: their light alone, screened on as Android
+    // screens the effects themselves
+    private val effectPaint =
+        Paint().apply {
+            blendMode = BlendMode.SCREEN
+            colorFilter = lightOnly(Color.WHITE)
+        }
+
     private val onGlassChange = Runnable {
         val version = OwnGlass.version
         if (version != glassVersion) {
@@ -101,6 +110,20 @@ class MediaPlayerGlass(private val albumView: ImageView, private val effectViews
             field = value
             hasCardColor = true
             applyColors()
+        }
+
+    /** The color the player's effects draw their light in, as Android picks it from the art. */
+    @ColorInt
+    var effectColor: Int = Color.WHITE
+        set(value) {
+            if (value != field) {
+                field = value
+                effectPaint.colorFilter = lightOnly(value)
+                if (artHidden) {
+                    // Now, rather than whenever the effects next draw
+                    effectViews.forEach { it.setLayerPaint(effectPaint) }
+                }
+            }
         }
 
     init {
@@ -160,7 +183,7 @@ class MediaPlayerGlass(private val albumView: ImageView, private val effectViews
             if (glassCard) albumView.colorFilter = HIDE_ART else albumView.clearColorFilter()
             for (view in effectViews) {
                 if (glassCard) {
-                    view.setLayerType(View.LAYER_TYPE_HARDWARE, EFFECT_LIGHT_ONLY)
+                    view.setLayerType(View.LAYER_TYPE_HARDWARE, effectPaint)
                 } else {
                     view.setLayerType(View.LAYER_TYPE_NONE, null)
                 }
@@ -434,20 +457,34 @@ class MediaPlayerGlass(private val albumView: ImageView, private val effectViews
 
         val HIDE_ART = PorterDuffColorFilter(Color.TRANSPARENT, PorterDuff.Mode.SRC)
 
-        // An effect's layer as light alone: as see-through as it is dark, so its black is gone
-        // and its brighter parts still glow on the glass
-        val EFFECT_LIGHT_ONLY =
-            Paint().apply {
-                colorFilter =
-                    ColorMatrixColorFilter(
-                        floatArrayOf(
-                            1f, 0f, 0f, 0f, 0f,
-                            0f, 1f, 0f, 0f, 0f,
-                            0f, 0f, 1f, 0f, 0f,
-                            0.2126f, 0.7152f, 0.0722f, 0f, 0f,
-                        )
-                    )
-            }
+        /**
+         * An effect's layer as light alone. The effects draw [color] dimmed over black, so each
+         * pixel becomes [color] itself, as see-through as it was dimmed: screened over glass, that
+         * adds the light they add to album art, and their black adds nothing. Light kept at its
+         * dim color instead would cover the glass rather than light it.
+         */
+        fun lightOnly(@ColorInt color: Int): ColorFilter {
+            val red = Color.red(color)
+            val green = Color.green(color)
+            val blue = Color.blue(color)
+            // Alpha is how bright the effect is as a share of the color's own brightness
+            val luma = (LUMA_RED * red + LUMA_GREEN * green + LUMA_BLUE * blue) / OPAQUE
+            val scale = 1f / max(luma, MIN_EFFECT_LUMA)
+            return ColorMatrixColorFilter(
+                floatArrayOf(
+                    0f, 0f, 0f, 0f, red.toFloat(),
+                    0f, 0f, 0f, 0f, green.toFloat(),
+                    0f, 0f, 0f, 0f, blue.toFloat(),
+                    LUMA_RED * scale, LUMA_GREEN * scale, LUMA_BLUE * scale, 0f, 0f,
+                )
+            )
+        }
+
+        const val LUMA_RED = 0.2126f
+        const val LUMA_GREEN = 0.7152f
+        const val LUMA_BLUE = 0.0722f
+        // A floor, so a black effect color (no light to keep) doesn't divide by zero
+        const val MIN_EFFECT_LUMA = 0.05f
 
         // The art's color on glass: the card color's chroma times about what Android's neutral
         // palette takes from the art, as a deep shade
