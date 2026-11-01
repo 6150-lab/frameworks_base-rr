@@ -20,6 +20,7 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.content.Context;
 import android.database.ContentObserver;
+import android.media.AudioManager;
 import android.media.soundtrigger.ModelParameterRange;
 import android.media.soundtrigger.PhraseSoundModel;
 import android.media.soundtrigger.Properties;
@@ -290,7 +291,13 @@ class SoftwareMusicHal implements ISoundTriggerHal {
         }
     }
 
+    private boolean isPhonePlaying() {
+        final AudioManager audio = mContext.getSystemService(AudioManager.class);
+        return audio != null && audio.isMusicActive();
+    }
+
     private void trigger(int modelHandle) {
+        final boolean playing = isPhonePlaying();
         final ModelCallback callback;
         final boolean captureRequested;
         synchronized (mLock) {
@@ -302,6 +309,11 @@ class SoftwareMusicHal implements ISoundTriggerHal {
             callback = model.callback;
             captureRequested = model.captureRequested;
             mLastTriggerElapsed = SystemClock.elapsedRealtime();
+            if (playing) {
+                // The mic would only hear the phone's own speaker. Look again next interval.
+                scheduleLocked(modelHandle, model);
+                return;
+            }
         }
 
         final RecognitionEvent event = new RecognitionEvent();
