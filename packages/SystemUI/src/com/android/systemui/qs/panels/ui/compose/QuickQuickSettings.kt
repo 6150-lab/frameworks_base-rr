@@ -17,6 +17,8 @@
 package com.android.systemui.qs.panels.ui.compose
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -29,8 +31,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.android.compose.animation.scene.ContentScope
 import com.android.systemui.compose.modifiers.sysuiResTag
 import com.android.systemui.grid.ui.compose.VerticalSpannedGrid
+import com.android.systemui.media.remedia.ui.compose.QsMediaTile
 import com.android.systemui.qs.composefragment.ui.GridAnchor
+import com.android.systemui.qs.panels.shared.model.LocalQsStyle
+import com.android.systemui.qs.panels.shared.model.QsMediaTileSize
 import com.android.systemui.qs.panels.ui.compose.infinitegrid.Tile
+import com.android.systemui.qs.panels.ui.compose.infinitegrid.tileLook
 import com.android.systemui.qs.panels.ui.viewmodel.BounceableTileViewModel
 import com.android.systemui.qs.panels.ui.viewmodel.QuickQuickSettingsViewModel
 import com.android.systemui.qs.shared.ui.QuickSettings.Elements.toElementKey
@@ -47,6 +53,7 @@ fun ContentScope.QuickQuickSettings(
     val tiles = sizedTiles.fastMap { it.tile }
     val squishiness by viewModel.squishinessViewModel.squishiness.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
+    val tileHeight = tileLook(LocalQsStyle.current).height
 
     Box(modifier = modifier) {
         GridAnchor()
@@ -64,25 +71,33 @@ fun ContentScope.QuickQuickSettings(
         ) { spanIndex, column, isFirstInColumn, isLastInColumn ->
             val it = sizedTiles[spanIndex]
             Element(it.tile.spec.toElementKey(), Modifier) {
-                Tile(
-                    tile = it.tile,
-                    iconOnly = it.isIcon,
-                    squishiness = { squishiness },
-                    coroutineScope = scope,
-                    bounceableInfo =
-                        bounceables.bounceableInfo(
-                            it,
-                            index = spanIndex,
-                            column = column,
-                            columns = columns,
-                            isFirstInRow = isFirstInColumn,
-                            isLastInRow = isLastInColumn,
-                        ),
-                    tileHapticsViewModelFactory = viewModel.tileHapticsViewModelFactory,
-                    // There should be no QuickQuickSettings when the details view is enabled.
-                    detailsViewModel = null,
-                    isVisible = listening,
-                )
+                if (it.tile.spec.spec == QsMediaTileSize.TILE_SPEC) {
+                    QsMediaTile(
+                        viewModelFactory = viewModel.mediaViewModelFactory,
+                        size = QsMediaTileSize.WIDE,
+                        modifier = Modifier.fillMaxWidth().height(tileHeight),
+                    )
+                } else {
+                    Tile(
+                        tile = it.tile,
+                        iconOnly = it.isIcon,
+                        squishiness = { squishiness },
+                        coroutineScope = scope,
+                        bounceableInfo =
+                            bounceables.bounceableInfo(
+                                it,
+                                index = spanIndex,
+                                column = column,
+                                columns = columns,
+                                isFirstInRow = isFirstInColumn,
+                                isLastInRow = isLastInColumn,
+                            ),
+                        tileHapticsViewModelFactory = viewModel.tileHapticsViewModelFactory,
+                        // There should be no QuickQuickSettings when the details view is enabled.
+                        detailsViewModel = null,
+                        isVisible = listening,
+                    )
+                }
             }
         }
     }

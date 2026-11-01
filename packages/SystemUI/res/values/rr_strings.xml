@@ -139,4 +139,6 @@
     <string name="charging_vfx_source_pps">PPS</string>
     <!-- Under the SUPERVOOC row: health HAL time to full. [CHAR LIMIT=24] -->
     <string name="charging_vfx_time_to_full">Full in <xliff:g id="time" example="25 min">%s</xliff:g></string>
+    <string name="qs_media_tile_label">Media</string>
+    <string name="qs_media_tile_idle">Nothing playing</string>
 </resources>

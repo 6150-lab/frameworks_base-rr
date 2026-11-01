@@ -9,6 +9,7 @@ import com.android.systemui.dagger.SysUISingleton
 import com.android.systemui.dagger.qualifiers.Background
 import com.android.systemui.qs.panels.shared.model.QsGlass
 import com.android.systemui.qs.panels.shared.model.QsGlassTune
+import com.android.systemui.qs.panels.shared.model.QsMediaTileSize
 import com.android.systemui.qs.panels.shared.model.QsStyle
 import com.android.systemui.shared.settings.data.repository.SystemSettingsRepository
 import com.android.systemui.window.domain.interactor.WindowRootViewBlurInteractor
@@ -39,6 +40,12 @@ constructor(
                 if (media < 0) qs else QsStyle.of(media)
             }
             .stateIn(scope, SharingStarted.Eagerly, QsStyle.STOCK)
+
+    val mediaTileSize: StateFlow<QsMediaTileSize> =
+        systemSettings
+            .intSetting(QsMediaTileSize.SETTING, QsMediaTileSize.SQUARE.value)
+            .map { QsMediaTileSize.of(it) }
+            .stateIn(scope, SharingStarted.Eagerly, QsMediaTileSize.SQUARE)
 
     /** Lockscreen media card look; follows [qsMediaStyle] unless one is picked. */
     val lockscreenMediaStyle: StateFlow<QsStyle> =

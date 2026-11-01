@@ -49,6 +49,21 @@ val LocalQsStyle = staticCompositionLocalOf { QsStyle.STOCK }
 
 val LocalQsMediaStyle = staticCompositionLocalOf<QsStyle?> { null }
 
+enum class QsMediaTileSize(val value: Int) {
+    SMALL(0),
+    SQUARE(1),
+    WIDE(2);
+
+    companion object {
+        const val SETTING = "rr_qs_media_tile_size"
+        const val TILE_SPEC = "rrmedia"
+
+        fun of(value: Int): QsMediaTileSize = entries.firstOrNull { it.value == value } ?: SQUARE
+    }
+}
+
+val LocalQsMediaTileSize = staticCompositionLocalOf { QsMediaTileSize.SQUARE }
+
 /** Liquid Glass material on the tiles; [SOLID] while glass is off for QS or blur is off. */
 enum class QsGlass {
     SOLID,

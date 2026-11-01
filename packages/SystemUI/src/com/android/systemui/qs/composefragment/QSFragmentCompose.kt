@@ -150,6 +150,7 @@ import com.android.systemui.qs.panels.data.repository.QsStyleRepository
 import com.android.systemui.qs.panels.shared.model.LocalQsGlass
 import com.android.systemui.qs.panels.shared.model.LocalQsGlassTune
 import com.android.systemui.qs.panels.shared.model.LocalQsMediaStyle
+import com.android.systemui.qs.panels.shared.model.LocalQsMediaTileSize
 import com.android.systemui.qs.panels.shared.model.LocalQsStyle
 import com.android.systemui.qs.panels.shared.model.QsStyle
 import com.android.systemui.qs.panels.shared.model.QSFragmentComposeClippingTableLog
@@ -292,12 +293,14 @@ constructor(
         val qsGlass by qsStyleRepository.glass.collectAsStateWithLifecycle()
         val qsGlassTune by qsStyleRepository.glassTune.collectAsStateWithLifecycle()
         val qsMediaStyle by qsStyleRepository.qsMediaStyle.collectAsStateWithLifecycle()
+        val qsMediaTileSize by qsStyleRepository.mediaTileSize.collectAsStateWithLifecycle()
         PlatformTheme(isDarkTheme = if (notificationShadeBlur()) isSystemInDarkTheme() else true) {
             CompositionLocalProvider(
                 LocalQsStyle provides qsStyle,
                 LocalQsGlass provides qsGlass,
                 LocalQsGlassTune provides qsGlassTune,
                 LocalQsMediaStyle provides qsMediaStyle,
+                LocalQsMediaTileSize provides qsMediaTileSize,
             ) {
                 ProvideShortcutHelperIndication(interactionsConfig = interactionsConfig()) {
                     Box(
