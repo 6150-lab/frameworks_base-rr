@@ -42,8 +42,8 @@ import kotlin.math.abs
 
 /**
  * The Now Bar on the lock screen, between the shortcuts like One UI's: a capsule with the current
- * activity, and the next one peeking out behind it. Swipe between activities, tap to open the
- * card, long-press to hide one. On the always-on display it is a dim outline.
+ * activity. Swipe between activities, tap to open the card, long-press to hide one. On the
+ * always-on display it is a dim outline.
  */
 class NowBarView(
     context: Context,
@@ -57,8 +57,6 @@ class NowBarView(
     private val accent = context.getColor(android.R.color.system_accent1_400)
     private val semibold = Typeface.create(Typeface.DEFAULT, 600, false)
     private val medium = Typeface.create(Typeface.DEFAULT, 500, false)
-    private val peekBg = GradientDrawable().apply { cornerRadius = dp(CAPSULE / 2) }
-    private val peek = View(context)
     private val capsuleBg = GradientDrawable().apply { cornerRadius = dp(CAPSULE / 2) }
     private val capsule = FrameLayout(context)
     private val row = FrameLayout(context)
@@ -126,17 +124,9 @@ class NowBarView(
         clipChildren = false
         clipToPadding = false
         visibility = GONE
-        peek.background = peekBg
-        addView(peek, LayoutParams(LayoutParams.MATCH_PARENT, dp(CAPSULE).toInt(), Gravity.TOP)
-            .apply {
-                marginStart = dp(14f).toInt()
-                marginEnd = dp(14f).toInt()
-            })
         capsule.background = capsuleBg
-        capsule.elevation = dp(6f)
         capsule.clipToOutline = true
-        addView(capsule, LayoutParams(LayoutParams.MATCH_PARENT, dp(CAPSULE).toInt(),
-            Gravity.BOTTOM).apply { topMargin = dp(PEEK).toInt() })
+        addView(capsule, LayoutParams(LayoutParams.MATCH_PARENT, dp(CAPSULE).toInt()))
         capsule.addView(row, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
 
         icon.outlineProvider = object : ViewOutlineProvider() {
@@ -353,11 +343,7 @@ class NowBarView(
         }
         capsuleBg.setColor(fill)
         capsuleBg.setStroke(dp(1f).toInt(), if (dozing) 0x29FFFFFF else 0x14FFFFFF)
-        capsule.elevation = if (dozing) 0f else dp(6f)
         alpha = if (dozing) 0.85f else 1f
-        peek.visibility = if (items.size > 1 && !dozing) VISIBLE else INVISIBLE
-        peekBg.setColor(ColorUtils.setAlphaComponent(
-            ColorUtils.blendARGB(fill, Color.WHITE, 0.08f), 0xC0))
 
         bindIcon(item, game)
         songTitle.visibility = if (music) VISIBLE else GONE
@@ -702,9 +688,8 @@ class NowBarView(
     }
 
     companion object {
-        /** The capsule's height and how far the next activity peeks out above it, in dp. */
+        /** The capsule's height, in dp. */
         const val CAPSULE = 64f
-        const val PEEK = 7f
         private const val ART = 38f
         private const val INSET = 12f
         private const val CONTENT_START = INSET + ART + 12f
