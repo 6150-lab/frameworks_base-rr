@@ -40,8 +40,10 @@ import androidx.annotation.VisibleForTesting;
 
 import com.android.internal.graphics.drawable.BackgroundBlurDrawable;
 import com.android.internal.util.ContrastColorUtil;
+import com.android.internal.util.catalyxx.GlassSettings;
 import com.android.systemui.Dumpable;
 import com.android.systemui.common.shared.colors.SurfaceEffectColors;
+import com.android.systemui.glass.ui.OwnGlassViewRim;
 import com.android.systemui.res.R;
 import com.android.systemui.statusbar.notification.shared.NotificationAddXOnHoverToDismiss;
 import com.android.systemui.util.Assert;
@@ -87,9 +89,12 @@ public class NotificationBackgroundView extends View implements Dumpable,
     // True only if the dismiss button is visible.
     private boolean mDrawDismissButtonCutout = false;
     private boolean mOnKeyguard = true;
+    // Catalyxx glass: the rim on the notification's background catches the light
+    private final OwnGlassViewRim mGlassRim;
 
     public NotificationBackgroundView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        mGlassRim = new OwnGlassViewRim(this, GlassSettings.PLACE_NOTIFICATIONS);
         mDontModifyCorners = getResources().getBoolean(R.bool.config_clipNotificationsToOutline);
         mLightColoredStatefulColors = getResources().getColorStateList(
                 R.color.notification_state_color_light);
@@ -149,13 +154,39 @@ public class NotificationBackgroundView extends View implements Dumpable,
             if (mBackgroundBlurDrawable != null) {
                 mBackgroundBlurDrawable.setBounds(backgroundBounds);
                 mBackgroundBlurDrawable.draw(canvas);
+                drawGlassRim(canvas, backgroundBounds, mBackgroundBlurDrawable);
             } else if (mBackground != null) {
                 mBackground.setBounds(backgroundBounds);
                 mBackground.draw(canvas);
+                drawGlassRim(canvas, backgroundBounds, mBackground);
             }
 
             canvas.restore();
         }
+    }
+
+    /** Draws glass's rim on the background {@code drawable}, just drawn inside {@code bounds}. */
+    private void drawGlassRim(Canvas canvas, Rect bounds, Drawable drawable) {
+        mGlassRim.draw(canvas, bounds.left, bounds.top, bounds.right, bounds.bottom,
+                mCornerRadii, drawable.getAlpha());
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        mGlassRim.onAttachedToWindow();
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        mGlassRim.onDetachedFromWindow();
+    }
+
+    @Override
+    public void onVisibilityAggregated(boolean isVisible) {
+        super.onVisibilityAggregated(isVisible);
+        mGlassRim.onVisibilityAggregated(isVisible);
     }
 
     private Path calculateDismissButtonCutoutPath(Rect backgroundBounds) {
@@ -246,6 +277,7 @@ public class NotificationBackgroundView extends View implements Dumpable,
             }
             drawable.setBounds(left, top, right, bottom);
             drawable.draw(canvas);
+            drawGlassRim(canvas, drawable.getBounds(), drawable);
         }
     }
 

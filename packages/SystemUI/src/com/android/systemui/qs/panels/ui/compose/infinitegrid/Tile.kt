@@ -77,6 +77,7 @@ import com.android.compose.animation.rememberExpandableController
 import com.android.compose.animation.scene.ContentScope
 import com.android.compose.modifiers.thenIf
 import com.android.compose.theme.LocalAndroidColorScheme
+import com.android.internal.util.catalyxx.GlassSettings
 import com.android.mechanics.compose.modifier.verticalFadeContentReveal
 import com.android.mechanics.compose.modifier.verticalTactileSurfaceReveal
 import com.android.mechanics.effects.VerticalTactileSurfaceRevealEffect
@@ -85,6 +86,8 @@ import com.android.systemui.animation.Expandable
 import com.android.systemui.animation.TransitionAnimator.Companion.dynamicTargetResolutionEnabled
 import com.android.systemui.common.shared.model.Icon
 import com.android.systemui.compose.modifiers.sysuiResTag
+import com.android.systemui.glass.ui.compose.OwnGlassShown
+import com.android.systemui.glass.ui.compose.ownGlassRim
 import com.android.systemui.haptics.msdl.qs.TileHapticsViewModel
 import com.android.systemui.lifecycle.rememberViewModel
 import com.android.systemui.qs.flags.QsDetailedView
@@ -269,6 +272,8 @@ fun ContentScope.Tile(
         val levelModifier =
             if (volume != null) volumeLevelModifier(volume, tweaks, iconOnly, rows) else Modifier
         val animatedColor by animateColorAsState(colors.background, label = "QSTileBackgroundColor")
+        // Catalyxx glass: the tile's rim catches the light, and a finger lights it up
+        OwnGlassShown(GlassSettings.PLACE_SHADE, isVisible)
         val isDualTarget = uiState.handlesToggleClick
         // A tile that only shows its icon toggles on tap, whatever its size.
         val tapToggles = iconOnly || layout == TileLayout.Icon
@@ -317,6 +322,8 @@ fun ContentScope.Tile(
                 shape = tileShape,
                 squishiness = squishiness,
                 hapticsViewModel = hapticsViewModel,
+                glassRim =
+                    Modifier.ownGlassRim(GlassSettings.PLACE_SHADE, tileShape, touchGlow = true),
                 modifier =
                     modifier
                         .then(surfaceRevealModifier)
@@ -560,6 +567,7 @@ private fun TileExpandable(
     squishiness: () -> Float,
     hapticsViewModel: TileHapticsViewModel?,
     modifier: Modifier = Modifier,
+    glassRim: Modifier = Modifier,
     content: @Composable (Expandable) -> Unit,
 ) {
     Expandable(
@@ -569,7 +577,8 @@ private fun TileExpandable(
             modifier
                 .clip(shape)
                 .motionTestValues { squishiness() exportAs TileMotionTestKeys.Squishness }
-                .verticalSquish(squishiness),
+                .verticalSquish(squishiness)
+                .then(glassRim),
         useModifierBasedImplementation = true,
     ) {
         content(hapticsViewModel?.createStateAwareExpandable(it) ?: it)
