@@ -18,6 +18,7 @@ import android.graphics.Outline
 import android.graphics.Paint
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.LayerDrawable
 import android.os.SystemClock
 import android.text.TextUtils
 import android.util.TypedValue
@@ -27,6 +28,7 @@ import android.view.VelocityTracker
 import android.view.View
 import android.view.ViewConfiguration
 import android.view.ViewOutlineProvider
+import android.view.WindowManager
 import android.widget.Chronometer
 import android.widget.FrameLayout
 import android.widget.ImageView
@@ -34,16 +36,22 @@ import android.widget.LinearLayout
 import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.core.graphics.ColorUtils
+import com.android.internal.graphics.drawable.BackgroundBlurDrawable
 import com.android.systemui.broadcast.BroadcastDispatcher
 import com.android.systemui.plugins.ActivityStarter
 import com.android.systemui.plugins.statusbar.StatusBarStateController
 import com.android.systemui.res.R
+import com.android.systemui.shared.system.RrGlass
+import java.util.function.Consumer
 import kotlin.math.abs
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.math.roundToInt
 
 /**
  * The Now Bar on the lock screen, between the shortcuts like One UI's: a capsule with the current
- * activity. Swipe between activities, tap to open the card, long-press to hide one. On the
- * always-on display it is a dim outline.
+ * activity, styled from Remixer. Swipe between activities, swipe a paused song away, tap to open
+ * the card, long-press to hide one. On the always-on display it is a dim outline.
  */
 class NowBarView(
     context: Context,
@@ -51,21 +59,39 @@ class NowBarView(
     private val statusBarStateController: StatusBarStateController,
     private val activityStarter: ActivityStarter,
     private val broadcastDispatcher: BroadcastDispatcher,
+    private val onLayoutChanged: () -> Unit,
 ) : FrameLayout(context), NowBarRepository.Listener, StatusBarStateController.StateListener {
 
     private val density = resources.displayMetrics.density
     private val accent = context.getColor(android.R.color.system_accent1_400)
+    private val accentFill = context.getColor(android.R.color.system_accent1_800)
     private val semibold = Typeface.create(Typeface.DEFAULT, 600, false)
     private val medium = Typeface.create(Typeface.DEFAULT, 500, false)
-    private val capsuleBg = GradientDrawable().apply { cornerRadius = dp(CAPSULE / 2) }
+    private var look = repository.settings.look
+    private var radius = 0f
+    private var contentStart = 0
+    private var artShaped = false
+    private val peekBg = GradientDrawable()
+    private val peek = View(context)
+    private val capsuleBg = GradientDrawable()
     private val capsule = FrameLayout(context)
     private val row = FrameLayout(context)
     private val icon = ImageView(context)
+    private val dots = Dots(context)
+    private var blur: BackgroundBlurDrawable? = null
+    private var blurEnabled = false
+    private val blurListener = Consumer<Boolean> { enabled ->
+        blurEnabled = enabled
+        bind()
+    }
 
     // Music
+    private val musicColumn = LinearLayout(context)
     private val songTitle = TextView(context)
+    private val songArtist = TextView(context)
     private val controls = LinearLayout(context)
     private val controlViews = List(3) { ImageView(context) }
+    private val inlinePlay = ImageView(context)
     private val wave = NowBarWaveView(context)
 
     // Everything else
@@ -120,31 +146,52 @@ class NowBarView(
         }
     }
 
+    private val compact get() = look.height < COMPACT_BELOW
+
     init {
         clipChildren = false
         clipToPadding = false
         visibility = GONE
+        peek.background = peekBg
+        peek.visibility = GONE
+        addView(peek, LayoutParams(LayoutParams.MATCH_PARENT, 0, Gravity.TOP).apply {
+            marginStart = dp(14f).toInt()
+            marginEnd = dp(14f).toInt()
+        })
         capsule.background = capsuleBg
+        capsule.outlineProvider = object : ViewOutlineProvider() {
+            override fun getOutline(view: View, outline: Outline) =
+                outline.setRoundRect(0, 0, view.width, view.height, radius)
+        }
         capsule.clipToOutline = true
-        addView(capsule, LayoutParams(LayoutParams.MATCH_PARENT, dp(CAPSULE).toInt()))
+        addView(capsule, LayoutParams(LayoutParams.MATCH_PARENT, 0, Gravity.BOTTOM))
         capsule.addView(row, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
+        capsule.addView(dots, LayoutParams(LayoutParams.MATCH_PARENT, dp(5f).toInt(),
+            Gravity.BOTTOM).apply { bottomMargin = dp(4f).toInt() })
 
         icon.outlineProvider = object : ViewOutlineProvider() {
-            override fun getOutline(view: View, outline: Outline) =
-                outline.setOval(0, 0, view.width, view.height)
+            override fun getOutline(view: View, outline: Outline) {
+                val w = view.width
+                val h = view.height
+                when (if (artShaped) look.art else NowBarLook.ART_CIRCLE) {
+                    NowBarLook.ART_ROUNDED -> outline.setRoundRect(0, 0, w, h, w * 0.22f)
+                    NowBarLook.ART_SQUARE -> outline.setRoundRect(0, 0, w, h, w * 0.08f)
+                    else -> outline.setOval(0, 0, w, h)
+                }
+            }
         }
         icon.clipToOutline = true
-        row.addView(icon, LayoutParams(dp(ART).toInt(), dp(ART).toInt(),
-            Gravity.START or Gravity.CENTER_VERTICAL).apply { marginStart = dp(INSET).toInt() })
+        row.addView(icon, LayoutParams(0, 0, Gravity.START or Gravity.CENTER_VERTICAL))
 
         buildMusic()
         buildTexts()
         buildScore()
+        layoutForLook()
     }
 
     private fun buildMusic() {
+        musicColumn.orientation = LinearLayout.VERTICAL
         songTitle.setTextColor(Color.WHITE)
-        songTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f)
         songTitle.typeface = medium
         songTitle.isSingleLine = true
         songTitle.ellipsize = TextUtils.TruncateAt.MARQUEE
@@ -152,12 +199,15 @@ class NowBarView(
         songTitle.isHorizontalFadingEdgeEnabled = true
         songTitle.setFadingEdgeLength(dp(10f).toInt())
         songTitle.isSelected = true
-        row.addView(songTitle, LayoutParams(LayoutParams.MATCH_PARENT, dp(18f).toInt(),
-            Gravity.TOP).apply {
-                marginStart = dp(CONTENT_START).toInt()
-                marginEnd = dp(16f).toInt()
-                topMargin = dp(6f).toInt()
-            })
+        musicColumn.addView(songTitle, LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+
+        songArtist.setTextColor(0xB8FFFFFF.toInt())
+        songArtist.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f)
+        songArtist.isSingleLine = true
+        songArtist.ellipsize = TextUtils.TruncateAt.END
+        musicColumn.addView(songArtist, LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
 
         controls.orientation = LinearLayout.HORIZONTAL
         controls.gravity = Gravity.CENTER_VERTICAL
@@ -166,27 +216,33 @@ class NowBarView(
                 true)
         }.resourceId
         for (view in controlViews) {
-            val pad = dp(8f).toInt()
-            view.setPadding(pad, pad, pad, pad)
-            view.imageTintList = ColorStateList.valueOf(Color.WHITE)
-            if (ripple != 0) view.setBackgroundResource(ripple)
+            styleControl(view, ripple)
             controls.addView(LinearLayout(context).apply {
                 gravity = Gravity.CENTER
                 addView(view, LinearLayout.LayoutParams(dp(34f).toInt(), dp(34f).toInt()))
             }, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f))
         }
-        row.addView(controls, LayoutParams(LayoutParams.MATCH_PARENT, dp(34f).toInt(),
-            Gravity.TOP).apply {
-                marginStart = dp(CONTENT_START).toInt()
-                marginEnd = dp(16f).toInt()
-                topMargin = dp(22f).toInt()
-            })
+        musicColumn.addView(controls, LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT, dp(34f).toInt()))
+        row.addView(musicColumn, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT,
+            Gravity.CENTER_VERTICAL))
+
+        styleControl(inlinePlay, ripple)
+        row.addView(inlinePlay, LayoutParams(dp(34f).toInt(), dp(34f).toInt(),
+            Gravity.END or Gravity.CENTER_VERTICAL).apply { marginEnd = dp(8f).toInt() })
 
         row.addView(wave, LayoutParams(LayoutParams.MATCH_PARENT, dp(11f).toInt(),
             Gravity.BOTTOM).apply {
                 marginStart = dp(44f).toInt()
                 marginEnd = dp(26f).toInt()
             })
+    }
+
+    private fun styleControl(view: ImageView, ripple: Int) {
+        val pad = dp(8f).toInt()
+        view.setPadding(pad, pad, pad, pad)
+        view.imageTintList = ColorStateList.valueOf(Color.WHITE)
+        if (ripple != 0) view.setBackgroundResource(ripple)
     }
 
     private fun buildTexts() {
@@ -197,12 +253,10 @@ class NowBarView(
         label.isSingleLine = true
         label.ellipsize = TextUtils.TruncateAt.END
         title.setTextColor(Color.WHITE)
-        title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f)
         title.typeface = semibold
         title.isSingleLine = true
         title.ellipsize = TextUtils.TruncateAt.END
         chronometer.setTextColor(Color.WHITE)
-        chronometer.setTextSize(TypedValue.COMPLEX_UNIT_SP, 21f)
         chronometer.typeface = semibold
         chronometer.fontFeatureSettings = "tnum"
         subtitle.setTextColor(0xB8FFFFFF.toInt())
@@ -214,7 +268,7 @@ class NowBarView(
         texts.addView(chronometer)
         texts.addView(subtitle)
         row.addView(texts, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT,
-            Gravity.CENTER_VERTICAL).apply { marginStart = dp(CONTENT_START - 1f).toInt() })
+            Gravity.CENTER_VERTICAL))
 
         actionRow.orientation = LinearLayout.HORIZONTAL
         for (view in actionViews) {
@@ -225,15 +279,14 @@ class NowBarView(
             val pad = dp(10f).toInt()
             view.setPadding(pad, pad, pad, pad)
             view.imageTintList = ColorStateList.valueOf(Color.WHITE)
-            actionRow.addView(view, LinearLayout.LayoutParams(dp(ART).toInt(), dp(ART).toInt())
+            actionRow.addView(view, LinearLayout.LayoutParams(0, 0)
                 .apply { marginStart = dp(6f).toInt() })
         }
-        row.addView(actionRow, LayoutParams(LayoutParams.WRAP_CONTENT, dp(ART).toInt(),
+        row.addView(actionRow, LayoutParams(LayoutParams.WRAP_CONTENT, 0,
             Gravity.END or Gravity.CENTER_VERTICAL).apply { marginEnd = dp(INSET).toInt() })
 
         row.addView(progress, LayoutParams(LayoutParams.MATCH_PARENT, dp(3f).toInt(),
             Gravity.BOTTOM).apply {
-                marginStart = dp(CONTENT_START - 1f).toInt()
                 marginEnd = dp(22f).toInt()
                 bottomMargin = dp(7f).toInt()
             })
@@ -254,7 +307,6 @@ class NowBarView(
         team1.gravity = Gravity.START
         team2.gravity = Gravity.END
         scoreText.setTextColor(Color.WHITE)
-        scoreText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20f)
         scoreText.typeface = Typeface.create(Typeface.DEFAULT, 700, false)
         scoreText.fontFeatureSettings = "tnum"
         scoreText.gravity = Gravity.CENTER
@@ -289,6 +341,8 @@ class NowBarView(
         dozing = statusBarStateController.isDozing
         statusBarStateController.addCallback(this)
         broadcastDispatcher.registerReceiver(timeTick, IntentFilter(Intent.ACTION_TIME_TICK))
+        context.getSystemService(WindowManager::class.java)
+            ?.addCrossWindowBlurEnabledListener(context.mainExecutor, blurListener)
         repository.addListener(this)
     }
 
@@ -297,6 +351,10 @@ class NowBarView(
         repository.removeListener(this)
         statusBarStateController.removeCallback(this)
         broadcastDispatcher.unregisterReceiver(timeTick)
+        context.getSystemService(WindowManager::class.java)
+            ?.removeCrossWindowBlurEnabledListener(blurListener)
+        setGlass(false)
+        blur = null
         chronometer.stop()
         dismissCard()
         popup?.dismiss()
@@ -324,30 +382,84 @@ class NowBarView(
 
     private val index get() = items.indexOfFirst { it.key == currentKey }.coerceAtLeast(0)
 
+    private fun updateLook() {
+        val new = repository.settings.look
+        if (new == look) return
+        val moved = new.height != look.height || new.width != look.width ||
+            new.raise != look.raise || new.more != look.more
+        look = new
+        layoutForLook()
+        if (moved) onLayoutChanged()
+    }
+
+    private fun layoutForLook() {
+        val height = px(look.height)
+        val art = px((look.height * ART_RATIO).roundToInt())
+        val inset = dp(if (compact) INSET_COMPACT else INSET).toInt()
+        contentStart = inset + art + dp(12f).toInt()
+        (capsule.layoutParams as LayoutParams).let {
+            it.height = height
+            it.topMargin = if (look.more == NowBarLook.MORE_PEEK) dp(PEEK).toInt() else 0
+            capsule.layoutParams = it
+        }
+        peek.layoutParams = peek.layoutParams.apply { this.height = height }
+        radius = max(dp(8f), height / 2f * look.corners / 100f)
+        capsuleBg.cornerRadius = radius
+        peekBg.cornerRadius = radius
+        blur?.setCornerRadius(radius)
+        capsule.invalidateOutline()
+        (icon.layoutParams as LayoutParams).let {
+            it.width = art
+            it.height = art
+            it.marginStart = inset
+            icon.layoutParams = it
+        }
+        icon.invalidateOutline()
+        (texts.layoutParams as LayoutParams).let {
+            it.marginStart = contentStart - dp(1f).toInt()
+            texts.layoutParams = it
+        }
+        actionRow.layoutParams = actionRow.layoutParams.apply { this.height = art }
+        for (view in actionViews) {
+            view.layoutParams = view.layoutParams.apply {
+                width = art
+                this.height = art
+            }
+        }
+        (progress.layoutParams as LayoutParams).let {
+            it.marginStart = contentStart - dp(1f).toInt()
+            progress.layoutParams = it
+        }
+        songTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, look.textSize.toFloat())
+        title.setTextSize(TypedValue.COMPLEX_UNIT_SP, max(look.textSize, 15).toFloat())
+        chronometer.setTextSize(TypedValue.COMPLEX_UNIT_SP, if (compact) 15f else 21f)
+        scoreText.setTextSize(TypedValue.COMPLEX_UNIT_SP, if (compact) 15f else 20f)
+    }
+
     private fun bind() {
+        updateLook()
         val item = items.getOrNull(index)
         val settings = repository.settings
         if (item == null || (dozing && !settings.aod)) {
             visibility = GONE
             chronometer.stop()
+            setGlass(false)
             return
         }
         visibility = VISIBLE
         val music = item.type == NowBarType.MUSIC && !dozing
         val game = item.score != null
         val colors = if (music) item.art?.let(::colorsOf) else null
-        val fill = when {
-            dozing -> Color.BLACK
-            colors != null -> colors[0]
-            else -> 0xEB0D0809.toInt()
-        }
-        capsuleBg.setColor(fill)
-        capsuleBg.setStroke(dp(1f).toInt(), if (dozing) 0x29FFFFFF else 0x14FFFFFF)
+        paintCapsule(colors)
         alpha = if (dozing) 0.85f else 1f
+        val more = items.size > 1 && !dozing
+        peek.visibility = if (more && look.more == NowBarLook.MORE_PEEK) VISIBLE else GONE
+        dots.visibility = if (more && look.more == NowBarLook.MORE_DOTS) VISIBLE else GONE
+        dots.set(items.size, index)
 
         bindIcon(item, game)
-        songTitle.visibility = if (music) VISIBLE else GONE
-        controls.visibility = if (music) VISIBLE else GONE
+        musicColumn.visibility = if (music) VISIBLE else GONE
+        inlinePlay.visibility = GONE
         texts.visibility = if (!music && !game) VISIBLE else GONE
         actionRow.visibility = if (!music && !game) VISIBLE else GONE
         progress.visibility = GONE
@@ -357,20 +469,78 @@ class NowBarView(
             game -> bindScore(item.score!!)
             else -> bindTexts(item)
         }
-        val playing = music && item.playing && settings.wave
+        val playing = music && item.playing && settings.wave && !compact
         wave.visibility = if (playing) VISIBLE else GONE
         wave.running = playing
         capsule.contentDescription = listOfNotNull(item.title, item.text).joinToString(", ")
     }
 
+    private fun paintCapsule(colors: IntArray?) {
+        val glass = look.glass && !dozing && blurEnabled && RrGlass.isLockscreenBlurEnabled()
+        setGlass(glass)
+        val fill = when {
+            dozing -> Color.BLACK
+            look.color == NowBarLook.COLOR_ACCENT -> accentFill
+            look.color == NowBarLook.COLOR_ART && colors != null -> colors[0]
+            else -> DARK_FILL
+        }
+        val opacity = when {
+            dozing -> 100f
+            glass -> look.opacity * 0.7f
+            // Glass picked but no blur to draw it with: stay readable.
+            look.glass -> max(look.opacity, 85).toFloat()
+            else -> look.opacity.toFloat()
+        }
+        capsuleBg.setColor(ColorUtils.setAlphaComponent(fill, (opacity * 2.55f).roundToInt()))
+        when {
+            dozing -> capsuleBg.setStroke(dp(1f).toInt(), 0x29FFFFFF)
+            look.outline == NowBarLook.OUTLINE_NONE -> capsuleBg.setStroke(0, Color.TRANSPARENT)
+            look.outline == NowBarLook.OUTLINE_ACCENT ->
+                capsuleBg.setStroke(dp(1.5f).toInt(), accent)
+            else -> capsuleBg.setStroke(dp(1f).toInt(), 0x14FFFFFF)
+        }
+        capsule.elevation = when {
+            dozing -> 0f
+            look.shadow == NowBarLook.SHADOW_SOFT -> dp(6f)
+            look.shadow == NowBarLook.SHADOW_GLOW -> dp(12f)
+            else -> 0f
+        }
+        val shadow = if (look.shadow == NowBarLook.SHADOW_GLOW) accent else Color.BLACK
+        capsule.outlineAmbientShadowColor = shadow
+        capsule.outlineSpotShadowColor = shadow
+        peekBg.setColor(ColorUtils.setAlphaComponent(
+            ColorUtils.blendARGB(fill, Color.WHITE, 0.08f), 0xC0))
+    }
+
+    /** The same blur the lock screen shortcuts sit on; SurfaceFlinger draws Frosted or Liquid. */
+    private fun setGlass(on: Boolean) {
+        val drawable = if (on) blurDrawable() else null
+        blur?.setVisible(drawable != null, false)
+        if ((drawable != null) != (capsule.background is LayerDrawable)) {
+            capsule.background =
+                if (drawable != null) LayerDrawable(arrayOf(drawable, capsuleBg)) else capsuleBg
+        }
+    }
+
+    private fun blurDrawable(): BackgroundBlurDrawable? {
+        blur?.let { return it }
+        val made = viewRootImpl?.createBackgroundBlurDrawable() ?: return null
+        made.setBlurRadius(resources.getDimensionPixelSize(R.dimen.keyguard_shortcuts_blur_radius))
+        made.setCornerRadius(radius)
+        blur = made
+        return made
+    }
+
     private fun bindIcon(item: NowBarItem, game: Boolean) {
-        if (game) {
+        if (game || (item.type == NowBarType.MUSIC && !dozing && look.art == NowBarLook.ART_OFF)) {
             icon.visibility = GONE
             return
         }
         icon.visibility = VISIBLE
         icon.alpha = if (dozing) 0.6f else 1f
         val art = item.art
+        artShaped = art != null && item.type == NowBarType.MUSIC
+        icon.invalidateOutline()
         if (art != null) {
             icon.setImageBitmap(art)
             icon.scaleType = ImageView.ScaleType.CENTER_CROP
@@ -394,24 +564,52 @@ class NowBarView(
 
     private fun bindMusic(item: NowBarItem, colors: IntArray?) {
         chronometer.stop()
-        val line = listOfNotNull(item.title.takeIf { it.isNotEmpty() }, item.text)
-            .joinToString(" · ")
+        val twoLines = look.text == NowBarLook.TEXT_TWO_LINES && look.height >= TWO_LINES_FROM &&
+            !item.text.isNullOrEmpty()
+        val line = if (twoLines || look.text == NowBarLook.TEXT_SONG) {
+            item.title.toString()
+        } else {
+            listOfNotNull(item.title.takeIf { it.isNotEmpty() }, item.text).joinToString(" · ")
+        }
         if (songTitle.text.toString() != line) songTitle.text = line
+        songArtist.text = item.text
+        songArtist.visibility = if (twoLines) VISIBLE else GONE
+
+        val buttons = look.buttons != NowBarLook.BUTTONS_NONE
+        controls.visibility = if (buttons && !compact) VISIBLE else GONE
         controlViews.forEachIndexed { i, view ->
-            val action = item.actions.getOrNull(i)
-            if (action == null) {
-                view.visibility = INVISIBLE
-                return@forEachIndexed
+            (view.parent as View).visibility =
+                if (i == 1 || look.buttons == NowBarLook.BUTTONS_ALL) VISIBLE else GONE
+            bindControl(view, item.actions.getOrNull(i))
+        }
+        if (buttons && compact) {
+            inlinePlay.visibility = VISIBLE
+            bindControl(inlinePlay, item.actions.getOrNull(1))
+        }
+        (musicColumn.layoutParams as LayoutParams).let {
+            val start = if (look.art == NowBarLook.ART_OFF) dp(16f).toInt() else contentStart
+            val end = dp(if (buttons && compact) 46f else 16f).toInt()
+            if (it.marginStart != start || it.marginEnd != end) {
+                it.marginStart = start
+                it.marginEnd = end
+                musicColumn.layoutParams = it
             }
-            view.visibility = VISIBLE
-            if (action.iconRes != 0) view.setImageResource(action.iconRes)
-            else view.setImageDrawable(action.icon?.loadDrawable(context))
-            view.contentDescription = action.title
-            view.setOnClickListener { run(action) }
         }
         wave.colors = colors?.copyOfRange(1, 4) ?: intArrayOf(
             ColorUtils.setAlphaComponent(accent, 0x8C), ColorUtils.setAlphaComponent(accent, 0x66),
             ColorUtils.setAlphaComponent(Color.WHITE, 0x40))
+    }
+
+    private fun bindControl(view: ImageView, action: NowBarAction?) {
+        if (action == null) {
+            view.visibility = INVISIBLE
+            return
+        }
+        view.visibility = VISIBLE
+        if (action.iconRes != 0) view.setImageResource(action.iconRes)
+        else view.setImageDrawable(action.icon?.loadDrawable(context))
+        view.contentDescription = action.title
+        view.setOnClickListener { run(action) }
     }
 
     private fun bindTexts(item: NowBarItem) {
@@ -424,7 +622,7 @@ class NowBarView(
             chronometer.visibility = VISIBLE
             title.visibility = GONE
             label.text = item.title
-            label.visibility = if (item.title.isNotEmpty()) VISIBLE else GONE
+            label.visibility = if (item.title.isNotEmpty() && !compact) VISIBLE else GONE
             subtitle.text = item.text
         } else {
             chronometer.stop()
@@ -453,7 +651,8 @@ class NowBarView(
                 }
             }
         }
-        subtitle.visibility = if (subtitle.text.isNullOrEmpty() || dozing) GONE else VISIBLE
+        subtitle.visibility =
+            if (subtitle.text.isNullOrEmpty() || dozing || compact) GONE else VISIBLE
 
         val shown = if (dozing) emptyList()
             else item.actions.filter { it.icon != null || it.iconRes != 0 }.take(2)
@@ -469,10 +668,11 @@ class NowBarView(
             view.contentDescription = action.title
             view.setOnClickListener { run(action) }
         }
+        val art = (look.height * ART_RATIO).roundToInt()
         (texts.layoutParams as LayoutParams).marginEnd =
-            dp(INSET + shown.size * (ART + 6f) + 6f).toInt()
+            dp(INSET + shown.size * (art + 6f) + 6f).toInt()
         texts.requestLayout()
-        progress.visibility = if (item.progress >= 0f && !dozing) VISIBLE else GONE
+        progress.visibility = if (item.progress >= 0f && !dozing && !compact) VISIBLE else GONE
         progress.set(item.progress, accent)
     }
 
@@ -482,7 +682,7 @@ class NowBarView(
         team2.text = score.team2
         scoreText.text = if (score.score1.isEmpty()) "vs" else "${score.score1} – ${score.score2}"
         statusText.text = score.status
-        statusText.visibility = if (score.status.isNullOrEmpty()) GONE else VISIBLE
+        statusText.visibility = if (score.status.isNullOrEmpty() || compact) GONE else VISIBLE
         for ((view, logo) in listOf(logo1 to score.logo1, logo2 to score.logo2)) {
             view.setImageDrawable(logo)
             view.visibility = if (logo != null) VISIBLE else GONE
@@ -592,7 +792,10 @@ class NowBarView(
                 if (dragging) {
                     val dx = ev.x - downX
                     val canMove = if (dx < 0) index < items.size - 1 else index > 0
-                    row.translationX = dx * (if (canMove) 1f else 0.3f)
+                    val leaving = !canMove && canSwipeAway()
+                    row.translationX = if (leaving) 0f else dx * (if (canMove) 1f else 0.3f)
+                    capsule.translationX = if (leaving) dx else 0f
+                    capsule.alpha = if (leaving) 1f - min(1f, abs(dx) / width) else 1f
                 }
             }
             MotionEvent.ACTION_UP -> {
@@ -622,7 +825,9 @@ class NowBarView(
 
     private fun horizontalDrag(ev: MotionEvent): Boolean {
         val dx = abs(ev.x - downX)
-        if (!dragging && dx > slop && dx > abs(ev.y - downY) && items.size > 1) {
+        if (!dragging && dx > slop && dx > abs(ev.y - downY) &&
+            (items.size > 1 || canSwipeAway())
+        ) {
             dragging = true
             removeCallbacks(longPress)
             parent?.requestDisallowInterceptTouchEvent(true)
@@ -630,11 +835,23 @@ class NowBarView(
         return dragging
     }
 
+    /** Nothing is playing, so the song can go; it comes back when it plays again. */
+    private fun canSwipeAway(): Boolean {
+        val item = items.getOrNull(index) ?: return false
+        return item.type == NowBarType.MUSIC && !item.playing
+    }
+
     private fun settle() {
         val vx = velocity?.let {
             it.computeCurrentVelocity(1000)
             it.xVelocity
         } ?: 0f
+        val leaving = capsule.translationX
+        if (leaving != 0f) {
+            if (abs(leaving) > width * 0.25f || abs(vx) > minFling) swipeAway(leaving < 0)
+            else springBack()
+            return
+        }
         val dx = row.translationX
         val target = when {
             (dx < -width * 0.25f || vx < -minFling) && index < items.size - 1 -> index + 1
@@ -654,9 +871,21 @@ class NowBarView(
         }.start()
     }
 
+    private fun swipeAway(toStart: Boolean) {
+        dragging = false
+        val key = items.getOrNull(index)?.key
+        val out = if (toStart) -width.toFloat() else width.toFloat()
+        capsule.animate().translationX(out).alpha(0f).setDuration(140L).withEndAction {
+            key?.let(repository::hide)
+            capsule.translationX = 0f
+            capsule.alpha = 1f
+        }.start()
+    }
+
     private fun springBack() {
         dragging = false
         row.animate().translationX(0f).setDuration(180L).start()
+        capsule.animate().translationX(0f).alpha(1f).setDuration(180L).start()
     }
 
     private fun recycleVelocity() {
@@ -665,6 +894,33 @@ class NowBarView(
     }
 
     private fun dp(value: Float) = value * density
+
+    private fun px(dpValue: Int) = (dpValue * density).toInt()
+
+    /** One dot per activity, when the bar is set to show them. */
+    private class Dots(context: Context) : View(context) {
+        private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+        private var count = 0
+        private var current = 0
+
+        fun set(count: Int, current: Int) {
+            if (count == this.count && current == this.current) return
+            this.count = count
+            this.current = current
+            invalidate()
+        }
+
+        override fun onDraw(canvas: Canvas) {
+            val r = height / 2f
+            val step = r * 3.6f
+            var x = (width - (count - 1) * step) / 2f
+            for (i in 0 until count) {
+                paint.color = if (i == current) Color.WHITE else 0x66FFFFFF
+                canvas.drawCircle(x, r, r, paint)
+                x += step
+            }
+        }
+    }
 
     /** A thin progress bar: a dim track and a filled part. */
     private class ProgressLine(context: Context) : View(context) {
@@ -687,14 +943,18 @@ class NowBarView(
         }
     }
 
-    companion object {
-        /** The capsule's height, in dp. */
-        const val CAPSULE = 64f
-        private const val ART = 38f
-        private const val INSET = 12f
-        private const val CONTENT_START = INSET + ART + 12f
-        private const val REMIXER_ACTION = "com.resurrection.settings.NOW_BAR"
-        private val BURN_IN_STEPS_X = floatArrayOf(0f, 3f, 5f, 3f, 0f, -3f, -5f, -3f)
-        private val BURN_IN_STEPS_Y = floatArrayOf(0f, -2f, -4f, -6f, -4f, -2f, 0f, -2f)
+    private companion object {
+        /** How far the next activity peeks out above the capsule, in dp, if set to. */
+        const val PEEK = 7f
+        const val ART_RATIO = 0.6f
+        const val INSET = 12f
+        const val INSET_COMPACT = 8f
+        /** Below this height, in dp, everything fits on one line. */
+        const val COMPACT_BELOW = 60
+        const val TWO_LINES_FROM = 70
+        const val DARK_FILL = 0xFF0D0809.toInt()
+        const val REMIXER_ACTION = "com.resurrection.settings.NOW_BAR"
+        val BURN_IN_STEPS_X = floatArrayOf(0f, 3f, 5f, 3f, 0f, -3f, -5f, -3f)
+        val BURN_IN_STEPS_Y = floatArrayOf(0f, -2f, -4f, -6f, -4f, -2f, 0f, -2f)
     }
 }

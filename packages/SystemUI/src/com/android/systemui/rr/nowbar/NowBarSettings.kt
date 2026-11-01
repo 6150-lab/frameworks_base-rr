@@ -27,6 +27,8 @@ class NowBarSettings(private val context: Context) {
     /** Where live scores come from: [NowBarScores.SOURCE_OFF], At a Glance or Smartspacer. */
     var scores = NowBarScores.SOURCE_GLANCE
         private set
+    var look = NowBarLook()
+        private set
     private val shown = HashMap<NowBarType, Boolean>()
 
     init {
@@ -51,7 +53,27 @@ class NowBarSettings(private val context: Context) {
         shown[NowBarType.RECORDING] = get(KEY_RECORDING, true)
         shown[NowBarType.CHARGING] = get(KEY_CHARGING, false)
         shown[NowBarType.FLASHLIGHT] = get(KEY_FLASHLIGHT, false)
+        val base = NowBarLook()
+        look = NowBarLook(
+            glass = int(KEY_MATERIAL, 0) == 1,
+            color = int(KEY_COLOR, base.color),
+            opacity = int(KEY_OPACITY, base.opacity).coerceIn(0, 100),
+            outline = int(KEY_OUTLINE, base.outline),
+            shadow = int(KEY_SHADOW, base.shadow),
+            more = int(KEY_MORE, base.more),
+            height = int(KEY_HEIGHT, base.height).coerceIn(48, 96),
+            width = int(KEY_WIDTH, base.width),
+            corners = int(KEY_CORNERS, base.corners).coerceIn(20, 100),
+            raise = int(KEY_RAISE, base.raise).coerceIn(0, 40),
+            art = int(KEY_ART, base.art),
+            buttons = int(KEY_BUTTONS, base.buttons),
+            text = int(KEY_TEXT, base.text),
+            textSize = int(KEY_TEXT_SIZE, base.textSize).coerceIn(11, 17),
+        )
     }
+
+    private fun int(key: String, def: Int) =
+        Settings.System.getIntForUser(context.contentResolver, key, def, UserHandle.USER_CURRENT)
 
     fun shows(type: NowBarType) = enabled && shown[type] == true
 
@@ -74,10 +96,26 @@ class NowBarSettings(private val context: Context) {
         const val KEY_AOD = "now_bar_aod"
         const val KEY_CHIP = "now_bar_chip"
         const val KEY_SCORES = "now_bar_scores"
+        const val KEY_MATERIAL = "now_bar_material"
+        const val KEY_COLOR = "now_bar_color"
+        const val KEY_OPACITY = "now_bar_opacity"
+        const val KEY_OUTLINE = "now_bar_outline"
+        const val KEY_SHADOW = "now_bar_shadow"
+        const val KEY_MORE = "now_bar_more"
+        const val KEY_HEIGHT = "now_bar_height"
+        const val KEY_WIDTH = "now_bar_width"
+        const val KEY_CORNERS = "now_bar_corners"
+        const val KEY_RAISE = "now_bar_raise"
+        const val KEY_ART = "now_bar_art"
+        const val KEY_BUTTONS = "now_bar_buttons"
+        const val KEY_TEXT = "now_bar_text"
+        const val KEY_TEXT_SIZE = "now_bar_text_size"
         val KEYS = arrayOf(
             KEY_ENABLED, KEY_MUSIC, KEY_TIMERS, KEY_CALLS, KEY_HIDE_CALL, KEY_LIVE,
             KEY_RECORDING, KEY_CHARGING,
             KEY_FLASHLIGHT, KEY_WAVE, KEY_AOD, KEY_CHIP, KEY_SCORES,
+            KEY_MATERIAL, KEY_COLOR, KEY_OPACITY, KEY_OUTLINE, KEY_SHADOW, KEY_MORE, KEY_HEIGHT,
+            KEY_WIDTH, KEY_CORNERS, KEY_RAISE, KEY_ART, KEY_BUTTONS, KEY_TEXT, KEY_TEXT_SIZE,
         )
 
         private fun get(context: Context, key: String, def: Boolean) =
