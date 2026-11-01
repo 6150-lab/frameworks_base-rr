@@ -55,6 +55,9 @@ class MutableSelectionState {
     /** Latest event from coming from placement mode. */
     var placementEvent by mutableStateOf<PlacementEvent?>(null)
 
+    /** The tile last tapped, for its options in the customizer. Null when done with it. */
+    var tapped by mutableStateOf<TileSpec?>(null)
+
     val selected: Boolean
         get() = selection != null
 
@@ -132,6 +135,7 @@ class MutableSelectionState {
             }
             else -> {
                 select(tileSpec)
+                tapped = tileSpec
             }
         }
     }

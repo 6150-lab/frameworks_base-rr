@@ -40,7 +40,11 @@ class EditTileListState(
     initialLargeTiles: Set<TileSpec>,
     val columns: Int,
     val largeTilesSpan: Int,
+    initialWidths: Map<TileSpec, Int> = emptyMap(),
 ) : DragAndDropState {
+    /** Widths that differ from what [largeTilesSpecs] gives. */
+    private var widths: Map<TileSpec, Int> = initialWidths
+
     override var draggedCell by mutableStateOf<SizedTile<EditTileViewModel>?>(null)
         private set
 
@@ -60,13 +64,23 @@ class EditTileListState(
 
     private val _tiles: SnapshotStateList<GridCell> =
         initialTiles.toGridCells(initialLargeTiles).toMutableStateList()
+
+    /** Whether [tileSpec] was last set to one column wide, ignoring a resize still in progress. */
+    fun isIconTile(tileSpec: TileSpec): Boolean =
+        (widths[tileSpec] ?: if (tileSpec in largeTilesSpecs) largeTilesSpan else 1) == 1
+
     val tiles: List<GridCell> = _tiles
 
     var largeTilesSpecs: Set<TileSpec> = initialLargeTiles
         private set
 
     /** Update the grid with this new list of tiles and new set of large tileSpecs. */
-    fun updateTiles(tiles: List<EditTileViewModel>, largeTiles: Set<TileSpec>) {
+    fun updateTiles(
+        tiles: List<EditTileViewModel>,
+        largeTiles: Set<TileSpec>,
+        newWidths: Map<TileSpec, Int> = emptyMap(),
+    ) {
+        widths = newWidths
         largeTilesSpecs = largeTiles
         tiles.toGridCells(largeTiles).let {
             _tiles.apply {
@@ -218,7 +232,10 @@ class EditTileListState(
 
     private fun List<EditTileViewModel>.toGridCells(largeTiles: Set<TileSpec>): List<GridCell> {
         return map {
-                SizedTileImpl(it, if (largeTiles.contains(it.tileSpec)) largeTilesSpan else 1)
+                SizedTileImpl(
+                    it,
+                    widths[it.tileSpec] ?: if (largeTiles.contains(it.tileSpec)) largeTilesSpan else 1,
+                )
             }
             .toGridCells(columns)
     }

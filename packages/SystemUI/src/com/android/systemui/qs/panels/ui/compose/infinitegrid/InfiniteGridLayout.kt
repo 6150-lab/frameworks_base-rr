@@ -50,10 +50,14 @@ import com.android.systemui.lifecycle.rememberViewModel
 import com.android.systemui.media.remedia.ui.compose.QsMediaTile
 import com.android.systemui.media.remedia.ui.viewmodel.MediaViewModel
 import com.android.systemui.qs.panels.shared.model.LocalQsMediaTileSize
+import com.android.systemui.qs.panels.shared.model.LocalQsStyle
 import com.android.systemui.qs.panels.shared.model.LocalQsTweaks
 import com.android.systemui.qs.panels.shared.model.QsMediaTileSize
+import com.android.systemui.qs.panels.shared.model.QsStyle
+import com.android.systemui.qs.panels.shared.model.QsTweaks
 import com.android.systemui.qs.panels.shared.model.SizedTileImpl
 import com.android.systemui.qs.panels.shared.model.TilePlacement
+import com.android.systemui.qs.panels.shared.model.cellsOf
 import com.android.systemui.qs.panels.shared.model.packTiles
 import com.android.systemui.qs.panels.ui.compose.EditTileListState
 import com.android.systemui.qs.panels.ui.compose.PaginatableGridLayout
@@ -229,6 +233,14 @@ constructor(
         val largeTiles by viewModel.iconTilesViewModel.largeTilesState
 
         val currentTiles by rememberUpdatedState(tiles.filter { it.isCurrent })
+        val tweaks = LocalQsTweaks.current
+        val theme = LocalQsStyle.current
+        val widths =
+            currentTiles.associate {
+                val spec = it.tileSpec
+                val large = largeTiles.contains(spec)
+                spec to tweaks.cellsOf(spec.spec, theme, large, largeTilesSpan, columns).columns
+            }
         val listState =
             remember(columns, largeTilesSpan) {
                 EditTileListState(
@@ -236,9 +248,12 @@ constructor(
                     largeTiles,
                     columns = columns,
                     largeTilesSpan = largeTilesSpan,
+                    initialWidths = widths,
                 )
             }
-        LaunchedEffect(currentTiles, largeTiles) { listState.updateTiles(currentTiles, largeTiles) }
+        LaunchedEffect(currentTiles, largeTiles, widths) {
+            listState.updateTiles(currentTiles, largeTiles, widths)
+        }
 
         DefaultEditTileGrid(
             listState = listState,
@@ -246,6 +261,7 @@ constructor(
             modifier = modifier,
             scrollState = scrollState,
             snapshotViewModel = snapshotViewModel,
+            qsStyleRepository = viewModel.qsStyleRepository,
             onStopEditing = onStopEditing,
             topBarActions = actions,
         ) { action ->
@@ -269,6 +285,15 @@ constructor(
                 }
                 is EditAction.ResizeTile -> {
                     iconTilesViewModel.resize(action.tileSpec, action.toIcon)
+                    viewModel.qsStyleRepository.editTweaks { current ->
+                        current.afterResize(
+                            action.tileSpec.spec,
+                            theme,
+                            action.toIcon,
+                            largeTilesSpan,
+                            columns,
+                        )
+                    }
                 }
                 is EditAction.SetTiles -> {
                     onSetTiles(action.tileSpecs)
@@ -279,6 +304,24 @@ constructor(
 }
 
 private fun TileSpec.isMediaTile() = spec == QsMediaTileSize.TILE_SPEC
+
+/** The resize handle replaces any size picked for the tile, or the theme's when it differs. */
+private fun QsTweaks.afterResize(
+    spec: String,
+    theme: QsStyle,
+    toIcon: Boolean,
+    largeSpan: Int,
+    columns: Int,
+): QsTweaks {
+    if (spec == QsMediaTileSize.TILE_SPEC) {
+        return copy(mediaSize = if (toIcon) QsMediaTileSize.SMALL else null)
+    }
+    val wanted = if (toIcon) 1 else largeSpan.coerceAtMost(columns)
+    val plain = withTile(spec) { it.copy(columns = null, rows = null) }
+    val auto = plain.cellsOf(spec, theme, !toIcon, largeSpan, columns).columns
+    return if (auto == wanted) plain
+    else plain.withTile(spec) { it.copy(columns = wanted) }
+}
 
 /**
  * A grid whose tiles can span rows as well as columns. One row tiles set the height of their row,

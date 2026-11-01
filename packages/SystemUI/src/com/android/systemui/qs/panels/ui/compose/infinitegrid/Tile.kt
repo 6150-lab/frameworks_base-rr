@@ -769,7 +769,7 @@ private object TileDefaults {
         style: QsStyle = QsStyle.STOCK,
         tone: Color? = null,
     ): TileColors {
-        styledTileColors(style, uiState, iconOnly, tone)?.let {
+        styledTileColors(style, uiState.visualState, uiState.handlesToggleClick, iconOnly, tone)?.let {
             return it
         }
         return when (uiState.visualState) {

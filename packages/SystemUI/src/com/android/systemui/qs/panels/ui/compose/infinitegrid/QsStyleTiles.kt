@@ -87,7 +87,6 @@ import com.android.systemui.qs.panels.shared.model.QsTileFont
 import com.android.systemui.qs.panels.shared.model.QsTileLabel
 import com.android.systemui.qs.panels.shared.model.QsTweaks
 import com.android.systemui.qs.panels.ui.viewmodel.AccessibilityUiState
-import com.android.systemui.qs.panels.ui.viewmodel.TileUiState
 import com.android.systemui.res.R
 import kotlin.math.PI
 import kotlin.math.cos
@@ -147,7 +146,7 @@ private fun TextStyle?.withFont(font: QsTileFont?, plain: TextStyle): TextStyle?
 
 @Composable
 @ReadOnlyComposable
-private fun themeTileLook(style: QsStyle): TileLook {
+internal fun themeTileLook(style: QsStyle): TileLook {
     val type = MaterialTheme.typography
     fun look(h: Int, r: Int, toggle: Int, large: Int, small: Int, label: TextStyle? = null,
         secondary: TextStyle? = null) =
@@ -224,7 +223,8 @@ fun Color.inkOn(): Color =
 @ReadOnlyComposable
 internal fun styledTileColors(
     style: QsStyle,
-    uiState: TileUiState,
+    visualState: Int,
+    dualTarget: Boolean,
     iconOnly: Boolean,
     tone: Color? = null,
 ): TileColors? {
@@ -232,8 +232,8 @@ internal fun styledTileColors(
     val theme = MaterialTheme.colorScheme
     val scheme = if (tone == null) theme else theme.copy(primary = tone, onPrimary = tone.inkOn())
     val surface = LocalAndroidColorScheme.current.surfaceEffect1
-    val active = uiState.visualState == STATE_ACTIVE
-    val dualLarge = uiState.handlesToggleClick && !iconOnly
+    val active = visualState == STATE_ACTIVE
+    val dualLarge = dualTarget && !iconOnly
     val vivid = tone ?: colorResource(android.R.color.system_primary_dark)
     val vividInk = tone?.inkOn() ?: colorResource(android.R.color.system_on_primary_dark)
     val colors =
@@ -358,7 +358,7 @@ internal fun styledTileColors(
             // Compact and Cards: stock colors, but dual target tiles fill too.
             else -> filled(active, surface, tone)
         }
-    return when (uiState.visualState) {
+    return when (visualState) {
         STATE_ACTIVE,
         STATE_INACTIVE -> colors
         else ->

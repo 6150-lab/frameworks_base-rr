@@ -18,6 +18,8 @@
 
 package com.android.systemui.qs.panels.ui.compose.infinitegrid
 
+import android.service.quicksettings.Tile.STATE_ACTIVE
+import android.service.quicksettings.Tile.STATE_INACTIVE
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColor
@@ -166,6 +168,8 @@ import com.android.systemui.common.shared.model.Icon
 import com.android.systemui.common.ui.compose.load
 import com.android.systemui.common.ui.icons.Undo
 import com.android.systemui.compose.modifiers.sysuiResTag
+import com.android.systemui.qs.panels.data.repository.QsStyleRepository
+import com.android.systemui.qs.panels.shared.model.LocalQsTweaks
 import com.android.systemui.qs.panels.shared.model.SizedTileImpl
 import com.android.systemui.qs.panels.ui.compose.DragAndDropState
 import com.android.systemui.qs.panels.ui.compose.DragType
@@ -244,6 +248,7 @@ fun DefaultEditTileGrid(
     allTiles: List<EditTileViewModel>,
     snapshotViewModel: InfiniteGridSnapshotViewModel,
     topBarActions: SnapshotStateList<EditTopBarActionViewModel>,
+    qsStyleRepository: QsStyleRepository,
     modifier: Modifier = Modifier,
     scrollState: ScrollState = rememberScrollState(),
     onStopEditing: () -> Unit = {},
@@ -327,6 +332,22 @@ fun DefaultEditTileGrid(
                 },
             )
         },
+        bottomBar = {
+            val tapped = selectionState.tapped
+            QsCustomizerDock(
+                repository = qsStyleRepository,
+                tile =
+                    allTiles.find { it.tileSpec == tapped }?.takeIf {
+                        tapped in listState.tileSpecs()
+                    },
+                columns = listState.columns,
+                onRemoveTile = { tile ->
+                    selectionState.tapped = null
+                    onEditAction(EditAction.RemoveTile(tile.tileSpec))
+                },
+                onCloseTile = { selectionState.tapped = null },
+            )
+        },
     ) { innerPadding ->
         CompositionLocalProvider(
             LocalOverscrollFactory provides rememberOffsetOverscrollEffectFactory()
@@ -368,6 +389,9 @@ fun DefaultEditTileGrid(
                             !(listState.dragInProgress || selectionState.placementEnabled) ||
                                 listState.dragType == DragType.Move,
                     )
+
+                    // Scrolls the end of the page clear of the customizer.
+                    Spacer(Modifier.height(innerPadding.calculateBottomPadding()))
                 }
             }
         }
@@ -605,9 +629,10 @@ private fun CurrentTilesGrid(
 ) {
     val currentListState by rememberUpdatedState(listState)
     val totalRows = listState.tiles.lastOrNull()?.row ?: 0
+    val tileHeight = tileLook(tileShapeStyle()).height
     val totalHeight by
         animateDpAsState(
-            gridHeight(totalRows + 1, TileHeight, TileArrangementPadding, CurrentTilesGridPadding),
+            gridHeight(totalRows + 1, tileHeight, TileArrangementPadding, CurrentTilesGridPadding),
             label = "QSEditCurrentTilesGridHeight",
         )
     val gridState = rememberLazyGridState()
@@ -658,7 +683,7 @@ private fun CurrentTilesGrid(
                     with(resizingOperation) {
                         // Commit the new size of the tile IF the size changed. Do this check before
                         // a snapshot is taken to avoid saving an unnecessary snapshot
-                        val isIcon = spec !in listState.largeTilesSpecs
+                        val isIcon = listState.isIconTile(spec)
                         if (isIcon != toIcon) {
                             onEditAction(EditAction.ResizeTile(spec, toIcon))
                         }
@@ -972,7 +997,9 @@ private fun LazyGridItemScope.TileGridCell(
             .collect { anchorsData = it }
     }
 
-    val colors = EditModeTileDefaults.editTileColors()
+    val look = tileLook(tileShapeStyle())
+    val tileTweak = LocalQsTweaks.current.tiles[cell.tile.tileSpec.spec]
+    val colors = editPreviewColors(cell.tile, cell.isIcon)
     val toggleSizeLabel = stringResource(R.string.accessibility_qs_edit_toggle_tile_size_action)
     val togglePlacementModeLabel =
         stringResource(R.string.accessibility_qs_edit_toggle_placement_mode)
@@ -1001,7 +1028,7 @@ private fun LazyGridItemScope.TileGridCell(
         resizingState = resizingState,
         modifier =
             modifier
-                .height(TileHeight)
+                .height(look.height)
                 .fillMaxWidth()
                 .animateItem(placementSpec = placementSpec)
                 .tileTestTag(cell.isIcon),
@@ -1081,7 +1108,7 @@ private fun LazyGridItemScope.TileGridCell(
                 )
                 .thenIf(isSelectable) { draggableModifier }
                 .tileBackground(
-                    cornerRadius = InactiveTileCornerRadius,
+                    cornerRadius = look.inactiveRadius,
                     alpha = { containerAlpha },
                     color = { colors.background },
                 )
@@ -1090,7 +1117,21 @@ private fun LazyGridItemScope.TileGridCell(
                 }
                 .thenIf(isSelectable) { selectableModifier }
         ) {
-            EditTile(tile = cell.tile, state = resizingState, progress = resizingState::progress)
+            EditTile(
+                tile = cell.tile,
+                state = resizingState,
+                progress = resizingState::progress,
+                colors = colors,
+            )
+            val rows = tileTweak?.rows ?: 1
+            if (rows > 1) {
+                Text(
+                    text = "${cell.width}×$rows",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = colors.label,
+                    modifier = Modifier.align(Alignment.TopEnd).padding(6.dp),
+                )
+            }
         }
     }
 }
@@ -1268,7 +1309,23 @@ private fun BoxScope.AppIconText(
 @Composable
 private fun SpacerGridCell(modifier: Modifier = Modifier) {
     // By default, spacers are invisible and exist purely to catch drag movements
-    Box(modifier.height(TileHeight).fillMaxWidth())
+    Box(modifier.height(tileLook(tileShapeStyle()).height).fillMaxWidth())
+}
+
+/** How the tile looks on the panel. Dual target tiles and those with their own color show on. */
+@Composable
+private fun editPreviewColors(tile: EditTileViewModel, iconOnly: Boolean): TileColors {
+    val tweaks = LocalQsTweaks.current
+    val own = tweaks.tiles[tile.tileSpec.spec]?.color?.let { Color(it) }
+    val tone = own ?: tweaks.accent?.let { Color(it) }
+    val active = tile.isDualTarget || own != null
+    val state = if (active) STATE_ACTIVE else STATE_INACTIVE
+    val base =
+        styledTileColors(tilePaintStyle(), state, tile.isDualTarget, iconOnly, tone)
+            ?: EditModeTileDefaults.editTileColors()
+    return base
+        .withFills(tweaks, state, tone, own != null, chipFills = false)
+        .withBacking(tweaks.iconBacking, active, tone)
 }
 
 @Composable
@@ -1281,6 +1338,7 @@ fun EditTile(
     val defaultStartPadding = CommonTileDefaults.StartPadding
     val iconSizeDiff = CommonTileDefaults.SmallTileIconSize - CommonTileDefaults.LargeTileIconSize
     val toggleTargetSize = ToggleTargetSize
+    val ownIcon = LocalQsTweaks.current.tiles[tile.tileSpec.spec]?.icon?.let { QsTileIcons[it] }
     Row(
         horizontalArrangement = spacedBy(6.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -1332,7 +1390,7 @@ fun EditTile(
             }
         ) {
             SmallTileContent(
-                iconProvider = { tile.icon },
+                iconProvider = { ownIcon?.let { Icon.Resource(it, null) } ?: tile.icon },
                 color = colors.icon,
                 animateToEnd = true,
                 size = { CommonTileDefaults.SmallTileIconSize - iconSizeDiff * progress() },
