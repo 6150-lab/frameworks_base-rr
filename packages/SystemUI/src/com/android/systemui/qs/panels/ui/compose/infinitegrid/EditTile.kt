@@ -170,16 +170,17 @@ import com.android.systemui.common.ui.icons.Undo
 import com.android.systemui.compose.modifiers.sysuiResTag
 import com.android.systemui.qs.panels.data.repository.QsStyleRepository
 import com.android.systemui.qs.panels.shared.model.LocalQsTweaks
+import com.android.systemui.qs.panels.shared.model.QsOnFill
 import com.android.systemui.qs.panels.shared.model.SizedTileImpl
 import com.android.systemui.qs.panels.ui.compose.DragAndDropState
 import com.android.systemui.qs.panels.ui.compose.DragType
 import com.android.systemui.qs.panels.ui.compose.EditTileListState
 import com.android.systemui.qs.panels.ui.compose.EditTileListState.Companion.INVALID_INDEX
-import com.android.systemui.qs.panels.ui.compose.dragAndDropRemoveZone
 import com.android.systemui.qs.panels.ui.compose.LocalQsEditPreview
 import com.android.systemui.qs.panels.ui.compose.LocalQsPreviewTiles
 import com.android.systemui.qs.panels.ui.compose.QsFitToHeight
 import com.android.systemui.qs.panels.ui.compose.QsPreviewTiles
+import com.android.systemui.qs.panels.ui.compose.dragAndDropRemoveZone
 import com.android.systemui.qs.panels.ui.compose.dragAndDropTileList
 import com.android.systemui.qs.panels.ui.compose.dragAndDropTileSource
 import com.android.systemui.qs.panels.ui.compose.infinitegrid.CommonTileDefaults.InactiveTileCornerRadius
@@ -296,7 +297,6 @@ fun DefaultEditTileGrid(
     val isTileRemovable: (TileSpec) -> Boolean by rememberUpdatedState { spec ->
         allTiles.find { it.tileSpec == spec }?.isRemovable ?: false
     }
-    Scaffold(
     var customizing by remember { mutableStateOf(false) }
     val tapped = selectionState.tapped
     val tappedTile =
@@ -307,6 +307,7 @@ fun DefaultEditTileGrid(
         scrollBehavior.state.heightOffset =
             if (previewing) scrollBehavior.state.heightOffsetLimit else 0f
     }
+    Scaffold(
         modifier =
             modifier
                 .consumeWindowInsets(WindowInsets.displayCutout)
@@ -353,9 +354,9 @@ fun DefaultEditTileGrid(
                 repository = qsStyleRepository,
                 tile = tappedTile,
                 columns = listState.columns,
-                onRemoveTile = { tile ->
                 expanded = customizing,
                 onExpandedChange = { customizing = it },
+                onRemoveTile = { tile ->
                     selectionState.tapped = null
                     onEditAction(EditAction.RemoveTile(tile.tileSpec))
                 },
@@ -363,7 +364,6 @@ fun DefaultEditTileGrid(
             )
         },
     ) { innerPadding ->
-        CompositionLocalProvider(
         if (panelPreview != null) {
             val previewTiles =
                 remember(tappedTile) {
@@ -377,6 +377,7 @@ fun DefaultEditTileGrid(
             }
             return@Scaffold
         }
+        CompositionLocalProvider(
             LocalOverscrollFactory provides rememberOffsetOverscrollEffectFactory()
         ) {
             AutoScrollGrid(listState, scrollState, innerPadding)
@@ -1350,9 +1351,15 @@ private fun editPreviewColors(tile: EditTileViewModel, iconOnly: Boolean): TileC
     val base =
         styledTileColors(tilePaintStyle(), state, iconOnly, tone)
             ?: EditModeTileDefaults.editTileColors()
-    return base
-        .withFills(tweaks, state, tone, own != null, chipFills = false)
-        .withBacking(tweaks.iconBacking, active, tone)
+    val colors =
+        base
+            .withFills(tweaks, state, tone, own != null, chipFills = false)
+            .withBacking(tweaks.iconBacking, active, tone)
+    return if (iconOnly && active && tweaks.onFill == QsOnFill.ICON && colors.iconBackground.alpha > 0f) {
+        colors.copy(icon = colors.iconBackground)
+    } else {
+        colors
+    }
 }
 
 @Composable

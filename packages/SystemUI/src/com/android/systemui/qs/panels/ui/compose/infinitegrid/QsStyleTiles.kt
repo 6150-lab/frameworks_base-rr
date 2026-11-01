@@ -426,7 +426,13 @@ internal fun TileColors.withFills(
                 QsOnFill.OUTLINE ->
                     TileColors(Color.Transparent, Color.Transparent, scheme.onSurface, vivid, vivid)
                 QsOnFill.ICON ->
-                    TileColors(surface, vivid, scheme.onSurface, scheme.onSurfaceVariant, ink)
+                    TileColors(
+                        surface,
+                        vivid,
+                        scheme.onSurface,
+                        scheme.onSurfaceVariant,
+                        if (tweaks.iconBacking == QsIconBacking.NONE) vivid else ink,
+                    )
                 null -> this
             }
         }

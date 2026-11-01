@@ -196,7 +196,14 @@ fun ContentScope.Tile(
         val layout = tileLayout(shape, tweaks.label, tileTweak?.hideLabel == true, iconOnly, rows)
         val chipFills =
             layout == TileLayout.Under && (shape == QsStyle.CIRCLES || shape == QsStyle.SHAPES)
-        val chipShape = tweaks.iconBacking.chipShape(uiState.label)
+        val chipShape =
+            tweaks.iconBacking.chipShape(uiState.label)
+                ?: CircleShape.takeIf {
+                    active &&
+                        !chipFills &&
+                        tweaks.iconBacking == null &&
+                        tweaks.onFill == QsOnFill.ICON
+                }
         val colors =
             TileDefaults.getColorForState(uiState, iconOnly, paint, tone)
                 .withFills(tweaks, uiState.visualState, tone, ownColor != null, chipFills)
