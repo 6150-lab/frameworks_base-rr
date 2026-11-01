@@ -65,6 +65,7 @@ import androidx.compose.ui.semantics.toggleableState
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.Typeface
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Density
@@ -139,7 +140,7 @@ internal fun tileLook(style: QsStyle): TileLook {
 private fun TextStyle?.withFont(font: QsTileFont?, plain: TextStyle): TextStyle? =
     when (font) {
         null -> this
-        QsTileFont.MONO -> (this ?: plain).copy(fontFamily = FontFamily.Monospace)
+        QsTileFont.MONO -> (this ?: plain).copy(fontFamily = MonoFont)
         QsTileFont.SANS,
         QsTileFont.CAPS -> (this ?: plain).copy(fontFamily = plain.fontFamily)
     }
@@ -183,9 +184,12 @@ internal fun themeTileLook(style: QsStyle): TileLook {
     }
 }
 
+private val MonoFont =
+    FontFamily(Typeface(android.graphics.Typeface.getSystemDefaultTypeface("monospace")))
+
 private val BlueprintLabel =
     TextStyle(
-        fontFamily = FontFamily.Monospace,
+        fontFamily = MonoFont,
         fontWeight = FontWeight.Medium,
         fontSize = 12.sp,
         letterSpacing = .8.sp,
@@ -714,7 +718,7 @@ private fun StyledLabel(text: String, color: Color, style: TextStyle, modifier: 
     val font = LocalQsTweaks.current.font
     BasicText(
         text = if (font == QsTileFont.CAPS) text.uppercase() else text,
-        style = if (font == QsTileFont.MONO) style.copy(fontFamily = FontFamily.Monospace) else style,
+        style = if (font == QsTileFont.MONO) style.copy(fontFamily = MonoFont) else style,
         color = { animated },
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
