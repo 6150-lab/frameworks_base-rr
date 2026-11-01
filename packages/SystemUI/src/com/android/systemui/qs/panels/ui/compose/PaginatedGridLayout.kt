@@ -107,9 +107,18 @@ constructor(
                 }
         }
 
-        // Used to track if this is currently in the first page or not, for animations
-        LaunchedEffect(key1 = pagerState) {
-            snapshotFlow { pagerState.currentPage == 0 }.collect { viewModel.inFirstPage = it }
+        val preview = LocalQsPreviewTiles.current
+        if (preview == null) {
+            // Used to track if this is currently in the first page or not, for animations
+            LaunchedEffect(key1 = pagerState) {
+                snapshotFlow { pagerState.currentPage == 0 }.collect { viewModel.inFirstPage = it }
+            }
+        }
+
+        val selected = preview?.selected
+        LaunchedEffect(selected, pages) {
+            val page = pages.indexOfFirst { page -> page.any { it.spec == selected } }
+            if (page >= 0) pagerState.animateScrollToPage(page)
         }
 
         Column(modifier) {

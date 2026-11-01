@@ -9,6 +9,7 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.ContentResolver
 import android.os.UserHandle
+import androidx.activity.compose.BackHandler
 import androidx.annotation.StringRes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -42,6 +43,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -145,13 +147,18 @@ internal fun QsCustomizerDock(
     repository: QsStyleRepository,
     tile: EditTileViewModel?,
     columns: Int,
+    expanded: Boolean,
+    onExpandedChange: (Boolean) -> Unit,
     onRemoveTile: (EditTileViewModel) -> Unit,
     onCloseTile: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var expanded by remember { mutableStateOf(false) }
     var tab by remember { mutableStateOf(CustomizerTab.Theme) }
     val edit: ((QsTweaks) -> QsTweaks) -> Unit = repository::editTweaks
+
+    BackHandler(enabled = expanded || tile != null) {
+        if (tile != null) onCloseTile() else onExpandedChange(false)
+    }
 
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -168,7 +175,7 @@ internal fun QsCustomizerDock(
             verticalAlignment = Alignment.CenterVertically,
             modifier =
                 Modifier.fillMaxWidth().heightIn(min = 40.dp).clickable {
-                    if (tile != null) onCloseTile() else expanded = !expanded
+                    if (tile != null) onCloseTile() else onExpandedChange(!expanded)
                 },
         ) {
             Text(
@@ -212,23 +219,25 @@ internal fun QsCustomizerDock(
                     }
                 }
             }
-            Column(
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                modifier =
-                    Modifier.fillMaxWidth()
-                        .heightIn(max = 300.dp)
-                        .verticalScroll(rememberScrollState())
-                        .padding(bottom = 6.dp),
-            ) {
-                when {
-                    tile?.tileSpec?.spec == QsMediaTileSize.TILE_SPEC -> MediaSheet(edit)
-                    tile != null -> TileSheet(tile.tileSpec.spec, columns, edit)
-                    tab == CustomizerTab.Theme -> ThemeTab(repository)
-                    tab == CustomizerTab.Layout -> LayoutTab(columns, edit)
-                    tab == CustomizerTab.Tiles -> TilesTab(edit)
-                    tab == CustomizerTab.Color -> ColorTab(edit)
-                    tab == CustomizerTab.Mix -> MixTab(edit)
-                    else -> SliderTab(edit)
+            key(tab, tile?.tileSpec) {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier =
+                        Modifier.fillMaxWidth()
+                            .height(240.dp)
+                            .verticalScroll(rememberScrollState())
+                            .padding(bottom = 6.dp),
+                ) {
+                    when {
+                        tile?.tileSpec?.spec == QsMediaTileSize.TILE_SPEC -> MediaSheet(edit)
+                        tile != null -> TileSheet(tile.tileSpec.spec, columns, edit)
+                        tab == CustomizerTab.Theme -> ThemeTab(repository)
+                        tab == CustomizerTab.Layout -> LayoutTab(columns, edit)
+                        tab == CustomizerTab.Tiles -> TilesTab(edit)
+                        tab == CustomizerTab.Color -> ColorTab(edit)
+                        tab == CustomizerTab.Mix -> MixTab(edit)
+                        else -> SliderTab(edit)
+                    }
                 }
             }
         }

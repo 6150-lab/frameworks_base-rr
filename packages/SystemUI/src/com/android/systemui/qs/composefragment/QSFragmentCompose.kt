@@ -155,14 +155,19 @@ import com.android.systemui.qs.panels.shared.model.LocalQsStyle
 import com.android.systemui.qs.panels.shared.model.LocalQsTweaks
 import com.android.systemui.qs.panels.shared.model.QsSliderPlace
 import com.android.systemui.qs.panels.shared.model.QsMediaPlace
+import com.android.systemui.qs.panels.shared.model.QsMediaTileSize
 import com.android.systemui.qs.panels.shared.model.QSFragmentComposeClippingTableLog
 import com.android.systemui.qs.panels.ui.compose.QsCirclesMediaRow
 import com.android.systemui.qs.panels.ui.compose.QsStyleSliderFrame
 import com.android.systemui.qs.panels.ui.compose.qsSliderStyle
 import com.android.systemui.qs.panels.ui.compose.EditMode
+import com.android.systemui.qs.panels.ui.compose.LocalQsEditPreview
+import com.android.systemui.qs.panels.ui.compose.LocalQsPreviewTiles
+import com.android.systemui.qs.panels.ui.compose.QsPreviewCover
 import com.android.systemui.qs.panels.ui.compose.QuickQuickSettings
 import com.android.systemui.qs.panels.ui.compose.TileGrid
 import com.android.systemui.qs.shared.ui.QuickSettings.Elements
+import com.android.systemui.qs.pipeline.shared.TileSpec
 import com.android.systemui.qs.ui.composable.QuickSettingsShade
 import com.android.systemui.qs.ui.composable.QuickSettingsShade.systemGestureExclusionInShade
 import com.android.systemui.qs.ui.composable.QuickSettingsTheme
@@ -906,21 +911,6 @@ constructor(
                                     )
                                 }
                             }
-                        val Media =
-                            @Composable {
-                                if (viewModel.qsMediaVisible) {
-                                    MediaObject(
-                                        mediaHost = viewModel.qsMediaHost,
-                                        mediaViewModelFactory = viewModel.mediaViewModelFactory,
-                                        mediaPresentationStyle = MediaPresentationStyle.Default,
-                                        onSwipeToDismiss = viewModel::onMediaSwipeToDismiss,
-                                        behavior = viewModel.qsMediaUiBehavior,
-                                        visible = isListening,
-                                        location = Media.Location.QS,
-                                        expansion = { viewModel.expansionState.progress },
-                                    )
-                                }
-                            }
                         Box(
                             modifier =
                                 Modifier.fillMaxWidth()
@@ -931,43 +921,7 @@ constructor(
                                         end = qsHorizontalMargin(),
                                     )
                         ) {
-                            // Tall brightness and volume sliders can sit next to the media card.
-                            val tweaks = LocalQsTweaks.current
-                            val circlesRow =
-                                tweaks.slidersByMediaIn(LocalQsStyle.current) &&
-                                    viewModel.qsMediaVisible &&
-                                    !viewModel.qsMediaInRow
-                            val brightnessShown = rememberQsBrightnessSettings().showSlider != 0
-                            QuickSettingsLayout(
-                                brightness =
-                                    if (viewModel.isBrightnessSliderVisible && !circlesRow) {
-                                        BrightnessSlider
-                                    } else {
-                                        {}
-                                    },
-                                tiles = TileGrid,
-                                media =
-                                    if (circlesRow) {
-                                        {
-                                            QsCirclesMediaRow(
-                                                media = Media,
-                                                brightness =
-                                                    viewModel.containerViewModel
-                                                        .brightnessSliderViewModel
-                                                        .takeIf {
-                                                            viewModel.isBrightnessSliderVisible &&
-                                                                brightnessShown
-                                                        },
-                                                volume = audioVolumeInteractor,
-                                            )
-                                        }
-                                    } else {
-                                        Media
-                                    },
-                                mediaInRow = viewModel.qsMediaInRow,
-                                mediaAbove =
-                                    tweaks.mediaPlaceIn(LocalQsStyle.current) == QsMediaPlace.ABOVE,
-                            )
+                            QuickSettingsPanel(BrightnessSlider, TileGrid, isListening)
                         }
                     }
                 }
@@ -981,6 +935,99 @@ constructor(
                 }
             }
             Spacer(Modifier.height { bottomContentPadding }.fillMaxWidth())
+        }
+    }
+
+    @Composable
+    private fun ContentScope.QuickSettingsPanel(
+        brightnessSlider: @Composable () -> Unit,
+        tileGrid: @Composable () -> Unit,
+        isListening: () -> Boolean,
+    ) {
+        val Media =
+            @Composable {
+                if (viewModel.qsMediaVisible) {
+                    MediaObject(
+                        mediaHost = viewModel.qsMediaHost,
+                        mediaViewModelFactory = viewModel.mediaViewModelFactory,
+                        mediaPresentationStyle = MediaPresentationStyle.Default,
+                        onSwipeToDismiss = viewModel::onMediaSwipeToDismiss,
+                        behavior = viewModel.qsMediaUiBehavior,
+                        visible = isListening,
+                        location = Media.Location.QS,
+                        expansion = { viewModel.expansionState.progress },
+                    )
+                }
+            }
+        // Tall brightness and volume sliders can sit next to the media card.
+        val tweaks = LocalQsTweaks.current
+        val circlesRow =
+            tweaks.slidersByMediaIn(LocalQsStyle.current) &&
+                viewModel.qsMediaVisible &&
+                !viewModel.qsMediaInRow
+        val brightnessShown = rememberQsBrightnessSettings().showSlider != 0
+        val MediaRow: @Composable () -> Unit =
+            if (circlesRow) {
+                {
+                    QsCirclesMediaRow(
+                        media = Media,
+                        brightness =
+                            viewModel.containerViewModel.brightnessSliderViewModel.takeIf {
+                                viewModel.isBrightnessSliderVisible && brightnessShown
+                            },
+                        volume = audioVolumeInteractor,
+                    )
+                }
+            } else {
+                Media
+            }
+        val preview = LocalQsPreviewTiles.current
+        QuickSettingsLayout(
+            brightness =
+                if (viewModel.isBrightnessSliderVisible && !circlesRow) {
+                    brightnessSlider
+                } else {
+                    {}
+                },
+            tiles = tileGrid,
+            media =
+                if (preview != null && viewModel.qsMediaVisible) {
+                    {
+                        QsPreviewCover(
+                            onTap = {
+                                preview.onTap(TileSpec.create(QsMediaTileSize.TILE_SPEC))
+                            },
+                            content = MediaRow,
+                        )
+                    }
+                } else {
+                    MediaRow
+                },
+            mediaInRow = viewModel.qsMediaInRow,
+            mediaAbove = tweaks.mediaPlaceIn(LocalQsStyle.current) == QsMediaPlace.ABOVE,
+        )
+    }
+
+    /** The open panel, drawn again for the customizer to change in front of the user. */
+    @Composable
+    private fun ContentScope.PanelPreview() {
+        Column {
+            QuickSettingsPanel(
+                brightnessSlider = {
+                    QsPreviewCover { BrightnessSlider(viewModel, layoutState) }
+                },
+                tileGrid = {
+                    TileGrid(
+                        viewModel = viewModel.containerViewModel.tileGridViewModel,
+                        modifier = Modifier.fillMaxWidth(),
+                        listening = { false },
+                    )
+                },
+                isListening = { false },
+            )
+            QuickSettingsTheme {
+                QsPreviewCover { FooterActions(viewModel = viewModel.footerActionsViewModel) }
+            }
         }
     }
 
@@ -1023,17 +1070,19 @@ constructor(
     }
 
     @Composable
-    private fun EditModeElement(modifier: Modifier = Modifier) {
+    private fun ContentScope.EditModeElement(modifier: Modifier = Modifier) {
         // No need for top padding, the Scaffold inside takes care of the correct insets
         val horizontalPadding = QuickSettingsShade.Dimensions.HorizontalPadding
-        EditMode(
-            viewModel = viewModel.containerViewModel.editModeViewModel,
-            modifier =
-                modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = { horizontalPadding.roundToPx() })
-                    .padding(top = { viewModel.qqsHeaderHeight }),
-        )
+        CompositionLocalProvider(LocalQsEditPreview provides { PanelPreview() }) {
+            EditMode(
+                viewModel = viewModel.containerViewModel.editModeViewModel,
+                modifier =
+                    modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = { horizontalPadding.roundToPx() })
+                        .padding(top = { viewModel.qqsHeaderHeight }),
+            )
+        }
     }
 
     private fun Modifier.collapseExpandSemanticAction(label: String): Modifier {

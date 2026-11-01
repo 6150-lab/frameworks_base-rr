@@ -16,10 +16,13 @@
 
 package com.android.systemui.qs.panels.ui.compose.infinitegrid
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -60,7 +63,9 @@ import com.android.systemui.qs.panels.shared.model.TilePlacement
 import com.android.systemui.qs.panels.shared.model.cellsOf
 import com.android.systemui.qs.panels.shared.model.packTiles
 import com.android.systemui.qs.panels.ui.compose.EditTileListState
+import com.android.systemui.qs.panels.ui.compose.LocalQsPreviewTiles
 import com.android.systemui.qs.panels.ui.compose.PaginatableGridLayout
+import com.android.systemui.qs.panels.ui.compose.QsPreviewCover
 import com.android.systemui.qs.panels.ui.compose.TileListener
 import com.android.systemui.qs.panels.ui.compose.bounceableInfo
 import com.android.systemui.qs.panels.ui.viewmodel.BounceableTileViewModel
@@ -112,7 +117,10 @@ constructor(
         val largeTiles by viewModel.iconTilesViewModel.largeTilesState
         val tweaks = LocalQsTweaks.current
         val mediaTileSize = LocalQsMediaTileSize.current
-        val tileHeight = tileLook(tileShapeStyle()).height
+        val look = tileLook(tileShapeStyle())
+        val tileHeight = look.height
+        val preview = LocalQsPreviewTiles.current
+        val previewRing = MaterialTheme.colorScheme.onSurface
         val shownTiles = remember(tiles, viewModel.pageKeys.toList()) {
             tiles.filter { viewModel.isInGrid(it.spec) }
         }
@@ -141,7 +149,7 @@ constructor(
             val tile = shownTiles[index]
             val place = placements[index]
             val height = tileHeight * place.rows + rowSpacing * (place.rows - 1)
-            Element(tile.spec.toElementKey(), Modifier) {
+            val content: @Composable () -> Unit = {
                 if (tile.spec.isMediaTile()) {
                     QsMediaTile(
                         viewModelFactory = mediaViewModelFactory,
@@ -176,6 +184,24 @@ constructor(
                         height = height,
                     )
                 }
+            }
+            if (preview != null) {
+                QsPreviewCover(
+                    modifier =
+                        if (preview.selected == tile.spec) {
+                            Modifier.border(
+                                2.dp,
+                                previewRing,
+                                RoundedCornerShape(look.activeRadius),
+                            )
+                        } else {
+                            Modifier
+                        },
+                    onTap = { preview.onTap(tile.spec) },
+                    content = content,
+                )
+            } else {
+                Element(tile.spec.toElementKey(), Modifier) { content() }
             }
         }
 

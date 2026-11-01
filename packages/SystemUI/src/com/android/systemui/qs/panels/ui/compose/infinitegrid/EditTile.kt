@@ -176,6 +176,10 @@ import com.android.systemui.qs.panels.ui.compose.DragType
 import com.android.systemui.qs.panels.ui.compose.EditTileListState
 import com.android.systemui.qs.panels.ui.compose.EditTileListState.Companion.INVALID_INDEX
 import com.android.systemui.qs.panels.ui.compose.dragAndDropRemoveZone
+import com.android.systemui.qs.panels.ui.compose.LocalQsEditPreview
+import com.android.systemui.qs.panels.ui.compose.LocalQsPreviewTiles
+import com.android.systemui.qs.panels.ui.compose.QsFitToHeight
+import com.android.systemui.qs.panels.ui.compose.QsPreviewTiles
 import com.android.systemui.qs.panels.ui.compose.dragAndDropTileList
 import com.android.systemui.qs.panels.ui.compose.dragAndDropTileSource
 import com.android.systemui.qs.panels.ui.compose.infinitegrid.CommonTileDefaults.InactiveTileCornerRadius
@@ -293,10 +297,20 @@ fun DefaultEditTileGrid(
         allTiles.find { it.tileSpec == spec }?.isRemovable ?: false
     }
     Scaffold(
+    var customizing by remember { mutableStateOf(false) }
+    val tapped = selectionState.tapped
+    val tappedTile =
+        allTiles.find { it.tileSpec == tapped }?.takeIf { tapped in listState.tileSpecs() }
+    val panelPreview = LocalQsEditPreview.current?.takeIf { customizing || tappedTile != null }
+    val previewing = panelPreview != null
+    LaunchedEffect(previewing) {
+        scrollBehavior.state.heightOffset =
+            if (previewing) scrollBehavior.state.heightOffsetLimit else 0f
+    }
         modifier =
             modifier
                 .consumeWindowInsets(WindowInsets.displayCutout)
-                .nestedScroll(scrollBehavior.nestedScrollConnection)
+                .thenIf(!previewing) { Modifier.nestedScroll(scrollBehavior.nestedScrollConnection) }
                 .sysuiResTag(EDIT_MODE_ROOT_TEST_TAG),
         containerColor = Color.Transparent,
         topBar = {
@@ -317,31 +331,31 @@ fun DefaultEditTileGrid(
                 actions = {
                     undoAction()
 
-                    RemoveButton(
-                        enabled = selectionState.selection?.let { isTileRemovable(it) } ?: false
-                    ) {
-                        selectionState.selection?.let { currentSelection ->
-                            // Auto-select an adjacent tile when removing the selection,
-                            // prioritizing the next tile and falling back to the previous tile
-                            listState
-                                .findNeighboringTile(currentSelection)
-                                ?.let(selectionState::select)
-                            onEditAction(EditAction.RemoveTile(currentSelection))
+                    if (!previewing) {
+                        RemoveButton(
+                            enabled = selectionState.selection?.let { isTileRemovable(it) } ?: false
+                        ) {
+                            selectionState.selection?.let { currentSelection ->
+                                // Auto-select an adjacent tile when removing the selection,
+                                // prioritizing the next tile and falling back to the previous tile
+                                listState
+                                    .findNeighboringTile(currentSelection)
+                                    ?.let(selectionState::select)
+                                onEditAction(EditAction.RemoveTile(currentSelection))
+                            }
                         }
                     }
                 },
             )
         },
         bottomBar = {
-            val tapped = selectionState.tapped
             QsCustomizerDock(
                 repository = qsStyleRepository,
-                tile =
-                    allTiles.find { it.tileSpec == tapped }?.takeIf {
-                        tapped in listState.tileSpecs()
-                    },
+                tile = tappedTile,
                 columns = listState.columns,
                 onRemoveTile = { tile ->
+                expanded = customizing,
+                onExpandedChange = { customizing = it },
                     selectionState.tapped = null
                     onEditAction(EditAction.RemoveTile(tile.tileSpec))
                 },
@@ -350,6 +364,19 @@ fun DefaultEditTileGrid(
         },
     ) { innerPadding ->
         CompositionLocalProvider(
+        if (panelPreview != null) {
+            val previewTiles =
+                remember(tappedTile) {
+                    QsPreviewTiles(tappedTile?.tileSpec) { spec ->
+                        selectionState.select(spec)
+                        selectionState.tapped = spec
+                    }
+                }
+            CompositionLocalProvider(LocalQsPreviewTiles provides previewTiles) {
+                QsFitToHeight(Modifier.fillMaxSize().padding(innerPadding), panelPreview)
+            }
+            return@Scaffold
+        }
             LocalOverscrollFactory provides rememberOffsetOverscrollEffectFactory()
         ) {
             AutoScrollGrid(listState, scrollState, innerPadding)
