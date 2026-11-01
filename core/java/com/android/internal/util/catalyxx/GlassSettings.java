@@ -131,6 +131,41 @@ public final class GlassSettings {
     public static final String TOUCH_GLOW_SIZE = "catalyxx_glass_touch_glow_size";
 
     /**
+     * How glass buttons, cards and the music player squish while pressed and spring back:
+     * {@link #SQUISH_OFF}, {@link #SQUISH_SUBTLE}, {@link #SQUISH_NORMAL} (the default) or
+     * {@link #SQUISH_BOUNCY}.
+     */
+    public static final String SQUISH = "catalyxx_glass_squish";
+
+    /** Glass stays still under a finger. */
+    public static final int SQUISH_OFF = 0;
+    /** A slight squish that settles back without a bounce. */
+    public static final int SQUISH_SUBTLE = 1;
+    /** A squish that springs back with a little bounce. */
+    public static final int SQUISH_NORMAL = 2;
+    /** A deeper squish that wobbles as it springs back. */
+    public static final int SQUISH_BOUNCY = 3;
+
+    /**
+     * A buzz when you tap glass where Android has none of its own: {@link #TAP_BUZZ_OFF} (the
+     * default), {@link #TAP_BUZZ_LIGHT} or {@link #TAP_BUZZ_MEDIUM}. It follows the system's
+     * touch vibration setting.
+     */
+    public static final String TAP_BUZZ = "catalyxx_glass_tap_buzz";
+
+    public static final int TAP_BUZZ_OFF = 0;
+    /** Android's light tick. */
+    public static final int TAP_BUZZ_LIGHT = 1;
+    /** Android's click, as for a key. */
+    public static final int TAP_BUZZ_MEDIUM = 2;
+
+    /**
+     * 1 (the default) fades notifications softly as they scroll up under the shade's header,
+     * where notifications have glass; 0 cuts them off there, as Android does.
+     */
+    public static final String SCROLL_FADE = "catalyxx_glass_scroll_fade";
+
+    /**
      * 1 (the default) turns glass back into plain panels in Battery Saver, like all other blur.
      * 0 keeps blur on in Battery Saver while glass is on; Android has one blur switch for the
      * whole system there, so apps keep their blur too.
@@ -188,9 +223,9 @@ public final class GlassSettings {
     public static final String[] KEYS = {
         ENABLED, BLUR_STRENGTH, COLOR, TINT, STYLE, BEND, RIM_WIDTH, RIM_LIGHT, RAINBOW, SHADOW,
         TILT, TILT_AMOUNT, ADAPTIVE, SMOKE, SMOKE_COLOR, SWITCH_POINT, TOUCH_GLOW,
-        TOUCH_GLOW_COLOR, TOUCH_GLOW_SIZE, SOLID_IN_BATTERY_SAVER, MUSIC_PLAYER,
-        PLACE_SHADE, PLACE_NOTIFICATIONS, PLACE_LOCKSCREEN, PLACE_VOLUME, PLACE_POWER_MENU,
-        PLACE_DIALOGS, POWER_MENU_BLUR_BEHIND,
+        TOUCH_GLOW_COLOR, TOUCH_GLOW_SIZE, SQUISH, TAP_BUZZ, SCROLL_FADE, SOLID_IN_BATTERY_SAVER,
+        MUSIC_PLAYER, PLACE_SHADE, PLACE_NOTIFICATIONS, PLACE_LOCKSCREEN, PLACE_VOLUME,
+        PLACE_POWER_MENU, PLACE_DIALOGS, POWER_MENU_BLUR_BEHIND,
     };
 
     public static final int MIN_BLUR_STRENGTH = 0;
@@ -233,6 +268,8 @@ public final class GlassSettings {
     public static final int MIN_TOUCH_GLOW_SIZE = 50;
     public static final int MAX_TOUCH_GLOW_SIZE = 200;
     public static final int DEFAULT_TOUCH_GLOW_SIZE = 100;
+
+    public static final int DEFAULT_SQUISH = SQUISH_NORMAL;
 
     // How far the rim reaches at BEND 100, in rim widths, and the shadow's darkness at SHADOW 100
     private static final float MAX_BEND = 2.4f;
