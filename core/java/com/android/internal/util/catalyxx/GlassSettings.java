@@ -166,6 +166,29 @@ public final class GlassSettings {
     public static final String SCROLL_FADE = "catalyxx_glass_scroll_fade";
 
     /**
+     * 1 (the default) puts the picked option of a glass picker, such as the volume dialog's
+     * ringer, in a small glass lens that slides between the choices, and turns slider knobs into
+     * one while they're dragged; 0 keeps Android's own.
+     */
+    public static final String SELECTOR = "catalyxx_glass_selector";
+
+    /**
+     * How much the glass selector magnifies what's under it: {@link #MAGNIFY_OFF},
+     * {@link #MAGNIFY_SUBTLE} (the default) or {@link #MAGNIFY_STRONG}.
+     */
+    public static final String SELECTOR_MAGNIFY = "catalyxx_glass_selector_magnify";
+
+    public static final int MAGNIFY_OFF = 0;
+    public static final int MAGNIFY_SUBTLE = 1;
+    public static final int MAGNIFY_STRONG = 2;
+
+    /**
+     * 1 (the default) stretches the glass selector and slider knobs like jelly as they move; 0
+     * keeps their shape.
+     */
+    public static final String STRETCH = "catalyxx_glass_stretch";
+
+    /**
      * 1 (the default) turns glass back into plain panels in Battery Saver, like all other blur.
      * 0 keeps blur on in Battery Saver while glass is on; Android has one blur switch for the
      * whole system there, so apps keep their blur too.
@@ -223,9 +246,10 @@ public final class GlassSettings {
     public static final String[] KEYS = {
         ENABLED, BLUR_STRENGTH, COLOR, TINT, STYLE, BEND, RIM_WIDTH, RIM_LIGHT, RAINBOW, SHADOW,
         TILT, TILT_AMOUNT, ADAPTIVE, SMOKE, SMOKE_COLOR, SWITCH_POINT, TOUCH_GLOW,
-        TOUCH_GLOW_COLOR, TOUCH_GLOW_SIZE, SQUISH, TAP_BUZZ, SCROLL_FADE, SOLID_IN_BATTERY_SAVER,
-        MUSIC_PLAYER, PLACE_SHADE, PLACE_NOTIFICATIONS, PLACE_LOCKSCREEN, PLACE_VOLUME,
-        PLACE_POWER_MENU, PLACE_DIALOGS, POWER_MENU_BLUR_BEHIND,
+        TOUCH_GLOW_COLOR, TOUCH_GLOW_SIZE, SQUISH, TAP_BUZZ, SCROLL_FADE, SELECTOR,
+        SELECTOR_MAGNIFY, STRETCH, SOLID_IN_BATTERY_SAVER, MUSIC_PLAYER, PLACE_SHADE,
+        PLACE_NOTIFICATIONS, PLACE_LOCKSCREEN, PLACE_VOLUME, PLACE_POWER_MENU, PLACE_DIALOGS,
+        POWER_MENU_BLUR_BEHIND,
     };
 
     public static final int MIN_BLUR_STRENGTH = 0;
@@ -270,6 +294,8 @@ public final class GlassSettings {
     public static final int DEFAULT_TOUCH_GLOW_SIZE = 100;
 
     public static final int DEFAULT_SQUISH = SQUISH_NORMAL;
+
+    public static final int DEFAULT_SELECTOR_MAGNIFY = MAGNIFY_SUBTLE;
 
     // How far the rim reaches at BEND 100, in rim widths, and the shadow's darkness at SHADOW 100
     private static final float MAX_BEND = 2.4f;
