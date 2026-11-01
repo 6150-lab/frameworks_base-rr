@@ -28,7 +28,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -44,8 +43,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.coerceIn
 import androidx.compose.ui.unit.dp
+import com.android.compose.animation.Expandable
+import com.android.compose.animation.rememberExpandableController
 import com.android.compose.theme.LocalAndroidColorScheme
-import com.android.systemui.animation.Expandable
 import com.android.systemui.common.ui.compose.Icon
 import com.android.systemui.lifecycle.rememberViewModel
 import com.android.systemui.media.remedia.ui.viewmodel.MediaCardViewModel
@@ -83,7 +83,6 @@ fun QsMediaTile(
         }
     val cards = viewModel.cards
     val card = cards.getOrNull(viewModel.currentIndex) ?: cards.firstOrNull()
-    val expandable = remember { Expandable() }
     val idle = stringResource(R.string.qs_media_tile_idle)
     CompositionLocalProvider(LocalQsStyle provides (LocalQsMediaStyle.current ?: LocalQsStyle.current)) {
         val tweaks = LocalQsTweaks.current
@@ -95,25 +94,33 @@ fun QsMediaTile(
                 art = !cover && tweaks.mediaArt != QsMediaArt.NONE,
                 skipButtons = tweaks.mediaButtons != QsMediaButtons.PLAY,
             )
+        val shape = RoundedCornerShape(look.radius)
         Box(
             modifier =
-                modifier
-                    .clip(RoundedCornerShape(look.radius))
-                    .clickable(enabled = card != null) { card?.onClick?.invoke(expandable) }
-                    .semantics { contentDescription = card?.contentDescription ?: idle }
+                modifier.clip(shape).semantics {
+                    contentDescription = card?.contentDescription ?: idle
+                }
         ) {
             if (cover) {
                 CoverBackground(card?.background, Modifier.matchParentSize())
             } else {
                 StyledCardBackground(look, Modifier.matchParentSize())
             }
-            CompositionLocalProvider(LocalContentColor provides look.text) {
-                when (size) {
-                    QsMediaTileSize.SQUARE -> SquareContent(card, look, idle, parts)
-                    QsMediaTileSize.WIDE -> WideContent(card, look, idle, parts)
-                    QsMediaTileSize.SMALL -> SmallContent(card, look)
-                    QsMediaTileSize.TALL -> TallContent(card, look, idle, parts)
-                    QsMediaTileSize.FULL -> FullContent(card, look, idle, parts)
+            Expandable(
+                controller = rememberExpandableController(color = Color.Transparent, shape = shape),
+                modifier = Modifier.fillMaxSize(),
+                onClick = card?.onClick,
+                useModifierBasedImplementation = true,
+                defaultMinSize = false,
+            ) {
+                CompositionLocalProvider(LocalContentColor provides look.text) {
+                    when (size) {
+                        QsMediaTileSize.SQUARE -> SquareContent(card, look, idle, parts)
+                        QsMediaTileSize.WIDE -> WideContent(card, look, idle, parts)
+                        QsMediaTileSize.SMALL -> SmallContent(card, look)
+                        QsMediaTileSize.TALL -> TallContent(card, look, idle, parts)
+                        QsMediaTileSize.FULL -> FullContent(card, look, idle, parts)
+                    }
                 }
             }
         }
