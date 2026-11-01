@@ -61,6 +61,12 @@ enum class QsMediaPlace {
     BELOW,
 }
 
+enum class QsSliderPlace {
+    TOP,
+    UNDER,
+    OFF,
+}
+
 enum class QsMediaArt {
     ROUNDED,
     CIRCLE,
@@ -123,6 +129,7 @@ data class QsTweaks(
     val mediaArt: QsMediaArt? = null,
     val mediaBar: QsMediaBar? = null,
     val mediaButtons: QsMediaButtons? = null,
+    val sliderPlace: QsSliderPlace? = null,
     val slidersByMedia: Boolean? = null,
     val tiles: Map<String, QsTileTweak> = emptyMap(),
 ) {
@@ -244,6 +251,7 @@ object QsTweaksCodec {
             putOpt("mediaArt", mediaArt?.name)
             putOpt("mediaBar", mediaBar?.name)
             putOpt("mediaButtons", mediaButtons?.name)
+            putOpt("sliderPlace", sliderPlace?.name)
             putOpt("slidersByMedia", slidersByMedia)
             if (tiles.isNotEmpty()) {
                 val json = JSONObject()
@@ -281,6 +289,7 @@ object QsTweaksCodec {
             mediaArt = enumOrNull<QsMediaArt>("mediaArt"),
             mediaBar = enumOrNull<QsMediaBar>("mediaBar"),
             mediaButtons = enumOrNull<QsMediaButtons>("mediaButtons"),
+            sliderPlace = enumOrNull<QsSliderPlace>("sliderPlace"),
             slidersByMedia = if (has("slidersByMedia")) optBoolean("slidersByMedia") else null,
             tiles = optJSONObject("tiles")?.toTiles() ?: emptyMap(),
         )

@@ -153,6 +153,7 @@ import com.android.systemui.qs.panels.shared.model.LocalQsMediaStyle
 import com.android.systemui.qs.panels.shared.model.LocalQsMediaTileSize
 import com.android.systemui.qs.panels.shared.model.LocalQsStyle
 import com.android.systemui.qs.panels.shared.model.LocalQsTweaks
+import com.android.systemui.qs.panels.shared.model.QsSliderPlace
 import com.android.systemui.qs.panels.shared.model.QsMediaPlace
 import com.android.systemui.qs.panels.shared.model.QSFragmentComposeClippingTableLog
 import com.android.systemui.qs.panels.ui.compose.QsCirclesMediaRow
@@ -1681,7 +1682,15 @@ private fun rememberQsBrightnessSettings(): QsBrightnessSettings {
         }
     }
 
-    return state
+    return when (val place = LocalQsTweaks.current.sliderPlace) {
+        null -> state
+        QsSliderPlace.OFF -> state.copy(showSlider = 0)
+        else ->
+            state.copy(
+                sliderAtTop = place == QsSliderPlace.TOP,
+                showSlider = state.showSlider.coerceAtLeast(1),
+            )
+    }
 }
 
 private data class QsBrightnessSettings(

@@ -76,6 +76,7 @@ import com.android.systemui.qs.panels.shared.model.QsMediaPlace
 import com.android.systemui.qs.panels.shared.model.QsMediaTileSize
 import com.android.systemui.qs.panels.shared.model.QsOffFill
 import com.android.systemui.qs.panels.shared.model.QsOnFill
+import com.android.systemui.qs.panels.shared.model.QsSliderPlace
 import com.android.systemui.qs.panels.shared.model.QsStyle
 import com.android.systemui.qs.panels.shared.model.QsTileDepth
 import com.android.systemui.qs.panels.shared.model.QsTileFont
@@ -617,9 +618,9 @@ private fun SliderTab(edit: ((QsTweaks) -> QsTweaks) -> Unit) {
     val tweaks = LocalQsTweaks.current
     val theme = LocalQsStyle.current
     val resolver = LocalContext.current.contentResolver
-    var place by
-        remember(tweaks.slidersByMedia, theme) {
-            mutableStateOf(readSliderPlace(resolver, tweaks.slidersByMediaIn(theme)))
+    val place =
+        remember(tweaks.sliderPlace, tweaks.slidersByMedia, theme) {
+            readSliderPlace(resolver, tweaks.sliderPlace, tweaks.slidersByMediaIn(theme))
         }
     ThemeChips(stringResource(R.string.qs_custom_slider_look), tweaks.sliderFrom) { style ->
         edit { it.copy(sliderFrom = style) }
@@ -629,11 +630,18 @@ private fun SliderTab(edit: ((QsTweaks) -> QsTweaks) -> Unit) {
         options = SliderPlace.entries.map { it to stringResource(it.label) },
         selected = place,
     ) { picked ->
-        place = picked
-        writeSliderPlace(resolver, picked)
         edit {
             val byPlayer = picked == SliderPlace.ByPlayer
             it.copy(
+                sliderPlace =
+                    when (picked) {
+                        SliderPlace.Top -> QsSliderPlace.TOP
+                        SliderPlace.Under -> QsSliderPlace.UNDER
+                        SliderPlace.Off -> QsSliderPlace.OFF
+                        SliderPlace.ByPlayer ->
+                            it.sliderPlace.takeIf { current -> current != QsSliderPlace.OFF }
+                                ?: QsSliderPlace.TOP
+                    },
                 slidersByMedia = byPlayer,
                 // The sliders sit next to the full card, which only shows outside the grid.
                 mediaPlace =
@@ -644,7 +652,11 @@ private fun SliderTab(edit: ((QsTweaks) -> QsTweaks) -> Unit) {
     }
 }
 
-private fun readSliderPlace(resolver: ContentResolver, byPlayer: Boolean): SliderPlace {
+private fun readSliderPlace(
+    resolver: ContentResolver,
+    place: QsSliderPlace?,
+    byPlayer: Boolean,
+): SliderPlace {
     val show =
         LineageSettings.Secure.getIntForUser(
             resolver,
@@ -660,27 +672,10 @@ private fun readSliderPlace(resolver: ContentResolver, byPlayer: Boolean): Slide
             UserHandle.USER_CURRENT,
         )
     return when {
-        show == 0 -> SliderPlace.Off
+        place == QsSliderPlace.OFF || (place == null && show == 0) -> SliderPlace.Off
         byPlayer -> SliderPlace.ByPlayer
-        position == 0 -> SliderPlace.Top
+        place == QsSliderPlace.TOP || (place == null && position == 0) -> SliderPlace.Top
         else -> SliderPlace.Under
-    }
-}
-
-private fun writeSliderPlace(resolver: ContentResolver, place: SliderPlace) {
-    LineageSettings.Secure.putIntForUser(
-        resolver,
-        LineageSettings.Secure.QS_SHOW_BRIGHTNESS_SLIDER,
-        if (place == SliderPlace.Off) 0 else 1,
-        UserHandle.USER_CURRENT,
-    )
-    if (place == SliderPlace.Top || place == SliderPlace.Under) {
-        LineageSettings.Secure.putIntForUser(
-            resolver,
-            LineageSettings.Secure.QS_BRIGHTNESS_SLIDER_POSITION,
-            if (place == SliderPlace.Top) 0 else 1,
-            UserHandle.USER_CURRENT,
-        )
     }
 }
 
