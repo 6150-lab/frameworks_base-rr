@@ -83,7 +83,7 @@ class NowBarChipView @JvmOverloads constructor(
         val top = items.firstOrNull()
         item = top?.takeIf {
             repository?.settings?.chip == true && state == StatusBarState.SHADE &&
-                (it.type == NowBarType.MUSIC || it.type == NowBarType.TIMER ||
+                ((it.type == NowBarType.MUSIC && it.playing) || it.type == NowBarType.TIMER ||
                     (it.type == NowBarType.RECORDING && it.packageName != context.packageName))
         }
         val shown = item

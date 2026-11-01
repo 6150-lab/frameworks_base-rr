@@ -216,7 +216,10 @@ constructor(
             ?: controllers.firstOrNull {
                 it.metadata != null && it.playbackState?.state == PlaybackState.STATE_PAUSED
             }
-        mediaItem = controller?.let(::mediaItem)
+        val item = controller?.let(::mediaItem)
+        // A song swiped away while paused comes back when it plays again.
+        if (item?.playing == true && mediaItem?.playing != true) hidden -= item.key
+        mediaItem = item
         publish()
     }
 
