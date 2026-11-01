@@ -134,7 +134,8 @@ internal constructor(
 
     private val backgroundColor: AnimatingColorTransition by lazy {
         animatingColorTransitionFactory(backgroundDefault, ::backgroundFromScheme) { color ->
-            mediaViewHolder.albumView.backgroundTintList = ColorStateList.valueOf(color)
+            // Catalyxx glass colors the card from it
+            mediaViewHolder.glass.cardColor = color
         }
     }
 

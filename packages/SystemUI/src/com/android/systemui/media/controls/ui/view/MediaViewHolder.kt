@@ -47,6 +47,8 @@ class MediaViewHolder constructor(itemView: View) {
 
     // Player information
     val albumView = itemView.requireViewById<ImageView>(R.id.album_art)
+    // Catalyxx glass on the card the album view draws
+    val glass = MediaPlayerGlass(albumView)
     val multiRippleView = itemView.requireViewById<MultiRippleView>(R.id.touch_ripple_view)
     val turbulenceNoiseView =
         itemView.requireViewById<TurbulenceNoiseView>(R.id.turbulence_noise_view)

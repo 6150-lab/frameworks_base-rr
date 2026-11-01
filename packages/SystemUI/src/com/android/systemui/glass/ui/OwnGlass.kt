@@ -170,6 +170,10 @@ object OwnGlass {
     /** Whether glass is on at [place] now: on there, with the system's blur on. */
     fun isOn(place: String): Boolean = blurOn && settings.isOn(place)
 
+    /** How the music player looks with glass: one of GlassSettings' `PLAYER_` values. */
+    val musicPlayer: Int
+        get() = settings.musicPlayer
+
     /**
      * How SurfaceFlinger draws glass at [place] now, where Android tints it with [androidColor]
      * (see [GlassSettings.look]); null while glass is off there or Flat, or the blur is off.
@@ -221,6 +225,7 @@ object OwnGlass {
             touchGlow = get(GlassSettings.TOUCH_GLOW, 1) == 1,
             glowColor = get(GlassSettings.TOUCH_GLOW_COLOR, GlassSettings.GLOW_WHITE),
             glowSize = get(GlassSettings.TOUCH_GLOW_SIZE, GlassSettings.DEFAULT_TOUCH_GLOW_SIZE),
+            musicPlayer = get(GlassSettings.MUSIC_PLAYER, GlassSettings.PLAYER_TINTED),
         )
     }
 
@@ -244,6 +249,7 @@ object OwnGlass {
         val touchGlow: Boolean,
         val glowColor: Int,
         val glowSize: Int,
+        val musicPlayer: Int,
     ) {
         fun isOn(place: String) = enabled && place !in placesOff
 
@@ -265,6 +271,7 @@ object OwnGlass {
                     touchGlow = true,
                     glowColor = GlassSettings.GLOW_WHITE,
                     glowSize = GlassSettings.DEFAULT_TOUCH_GLOW_SIZE,
+                    musicPlayer = GlassSettings.PLAYER_TINTED,
                 )
         }
     }
