@@ -31,16 +31,19 @@ import android.view.Surface;
 import java.util.Collections;
 import java.util.Set;
 import java.util.WeakHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Moves the light on Catalyxx glass's rim as the phone tilts, as if it hung above: turn the phone
  * and the shine stays toward the ceiling ({@link GlassSettings#TILT}). SurfaceFlinger draws all
- * glass in one light, which this sends it.
+ * glass in one light, which this sends it; glass a process draws itself reads the same light
+ * with {@link #getLight} and hears when it moves through a {@link LightListener}.
  *
  * <p>It wakes when glass with a curved rim shows in this process and listens to the gravity
- * sensor only while SurfaceFlinger says glass is on a screen that's on, so it costs nothing the
- * rest of the time. Only processes that may use SurfaceFlinger, such as SystemUI, can send the
- * light; anywhere else it stays asleep.
+ * sensor only while that glass is on a screen that's on, so it costs nothing the rest of the
+ * time: SurfaceFlinger says whether its glass is, and a process says when its own glass shows
+ * and hides. Only processes that may use SurfaceFlinger, such as SystemUI, can send the light;
+ * elsewhere only glass the process draws itself wakes it.
  */
 public final class GlassTilt {
 
@@ -74,11 +77,30 @@ public final class GlassTilt {
     private static final int MSG_WAKE = 1;
     private static final int MSG_CHECK = 2;
 
-    // Glass with a curved rim showing in this process. Glass whose window went away without
-    // hiding it stays until it's garbage, which costs at most a short wake when the screen turns
-    // on.
+    /** Hears when the light on glass moves. */
+    public interface LightListener {
+        /**
+         * The light is now toward ({@code x}, {@code y}), a unit vector in the screen's axes
+         * (x right, y down), or (0, 0) for the usual light at the top left. Called on
+         * GlassTilt's own thread.
+         */
+        void onGlassLightChanged(float x, float y);
+    }
+
+    // Glass with a curved rim showing in this process, drawn by SurfaceFlinger. Glass whose
+    // window went away without hiding it stays until it's garbage, which costs at most a short
+    // wake when the screen turns on.
     private static final Set<Object> sShownGlass =
             Collections.synchronizedSet(Collections.newSetFromMap(new WeakHashMap<>()));
+    // Glass this process draws itself, showing; it keeps the light moving whatever
+    // SurfaceFlinger says
+    private static final Set<Object> sShownOwnGlass =
+            Collections.synchronizedSet(Collections.newSetFromMap(new WeakHashMap<>()));
+    private static final CopyOnWriteArrayList<LightListener> sListeners =
+            new CopyOnWriteArrayList<>();
+    // The light last sent, both floats' bits in one value so they're read together; 0 is the
+    // usual light
+    private static volatile long sLight;
     private static GlassTilt sInstance;
 
     private final Context mContext;
@@ -130,13 +152,16 @@ public final class GlassTilt {
                     }
                     if (mDisplay.getState() != Display.STATE_ON) {
                         sleep();
-                    } else if (!sShownGlass.isEmpty()) {
+                    } else {
                         wake();
                     }
                 }
             };
 
-    /** {@code glass}, glass with a curved rim, started showing in this process. */
+    /**
+     * {@code glass}, glass with a curved rim that SurfaceFlinger draws, started showing in this
+     * process.
+     */
     public static void onGlassShown(Context context, Object glass) {
         sShownGlass.add(glass);
         get(context).requestWake();
@@ -145,6 +170,40 @@ public final class GlassTilt {
     /** {@code glass} stopped showing. */
     public static void onGlassHidden(Object glass) {
         sShownGlass.remove(glass);
+    }
+
+    /**
+     * {@code glass}, glass this process draws itself in the light from {@link #getLight},
+     * started showing. Until {@link #onOwnGlassHidden} the light keeps following the phone while
+     * the screen is on.
+     */
+    public static void onOwnGlassShown(Context context, Object glass) {
+        sShownOwnGlass.add(glass);
+        get(context).requestWake();
+    }
+
+    /** {@code glass}, from {@link #onOwnGlassShown}, stopped showing. */
+    public static void onOwnGlassHidden(Object glass) {
+        sShownOwnGlass.remove(glass);
+    }
+
+    /** {@code listener} hears from now on when the light moves. */
+    public static void addLightListener(LightListener listener) {
+        sListeners.addIfAbsent(listener);
+    }
+
+    public static void removeLightListener(LightListener listener) {
+        sListeners.remove(listener);
+    }
+
+    /**
+     * The light now, as in {@link LightListener#onGlassLightChanged}: {@code out[0]} gets x and
+     * {@code out[1]} y.
+     */
+    public static void getLight(float[] out) {
+        final long light = sLight;
+        out[0] = Float.intBitsToFloat((int) (light >>> 32));
+        out[1] = Float.intBitsToFloat((int) light);
     }
 
     private static synchronized GlassTilt get(Context context) {
@@ -184,13 +243,9 @@ public final class GlassTilt {
     /** Looks up what it needs the first time; false if this process can't move the light. */
     private boolean setUp() {
         if (mSetUp) {
-            return mFlinger != null;
+            return mGravity != null;
         }
         mSetUp = true;
-        if (mContext.checkSelfPermission(Manifest.permission.ACCESS_SURFACE_FLINGER)
-                != PackageManager.PERMISSION_GRANTED) {
-            return false;
-        }
         mSensorManager = mContext.getSystemService(SensorManager.class);
         mGravity = mSensorManager != null
                 ? mSensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY) : null;
@@ -199,19 +254,28 @@ public final class GlassTilt {
                 ? displayManager.getDisplay(Display.DEFAULT_DISPLAY) : null;
         if (mGravity == null || mDisplay == null) {
             Log.w(TAG, "No gravity sensor or display, the glass keeps its usual light");
+            mGravity = null;
             return false;
         }
-        mFlinger = ServiceManager.getService(SURFACE_FLINGER);
-        if (mFlinger == null) {
-            return false;
+        if (mContext.checkSelfPermission(Manifest.permission.ACCESS_SURFACE_FLINGER)
+                == PackageManager.PERMISSION_GRANTED) {
+            mFlinger = ServiceManager.getService(SURFACE_FLINGER);
         }
         displayManager.registerDisplayListener(mDisplayListener, mHandler,
                 DisplayManager.EVENT_TYPE_DISPLAY_CHANGED | DisplayManager.EVENT_TYPE_DISPLAY_STATE);
         return true;
     }
 
+    /**
+     * Whether glass this process can light is showing: its own, or SurfaceFlinger's if it may
+     * send SurfaceFlinger the light.
+     */
+    private boolean hasGlassToLight() {
+        return !sShownOwnGlass.isEmpty() || (mFlinger != null && !sShownGlass.isEmpty());
+    }
+
     private void wake() {
-        if (mAwake || !setUp()) {
+        if (mAwake || !setUp() || !hasGlassToLight()) {
             return;
         }
         final float amount = tiltAmount();
@@ -342,7 +406,10 @@ public final class GlassTilt {
     }
 
     private void send(double angle) {
-        final boolean glassOnScreen = sendLight((float) Math.cos(angle), (float) Math.sin(angle));
+        // Glass this process draws itself is on screen while it's shown: the screen is on, or
+        // this would be asleep
+        final boolean glassOnScreen = sendLight((float) Math.cos(angle), (float) Math.sin(angle))
+                || !sShownOwnGlass.isEmpty();
         mHasSent = true;
         mSentAngle = angle;
         mSentAt = SystemClock.uptimeMillis();
@@ -359,8 +426,19 @@ public final class GlassTilt {
         }
     }
 
-    /** Sends SurfaceFlinger the light; returns whether glass is on a screen that's on. */
+    /**
+     * Tells this process's listeners and SurfaceFlinger about the light; returns whether
+     * SurfaceFlinger has glass on a screen that's on.
+     */
     private boolean sendLight(float x, float y) {
+        final long light = ((long) Float.floatToRawIntBits(x) << 32)
+                | (Float.floatToRawIntBits(y) & 0xffffffffL);
+        if (light != sLight) {
+            sLight = light;
+            for (LightListener listener : sListeners) {
+                listener.onGlassLightChanged(x, y);
+            }
+        }
         if (mFlinger == null) {
             return false;
         }

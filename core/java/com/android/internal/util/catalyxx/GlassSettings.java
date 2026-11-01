@@ -43,9 +43,10 @@ public final class GlassSettings {
     /** How much the glass color covers what's behind, from 0 (clear) to 100 (solid). */
     public static final String TINT = "catalyxx_glass_tint";
 
-    // How glass with a curved rim is drawn, see look(). So far the volume dialog, the lock
-    // screen's buttons, the power menu and SystemUI's bottom sheets have the rim; other places
-    // are plain blur.
+    // How glass with a curved rim is drawn, see look(). So far SurfaceFlinger draws the rim on
+    // the volume dialog, the lock screen's buttons, the power menu and SystemUI's bottom sheets;
+    // Quick Settings tiles and notifications draw its light themselves, over the shade's blur
+    // (SystemUI's GlassRimShader); other places are plain blur.
 
     /**
      * {@link #STYLE_CLEAR} (the default), {@link #STYLE_FROSTED} or {@link #STYLE_FLAT}.
@@ -110,6 +111,25 @@ public final class GlassSettings {
     public static final String SWITCH_POINT = "catalyxx_glass_switch_point";
 
     /**
+     * 1 (the default) lights glass up under a finger touching it, so far on Quick Settings
+     * tiles; 0 turns that off.
+     */
+    public static final String TOUCH_GLOW = "catalyxx_glass_touch_glow";
+
+    /** {@link #GLOW_WHITE} (the default), {@link #GLOW_ACCENT} or {@link #GLOW_RAINBOW}. */
+    public static final String TOUCH_GLOW_COLOR = "catalyxx_glass_touch_glow_color";
+
+    /** White light under the finger. */
+    public static final int GLOW_WHITE = 0;
+    /** Light in the theme's accent color. */
+    public static final int GLOW_ACCENT = 1;
+    /** Light that turns through the rainbow around the finger. */
+    public static final int GLOW_RAINBOW = 2;
+
+    /** Size of the touch glow, from 50 to 200 (percent of the usual). */
+    public static final String TOUCH_GLOW_SIZE = "catalyxx_glass_touch_glow_size";
+
+    /**
      * 1 (the default) turns glass back into plain panels in Battery Saver, like all other blur.
      * 0 keeps blur on in Battery Saver while glass is on; Android has one blur switch for the
      * whole system there, so apps keep their blur too.
@@ -120,6 +140,9 @@ public final class GlassSettings {
 
     /** Quick Settings and the notification shade. */
     public static final String PLACE_SHADE = "catalyxx_glass_shade";
+
+    /** Notifications: in the shade, on the lock screen and as heads-up. */
+    public static final String PLACE_NOTIFICATIONS = "catalyxx_glass_notifications";
 
     /** The lock screen's shortcut buttons and fingerprint button. */
     public static final String PLACE_LOCKSCREEN = "catalyxx_glass_lockscreen";
@@ -141,15 +164,17 @@ public final class GlassSettings {
 
     /** Every place key. */
     public static final String[] PLACES = {
-        PLACE_SHADE, PLACE_LOCKSCREEN, PLACE_VOLUME, PLACE_POWER_MENU, PLACE_DIALOGS,
+        PLACE_SHADE, PLACE_NOTIFICATIONS, PLACE_LOCKSCREEN, PLACE_VOLUME, PLACE_POWER_MENU,
+        PLACE_DIALOGS,
     };
 
     /** Every glass key, for watching all of them at once. */
     public static final String[] KEYS = {
         ENABLED, BLUR_STRENGTH, COLOR, TINT, STYLE, BEND, RIM_WIDTH, RIM_LIGHT, RAINBOW, SHADOW,
-        TILT, TILT_AMOUNT, ADAPTIVE, SMOKE, SMOKE_COLOR, SWITCH_POINT, SOLID_IN_BATTERY_SAVER,
-        PLACE_SHADE, PLACE_LOCKSCREEN, PLACE_VOLUME, PLACE_POWER_MENU, PLACE_DIALOGS,
-        POWER_MENU_BLUR_BEHIND,
+        TILT, TILT_AMOUNT, ADAPTIVE, SMOKE, SMOKE_COLOR, SWITCH_POINT, TOUCH_GLOW,
+        TOUCH_GLOW_COLOR, TOUCH_GLOW_SIZE, SOLID_IN_BATTERY_SAVER,
+        PLACE_SHADE, PLACE_NOTIFICATIONS, PLACE_LOCKSCREEN, PLACE_VOLUME, PLACE_POWER_MENU,
+        PLACE_DIALOGS, POWER_MENU_BLUR_BEHIND,
     };
 
     public static final int MIN_BLUR_STRENGTH = 0;
@@ -188,6 +213,10 @@ public final class GlassSettings {
     public static final int MAX_SWITCH_POINT = 90;
     /** A little past mid-grey, so glass over everyday dark content keeps its own color. */
     public static final int DEFAULT_SWITCH_POINT = 55;
+
+    public static final int MIN_TOUCH_GLOW_SIZE = 50;
+    public static final int MAX_TOUCH_GLOW_SIZE = 200;
+    public static final int DEFAULT_TOUCH_GLOW_SIZE = 100;
 
     // How far the rim reaches at BEND 100, in rim widths, and the shadow's darkness at SHADOW 100
     private static final float MAX_BEND = 2.4f;
