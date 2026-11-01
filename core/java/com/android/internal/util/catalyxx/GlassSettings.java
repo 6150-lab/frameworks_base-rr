@@ -78,6 +78,18 @@ public final class GlassSettings {
     public static final String SHADOW = "catalyxx_glass_shadow";
 
     /**
+     * 1 (the default) moves the light on the rim as the phone tilts, as if it hung above, see
+     * {@link GlassTilt}; 0 keeps it at the top left.
+     */
+    public static final String TILT = "catalyxx_glass_tilt";
+
+    /**
+     * How far the light follows the phone's tilt, from 25 to 200 (percent). 100, the default,
+     * keeps it where a light above would be.
+     */
+    public static final String TILT_AMOUNT = "catalyxx_glass_tilt_amount";
+
+    /**
      * 1 (the default) lets glass with a curved rim turn smoky where what's behind it is light, so
      * what sits on it stays readable; 0 keeps its color everywhere.
      */
@@ -135,7 +147,7 @@ public final class GlassSettings {
     /** Every glass key, for watching all of them at once. */
     public static final String[] KEYS = {
         ENABLED, BLUR_STRENGTH, COLOR, TINT, STYLE, BEND, RIM_WIDTH, RIM_LIGHT, RAINBOW, SHADOW,
-        ADAPTIVE, SMOKE, SMOKE_COLOR, SWITCH_POINT, SOLID_IN_BATTERY_SAVER,
+        TILT, TILT_AMOUNT, ADAPTIVE, SMOKE, SMOKE_COLOR, SWITCH_POINT, SOLID_IN_BATTERY_SAVER,
         PLACE_SHADE, PLACE_LOCKSCREEN, PLACE_VOLUME, PLACE_POWER_MENU, PLACE_DIALOGS,
         POWER_MENU_BLUR_BEHIND,
     };
@@ -164,6 +176,10 @@ public final class GlassSettings {
     public static final int MIN_RIM_WIDTH = 4;
     public static final int MAX_RIM_WIDTH = 32;
     public static final int DEFAULT_RIM_WIDTH = 16;
+
+    public static final int MIN_TILT_AMOUNT = 25;
+    public static final int MAX_TILT_AMOUNT = 200;
+    public static final int DEFAULT_TILT_AMOUNT = 100;
 
     /** Dark enough that white icons and text on glass over a white page stay readable. */
     public static final int DEFAULT_SMOKE = 45;
@@ -336,6 +352,18 @@ public final class GlassSettings {
                 tint,
                 (Math.round(fraction(smoke) * 255) << 24) | (smokeRgb & 0xffffff),
                 adaptive == 1 ? point / 100f : 0f);
+    }
+
+    /**
+     * How far the light on glass follows the phone's tilt: 1 keeps it where a light above would
+     * be, 0 means {@link #TILT} is off.
+     */
+    public static float tiltAmount(ContentResolver resolver) {
+        if (Settings.Global.getInt(resolver, TILT, 1) != 1) {
+            return 0f;
+        }
+        final int amount = Settings.Global.getInt(resolver, TILT_AMOUNT, DEFAULT_TILT_AMOUNT);
+        return Math.max(MIN_TILT_AMOUNT, Math.min(MAX_TILT_AMOUNT, amount)) / 100f;
     }
 
     /** A 0 to 100 setting as 0 to 1. */

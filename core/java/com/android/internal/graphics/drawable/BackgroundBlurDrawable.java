@@ -46,6 +46,7 @@ import com.android.internal.R;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.catalyxx.GlassLook;
+import com.android.internal.util.catalyxx.GlassTilt;
 
 /**
  * A drawable that keeps track of a blur region, pokes a hole under it, and propagates its state
@@ -86,6 +87,8 @@ public final class BackgroundBlurDrawable extends Drawable {
     private int mAlpha = 255;
     private GlassLook mGlassLook;
     private int mGlassJoinedSides;
+    // Whether GlassTilt was told this glass shows
+    private boolean mShowsGlass;
 
     // Do not update from UiThread. This holds the latest position for this drawable. It is used
     // by the Aggregator from RenderThread to get the final position of the blur region sent to SF
@@ -331,6 +334,8 @@ public final class BackgroundBlurDrawable extends Drawable {
         private BlurRegion[] mTmpBlurRegionsForFrame = new BlurRegion[0];
         private boolean mHasUiUpdates;
         private ViewTreeObserver.OnPreDrawListener mOnPreDrawListener;
+        // The context the drawables were made with
+        private Context mContext;
 
         public Aggregator(ViewRootImpl viewRoot) {
             mViewRoot = viewRoot;
@@ -340,6 +345,7 @@ public final class BackgroundBlurDrawable extends Drawable {
          * Creates a blur region with default radius.
          */
         public BackgroundBlurDrawable createBackgroundBlurDrawable(Context context) {
+            mContext = context;
             BackgroundBlurDrawable drawable = new BackgroundBlurDrawable(this);
             drawable.setBlurRadius(context.getResources().getDimensionPixelSize(
                     R.dimen.default_background_blur_radius));
@@ -353,6 +359,16 @@ public final class BackgroundBlurDrawable extends Drawable {
         void onBlurDrawableUpdated(BackgroundBlurDrawable drawable) {
             final boolean shouldBeDrawn =
                     drawable.mAlpha > 0 && drawable.mBlurRadius > 0 && drawable.mVisible;
+            // Catalyxx glass: the light on its rim follows the phone's tilt while it shows
+            final boolean showsGlass = shouldBeDrawn && drawable.mGlassLook != null;
+            if (showsGlass != drawable.mShowsGlass && mContext != null) {
+                drawable.mShowsGlass = showsGlass;
+                if (showsGlass) {
+                    GlassTilt.onGlassShown(mContext, drawable);
+                } else {
+                    GlassTilt.onGlassHidden(drawable);
+                }
+            }
             final boolean isDrawn = mDrawables.contains(drawable);
             if (shouldBeDrawn) {
                 mHasUiUpdates = true;
