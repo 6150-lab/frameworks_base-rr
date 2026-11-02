@@ -28,6 +28,7 @@ import com.android.systemui.qs.tiles.PowerShareTile
 import com.android.systemui.qs.tiles.ProfilesTile
 import com.android.systemui.qs.tiles.ReadingModeTile
 import com.android.systemui.qs.tiles.RrMediaTile
+import com.android.systemui.qs.tiles.RrVolumeTile
 import com.android.systemui.qs.tiles.SyncTile
 import com.android.systemui.qs.tiles.UsbTetherTile
 import com.android.systemui.qs.tiles.VpnTile
@@ -66,6 +67,12 @@ interface LineageModule {
     @IntoMap
     @StringKey(RrMediaTile.TILE_SPEC)
     fun bindRrMediaTile(rrMediaTile: RrMediaTile): QSTileImpl<*>
+
+    /** Inject RrVolumeTile into tileMap in QSModule */
+    @Binds
+    @IntoMap
+    @StringKey(RrVolumeTile.TILE_SPEC)
+    fun bindRrVolumeTile(rrVolumeTile: RrVolumeTile): QSTileImpl<*>
 
     /** Inject HeadsUpTile into tileMap in QSModule */
     @Binds
@@ -236,6 +243,21 @@ interface LineageModule {
                     QSTileUIConfig.Resource(
                         iconRes = R.drawable.ic_now_playing_note,
                         labelRes = R.string.qs_media_tile_label
+                    ),
+                instanceId = uiEventLogger.getNewInstanceId(),
+                category = TileCategory.UTILITIES,
+            )
+
+        @Provides
+        @IntoMap
+        @StringKey(RrVolumeTile.TILE_SPEC)
+        fun provideRrVolumeTileConfig(uiEventLogger: QsEventLogger): QSTileConfig =
+            QSTileConfig(
+                tileSpec = TileSpec.create(RrVolumeTile.TILE_SPEC),
+                uiConfig =
+                    QSTileUIConfig.Resource(
+                        iconRes = R.drawable.ic_volume_media,
+                        labelRes = R.string.qs_volume_tile_label
                     ),
                 instanceId = uiEventLogger.getNewInstanceId(),
                 category = TileCategory.UTILITIES,

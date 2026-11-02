@@ -114,6 +114,7 @@ import com.android.systemui.qs.panels.ui.viewmodel.toIconProvider
 import com.android.systemui.qs.panels.ui.viewmodel.toUiState
 import com.android.systemui.qs.pipeline.shared.TileSpec
 import com.android.systemui.qs.tileimpl.QSTileImpl
+import com.android.systemui.qs.tiles.RrVolumeTile
 import com.android.systemui.qs.ui.composable.QuickSettingsShade
 import com.android.systemui.qs.ui.compose.borderOnFocus
 import com.android.systemui.res.R
@@ -263,6 +264,12 @@ fun ContentScope.Tile(
                 if (glass == QsGlass.LIQUID) Modifier.liquidRim(tileShape, tune.rimStrength)
                 else Modifier
             )
+        val levelModifier =
+            if (tile.spec.spec == RrVolumeTile.TILE_SPEC) {
+                volumeLevelModifier(uiState.secondaryLabel, colors.icon)
+            } else {
+                Modifier
+            }
         val animatedColor by animateColorAsState(colors.background, label = "QSTileBackgroundColor")
         val isDualTarget = uiState.handlesToggleClick
         // A tile that only shows its icon toggles on tap, whatever its size.
@@ -396,7 +403,7 @@ fun ContentScope.Tile(
                     iconOnly = tapToggles,
                     isDualTarget = isDualTarget,
                     height = height ?: look.height,
-                    modifier = fillModifier.then(contentRevealModifier),
+                    modifier = fillModifier.then(contentRevealModifier).then(levelModifier),
                 ) {
                     val iconProvider: Context.() -> Icon = {
                         tileTweak?.icon?.let { name ->
