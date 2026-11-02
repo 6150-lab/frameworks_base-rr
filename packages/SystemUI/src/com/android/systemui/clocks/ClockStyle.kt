@@ -14,6 +14,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.res.ColorStateList
+import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.Color.colorToHSV
 import android.graphics.Color.HSVToColor
@@ -40,6 +41,7 @@ import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextClock
 import android.widget.TextView
+import com.android.internal.util.catalyxx.GlassClockView
 import com.android.systemui.Dependency
 import com.android.systemui.media.MediaSessionManager
 import com.android.systemui.plugins.statusbar.StatusBarStateController
@@ -68,6 +70,7 @@ class ClockStyle @JvmOverloads constructor(
     private val styledTextViews = ArrayList<TextView>()
     private val styledShapes = ArrayList<View>()
     private val faceShapes = ArrayList<Pair<View, ColorStateList?>>()
+    private val glassClocks = ArrayList<GlassClockView>()
 
     private var clockStyle = DEFAULT_STYLE
     private var colorMode = COLOR_MODE_DEFAULT
@@ -187,6 +190,9 @@ class ClockStyle @JvmOverloads constructor(
         }
 
         isDozing = statusBarStateController.isDozing
+        for (i in glassClocks.indices) {
+            glassClocks[i].setDozing(isDozing)
+        }
         if (isDozing) {
             applyClockAlpha()
             applyClockColors()
@@ -312,6 +318,9 @@ class ClockStyle @JvmOverloads constructor(
     private fun applyDozing(dozing: Boolean) {
         isDozing = dozing
         currentClockView?.let { setDozingOn(it, dozing) }
+        for (i in glassClocks.indices) {
+            glassClocks[i].setDozing(dozing)
+        }
         animateAodTransition(dozing)
         applyClockAlpha()
         applyClockColors()
@@ -408,7 +417,30 @@ class ClockStyle @JvmOverloads constructor(
         for (i in textClocks.indices) {
             textClocks[i].refreshTime()
         }
+        for (i in glassClocks.indices) {
+            glassClocks[i].refreshTime()
+        }
         lastUpdateTimeMillis = System.currentTimeMillis()
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration?) {
+        super.onConfigurationChanged(newConfig)
+        // The lock screen's scrim follows the dark theme
+        for (i in glassClocks.indices) {
+            setGlassBackdropDim(glassClocks[i])
+        }
+    }
+
+    /**
+     * The glass clock draws the wallpaper seen through its digits itself, so it lays the lock
+     * screen's scrim over it as the scrim lies over the real one: ScrimController keeps 20% of
+     * its background color behind the lock screen (KEYGUARD_SCRIM_ALPHA).
+     */
+    private fun setGlassBackdropDim(glassClock: GlassClockView) {
+        glassClock.setBackdropDim(
+            context.getColor(R.color.shade_scrim_background_dark),
+            KEYGUARD_SCRIM_ALPHA,
+        )
     }
 
     private fun updateClockView() {
@@ -421,6 +453,7 @@ class ClockStyle @JvmOverloads constructor(
         faceShapes.clear()
         clockContainer?.translationY = 0f
         setFrameBottomMargin(0)
+        glassClocks.clear()
 
         if (clockStyle in 1 until CLOCK_LAYOUTS.size) {
             val stub = clockStub
@@ -477,6 +510,11 @@ class ClockStyle @JvmOverloads constructor(
                 root.setTag(R.id.original_text_color, root.currentTextColor)
                 root.setTag(R.id.original_alpha, root.alpha)
                 styledTextViews.add(root)
+            }
+            is GlassClockView -> {
+                setGlassBackdropDim(root)
+                root.setDozing(isDozing)
+                glassClocks.add(root)
             }
         }
         val fill = when (val background = root.background) {
@@ -1011,6 +1049,7 @@ class ClockStyle @JvmOverloads constructor(
             R.layout.keyguard_clock_flatline,       // 93
             R.layout.keyguard_clock_flatline_card,  // 94
             R.layout.keyguard_clock_flatline_signature, // 95
+            R.layout.keyguard_clock_glass,          // 96, Catalyxx's Glass clock
         )
 
         private val NO_COLOR_CLOCKS = hashSetOf(1, 2, 25, 26)
@@ -1075,6 +1114,9 @@ class ClockStyle @JvmOverloads constructor(
         private const val DEFAULT_GRADIENT_RADIUS = 100
         private const val MIN_GRADIENT_RADIUS = 25
         private const val MAX_GRADIENT_RADIUS = 200
+
+        // ScrimController.KEYGUARD_SCRIM_ALPHA, for the Glass clock
+        private const val KEYGUARD_SCRIM_ALPHA = 0.2f
 
         private const val AOD_UPDATE_INTERVAL_MILLIS = 60_000L
         private const val UPDATE_INTERVAL_MILLIS = 15_000L
