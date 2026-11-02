@@ -143,6 +143,22 @@
     <string name="qs_media_tile_idle">Nothing playing</string>
     <string name="qs_volume_tile_label">Volume</string>
     <string name="qs_volume_tile_muted">Muted</string>
+    <string name="qs_custom_volume_half">Half</string>
+    <string name="qs_custom_volume_slider">Slider</string>
+    <string name="qs_custom_volume_fill">Fill</string>
+    <string name="qs_custom_volume_stack">Stack</string>
+    <string name="qs_custom_volume_sound">Sound</string>
+    <string name="qs_custom_volume_ring">Ring</string>
+    <string name="qs_custom_volume_alarm">Alarm</string>
+    <string name="qs_custom_volume_call">Call</string>
+    <string name="qs_custom_volume_show_all">Name and percent</string>
+    <string name="qs_custom_volume_show_percent">Percent</string>
+    <string name="qs_custom_volume_show_icon">Icon only</string>
+    <string name="qs_custom_volume_tap">Tap the icon</string>
+    <string name="qs_custom_volume_mute">Mute</string>
+    <string name="qs_custom_volume_panel">Volume panel</string>
+    <string name="qs_custom_volume_ticks">Ticks while dragging</string>
+    <string name="qs_custom_volume_on">On</string>
 
     <!-- QS customizer, at the bottom of QS edit mode -->
     <string name="qs_custom_accent">Accent</string>

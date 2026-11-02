@@ -80,6 +80,7 @@ fun QsTweaks.cellsOf(
 ): TileCells {
     val shape = shapeFrom ?: theme
     if (spec == QsMediaTileSize.TILE_SPEC) return mediaCells(shape, columns)
+    if (spec == QsVolumeSize.TILE_SPEC) return volumeCells(shape, columns)
     val long = TileCells(largeSpan.coerceAtMost(columns), 1)
     val own = tiles[spec]
     val auto =
@@ -93,6 +94,23 @@ fun QsTweaks.cellsOf(
         (own?.columns ?: auto.columns).coerceIn(1, columns),
         (own?.rows ?: auto.rows).coerceAtLeast(1),
     )
+}
+
+private fun QsTweaks.volumeCells(shape: QsStyle, columns: Int): TileCells {
+    val short = (tileHeight ?: if (shape == QsStyle.COMPACT) 48 else 64) < 56
+    val rows = if (short) 3 else 2
+    val half = 2.coerceAtMost(columns)
+    val size = volumeSize ?: QsVolumeSize.WIDE
+    if (volumeLook == QsVolumeLook.STACK) {
+        return TileCells(if (size == QsVolumeSize.WIDE) columns else half, rows)
+    }
+    return when (size) {
+        QsVolumeSize.SMALL -> TileCells(1, 1)
+        QsVolumeSize.HALF -> TileCells(half, 1)
+        QsVolumeSize.WIDE -> TileCells(columns, 1)
+        QsVolumeSize.TALL -> TileCells(1, rows)
+        QsVolumeSize.SQUARE -> TileCells(half, rows)
+    }
 }
 
 private fun QsTweaks.mediaCells(shape: QsStyle, columns: Int): TileCells {

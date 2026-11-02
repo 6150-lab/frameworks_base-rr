@@ -186,12 +186,14 @@ fun ContentScope.Tile(
 
         val tweaks = LocalQsTweaks.current
         val tileTweak = tweaks.tiles[tile.spec.spec]
+        val volume = if (tile.spec.spec == RrVolumeTile.TILE_SPEC) rememberVolumeTile(tweaks) else null
+        val paintState = if (volume != null) uiState.copy(visualState = STATE_INACTIVE) else uiState
         val shape = tileShapeStyle()
         val paint = tilePaintStyle()
         val glass = LocalQsGlass.current
         val tune = LocalQsGlassTune.current
         val look = tileLook(shape)
-        val active = uiState.visualState == STATE_ACTIVE
+        val active = paintState.visualState == STATE_ACTIVE
         val ownColor = tileTweak?.color?.let { Color(it) }
         val tone = ownColor ?: tweaks.accent?.let { Color(it) }
         val layout = tileLayout(shape, tweaks.label, tileTweak?.hideLabel == true, iconOnly, rows)
@@ -206,8 +208,8 @@ fun ContentScope.Tile(
                         tweaks.onFill == QsOnFill.ICON
                 }
         val colors =
-            TileDefaults.getColorForState(uiState, iconOnly, paint, tone)
-                .withFills(tweaks, uiState.visualState, tone, ownColor != null, chipFills)
+            TileDefaults.getColorForState(paintState, iconOnly, paint, tone)
+                .withFills(tweaks, paintState.visualState, tone, ownColor != null, chipFills)
                 .withBacking(tweaks.iconBacking, active, tone)
                 .glassy(glass, active, tune)
         val hapticsViewModel: TileHapticsViewModel =
@@ -216,7 +218,7 @@ fun ContentScope.Tile(
             }
 
         // TODO(b/361789146): Draw the shapes instead of clipping
-        val tileShape by TileDefaults.animateTileShapeAsState(uiState, look)
+        val tileShape by TileDefaults.animateTileShapeAsState(paintState, look)
         // A picked fill replaces the theme's outline and glow.
         val repainted =
             if (active) tweaks.onFill != null || ownColor != null else tweaks.offFill != null
@@ -265,11 +267,7 @@ fun ContentScope.Tile(
                 else Modifier
             )
         val levelModifier =
-            if (tile.spec.spec == RrVolumeTile.TILE_SPEC) {
-                volumeLevelModifier(uiState.secondaryLabel, colors.icon)
-            } else {
-                Modifier
-            }
+            if (volume != null) volumeLevelModifier(volume, tweaks, iconOnly, rows) else Modifier
         val animatedColor by animateColorAsState(colors.background, label = "QSTileBackgroundColor")
         val isDualTarget = uiState.handlesToggleClick
         // A tile that only shows its icon toggles on tap, whatever its size.
@@ -364,8 +362,16 @@ fun ContentScope.Tile(
                 // dual target tile. These don't toggle on main click.
                 val bounceContainer = uiState.isToggleable && (tapToggles || !isDualTarget)
                 TileContainer(
-                    interactionSource = interactionSource.takeIf { bounceContainer },
+                    interactionSource =
+                        interactionSource.takeIf { bounceContainer && volume == null },
                     onClick = onClick@{
+                            if (volume != null) {
+                                volume.onIcon()
+                                hapticsViewModel.setTileInteractionState(
+                                    TileHapticsViewModel.TileInteractionState.CLICKED
+                                )
+                                return@onClick
+                            }
                             if (!isClickable) return@onClick
 
                             if (tapToggles && isDualTarget) {
@@ -427,7 +433,9 @@ fun ContentScope.Tile(
                                 tile.toggleClick()
                             }
                             .takeIf { isDualTarget && !tapToggles }
-                    when (layout) {
+                    if (volume != null) {
+                        VolumeTileContent(volume, colors, look, paint, iconOnly, rows, longClick)
+                    } else when (layout) {
                         TileLayout.Under ->
                             when {
                                 chipShape != null ->

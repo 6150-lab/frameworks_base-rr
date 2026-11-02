@@ -58,6 +58,7 @@ import com.android.systemui.qs.panels.shared.model.LocalQsTweaks
 import com.android.systemui.qs.panels.shared.model.QsMediaTileSize
 import com.android.systemui.qs.panels.shared.model.QsStyle
 import com.android.systemui.qs.panels.shared.model.QsTweaks
+import com.android.systemui.qs.panels.shared.model.QsVolumeSize
 import com.android.systemui.qs.panels.shared.model.SizedTileImpl
 import com.android.systemui.qs.panels.shared.model.TilePlacement
 import com.android.systemui.qs.panels.shared.model.cellsOf
@@ -341,6 +342,9 @@ private fun QsTweaks.afterResize(
 ): QsTweaks {
     if (spec == QsMediaTileSize.TILE_SPEC) {
         return copy(mediaSize = if (toIcon) QsMediaTileSize.SMALL else null)
+    }
+    if (spec == QsVolumeSize.TILE_SPEC) {
+        return copy(volumeSize = if (toIcon) QsVolumeSize.SMALL else null)
     }
     val wanted = if (toIcon) 1 else largeSpan.coerceAtMost(columns)
     val plain = withTile(spec) { it.copy(columns = null, rows = null) }

@@ -88,6 +88,43 @@ enum class QsMediaButtons {
     PLAY,
 }
 
+enum class QsVolumeSize {
+    SMALL,
+    HALF,
+    WIDE,
+    TALL,
+    SQUARE;
+
+    companion object {
+        const val TILE_SPEC = "rrvolume"
+    }
+}
+
+enum class QsVolumeLook {
+    SLIDER,
+    FILL,
+    BLOCKS,
+    STACK,
+}
+
+enum class QsVolumeSound {
+    MEDIA,
+    RING,
+    ALARM,
+    CALL,
+}
+
+enum class QsVolumeShow {
+    ALL,
+    PERCENT,
+    ICON,
+}
+
+enum class QsVolumeTap {
+    MUTE,
+    PANEL,
+}
+
 /** Changes to one tile, made by tapping it in QS edit mode. */
 data class QsTileTweak(
     val columns: Int? = null,
@@ -129,6 +166,12 @@ data class QsTweaks(
     val mediaArt: QsMediaArt? = null,
     val mediaBar: QsMediaBar? = null,
     val mediaButtons: QsMediaButtons? = null,
+    val volumeSize: QsVolumeSize? = null,
+    val volumeLook: QsVolumeLook? = null,
+    val volumeSound: QsVolumeSound? = null,
+    val volumeShow: QsVolumeShow? = null,
+    val volumeTap: QsVolumeTap? = null,
+    val volumeTicks: Boolean? = null,
     val sliderPlace: QsSliderPlace? = null,
     val slidersByMedia: Boolean? = null,
     val tiles: Map<String, QsTileTweak> = emptyMap(),
@@ -251,6 +294,12 @@ object QsTweaksCodec {
             putOpt("mediaArt", mediaArt?.name)
             putOpt("mediaBar", mediaBar?.name)
             putOpt("mediaButtons", mediaButtons?.name)
+            putOpt("volumeSize", volumeSize?.name)
+            putOpt("volumeLook", volumeLook?.name)
+            putOpt("volumeSound", volumeSound?.name)
+            putOpt("volumeShow", volumeShow?.name)
+            putOpt("volumeTap", volumeTap?.name)
+            putOpt("volumeTicks", volumeTicks)
             putOpt("sliderPlace", sliderPlace?.name)
             putOpt("slidersByMedia", slidersByMedia)
             if (tiles.isNotEmpty()) {
@@ -289,6 +338,12 @@ object QsTweaksCodec {
             mediaArt = enumOrNull<QsMediaArt>("mediaArt"),
             mediaBar = enumOrNull<QsMediaBar>("mediaBar"),
             mediaButtons = enumOrNull<QsMediaButtons>("mediaButtons"),
+            volumeSize = enumOrNull<QsVolumeSize>("volumeSize"),
+            volumeLook = enumOrNull<QsVolumeLook>("volumeLook"),
+            volumeSound = enumOrNull<QsVolumeSound>("volumeSound"),
+            volumeShow = enumOrNull<QsVolumeShow>("volumeShow"),
+            volumeTap = enumOrNull<QsVolumeTap>("volumeTap"),
+            volumeTicks = if (has("volumeTicks")) optBoolean("volumeTicks") else null,
             sliderPlace = enumOrNull<QsSliderPlace>("sliderPlace"),
             slidersByMedia = if (has("slidersByMedia")) optBoolean("slidersByMedia") else null,
             tiles = optJSONObject("tiles")?.toTiles() ?: emptyMap(),
