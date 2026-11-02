@@ -208,6 +208,64 @@ public final class GlassSettings {
     /** The album art, as Android shows it, with the glass rim on it. */
     public static final int PLAYER_ALBUM_ART = 2;
 
+    // The lock screen's Glass clock face (GlassClockView): picked in the clock picker, it's glass
+    // whether or not glass is on elsewhere, so these work without the main switch.
+
+    /** {@link #CLOCK_CLEAR} (the default), {@link #CLOCK_FROSTED} or {@link #CLOCK_TINTED}. */
+    public static final String CLOCK_STYLE = "catalyxx_glass_clock_style";
+
+    /** Clear glass: the wallpaper shows through the digits, a touch lighter. */
+    public static final int CLOCK_CLEAR = 0;
+    /** Frosted glass: blurred in the middle, clear at the edges so their bend shows. */
+    public static final int CLOCK_FROSTED = 1;
+    /** Glass tinted with the theme's accent color. */
+    public static final int CLOCK_TINTED = 2;
+
+    /** {@link #DEPTH_FLAT}, {@link #DEPTH_BEVELLED} (the default) or {@link #DEPTH_DEEP}. */
+    public static final String CLOCK_DEPTH = "catalyxx_glass_clock_depth";
+
+    /** Flat digits with only a thin rounded edge. */
+    public static final int DEPTH_FLAT = 0;
+    /** Digits with a rounded bevel. */
+    public static final int DEPTH_BEVELLED = 1;
+    /** Thick, deeply rounded digits. */
+    public static final int DEPTH_DEEP = 2;
+
+    /** How much the digits' edges bend what's behind them, from 0 (not at all) to 100. */
+    public static final String CLOCK_BEND = "catalyxx_glass_clock_bend";
+
+    /** Light on the digits' edges, from 0 (none) to 100. */
+    public static final String CLOCK_LIGHT = "catalyxx_glass_clock_light";
+
+    /** How much the light on the digits' edges splits into rainbow colors, from 0 to 100. */
+    public static final String CLOCK_RAINBOW = "catalyxx_glass_clock_rainbow";
+
+    /** The soft shadow under the digits, from 0 (none) to 100. */
+    public static final String CLOCK_SHADOW = "catalyxx_glass_clock_shadow";
+
+    /** How heavy the digits are, as a font weight from 100 (thin) to 1000 (black). */
+    public static final String CLOCK_WEIGHT = "catalyxx_glass_clock_weight";
+
+    /** How rounded the digits' corners are, from 0 (crisp) to 100 (fully round). */
+    public static final String CLOCK_ROUNDNESS = "catalyxx_glass_clock_roundness";
+
+    /** How wide the digits are, from 25 (narrow) to 151 (wide); 100 is the font's usual. */
+    public static final String CLOCK_WIDTH = "catalyxx_glass_clock_width";
+
+    /** {@link #CLOCK_ONE_LINE} (the default) or {@link #CLOCK_STACKED}. */
+    public static final String CLOCK_LAYOUT = "catalyxx_glass_clock_layout";
+
+    /** The time on one line: 10:07. */
+    public static final int CLOCK_ONE_LINE = 0;
+    /** The hours above the minutes, both bigger. */
+    public static final int CLOCK_STACKED = 1;
+
+    /** Every Glass clock key. Only the clock watches them, so they aren't in {@link #KEYS}. */
+    public static final String[] CLOCK_KEYS = {
+        CLOCK_STYLE, CLOCK_DEPTH, CLOCK_BEND, CLOCK_LIGHT, CLOCK_RAINBOW, CLOCK_SHADOW,
+        CLOCK_WEIGHT, CLOCK_ROUNDNESS, CLOCK_WIDTH, CLOCK_LAYOUT,
+    };
+
     // Places glass can show. Each is on by default once glass is on; 0 turns it off there.
 
     /** Quick Settings and the notification shade. */
@@ -242,7 +300,7 @@ public final class GlassSettings {
         PLACE_DIALOGS,
     };
 
-    /** Every glass key, for watching all of them at once. */
+    /** Every glass key but the Glass clock's ({@link #CLOCK_KEYS}), for watching them at once. */
     public static final String[] KEYS = {
         ENABLED, BLUR_STRENGTH, COLOR, TINT, STYLE, BEND, RIM_WIDTH, RIM_LIGHT, RAINBOW, SHADOW,
         TILT, TILT_AMOUNT, ADAPTIVE, SMOKE, SMOKE_COLOR, SWITCH_POINT, TOUCH_GLOW,
@@ -296,6 +354,26 @@ public final class GlassSettings {
     public static final int DEFAULT_SQUISH = SQUISH_NORMAL;
 
     public static final int DEFAULT_SELECTOR_MAGNIFY = MAGNIFY_SUBTLE;
+
+    public static final int DEFAULT_CLOCK_STYLE = CLOCK_CLEAR;
+    public static final int DEFAULT_CLOCK_DEPTH = DEPTH_BEVELLED;
+    // CLOCK_BEND, CLOCK_LIGHT, CLOCK_RAINBOW and CLOCK_SHADOW run from MIN_PERCENT to
+    // MAX_PERCENT, like the rim's
+    public static final int DEFAULT_CLOCK_BEND = 50;
+    public static final int DEFAULT_CLOCK_LIGHT = 70;
+    public static final int DEFAULT_CLOCK_RAINBOW = 40;
+    public static final int DEFAULT_CLOCK_SHADOW = 35;
+    public static final int MIN_CLOCK_WEIGHT = 100;
+    public static final int MAX_CLOCK_WEIGHT = 1000;
+    /** Heavy, so there's plenty of glass in each stroke to see through. */
+    public static final int DEFAULT_CLOCK_WEIGHT = 850;
+    public static final int MIN_CLOCK_ROUNDNESS = 0;
+    public static final int MAX_CLOCK_ROUNDNESS = 100;
+    public static final int DEFAULT_CLOCK_ROUNDNESS = 100;
+    public static final int MIN_CLOCK_WIDTH = 25;
+    public static final int MAX_CLOCK_WIDTH = 151;
+    public static final int DEFAULT_CLOCK_WIDTH = 100;
+    public static final int DEFAULT_CLOCK_LAYOUT = CLOCK_ONE_LINE;
 
     // How far the rim reaches at BEND 100, in rim widths, and the shadow's darkness at SHADOW 100
     private static final float MAX_BEND = 2.4f;
