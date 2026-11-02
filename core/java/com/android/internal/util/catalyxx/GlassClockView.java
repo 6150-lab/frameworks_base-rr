@@ -16,6 +16,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Configuration;
 import android.database.ContentObserver;
 import android.graphics.Bitmap;
 import android.graphics.BitmapShader;
@@ -30,21 +31,26 @@ import android.graphics.RectF;
 import android.graphics.RuntimeShader;
 import android.graphics.Shader;
 import android.graphics.Typeface;
+import android.hardware.HardwareBuffer;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.PowerManager;
 import android.os.Process;
+import android.os.RemoteException;
 import android.os.SystemClock;
 import android.os.UserHandle;
 import android.provider.Settings;
 import android.text.format.DateFormat;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.SurfaceControl;
 import android.view.View;
 import android.view.ViewOutlineProvider;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
+import android.view.WindowManagerGlobal;
+import android.window.ScreenCaptureInternal;
 
 import java.util.Arrays;
 import java.util.Calendar;
@@ -57,23 +63,26 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * The time in glass digits, for the lock screen's Glass clock face: the wallpaper shows through
  * them, bent at their rounded edges, their edges catch the light, and the light follows the
- * phone's tilt ({@link GlassTilt}). It draws the wallpaper behind it itself, from the wallpaper
- * image, so it can't see a live wallpaper: there the digits are milky glass instead. On the
- * always-on display ({@link #setDozing}) only their edges light up.
+ * phone's tilt ({@link GlassTilt}). It draws the wallpaper behind it itself, so it can't follow
+ * a live wallpaper: there the digits are milky glass instead. On the always-on display
+ * ({@link #setDozing}) only their edges light up.
  *
  * <p>It looks as GlassSettings' {@code CLOCK_} keys say, and follows them as they change. Where
  * it is decides where the wallpaper is, by the view's {@code android:tag}:
  * <ul>
- * <li>none: on the lock screen, over the lock screen wallpaper filling the screen, under the
- *     lock screen's scrim ({@link #setBackdropDim});
+ * <li>none: on the lock screen, under the lock screen's scrim ({@link #setBackdropDim}). The
+ *     wallpaper is read off the screen behind the clock, from a mirror of it, as the window
+ *     manager shows it: zoomed in a little, and slid along with the home screen's pages, which
+ *     the wallpaper's image can't tell. Only SystemUI may read the screen. That's done once the
+ *     clock holds still after it shows, and once a minute while it does; meanwhile the digits
+ *     are milky;
  * <li>{@code "picker"}: in a picker that shows the home wallpaper filling its window,
  *     center-cropped, under a 30% black veil, as the lock screen customizer does;
  * <li>{@code "card"}: a preview that draws the lock screen wallpaper behind itself too, as it
  *     shows behind the lock screen's clock.
  * </ul>
  *
- * <p>Main thread only. The digits and the wallpaper are prepared on a background thread, so
- * nothing shows until both are ready.
+ * <p>Main thread only. The digits and the wallpaper are prepared on background threads.
  */
 public class GlassClockView extends View {
 
@@ -133,6 +142,18 @@ public class GlassClockView extends View {
     private static final int SOFT_SCALE = 8;
     // A wallpaper that couldn't be read is tried again after this long (ms)
     private static final long RETRY_DELAY = 10_000;
+    // On the lock screen: the screen is read once the clock has held still, without moving or
+    // fading, this long (ms), so the wallpaper has stopped zooming too; tried again this long
+    // after it couldn't be (ms), such as while the wallpaper isn't showing yet
+    private static final long SETTLE_DELAY = 500;
+    private static final long CAPTURE_RETRY_DELAY = 2_000;
+    private static final long MAX_CAPTURE_RETRY_DELAY = 60_000;
+    // A new mirror can be read once SurfaceFlinger has taken it in: tries, and the wait (ms)
+    private static final int CAPTURE_TRIES = 3;
+    private static final long CAPTURE_WAIT = 16;
+    // The clock counts as seen above this alpha, and as fading while it changes by more
+    private static final float SEEN_ALPHA = 0.01f;
+    private static final float ALPHA_STEP = 0.01f;
     // Digits are prepared again for a clock drawn this much bigger or smaller than they were
     // made for, once it has stopped changing size this long (ms)
     private static final float RESCALE_SHARE = 0.2f;
@@ -144,15 +165,21 @@ public class GlassClockView extends View {
     private static final float USUAL_LIGHT_Y = -0.894427f;
     private static final double USUAL_LIGHT_ANGLE = Math.atan2(USUAL_LIGHT_Y, USUAL_LIGHT_X);
 
-    // One thread prepares the digits and the wallpaper for every clock in the process
-    private static final Executor sWorker = Executors.newSingleThreadExecutor(r -> {
-        final Thread thread = new Thread(() -> {
-            Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
-            r.run();
-        }, "GlassClock");
-        thread.setDaemon(true);
-        return thread;
-    });
+    // One thread prepares the digits for every clock in the process, and another reads the
+    // wallpaper, which can take a while, so the digits never wait for it
+    private static final Executor sWorker = worker("GlassClock");
+    private static final Executor sBackdropWorker = worker("GlassClockBackdrop");
+
+    private static Executor worker(String name) {
+        return Executors.newSingleThreadExecutor(r -> {
+            final Thread thread = new Thread(() -> {
+                Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
+                r.run();
+            }, name);
+            thread.setDaemon(true);
+            return thread;
+        });
+    }
 
     private final Handler mMainHandler = new Handler(Looper.getMainLooper());
     private final int mPlace;
@@ -184,6 +211,15 @@ public class GlassClockView extends View {
     private int mLoadingBottom;
     private int mLoadingWidth;
     private int mLoadingHeight;
+    // On the lock screen: whether what's behind the clock is to be read again, once the clock
+    // has held still since mStillSince for SETTLE_DELAY, and not before mRetryAt
+    private boolean mBackdropStale;
+    private boolean mCapturePosted;
+    private long mStillSince;
+    private long mRetryAt;
+    private int mCaptureFailures;
+    // The clock's alpha through its parents, as of the last frame
+    private float mSeenAlpha = 1f;
 
     // Where the clock is over the wallpaper: from the view to the wallpaper's place
     private final Matrix mViewToBackdrop = new Matrix();
@@ -195,6 +231,12 @@ public class GlassClockView extends View {
     private int mBackdropWidth;
     private int mBackdropHeight;
     private boolean mPlaced;
+    // The window's place on screen, which the lock screen's wallpaper is read in
+    private int mRootLeft;
+    private int mRootTop;
+    // The display's size, for a card
+    private int mDisplayWidth;
+    private int mDisplayHeight;
 
     @ColorInt private int mDimColor = Color.BLACK;
     private float mDimAmount;
@@ -224,6 +266,7 @@ public class GlassClockView extends View {
 
     private final Runnable mApplyLight = this::applyLight;
     private final Runnable mRescale = this::rescale;
+    private final Runnable mCapture = this::captureIfSettled;
 
     private final GlassTilt.LightListener mLightListener = (x, y) -> {
         mPendingLight.set(((long) Float.floatToRawIntBits(x) << 32)
@@ -241,11 +284,16 @@ public class GlassClockView extends View {
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (PowerManager.ACTION_POWER_SAVE_MODE_CHANGED.equals(intent.getAction())) {
+            final String action = intent.getAction();
+            if (PowerManager.ACTION_POWER_SAVE_MODE_CHANGED.equals(action)) {
                 readPowerSave();
                 updateTilt();
-            } else {
-                refreshTime();
+                return;
+            }
+            refreshTime();
+            if (Intent.ACTION_TIME_TICK.equals(action)) {
+                // In case the wallpaper moved while the clock didn't
+                markBackdropStale();
             }
         }
     };
@@ -318,6 +366,10 @@ public class GlassClockView extends View {
             mDozing = dozing;
             // The always-on display draws without the wallpaper; it's given back after
             mInputsSet = false;
+            if (!dozing) {
+                // Awake: the wallpaper may have moved since it was last read
+                markBackdropStale();
+            }
             updateTilt();
             invalidate();
         }
@@ -383,6 +435,7 @@ public class GlassClockView extends View {
         applyLight(readTiltLight());
         getViewTreeObserver().addOnPreDrawListener(mPreDrawListener);
         readPowerSave();
+        readDisplaySize();
         onLookChanged();
         refreshTime();
         updateTilt();
@@ -412,6 +465,8 @@ public class GlassClockView extends View {
         GlassTilt.removeLightListener(mLightListener);
         getViewTreeObserver().removeOnPreDrawListener(mPreDrawListener);
         mMainHandler.removeCallbacks(mRescale);
+        mMainHandler.removeCallbacks(mCapture);
+        mCapturePosted = false;
         updateTilt();
         // The wallpaper is the big part; it's read again if the clock comes back
         dropBackdrop();
@@ -421,8 +476,21 @@ public class GlassClockView extends View {
     @Override
     public void onVisibilityAggregated(boolean isVisible) {
         super.onVisibilityAggregated(isVisible);
+        if (isVisible && !mVisible) {
+            markBackdropStale();
+        }
         mVisible = isVisible;
         updateTilt();
+    }
+
+    @Override
+    protected void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        // Such as a new display size: placed and read again
+        readDisplaySize();
+        mPlaced = false;
+        markBackdropStale();
+        invalidate();
     }
 
     @Override
@@ -464,11 +532,14 @@ public class GlassClockView extends View {
         final int mode;
         if (mDozing && mPlace == PLACE_LOCKSCREEN) {
             mode = MODE_AOD;
-        } else if (backdrop == null) {
+        } else if (backdrop != null && backdrop.sharp != null) {
+            mode = MODE_BACKDROP;
+        } else if (backdrop != null || mPlace == PLACE_LOCKSCREEN) {
+            // Live, or not read yet on the lock screen, where the clock shows meanwhile
+            mode = MODE_MILKY;
+        } else {
             // Still reading the wallpaper
             return;
-        } else {
-            mode = backdrop.sharp == null ? MODE_MILKY : MODE_BACKDROP;
         }
         if (!mInputsSet) {
             setInputs(masks, backdrop);
@@ -595,10 +666,21 @@ public class GlassClockView extends View {
      * the light following the phone only while the clock can be seen.
      */
     private void onPreDraw() {
-        final boolean seen = isSeen();
+        final float alpha = seenAlpha();
+        final boolean seen = alpha > SEEN_ALPHA;
         if (seen != mSeen) {
             mSeen = seen;
+            if (seen) {
+                // Shown again: the wallpaper may have moved meanwhile, as it does with the home
+                // screen's pages
+                markBackdropStale();
+            }
             updateTilt();
+        }
+        if (Math.abs(alpha - mSeenAlpha) > ALPHA_STEP) {
+            // Fading: what's behind the clock may be on the move too
+            mSeenAlpha = alpha;
+            mStillSince = SystemClock.uptimeMillis();
         }
         if (getWidth() == 0 || getHeight() == 0 || !place(mNewViewToBackdrop)) {
             return;
@@ -607,10 +689,16 @@ public class GlassClockView extends View {
             mViewToBackdrop.set(mNewViewToBackdrop);
             mPlaced = true;
             mInputsSet = false;
+            mStillSince = SystemClock.uptimeMillis();
             invalidate();
         }
         if (needsBackdrop()) {
-            requestBackdrop();
+            if (mPlace == PLACE_LOCKSCREEN) {
+                // Read off the screen once the clock holds still
+                markBackdropStale();
+            } else {
+                requestBackdrop();
+            }
         }
         // Digits made for the size the clock is drawn at, once it stops changing size
         mViewToBackdrop.getValues(mScratchValues);
@@ -632,21 +720,21 @@ public class GlassClockView extends View {
         }
     }
 
-    /** Whether the clock shows through its own and all its parents' visibility and alpha. */
-    private boolean isSeen() {
+    /** How much the clock shows through its own and all its parents' visibility and alpha. */
+    private float seenAlpha() {
         if (getVisibility() != VISIBLE) {
-            return false;
+            return 0f;
         }
         float alpha = getAlpha() * getTransitionAlpha();
         for (Object parent = getParent(); parent instanceof View;
                 parent = ((View) parent).getParent()) {
             final View view = (View) parent;
             if (view.getVisibility() != VISIBLE) {
-                return false;
+                return 0f;
             }
             alpha *= view.getAlpha() * view.getTransitionAlpha();
         }
-        return alpha > 0.01f;
+        return alpha;
     }
 
     private void rescale() {
@@ -662,14 +750,11 @@ public class GlassClockView extends View {
      */
     private boolean place(Matrix viewToBackdrop) {
         if (mPlace == PLACE_CARD) {
-            final WindowManager windowManager =
-                    getContext().getSystemService(WindowManager.class);
-            if (windowManager == null) {
+            if (mDisplayWidth <= 0 || mDisplayHeight <= 0) {
                 return false;
             }
-            final Rect display = windowManager.getMaximumWindowMetrics().getBounds();
-            mBackdropWidth = display.width();
-            mBackdropHeight = display.height();
+            mBackdropWidth = mDisplayWidth;
+            mBackdropHeight = mDisplayHeight;
             viewToBackdrop.setTranslate((mBackdropWidth - getWidth()) / 2f,
                     Math.round(CARD_TOP * mBackdropHeight));
             return true;
@@ -685,8 +770,56 @@ public class GlassClockView extends View {
         viewToBackdrop.reset();
         transformMatrixToGlobal(viewToBackdrop);
         root.getLocationOnScreen(mScratchLocation);
-        viewToBackdrop.postTranslate(-mScratchLocation[0], -mScratchLocation[1]);
+        mRootLeft = mScratchLocation[0];
+        mRootTop = mScratchLocation[1];
+        viewToBackdrop.postTranslate(-mRootLeft, -mRootTop);
         return true;
+    }
+
+    /** The display's size, which a card shows the wallpaper across. */
+    private void readDisplaySize() {
+        if (mPlace != PLACE_CARD) {
+            return;
+        }
+        final WindowManager windowManager = getContext().getSystemService(WindowManager.class);
+        if (windowManager != null) {
+            final Rect display = windowManager.getMaximumWindowMetrics().getBounds();
+            mDisplayWidth = display.width();
+            mDisplayHeight = display.height();
+        }
+    }
+
+    /**
+     * On the lock screen: what's behind the clock is to be read again, once the clock holds
+     * still. Elsewhere the wallpaper's image is read whenever it's needed.
+     */
+    private void markBackdropStale() {
+        if (mPlace != PLACE_LOCKSCREEN) {
+            return;
+        }
+        mBackdropStale = true;
+        if (!mCapturePosted) {
+            mCapturePosted = true;
+            mMainHandler.postDelayed(mCapture, SETTLE_DELAY);
+        }
+    }
+
+    /** Reads what's behind the clock if it's due and the clock has held still long enough. */
+    private void captureIfSettled() {
+        mCapturePosted = false;
+        if (!mBackdropStale || !mAttached || !mVisible || !mSeen || mDozing || !mPlaced) {
+            // It's asked for again when that changes
+            return;
+        }
+        final long now = SystemClock.uptimeMillis();
+        final long due = Math.max(mStillSince + SETTLE_DELAY, mRetryAt);
+        if (mBackdropLoading || now < due) {
+            mCapturePosted = true;
+            mMainHandler.postDelayed(mCapture, Math.max(SETTLE_DELAY / 5, due - now));
+            return;
+        }
+        mBackdropStale = false;
+        requestBackdrop();
     }
 
     /** Whether the wallpaper behind the clock has to be read (again). */
@@ -740,12 +873,17 @@ public class GlassClockView extends View {
         final Context context = getContext();
         final int place = mPlace;
         final int user = ActivityManager.getCurrentUser();
+        final int displayId = getDisplay() != null
+                ? getDisplay().getDisplayId() : context.getDisplayId();
+        final int rootLeft = mRootLeft;
+        final int rootTop = mRootTop;
         final int width = mBackdropWidth;
         final int height = mBackdropHeight;
-        sWorker.execute(() -> {
+        sBackdropWorker.execute(() -> {
             Backdrop read;
             try {
-                read = Backdrop.load(context, place, user, width, height, top, bottom);
+                read = Backdrop.load(context, place, user, displayId, rootLeft, rootTop, width,
+                        height, top, bottom);
             } catch (RuntimeException | OutOfMemoryError e) {
                 // Nothing may escape the worker: it would take the whole process down
                 Log.w(TAG, "Can't read the wallpaper", e);
@@ -758,6 +896,26 @@ public class GlassClockView extends View {
                     return;
                 }
                 mBackdropLoading = false;
+                if (place == PLACE_LOCKSCREEN) {
+                    if (backdrop.failed) {
+                        // Such as while the wallpaper isn't showing yet: looked at again in a
+                        // while, less often each time it still can't be
+                        mRetryAt = SystemClock.uptimeMillis() + Math.min(MAX_CAPTURE_RETRY_DELAY,
+                                CAPTURE_RETRY_DELAY << Math.min(mCaptureFailures, 5));
+                        mCaptureFailures++;
+                        markBackdropStale();
+                        if (mBackdrop != null && mBackdrop.sharp != null
+                                && mBackdrop.screenWidth == backdrop.screenWidth
+                                && mBackdrop.screenHeight == backdrop.screenHeight) {
+                            // What it read last is better than milky glass meanwhile
+                            backdrop.recycle();
+                            return;
+                        }
+                    } else {
+                        mCaptureFailures = 0;
+                        mRetryAt = 0;
+                    }
+                }
                 if (mBackdrop != null) {
                     mBackdrop.recycle();
                 }
@@ -1172,11 +1330,13 @@ public class GlassClockView extends View {
 
         /**
          * Reads the wallpaper rows {@code top} to {@code bottom} of a {@code width} by
-         * {@code height} place it fills, center-cropped as the lock screen and the picker both
+         * {@code height} place it fills, as it shows there: on the lock screen off the screen
+         * (in display {@code displayId}, whose pixels the place starts at {@code rootLeft},
+         * {@code rootTop} of), elsewhere from its image, center-cropped as the picker and a card
          * show it. Off the main thread.
          */
-        static Backdrop load(Context context, int place, int user, int width, int height,
-                int top, int bottom) {
+        static Backdrop load(Context context, int place, int user, int displayId, int rootLeft,
+                int rootTop, int width, int height, int top, int bottom) {
             final WallpaperManager wallpaperManager =
                     context.getSystemService(WallpaperManager.class);
             if (wallpaperManager == null) {
@@ -1195,8 +1355,11 @@ public class GlassClockView extends View {
                 final int which = ownLock
                         ? WallpaperManager.FLAG_LOCK : WallpaperManager.FLAG_SYSTEM;
                 if (wallpaperManager.getWallpaperInfo(which, user) != null) {
-                    // Live: there's nothing to read
+                    // Live: it doesn't hold still to be seen through
                     return none(width, height, top, false);
+                }
+                if (place == PLACE_LOCKSCREEN) {
+                    return capture(displayId, rootLeft, rootTop, width, height, top, bottom);
                 }
                 source = wallpaperManager.getBitmapAsUser(user, false, which, !ownLock);
                 try {
@@ -1232,9 +1395,72 @@ public class GlassClockView extends View {
                     wallpaperManager.forgetLoadedWallpaper();
                 }
             }
+            return withSoft(width, height, top, sharp);
+        }
+
+        /**
+         * The wallpaper rows as the screen shows them now, read off a mirror of the wallpaper's
+         * window, which keeps how the window manager zooms and slides it. Only the wallpaper:
+         * not the scrim over it, nor anything else on screen. Needs READ_FRAME_BUFFER, which
+         * SystemUI has.
+         */
+        private static Backdrop capture(int displayId, int rootLeft, int rootTop, int width,
+                int height, int top, int bottom) {
+            final SurfaceControl mirror;
+            try {
+                mirror = WindowManagerGlobal.getWindowManagerService()
+                        .mirrorWallpaperSurface(displayId);
+            } catch (RemoteException e) {
+                return none(width, height, top, true);
+            }
+            if (mirror == null) {
+                // No wallpaper shows now, such as while the screen turns on
+                return none(width, height, top, true);
+            }
+            try {
+                final Rect rows = new Rect(rootLeft, rootTop + top, rootLeft + width,
+                        rootTop + bottom);
+                ScreenCaptureInternal.ScreenshotHardwareBuffer buffer = null;
+                for (int i = 0; i < CAPTURE_TRIES && buffer == null; i++) {
+                    if (i > 0) {
+                        SystemClock.sleep(CAPTURE_WAIT * i);
+                    }
+                    // A new mirror can be read once SurfaceFlinger has taken a transaction
+                    try (SurfaceControl.Transaction t = new SurfaceControl.Transaction()) {
+                        t.apply(true);
+                    }
+                    buffer = ScreenCaptureInternal.captureLayers(mirror, rows, 1f);
+                }
+                if (buffer == null) {
+                    return none(width, height, top, true);
+                }
+                final HardwareBuffer hardwareBuffer = buffer.getHardwareBuffer();
+                try {
+                    final Bitmap wrapped = Bitmap.wrapHardwareBuffer(hardwareBuffer,
+                            buffer.getColorSpace());
+                    if (wrapped == null) {
+                        return none(width, height, top, true);
+                    }
+                    // The blurred copy is made from the pixels, which a hardware bitmap hides
+                    final Bitmap sharp = wrapped.copy(Bitmap.Config.ARGB_8888, false);
+                    wrapped.recycle();
+                    if (sharp == null) {
+                        return none(width, height, top, true);
+                    }
+                    return withSoft(width, height, top, sharp);
+                } finally {
+                    hardwareBuffer.close();
+                }
+            } finally {
+                mirror.release();
+            }
+        }
+
+        /** The rows with their blurred copy, which frosted glass and the edges see. */
+        private static Backdrop withSoft(int width, int height, int top, Bitmap sharp) {
             final Bitmap soft = Bitmap.createScaledBitmap(sharp,
-                    Math.max(1, width / SOFT_SCALE), Math.max(1, (bottom - top) / SOFT_SCALE),
-                    true);
+                    Math.max(1, sharp.getWidth() / SOFT_SCALE),
+                    Math.max(1, sharp.getHeight() / SOFT_SCALE), true);
             blur(soft, 2);
             blur(soft, 2);
             return new Backdrop(width, height, top, sharp, soft, false);
