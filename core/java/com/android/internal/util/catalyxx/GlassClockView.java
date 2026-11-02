@@ -426,7 +426,7 @@ public class GlassClockView extends View {
         if (wallpaperManager != null) {
             try {
                 wallpaperManager.addOnColorsChangedListener(mWallpaperListener, mMainHandler,
-                        ActivityManager.getCurrentUser());
+                        clockUser());
             } catch (RuntimeException e) {
                 Log.w(TAG, "Can't follow wallpaper changes", e);
             }
@@ -457,7 +457,7 @@ public class GlassClockView extends View {
         if (wallpaperManager != null) {
             try {
                 wallpaperManager.removeOnColorsChangedListener(mWallpaperListener,
-                        ActivityManager.getCurrentUser());
+                        clockUser());
             } catch (RuntimeException e) {
                 // Never registered
             }
@@ -577,10 +577,26 @@ public class GlassClockView extends View {
         }
     }
 
+    /**
+     * The user whose clock and wallpaper these are: on the lock screen the current user's, as
+     * SystemUI runs as the system user for everyone; elsewhere the app's own. Only SystemUI and
+     * other apps that may work across users can ask who's current.
+     */
+    private int clockUser() {
+        if (mPlace == PLACE_LOCKSCREEN) {
+            try {
+                return ActivityManager.getCurrentUser();
+            } catch (SecurityException e) {
+                // Not SystemUI after all
+            }
+        }
+        return getContext().getUserId();
+    }
+
     /** Reads the time into the lines; true if they changed. */
     private boolean updateText() {
         final Context context = getContext();
-        final boolean is24 = DateFormat.is24HourFormat(context, ActivityManager.getCurrentUser());
+        final boolean is24 = DateFormat.is24HourFormat(context, clockUser());
         final Calendar now = Calendar.getInstance();
         final String[] lines;
         if (mLook.layout == GlassSettings.CLOCK_STACKED) {
@@ -872,7 +888,7 @@ public class GlassClockView extends View {
         mLoadingHeight = mBackdropHeight;
         final Context context = getContext();
         final int place = mPlace;
-        final int user = ActivityManager.getCurrentUser();
+        final int user = clockUser();
         final int displayId = getDisplay() != null
                 ? getDisplay().getDisplayId() : context.getDisplayId();
         final int rootLeft = mRootLeft;
