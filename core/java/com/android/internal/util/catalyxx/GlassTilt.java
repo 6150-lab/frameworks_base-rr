@@ -320,6 +320,12 @@ public final class GlassTilt {
             sleep();
             return;
         }
+        if (!hasGlassToLight()) {
+            // This process's glass is all hidden. SurfaceFlinger may still show glass, but other
+            // processes' GlassTilt lights theirs, and glass with a fixed light needs none.
+            sleep();
+            return;
+        }
         mAmount = amount;
         if (SystemClock.uptimeMillis() - mSentAt >= CHECK_INTERVAL) {
             // A still phone gives no new light to send: ask whether the glass is still there

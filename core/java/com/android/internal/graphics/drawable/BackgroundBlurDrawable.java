@@ -63,6 +63,8 @@ public final class BackgroundBlurDrawable extends Drawable {
     public static final int GLASS_SIDE_TOP = 1 << 1;
     public static final int GLASS_SIDE_RIGHT = 1 << 2;
     public static final int GLASS_SIDE_BOTTOM = 1 << 3;
+    // Sent with the joined sides for setGlassFixedLight(): BlurRegion::kGlassFixedLight
+    private static final int GLASS_FIXED_LIGHT = 1 << 4;
 
     private final Aggregator mAggregator;
     private final RenderNode mRenderNode;
@@ -87,6 +89,7 @@ public final class BackgroundBlurDrawable extends Drawable {
     private int mAlpha = 255;
     private GlassLook mGlassLook;
     private int mGlassJoinedSides;
+    private boolean mGlassFixedLight;
     // Whether GlassTilt was told this glass shows
     private boolean mShowsGlass;
 
@@ -263,6 +266,19 @@ public final class BackgroundBlurDrawable extends Drawable {
         }
     }
 
+    /**
+     * Keeps this drawable's glass in the usual light whatever the phone's tilt. For glass that
+     * shows nearly all the time, such as the navigation bar's: while only such glass shows, the
+     * tilt sensor stays off and SurfaceFlinger doesn't draw the screen again as the light moves.
+     */
+    public void setGlassFixedLight(boolean fixed) {
+        if (mGlassFixedLight != fixed) {
+            mGlassFixedLight = fixed;
+            invalidateSelf();
+            mAggregator.onBlurDrawableUpdated(this);
+        }
+    }
+
     @Override
     public void setBounds(int left, int top, int right, int bottom) {
         super.setBounds(left, top, right, bottom);
@@ -315,6 +331,7 @@ public final class BackgroundBlurDrawable extends Drawable {
             + ", visible=" + mVisible
             + ", glass=" + mGlassLook
             + ", glassJoinedSides=" + mGlassJoinedSides
+            + ", glassFixedLight=" + mGlassFixedLight
             + "}";
     }
 
@@ -359,8 +376,10 @@ public final class BackgroundBlurDrawable extends Drawable {
         void onBlurDrawableUpdated(BackgroundBlurDrawable drawable) {
             final boolean shouldBeDrawn =
                     drawable.mAlpha > 0 && drawable.mBlurRadius > 0 && drawable.mVisible;
-            // Catalyxx glass: the light on its rim follows the phone's tilt while it shows
-            final boolean showsGlass = shouldBeDrawn && drawable.mGlassLook != null;
+            // Catalyxx glass: the light on its rim follows the phone's tilt while it shows, but
+            // for glass that keeps a fixed light
+            final boolean showsGlass = shouldBeDrawn && drawable.mGlassLook != null
+                    && !drawable.mGlassFixedLight;
             if (showsGlass != drawable.mShowsGlass && mContext != null) {
                 drawable.mShowsGlass = showsGlass;
                 if (showsGlass) {
@@ -577,7 +596,9 @@ public final class BackgroundBlurDrawable extends Drawable {
             cornerRadiusBRY = drawable.mCornerRadiusBRY;
             rect = drawable.mRect;
             glassLook = drawable.mGlassLook;
-            glassJoinedSides = drawable.mGlassJoinedSides;
+            // SurfaceFlinger takes the fixed light with the joined sides
+            glassJoinedSides = drawable.mGlassJoinedSides
+                    | (drawable.mGlassFixedLight ? GLASS_FIXED_LIGHT : 0);
         }
 
         /**
