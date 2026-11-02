@@ -294,10 +294,27 @@ public final class GlassSettings {
     /** SystemUI menus and dialogs, such as the Internet, Bluetooth and volume panel sheets. */
     public static final String PLACE_DIALOGS = "catalyxx_glass_dialogs";
 
+    /**
+     * The navigation bar, which Catalyxx Launcher draws: its buttons or the gesture handle sit
+     * on glass, shaped as {@link #NAVBAR_SHAPE} says. It keeps a fixed light, as it shows nearly
+     * all the time.
+     */
+    public static final String PLACE_NAVBAR = "catalyxx_glass_navbar";
+
+    /** How the navigation bar's glass is shaped. */
+    public static final String NAVBAR_SHAPE = "catalyxx_glass_navbar_shape";
+    /**
+     * A capsule behind the three buttons, or behind the gesture handle, and a bubble behind each
+     * extra button that shows, such as the keyboard switcher. The default.
+     */
+    public static final int NAVBAR_CAPSULE = 0;
+    /** The whole bar, edge to edge. */
+    public static final int NAVBAR_FULL = 1;
+
     /** Every place key. */
     public static final String[] PLACES = {
         PLACE_SHADE, PLACE_NOTIFICATIONS, PLACE_LOCKSCREEN, PLACE_VOLUME, PLACE_POWER_MENU,
-        PLACE_DIALOGS,
+        PLACE_DIALOGS, PLACE_NAVBAR,
     };
 
     /** Every glass key but the Glass clock's ({@link #CLOCK_KEYS}), for watching them at once. */
@@ -307,7 +324,7 @@ public final class GlassSettings {
         TOUCH_GLOW_COLOR, TOUCH_GLOW_SIZE, SQUISH, TAP_BUZZ, SCROLL_FADE, SELECTOR,
         SELECTOR_MAGNIFY, STRETCH, SOLID_IN_BATTERY_SAVER, MUSIC_PLAYER, PLACE_SHADE,
         PLACE_NOTIFICATIONS, PLACE_LOCKSCREEN, PLACE_VOLUME, PLACE_POWER_MENU, PLACE_DIALOGS,
-        POWER_MENU_BLUR_BEHIND,
+        POWER_MENU_BLUR_BEHIND, PLACE_NAVBAR, NAVBAR_SHAPE,
     };
 
     public static final int MIN_BLUR_STRENGTH = 0;
@@ -374,6 +391,8 @@ public final class GlassSettings {
     public static final int MAX_CLOCK_WIDTH = 151;
     public static final int DEFAULT_CLOCK_WIDTH = 100;
     public static final int DEFAULT_CLOCK_LAYOUT = CLOCK_ONE_LINE;
+
+    public static final int DEFAULT_NAVBAR_SHAPE = NAVBAR_CAPSULE;
 
     // How far the rim reaches at BEND 100, in rim widths, and the shadow's darkness at SHADOW 100
     private static final float MAX_BEND = 2.4f;
