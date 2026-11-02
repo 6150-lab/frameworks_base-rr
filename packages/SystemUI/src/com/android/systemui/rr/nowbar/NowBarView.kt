@@ -42,6 +42,7 @@ import com.android.systemui.plugins.ActivityStarter
 import com.android.systemui.plugins.statusbar.StatusBarStateController
 import com.android.systemui.res.R
 import com.android.systemui.shared.system.RrGlass
+import com.android.systemui.statusbar.StatusBarState
 import java.util.function.Consumer
 import kotlin.math.abs
 import kotlin.math.max
@@ -80,6 +81,7 @@ class NowBarView(
     private val dots = Dots(context)
     private var blur: BackgroundBlurDrawable? = null
     private var blurEnabled = false
+    private var rootAlpha = 1f
     private val blurListener = Consumer<Boolean> { enabled ->
         blurEnabled = enabled
         bind()
@@ -339,6 +341,7 @@ class NowBarView(
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         dozing = statusBarStateController.isDozing
+        rootAlpha = (parent as? View)?.alpha ?: 1f
         statusBarStateController.addCallback(this)
         broadcastDispatcher.registerReceiver(timeTick, IntentFilter(Intent.ACTION_TIME_TICK))
         context.getSystemService(WindowManager::class.java)
@@ -378,6 +381,26 @@ class NowBarView(
             translationY = 0f
         }
         bind()
+    }
+
+    override fun onStateChanged(newState: Int) {
+        if (newState != StatusBarState.SHADE) return
+        dismissCard()
+        popup?.dismiss()
+    }
+
+    fun setRootAlpha(alpha: Float) {
+        rootAlpha = alpha
+        updateBlurAlpha()
+    }
+
+    override fun setAlpha(alpha: Float) {
+        super.setAlpha(alpha)
+        updateBlurAlpha()
+    }
+
+    private fun updateBlurAlpha() {
+        blur?.alpha = (rootAlpha * alpha * 255f).roundToInt()
     }
 
     private val index get() = items.indexOfFirst { it.key == currentKey }.coerceAtLeast(0)
@@ -451,7 +474,7 @@ class NowBarView(
         val game = item.score != null
         val colors = if (music) item.art?.let(::colorsOf) else null
         paintCapsule(colors)
-        alpha = if (dozing) 0.85f else 1f
+        capsule.alpha = if (dozing) 0.85f else 1f
         val more = items.size > 1 && !dozing
         peek.visibility = if (more && look.more == NowBarLook.MORE_PEEK) VISIBLE else GONE
         dots.visibility = if (more && look.more == NowBarLook.MORE_DOTS) VISIBLE else GONE
@@ -528,6 +551,7 @@ class NowBarView(
         made.setBlurRadius(resources.getDimensionPixelSize(R.dimen.keyguard_shortcuts_blur_radius))
         made.setCornerRadius(radius)
         blur = made
+        updateBlurAlpha()
         return made
     }
 

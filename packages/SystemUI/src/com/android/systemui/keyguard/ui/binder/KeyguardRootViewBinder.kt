@@ -59,6 +59,7 @@ import com.android.systemui.log.dagger.KeyguardBlueprintLog
 import com.android.systemui.plugins.FalsingManager
 import com.android.systemui.plugins.keyguard.ui.clocks.ClockViewIds
 import com.android.systemui.res.R
+import com.android.systemui.rr.nowbar.NowBarView
 import com.android.systemui.scene.shared.flag.SceneContainerFlag
 import com.android.systemui.shade.domain.interactor.ShadeInteractor
 import com.android.systemui.shared.R as sharedR
@@ -192,6 +193,7 @@ object KeyguardRootViewBinder {
                             childViews[burnInLayerId]?.alpha = alpha
                             childViews[sliceViewId]?.alpha = alpha
                             childViews[weatherAreaId]?.alpha = alpha
+                            (childViews[R.id.now_bar] as? NowBarView)?.setRootAlpha(alpha)
                         }
                     }
 
