@@ -111,14 +111,16 @@ class OwnGlassSliderLens internal constructor(
     }
 
     // Where the knob's middle is in the slider now. The slider moves the box the knob sits in, so
-    // the knob itself is never placed again as it moves: this asks the layout each time.
+    // the knob itself is never placed again as it moves: this asks the layout each time. It maps
+    // the knob's middle as a point: under the lens the knob is flat, and a flat knob's bounding box
+    // comes back empty, at the slider's corner.
     private fun findKnob(): Offset {
         val s = slider ?: return Offset.Unspecified
         val k = knobLayout ?: return Offset.Unspecified
         if (!s.isAttached || !k.isAttached) {
             return Offset.Unspecified
         }
-        return s.localBoundingBoxOf(k, clipBounds = false).center
+        return s.localPositionOf(k, Offset(k.size.width / 2f, k.size.height / 2f))
     }
 
     /** Shows the lens while [interactionSource] says the slider is held, until cancelled. */
