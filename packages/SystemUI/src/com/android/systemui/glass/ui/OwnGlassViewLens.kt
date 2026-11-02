@@ -214,8 +214,9 @@ class OwnGlassViewLens(private val group: ViewGroup, private val place: String) 
                 val x = lens.centerX()
                 val y = lens.centerY()
                 if (!lastX.isNaN()) {
-                    val moved = hypot(x - lastX, y - lastY) / dt / density
-                    speed += (moved - speed) * min(1f, dt / OwnGlassLens.SPEED_SMOOTHING_S)
+                    // A spring's path is smooth, and a slide is over too soon to wait for a
+                    // smoothed speed
+                    speed = hypot(x - lastX, y - lastY) / dt / density
                 }
                 lastX = x
                 lastY = y
@@ -256,8 +257,9 @@ class OwnGlassViewLens(private val group: ViewGroup, private val place: String) 
     private companion object {
         // How far inside the option's bounds the lens sits, on each side, in dp
         const val LENS_INSET_DP = 2f
-        // The slide's spring: a little underdamped, so the lens overshoots and settles back
-        const val SLIDE_STIFFNESS = 500f
+        // The slide's spring: a little underdamped, so the lens overshoots and settles back, and soft
+        // enough to see it travel (it settles in about 0.3 s)
+        const val SLIDE_STIFFNESS = 320f
         val SLIDE_DAMPING = 2f * 0.7f * sqrt(SLIDE_STIFFNESS)
         val STRETCH_DAMPING =
             2f * OwnGlassLens.STRETCH_DAMPING_RATIO * sqrt(OwnGlassLens.STRETCH_STIFFNESS)

@@ -74,7 +74,7 @@ class OwnGlassSliderLens internal constructor(
     internal val presence = Animatable(0f)
     // How long the lens is along the slider now, as a scale: 1 round
     private var stretch by mutableFloatStateOf(1f)
-    // The knob's middle, in the slider
+    // The knob's middle in the slider, as the frame loop last found it
     private var knob by mutableStateOf(Offset.Unspecified)
     // Android's knob, as the slider gives it
     private var knobRest = DpSize.Zero
@@ -104,20 +104,21 @@ class OwnGlassSliderLens internal constructor(
 
     internal fun onSliderPlaced(coordinates: LayoutCoordinates) {
         slider = coordinates
-        findKnob()
     }
 
     internal fun onKnobPlaced(coordinates: LayoutCoordinates) {
         knobLayout = coordinates
-        findKnob()
     }
 
-    private fun findKnob() {
-        val s = slider ?: return
-        val k = knobLayout ?: return
-        if (s.isAttached && k.isAttached) {
-            knob = s.localBoundingBoxOf(k, clipBounds = false).center
+    // Where the knob's middle is in the slider now. The slider moves the box the knob sits in, so
+    // the knob itself is never placed again as it moves: this asks the layout each time.
+    private fun findKnob(): Offset {
+        val s = slider ?: return Offset.Unspecified
+        val k = knobLayout ?: return Offset.Unspecified
+        if (!s.isAttached || !k.isAttached) {
+            return Offset.Unspecified
         }
+        return s.localBoundingBoxOf(k, clipBounds = false).center
     }
 
     /** Shows the lens while [interactionSource] says the slider is held, until cancelled. */
@@ -152,7 +153,8 @@ class OwnGlassSliderLens internal constructor(
         }
     }
 
-    // Follows the knob each frame: the faster it goes, the longer the lens, on a wobbly spring
+    // Follows the knob each frame: the faster it goes, the longer the lens, on a wobbly spring. It
+    // also keeps [knob] up to date, so the lens is drawn again as the knob moves.
     private suspend fun move() {
         var lastAt = 0L
         var lastPos = Float.NaN
@@ -162,7 +164,10 @@ class OwnGlassSliderLens internal constructor(
         val damping = 2f * OwnGlassLens.STRETCH_DAMPING_RATIO * sqrt(stiffness)
         while (true) {
             val now = withFrameNanos { it }
-            val k = knob
+            val k = findKnob()
+            if (k.isSpecified) {
+                knob = k
+            }
             val pos = if (k.isSpecified) (if (vertical) k.y else k.x) else lastPos
             if (lastAt != 0L && !pos.isNaN() && !lastPos.isNaN()) {
                 val dt = ((now - lastAt) / NANOS_PER_SECOND).coerceIn(MIN_STEP_S, MAX_STEP_S)
@@ -183,7 +188,11 @@ class OwnGlassSliderLens internal constructor(
 
     /** The lens's outline in a slider drawing at its size now; null while there's no knob. */
     internal fun DrawScope.outline(): RoundRect? {
-        val k = knob
+        // Reading [knob] draws this again as the frame loop moves it; where the knob is right now
+        // comes from the layout
+        val last = knob
+        val now = findKnob()
+        val k = if (now.isSpecified) now else last
         if (!k.isSpecified) {
             return null
         }
