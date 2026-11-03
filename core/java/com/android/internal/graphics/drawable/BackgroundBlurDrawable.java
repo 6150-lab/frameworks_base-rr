@@ -414,7 +414,12 @@ public final class BackgroundBlurDrawable extends Drawable {
                 registerPreDrawListener();
 
                 if (mHasUiUpdates) {
-                    mViewRoot.getView().invalidate();
+                    // Catalyxx: posted for the next frame. A drawable shown while a frame is
+                    // drawn, by a pre-draw listener or as it's drawn, comes too late for the
+                    // listener just registered, and invalidating then asks for no new frame: on
+                    // a still screen nothing sent SurfaceFlinger its blur until something else
+                    // drew the window again
+                    mViewRoot.getView().postInvalidateOnAnimation();
                 }
             }
         }
