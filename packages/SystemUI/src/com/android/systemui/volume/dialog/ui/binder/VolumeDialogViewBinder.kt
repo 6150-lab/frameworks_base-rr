@@ -18,6 +18,7 @@ package com.android.systemui.volume.dialog.ui.binder
 
 import android.app.Dialog
 import android.content.Context
+import android.graphics.Rect
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
@@ -34,10 +35,14 @@ import androidx.dynamicanimation.animation.SpringAnimation
 import androidx.dynamicanimation.animation.SpringForce
 import com.android.app.tracing.coroutines.launchInTraced
 import com.android.app.tracing.coroutines.launchTraced
+import com.android.internal.util.catalyxx.GlassSettings
 import com.android.systemui.Flags
 import com.android.systemui.common.ui.view.onApplyWindowInsets
 import com.android.systemui.common.ui.view.updateMargin
 import com.android.systemui.dagger.qualifiers.Application
+import com.android.systemui.glass.ui.OwnGlass
+import com.android.systemui.glass.ui.OwnGlassMorph
+import com.android.systemui.glass.ui.OwnGlassMorphOrigin
 import com.android.systemui.res.R
 import com.android.systemui.util.kotlin.awaitCancellationThenDispose
 import com.android.systemui.util.view.listenToComputeInternalInsets
@@ -212,6 +217,21 @@ constructor(
                 .addUpdateListener { _, value, _ -> view.applyAnimationProgress(value, isLeft) }
         var junkListener: DynamicAnimation.OnAnimationUpdateListener? = null
 
+        // Catalyxx glass's morph: while it's on as the dialog shows, the dialog grows out of the
+        // volume keys instead of sliding in, and shrinks back into them as it goes
+        OwnGlass.start(view.context)
+        val morph =
+            OwnGlassMorph(
+                view,
+                { OwnGlassMorphOrigin.volumeKeys(view, panelOnLeft = isLeft) },
+                {
+                    view.findViewById<View>(R.id.volume_dialog_background)?.let {
+                        Rect(it.left, it.top, it.right, it.bottom)
+                    } ?: Rect()
+                },
+            )
+        var isMorphing = false
+
         visibilityModel
             .conflate()
             .onEach {
@@ -219,17 +239,38 @@ constructor(
                     is VolumeDialogVisibilityModel.Visible -> {
                         tracer.traceVisibilityEnd(it)
                         junkListener?.let(animation::removeUpdateListener)
-                        junkListener =
-                            jankListenerFactory.show(view).also(animation::addUpdateListener)
-                        animation.suspendAnimate(FRACTION_SHOW)
+                        junkListener?.let(morph::removeUpdateListener)
+                        if (
+                            isMorphing ||
+                                animationValueHolder.value == FRACTION_HIDE &&
+                                    !animation.isRunning &&
+                                    OwnGlass.morphs(GlassSettings.MORPH_VOLUME)
+                        ) {
+                            isMorphing = true
+                            view.translationX = 0f
+                            junkListener =
+                                jankListenerFactory.show(view).also(morph::addUpdateListener)
+                            morph.growAndWait()
+                        } else {
+                            junkListener =
+                                jankListenerFactory.show(view).also(animation::addUpdateListener)
+                            animation.suspendAnimate(FRACTION_SHOW)
+                        }
                     }
 
                     is VolumeDialogVisibilityModel.Dismissed -> {
                         tracer.traceVisibilityEnd(it)
                         junkListener?.let(animation::removeUpdateListener)
-                        junkListener =
-                            jankListenerFactory.dismiss(view).also(animation::addUpdateListener)
-                        animation.suspendAnimate(FRACTION_HIDE)
+                        junkListener?.let(morph::removeUpdateListener)
+                        if (isMorphing) {
+                            junkListener =
+                                jankListenerFactory.dismiss(view).also(morph::addUpdateListener)
+                            morph.shrinkAndWait()
+                        } else {
+                            junkListener =
+                                jankListenerFactory.dismiss(view).also(animation::addUpdateListener)
+                            animation.suspendAnimate(FRACTION_HIDE)
+                        }
                         dialog.dismiss()
                     }
 

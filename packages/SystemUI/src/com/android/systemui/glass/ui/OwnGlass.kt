@@ -199,6 +199,20 @@ object OwnGlass {
         get() = settings.stretch
 
     /**
+     * Whether the panel at [morphPlace], one of GlassSettings' `MORPH_` place keys, grows out of
+     * what opened it now ([OwnGlassMorph]). It needs the main switch, not the panel's glass.
+     */
+    fun morphs(morphPlace: String): Boolean = settings.morphs(morphPlace)
+
+    /** How panels morph: one of GlassSettings' `MORPH_LIQUID` and `MORPH_SMOOTH`. */
+    val morphStyle: Int
+        get() = settings.morphStyle
+
+    /** How fast panels morph: one of GlassSettings' `MORPH_SLOW`, `_NORMAL` and `_FAST`. */
+    val morphSpeed: Int
+        get() = settings.morphSpeed
+
+    /**
      * A tap on glass at [place], in [view]: buzzes as the tap buzz setting says while glass is on
      * there. Only for taps Android doesn't buzz for itself.
      */
@@ -275,6 +289,10 @@ object OwnGlass {
             selectorMagnify =
                 get(GlassSettings.SELECTOR_MAGNIFY, GlassSettings.DEFAULT_SELECTOR_MAGNIFY),
             stretch = get(GlassSettings.STRETCH, 1) == 1,
+            morph = get(GlassSettings.MORPH, 1) == 1,
+            morphStyle = get(GlassSettings.MORPH_STYLE, GlassSettings.DEFAULT_MORPH_STYLE),
+            morphSpeed = get(GlassSettings.MORPH_SPEED, GlassSettings.DEFAULT_MORPH_SPEED),
+            morphOff = GlassSettings.MORPH_PLACES.filterTo(HashSet()) { get(it, 1) == 0 },
         )
     }
 
@@ -305,8 +323,14 @@ object OwnGlass {
         val selector: Boolean,
         val selectorMagnify: Int,
         val stretch: Boolean,
+        val morph: Boolean,
+        val morphStyle: Int,
+        val morphSpeed: Int,
+        val morphOff: Set<String>,
     ) {
         fun isOn(place: String) = enabled && place !in placesOff
+
+        fun morphs(morphPlace: String) = enabled && morph && morphPlace !in morphOff
 
         fun hasRim(place: String) = isOn(place) && style != GlassSettings.STYLE_FLAT
 
@@ -333,6 +357,10 @@ object OwnGlass {
                     selector = true,
                     selectorMagnify = GlassSettings.DEFAULT_SELECTOR_MAGNIFY,
                     stretch = true,
+                    morph = true,
+                    morphStyle = GlassSettings.DEFAULT_MORPH_STYLE,
+                    morphSpeed = GlassSettings.DEFAULT_MORPH_SPEED,
+                    morphOff = emptySet(),
                 )
         }
     }

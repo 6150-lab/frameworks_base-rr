@@ -21,6 +21,7 @@ import static com.android.systemui.shared.system.BlurUtils.isVolumeAndPowerBlurE
 import android.annotation.Nullable;
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.LayerDrawable;
@@ -246,6 +247,20 @@ public abstract class GlobalActionsLayout extends MultiListLayout {
     @Override
     protected ViewGroup getListView() {
         return findViewById(android.R.id.list);
+    }
+
+    /**
+     * The panel's glass, in this layout's own pixels: where the actions sit. Empty until it's
+     * laid out. For Catalyxx glass's morph.
+     */
+    Rect getGlassBounds() {
+        final Rect bounds = new Rect();
+        final ViewGroup listView = getListView();
+        if (listView != null && listView.isLaidOut()) {
+            bounds.set(0, 0, listView.getWidth(), listView.getHeight());
+            offsetDescendantRectToMyCoords(listView, bounds);
+        }
+        return bounds;
     }
 
     protected View getWrapper() {

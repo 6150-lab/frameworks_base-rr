@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2026 Project Catalyxx
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <!-- Where the phone's keys are, for panels that grow out of them (OwnGlassMorph), with the
+         phone held upright. A side is 1 for the left edge or 2 for the right; 0 for the volume
+         keys means the side the volume panel is set to show on. A position is the middle of the
+         key, down from the top of the screen, in dp so it stays put at any screen resolution; a
+         negative one isn't known: the power key then uses
+         physical_power_button_center_screen_location_y, and the volume panel grows out of the
+         edge next to its own middle. Phones give their own in an overlay. -->
+    <integer name="catalyxx_morph_power_key_side">2</integer>
+    <dimen name="catalyxx_morph_power_key_y">-1dp</dimen>
+    <integer name="catalyxx_morph_volume_keys_side">0</integer>
+    <dimen name="catalyxx_morph_volume_keys_y">-1dp</dimen>
+</resources>

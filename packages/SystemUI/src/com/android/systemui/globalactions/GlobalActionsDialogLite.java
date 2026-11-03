@@ -137,6 +137,9 @@ import com.android.systemui.animation.DialogCuj;
 import com.android.systemui.animation.DialogTransitionAnimator;
 import com.android.systemui.animation.Expandable;
 import com.android.systemui.animation.TransitionAnimator;
+import com.android.systemui.glass.ui.OwnGlass;
+import com.android.systemui.glass.ui.OwnGlassMorph;
+import com.android.systemui.glass.ui.OwnGlassMorphOrigin;
 import com.android.systemui.broadcast.BroadcastDispatcher;
 import com.android.systemui.broadcast.BroadcastSender;
 import com.android.systemui.colorextraction.SysuiColorExtractor;
@@ -3082,6 +3085,9 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
         @Nullable
         private ListPopupWindow mOverflowPopup;
         private float mInitialWindowDimAmount;
+        // Catalyxx glass's morph while the menu came out of the power key, else null
+        @Nullable
+        private OwnGlassMorph mMorph;
 
         private final OnBackInvokedCallback mOnBackInvokedCallback;
 
@@ -3530,6 +3536,9 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
         /** Run either the enter or exit animation, then run {@code then}. */
         private void startAnimation(@NonNull SystemUIDialog dialog, boolean isEnter,
                 @Nullable Runnable then) {
+            if (startMorph(dialog, isEnter, then)) {
+                return;
+            }
             ValueAnimator animator = ValueAnimator.ofFloat(0f, 1f);
 
             // Note: these specs should be the same as in popup_enter_material and
@@ -3595,6 +3604,36 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
             });
 
             animator.start();
+        }
+
+        /**
+         * Catalyxx glass's morph, where it's on as the menu opens: the menu grows out of the power
+         * key and shrinks back into it as it goes, dimming the screen as far as it's out. Returns
+         * whether it runs instead of the usual animation.
+         */
+        private boolean startMorph(@NonNull SystemUIDialog dialog, boolean isEnter,
+                @Nullable Runnable then) {
+            if (!isEnter) {
+                if (mMorph == null) {
+                    return false;
+                }
+                mMorph.shrink(then);
+                return true;
+            }
+            OwnGlass.INSTANCE.start(mGlobalActionsLayout.getContext());
+            if (!OwnGlass.INSTANCE.morphs(GlassSettings.MORPH_POWER_MENU)) {
+                mMorph = null;
+                return false;
+            }
+            final GlobalActionsLayoutLite layout = mGlobalActionsLayout;
+            final Window window = dialog.getWindow();
+            mMorph = new OwnGlassMorph(layout,
+                    () -> OwnGlassMorphOrigin.powerKey(layout),
+                    layout::getGlassBounds,
+                    progress -> window.setDimAmount(mInitialWindowDimAmount * progress));
+            window.setDimAmount(0f);
+            mMorph.grow(then);
+            return true;
         }
 
         public void hide() {
