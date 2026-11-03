@@ -36,6 +36,7 @@ import android.util.Base64;
 import android.util.Log;
 
 import com.android.internal.util.rr.PixelDeviceRepository;
+import com.android.internal.util.rr.PixelPropsUtils;
 import com.android.server.NtServiceInjector;
 
 import java.net.HttpURLConnection;
@@ -431,7 +432,8 @@ public class RrSpoofManager implements IRrSpoofManager {
     private boolean isBootstrapPending() {
         if (mResolver == null) return false;
 
-        boolean pifMissing = isEmpty(Settings.Secure.getStringForUser(
+        boolean pifMissing = !PixelPropsUtils.isMainlinePixelDevice()
+                && isEmpty(Settings.Secure.getStringForUser(
                         mResolver, Settings.Secure.SPOOF_PIF_CONFIG, UserHandle.USER_SYSTEM))
                 && Settings.System.getIntForUser(
                         mResolver, PIF_ENABLED_KEY, 1, UserHandle.USER_SYSTEM) != 0;
@@ -493,6 +495,9 @@ public class RrSpoofManager implements IRrSpoofManager {
 
     private void refreshPixelFingerprintIfStale() throws Exception {
         if (mResolver == null) return;
+        // A current Pixel (8+) is left native, so never crawl a Pixel fingerprint
+        // onto it.
+        if (PixelPropsUtils.isMainlinePixelDevice()) return;
         if (Settings.System.getIntForUser(
                 mResolver, PIF_ENABLED_KEY, 1, UserHandle.USER_SYSTEM) == 0) {
             return;
@@ -727,6 +732,14 @@ public class RrSpoofManager implements IRrSpoofManager {
      * itself, so this is where the switch has to be honored.
      */
     private void stagePifPropOverrides(String config) {
+        if (PixelPropsUtils.isMainlinePixelDevice()) {
+            // A current Pixel (8+) keeps its own identity, exactly as
+            // PixelPropsUtils leaves it unspoofed. Its native fingerprint is not
+            // overridden here, so staging another Pixel's props would make the
+            // two disagree and fail DroidGuard. Blank anything a past build left.
+            clearPifPropOverrides();
+            return;
+        }
         final Map<String, String> fields = parsePifConfig(config);
         if (!isSpoofPropsEnabled(fields)) {
             clearPifPropOverrides();
