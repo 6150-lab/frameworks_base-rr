@@ -311,10 +311,36 @@ public final class GlassSettings {
     /** The whole bar, edge to edge. */
     public static final int NAVBAR_FULL = 1;
 
+    /**
+     * Catalyxx Launcher's dock, the row of favorites under the home screen: it sits on glass
+     * shaped as {@link #DOCK_SHAPE} says. It keeps a fixed light, as it shows whenever the home
+     * screen does. Launcher3's InvariantDeviceProfile reads this key, {@link #ENABLED} and
+     * {@link #DOCK_SHAPE} by name, to make room for the glass.
+     */
+    public static final String PLACE_DOCK = "catalyxx_glass_dock";
+
+    /** How the dock's glass is shaped. */
+    public static final String DOCK_SHAPE = "catalyxx_glass_dock_shape";
+    /**
+     * A rounded panel around the icons, clear of the screen's sides and of the navigation bar:
+     * the launcher moves the dock up a little where the bar leaves it no room. The default.
+     */
+    public static final int DOCK_FLOATING = 0;
+    /** Like {@link #DOCK_FLOATING}, rounded all the way into a capsule. */
+    public static final int DOCK_CAPSULE = 1;
+    /** Edge to edge, from just above the icons down to the bottom of the screen. */
+    public static final int DOCK_FULL = 2;
+
+    /** Catalyxx Launcher's folders, while one is open. */
+    public static final String PLACE_FOLDERS = "catalyxx_glass_folders";
+
+    /** Catalyxx Launcher's app drawer: the sheet the apps sit on. */
+    public static final String PLACE_APP_DRAWER = "catalyxx_glass_app_drawer";
+
     /** Every place key. */
     public static final String[] PLACES = {
         PLACE_SHADE, PLACE_NOTIFICATIONS, PLACE_LOCKSCREEN, PLACE_VOLUME, PLACE_POWER_MENU,
-        PLACE_DIALOGS, PLACE_NAVBAR,
+        PLACE_DIALOGS, PLACE_NAVBAR, PLACE_DOCK, PLACE_FOLDERS, PLACE_APP_DRAWER,
     };
 
     /** Every glass key but the Glass clock's ({@link #CLOCK_KEYS}), for watching them at once. */
@@ -324,7 +350,8 @@ public final class GlassSettings {
         TOUCH_GLOW_COLOR, TOUCH_GLOW_SIZE, SQUISH, TAP_BUZZ, SCROLL_FADE, SELECTOR,
         SELECTOR_MAGNIFY, STRETCH, SOLID_IN_BATTERY_SAVER, MUSIC_PLAYER, PLACE_SHADE,
         PLACE_NOTIFICATIONS, PLACE_LOCKSCREEN, PLACE_VOLUME, PLACE_POWER_MENU, PLACE_DIALOGS,
-        POWER_MENU_BLUR_BEHIND, PLACE_NAVBAR, NAVBAR_SHAPE,
+        POWER_MENU_BLUR_BEHIND, PLACE_NAVBAR, NAVBAR_SHAPE, PLACE_DOCK, DOCK_SHAPE,
+        PLACE_FOLDERS, PLACE_APP_DRAWER,
     };
 
     public static final int MIN_BLUR_STRENGTH = 0;
@@ -393,6 +420,7 @@ public final class GlassSettings {
     public static final int DEFAULT_CLOCK_LAYOUT = CLOCK_ONE_LINE;
 
     public static final int DEFAULT_NAVBAR_SHAPE = NAVBAR_CAPSULE;
+    public static final int DEFAULT_DOCK_SHAPE = DOCK_FLOATING;
 
     // How far the rim reaches at BEND 100, in rim widths, and the shadow's darkness at SHADOW 100
     private static final float MAX_BEND = 2.4f;
@@ -514,7 +542,8 @@ public final class GlassSettings {
         // light content, so the text on it reads
         final boolean carriesText = PLACE_DIALOGS.equals(place)
                 || PLACE_POWER_MENU.equals(place) || PLACE_SHADE.equals(place)
-                || PLACE_NOTIFICATIONS.equals(place);
+                || PLACE_NOTIFICATIONS.equals(place) || PLACE_FOLDERS.equals(place)
+                || PLACE_APP_DRAWER.equals(place);
         return look(context,
                 carriesText && style == STYLE_CLEAR ? STYLE_FROSTED : style,
                 Settings.Global.getInt(resolver, BEND, DEFAULT_BEND),
