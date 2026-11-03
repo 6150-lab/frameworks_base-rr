@@ -337,6 +337,57 @@ public final class GlassSettings {
     /** Catalyxx Launcher's app drawer: the sheet the apps sit on. */
     public static final String PLACE_APP_DRAWER = "catalyxx_glass_app_drawer";
 
+    /**
+     * 1 (the default) grows panels out of what opened them and shrinks them back into it, where
+     * that panel's own switch is on too: the volume panel out of the volume keys
+     * ({@link #MORPH_VOLUME}) and the power menu out of the power key
+     * ({@link #MORPH_POWER_MENU}). 0 keeps Android's own animations. It needs the main switch,
+     * not the panel's glass: a solid panel morphs too.
+     */
+    public static final String MORPH = "catalyxx_glass_morph";
+
+    /** How panels morph: {@link #MORPH_LIQUID} (the default) or {@link #MORPH_SMOOTH}. */
+    public static final String MORPH_STYLE = "catalyxx_glass_morph_style";
+
+    /**
+     * Comes out as a thin drop stretched along the edge, then swells a little past its size and
+     * settles with a wobble.
+     */
+    public static final int MORPH_LIQUID = 0;
+    /** Grows cleanly, without a wobble. */
+    public static final int MORPH_SMOOTH = 1;
+
+    /**
+     * How fast panels morph: {@link #MORPH_SLOW}, {@link #MORPH_NORMAL} (the default) or
+     * {@link #MORPH_FAST}. Android's animation speed applies on top, and with animations off
+     * panels don't morph.
+     */
+    public static final String MORPH_SPEED = "catalyxx_glass_morph_speed";
+
+    public static final int MORPH_SLOW = 0;
+    public static final int MORPH_NORMAL = 1;
+    public static final int MORPH_FAST = 2;
+
+    /** 1 (the default): the volume panel grows out of the volume keys. */
+    public static final String MORPH_VOLUME = "catalyxx_glass_morph_volume";
+
+    /** 1 (the default): the power menu grows out of the power key. */
+    public static final String MORPH_POWER_MENU = "catalyxx_glass_morph_power_menu";
+
+    /**
+     * The middle of the power key and of the volume keys, in pixels down from the top of the
+     * screen held upright, to try a phone's values before they go in its overlay. Unset (the
+     * default) keeps the phone's own. Not in the Lab, and not in {@link #KEYS}: they're read
+     * each time a panel morphs.
+     */
+    public static final String MORPH_POWER_KEY_Y = "catalyxx_glass_morph_power_key_y";
+    public static final String MORPH_VOLUME_KEYS_Y = "catalyxx_glass_morph_volume_keys_y";
+
+    /** Every panel's morph switch. */
+    public static final String[] MORPH_PLACES = {
+        MORPH_VOLUME, MORPH_POWER_MENU,
+    };
+
     /** Every place key. */
     public static final String[] PLACES = {
         PLACE_SHADE, PLACE_NOTIFICATIONS, PLACE_LOCKSCREEN, PLACE_VOLUME, PLACE_POWER_MENU,
@@ -351,7 +402,8 @@ public final class GlassSettings {
         SELECTOR_MAGNIFY, STRETCH, SOLID_IN_BATTERY_SAVER, MUSIC_PLAYER, PLACE_SHADE,
         PLACE_NOTIFICATIONS, PLACE_LOCKSCREEN, PLACE_VOLUME, PLACE_POWER_MENU, PLACE_DIALOGS,
         POWER_MENU_BLUR_BEHIND, PLACE_NAVBAR, NAVBAR_SHAPE, PLACE_DOCK, DOCK_SHAPE,
-        PLACE_FOLDERS, PLACE_APP_DRAWER,
+        PLACE_FOLDERS, PLACE_APP_DRAWER, MORPH, MORPH_STYLE, MORPH_SPEED, MORPH_VOLUME,
+        MORPH_POWER_MENU,
     };
 
     public static final int MIN_BLUR_STRENGTH = 0;
@@ -420,6 +472,8 @@ public final class GlassSettings {
     public static final int DEFAULT_CLOCK_LAYOUT = CLOCK_ONE_LINE;
 
     public static final int DEFAULT_NAVBAR_SHAPE = NAVBAR_CAPSULE;
+    public static final int DEFAULT_MORPH_STYLE = MORPH_LIQUID;
+    public static final int DEFAULT_MORPH_SPEED = MORPH_NORMAL;
     public static final int DEFAULT_DOCK_SHAPE = DOCK_FLOATING;
 
     // How far the rim reaches at BEND 100, in rim widths, and the shadow's darkness at SHADOW 100
@@ -444,6 +498,16 @@ public final class GlassSettings {
     /** Whether glass is on for {@code place}, one of the {@code PLACE_} keys. */
     public static boolean isOn(ContentResolver resolver, String place) {
         return isEnabled(resolver) && Settings.Global.getInt(resolver, place, 1) == 1;
+    }
+
+    /**
+     * Whether the panel at {@code morphPlace}, one of {@link #MORPH_PLACES}, grows out of what
+     * opened it now.
+     */
+    public static boolean morphs(ContentResolver resolver, String morphPlace) {
+        return isEnabled(resolver)
+                && Settings.Global.getInt(resolver, MORPH, 1) == 1
+                && Settings.Global.getInt(resolver, morphPlace, 1) == 1;
     }
 
     /** Whether glass at {@code place} has a curved rim: it's on there and not Flat. */
