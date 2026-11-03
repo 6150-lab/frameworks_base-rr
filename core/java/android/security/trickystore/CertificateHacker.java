@@ -360,7 +360,7 @@ public final class CertificateHacker {
             String[] packages) throws Exception {
 
         byte[] bootKey = rootOfTrustOctet(originalRootOfTrust, 0);
-        if (bootKey == null) {
+        if (bootKey == null || isAllZero(bootKey)) {
             bootKey = AttestationUtils.getBootKey();
         }
 
@@ -466,6 +466,13 @@ public final class CertificateHacker {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    private static boolean isAllZero(byte[] value) {
+        for (byte b : value) {
+            if (b != 0) return false;
+        }
+        return true;
     }
 
     public static void storeLeafAlgorithm(String alias, int uid, String algorithm) {
