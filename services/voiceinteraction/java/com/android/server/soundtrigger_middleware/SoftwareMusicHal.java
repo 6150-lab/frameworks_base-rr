@@ -18,7 +18,10 @@ package com.android.server.soundtrigger_middleware;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.ContentObserver;
 import android.media.AudioManager;
 import android.media.soundtrigger.ModelParameterRange;
@@ -31,6 +34,7 @@ import android.media.soundtrigger.SoundModel;
 import android.media.soundtrigger.SoundModelType;
 import android.media.soundtrigger_middleware.RecognitionEventSys;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.os.SystemClock;
 import android.os.UserHandle;
 import android.os.SystemProperties;
@@ -58,7 +62,8 @@ import java.util.concurrent.TimeUnit;
  *
  * <p>No detection happens here or anywhere else on such a device. Waking the app on a timer means
  * it also listens to empty rooms, which a real always-on model would have skipped. The gate below
- * is what keeps that bounded: it is user consent, and nothing listens without it.
+ * is what keeps that bounded: it is user consent, and nothing listens without it. The timer also
+ * slows down with the screen off and sits out battery saver.
  *
  * <p>That consent is read here, from the Secure setting, because this is what owns the
  * microphone. It used to arrive as a system property written by the app that renders the
@@ -78,6 +83,8 @@ class SoftwareMusicHal implements ISoundTriggerHal {
     private static final String POLL_INTERVAL_PROP = "sys.now_playing.poll_ms";
     private static final int DEFAULT_POLL_INTERVAL_MILLIS = 30_000;
     private static final int MIN_POLL_INTERVAL_MILLIS = 10_000;
+    /** Screen off, the phone is pocketed or parked: this much rarer still catches a song. */
+    private static final int SCREEN_OFF_INTERVAL_FACTOR = 3;
 
     /** Kept clear of the vendor's handle space, which counts up from zero. */
     private static final int HANDLE_BASE = 0x10000000;
@@ -97,6 +104,9 @@ class SoftwareMusicHal implements ISoundTriggerHal {
 
     @GuardedBy("mLock")
     private ContentObserver mGateObserver;
+
+    @GuardedBy("mLock")
+    private BroadcastReceiver mScreenReceiver;
 
     @GuardedBy("mLock")
     private boolean mGateArmed;
@@ -130,9 +140,16 @@ class SoftwareMusicHal implements ISoundTriggerHal {
         return model != null && MUSIC_MODEL_VENDOR_UUID.equalsIgnoreCase(model.vendorUuid);
     }
 
-    private static int pollIntervalMillis() {
-        return Math.max(MIN_POLL_INTERVAL_MILLIS,
+    private int pollIntervalMillis() {
+        final int base = Math.max(MIN_POLL_INTERVAL_MILLIS,
                 SystemProperties.getInt(POLL_INTERVAL_PROP, DEFAULT_POLL_INTERVAL_MILLIS));
+        final PowerManager pm = mContext.getSystemService(PowerManager.class);
+        return pm != null && !pm.isInteractive() ? base * SCREEN_OFF_INTERVAL_FACTOR : base;
+    }
+
+    private boolean isPowerSaving() {
+        final PowerManager pm = mContext.getSystemService(PowerManager.class);
+        return pm != null && pm.isPowerSaveMode();
     }
 
     private boolean gateArmed() {
@@ -298,6 +315,7 @@ class SoftwareMusicHal implements ISoundTriggerHal {
 
     private void trigger(int modelHandle) {
         final boolean playing = isPhonePlaying();
+        final boolean saving = isPowerSaving();
         final ModelCallback callback;
         final boolean captureRequested;
         synchronized (mLock) {
@@ -309,8 +327,9 @@ class SoftwareMusicHal implements ISoundTriggerHal {
             callback = model.callback;
             captureRequested = model.captureRequested;
             mLastTriggerElapsed = SystemClock.elapsedRealtime();
-            if (playing) {
-                // The mic would only hear the phone's own speaker. Look again next interval.
+            if (playing || saving) {
+                // The mic would only hear the phone's own speaker; in battery saver this is the
+                // background work the user asked to stop. Look again next interval.
                 scheduleLocked(modelHandle, model);
                 return;
             }
@@ -368,6 +387,19 @@ class SoftwareMusicHal implements ISoundTriggerHal {
         mContext.getContentResolver().registerContentObserver(
                 Settings.Secure.getUriFor(GATE_SETTING), false, mGateObserver,
                 UserHandle.USER_ALL);
+        mScreenReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                // Back on the screen-on cadence without sitting out a screen-off interval.
+                synchronized (mLock) {
+                    for (Map.Entry<Integer, Model> entry : mModels.entrySet()) {
+                        scheduleLocked(entry.getKey(), entry.getValue());
+                    }
+                }
+            }
+        };
+        mContext.registerReceiver(mScreenReceiver, new IntentFilter(Intent.ACTION_SCREEN_ON),
+                Context.RECEIVER_NOT_EXPORTED);
     }
 
     @GuardedBy("mLock")
@@ -377,6 +409,8 @@ class SoftwareMusicHal implements ISoundTriggerHal {
         }
         mContext.getContentResolver().unregisterContentObserver(mGateObserver);
         mGateObserver = null;
+        mContext.unregisterReceiver(mScreenReceiver);
+        mScreenReceiver = null;
         if (mExecutor != null) {
             mExecutor.shutdown();
             mExecutor = null;
