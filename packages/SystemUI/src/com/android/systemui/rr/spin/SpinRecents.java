@@ -150,11 +150,29 @@ public final class SpinRecents {
                     return false;
                 }
                 Wheel wheel = new Wheel(context, wm);
-                // Grabbed before the window exists, so the wheel is not in it.
-                wheel.setBackdrop(blurredScreen());
+                // Asked for before the window exists, so the wheel is not in it.
+                SynchronousScreenCaptureListener screen = captureScreen();
                 wm.addView(wheel, wheelWindow());
                 sWheel = wheel;
                 wheel.requestFocus();
+                if (screen != null) {
+                    EXEC.execute(() -> {
+                        Bitmap backdrop;
+                        try {
+                            backdrop = blurredScreen(screen);
+                        } catch (RuntimeException e) {
+                            Log.w(TAG, "No backdrop", e);
+                            return;
+                        }
+                        if (backdrop != null) {
+                            MAIN.post(() -> {
+                                if (sWheel == wheel) {
+                                    wheel.setBackdrop(backdrop);
+                                }
+                            });
+                        }
+                    });
+                }
             }
             sWheel.reload();
             return true;
@@ -202,12 +220,8 @@ public final class SpinRecents {
         return lp;
     }
 
-    /**
-     * The screen as it was before the wheel opened, shrunk and blurred into a soft wash so the
-     * app behind doesn't show through. Cross-window blur is off on this device, so it is done
-     * here, once per opening.
-     */
-    private static Bitmap blurredScreen() {
+    /** Asks for the screen as it is now; {@link #blurredScreen} collects it. */
+    private static SynchronousScreenCaptureListener captureScreen() {
         SynchronousScreenCaptureListener listener =
                 ScreenCaptureInternal.createSyncCaptureListener();
         try {
@@ -216,6 +230,15 @@ public final class SpinRecents {
         } catch (RemoteException | SecurityException e) {
             return null;
         }
+        return listener;
+    }
+
+    /**
+     * The screen as it was before the wheel opened, shrunk and blurred into a soft wash so the
+     * app behind doesn't show through. Cross-window blur is off on this device, so it is done
+     * here, once per opening, off the main thread: the copy and scale are the slow part.
+     */
+    private static Bitmap blurredScreen(SynchronousScreenCaptureListener listener) {
         ScreenshotHardwareBuffer buffer = listener.getBuffer();
         Bitmap hardware = buffer != null ? buffer.asBitmap() : null;
         if (hardware == null) {
