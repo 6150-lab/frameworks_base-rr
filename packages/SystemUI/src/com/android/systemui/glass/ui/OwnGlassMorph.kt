@@ -31,12 +31,12 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  * The panel's main glass ([glass], in [view]'s own pixels) starts as a drop [DROP_OUT_DP] thick
  * and [DROP_ALONG_DP] long against the edge, its middle at the spot, or as the spot's own drop,
  * and moves and grows to its own place and size on two springs, one along the edge and one out of
- * it; [view], which holds the whole panel, is scaled and moved to match. Liquid lets the spring along the edge lead, so
- * the drop first stretches along the edge, then the panel swells a little past its size on each
- * axis in turn and settles; Smooth grows it cleanly. The view's content fades in once the drop
- * has grown and fades out early as it shrinks back. SurfaceFlinger's glass follows the view's
- * scaled bounds every frame by itself, whatever the content's alpha, and keeps its corner
- * radius, which Skia fits to the shrunk bounds: the drop is a capsule of glass.
+ * it; [view], which holds the whole panel, is scaled and moved to match. Liquid lets the spring
+ * along the edge lead, so the drop first stretches along the edge, then the panel swells a little
+ * past its size on each axis in turn and settles; Smooth grows it cleanly. The view's content
+ * fades in once the drop has grown and fades out early as it shrinks back. SurfaceFlinger's glass
+ * follows the view's scaled bounds every frame by itself, whatever the content's alpha, and keeps
+ * its corner radius, which Skia fits to the shrunk bounds: the drop is a capsule of glass.
  *
  * [progress] hears how far out the panel is, from 0 to 1, every frame, for what goes with it,
  * such as the dim behind. [target] is how the morph shows on the view: by default on its own
