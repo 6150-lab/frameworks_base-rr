@@ -48,6 +48,9 @@ private constructor(
     private var morphHost: View? = null
     private var morphGlass: BackgroundBlurDrawable? = null
 
+    // While the pop-up grows, its glass waits for the transition's first step
+    private var isWaitingToShow = false
+
     // The glass under the pop-up's background at rest
     private var restGlass: BackgroundBlurDrawable? = null
 
@@ -62,8 +65,14 @@ private constructor(
         removeRestGlass()
     }
 
-    /** The pop-up starts to grow or shrink from [state]: the glass shape is there at once. */
-    fun onTransitionStart(state: TransitionAnimator.State) {
+    /**
+     * The pop-up starts to grow ([isLaunching]) or shrink from [state]. Shrinking, the glass shape
+     * is there at once, in place of the pop-up's own glass. Growing, it shows on the frame after
+     * the transition's first step: what the pop-up grows out of starts to draw in the pop-up's
+     * window only then, as a Quick Settings tile does (Compose draws a change on the frame after
+     * it), and glass there before it would blur the tile where it still is.
+     */
+    fun onTransitionStart(state: TransitionAnimator.State, isLaunching: Boolean) {
         if (morphHost == null) {
             val viewRoot = decorView.viewRootImpl ?: return
             val glass =
@@ -76,11 +85,29 @@ private constructor(
             morphGlass = glass
             morphHost = host
         }
-        onTransitionProgress(state)
+        morphGlass?.alpha = if (isLaunching) 0 else 255
+        isWaitingToShow = isLaunching
+        place(state)
     }
 
-    /** Puts the glass shape where the outline is now. */
+    /** A step of the transition: the glass shape goes where the outline is now. */
     fun onTransitionProgress(state: TransitionAnimator.State) {
+        val host = morphHost ?: return
+        place(state)
+        if (isWaitingToShow) {
+            isWaitingToShow = false
+            val glass = morphGlass
+            // Steps come on a frame's animation callbacks, or off a frame for animations that
+            // step as they start, so this is the next frame's
+            host.postOnAnimation {
+                if (morphGlass === glass) {
+                    glass?.alpha = 255
+                }
+            }
+        }
+    }
+
+    private fun place(state: TransitionAnimator.State) {
         val host = morphHost ?: return
         decorView.getLocationOnScreen(location)
         host.setLeftTopRightBottom(

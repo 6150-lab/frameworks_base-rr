@@ -1081,7 +1081,7 @@ class AnimatedDialog(
             }
         startController.transitionContainer = decorView
         endController.transitionContainer = decorView
-        glass?.onTransitionStart(startController.createAnimatorState())
+        glass?.onTransitionStart(startController.createAnimatorState(), isGrowing)
 
         val endState = endController.createAnimatorState()
         val controller =
