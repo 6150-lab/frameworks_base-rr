@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="pocket_mode_title">ໂໝດກະເປົາເປີດໃຊ້ງານຢູ່</string>
+    <string name="pocket_mode_illustration_description">ພາບປະກອບໂທລະສັບຢູ່ໃນກະເປົາ</string>
+    <string name="pocket_mode_instructions_header">ເພື່ອໃຊ້ໂທລະສັບຂອງທ່ານ:</string>
+    <string name="pocket_mode_instruction_step1">1. ກວດໃຫ້ແນ່ໃຈວ່າບໍລິເວນສີຟ້າ (ເຊັນເຊີໃກ້ຄຽງ) ທີ່ສະແດງຂ້າງເທິງນັ້ນບໍ່ມີສິ່ງກີດຂວາງ ແລະ ບໍ່ມີຝຸ່ນ ຫຼື ສິ່ງສົກກະປົກ.</string>
+    <string name="pocket_mode_instruction_step2">2. ກົດປຸ່ມເປີດປິດຄ້າງໄວ້ເພື່ອອອກຈາກໂໝດກະເປົາ.</string>
+</resources>

@@ -51,4 +51,203 @@
     <string name="qs_custom_tile_icon">"رمز"</string>
     <string name="qs_custom_tile_width">"العرض"</string>
     <string name="qs_custom_title">"تخصيص"</string>
+    <string name="rr_power_title">الطاقة</string>
+    <string name="rr_power_status">%1$s للأعلى · بطارية %2$s</string>
+    <string name="rr_power_status_uptime">للأعلى %1$s</string>
+    <string name="rr_power_back">العودة إلى قائمة الطاقة</string>
+    <string name="rr_shutdown_back_soon">Resurrected Remix سيعود قريبًا</string>
+    <string name="global_action_restart_subtitle">اختر كيفية إعادة تشغيل الهاتف</string>
+    <string name="global_action_restart_system_summary">إعادة تشغيل Android. اضغط مطولًا للوضع الآمن</string>
+    <string name="global_action_restart_recovery_summary">تثبيت التحديثات أو التثبيت الجانبي أو مسح البيانات</string>
+    <string name="global_action_restart_bootloader_summary">Fastboot، لتفليش صور الإقلاع</string>
+    <string name="global_action_restart_fastboot_summary">Fastboot في مساحة المستخدم، لأقسام النظام</string>
+    <string name="global_action_restart_download_summary">وضع التنزيل، لأداة التفليش الخاصة بالمورّد</string>
+    <string name="volume_ringer_priority_only">الأولوية</string>
+    <string name="volume_ringer_dnd">DnD</string>
+    <string name="tristate_flashlight_blink">وميض الفلاش</string>
+    <string name="tristate_brightness_bright">أقصى سطوع</string>
+    <string name="tristate_brightness_dark">أدنى سطوع</string>
+    <string name="tristate_brightness_auto">سطوع تلقائي</string>
+    <string name="tristate_rotation_0">عمودي</string>
+    <string name="tristate_rotation_90">أفقي (90°)</string>
+    <string name="tristate_rotation_270">أفقي (270°)</string>
+    <string name="tristate_app_launch">جارٍ تشغيل التطبيق</string>
+    <string name="face_unlock_recognizing">جارٍ التعرف على الوجه...</string>
+    <string name="screen_on_time_label">وقت الشاشة <xliff:g id="duration" example="5 hr 12 min">%1$s</xliff:g></string>
+    <string name="quick_launch_video">فيديو</string>
+    <string name="quick_launch_qr">مسح رمز QR</string>
+    <string name="now_bar_charging">جارٍ الشحن · <xliff:g id="level" example="74">%1$d</xliff:g>%%</string>
+    <string name="now_bar_full_in">ممتلئ خلال <xliff:g id="duration" example="22 min">%1$s</xliff:g></string>
+    <string name="now_bar_charged">تم الشحن</string>
+    <string name="now_bar_flashlight_on">ضوء الفلاش مُشغَّل</string>
+    <string name="now_bar_buds">سماعات الأذن</string>
+    <string name="now_bar_buds_case">العلبة <xliff:g id="level" example="61">%1$d</xliff:g></string>
+    <string name="now_bar_play">تشغيل</string>
+    <string name="now_bar_pause">إيقاف مؤقت</string>
+    <string name="now_bar_previous">السابق</string>
+    <string name="now_bar_next">التالي</string>
+    <string name="now_bar_hide">إخفاء حتى انتهائه</string>
+    <string name="now_bar_settings">إعدادات Now Bar</string>
+    <string name="now_bar_pin">تثبيت على شاشة العرض الدائم</string>
+    <string name="stage_battery_description">البطارية <xliff:g id="percent" example="74">%1$d</xliff:g> بالمئة</string>
+    <string name="stage_alarm_description">المنبّه التالي <xliff:g id="time" example="Tue 6:30">%1$s</xliff:g></string>
+    <string name="flatline_playing">قيد التشغيل</string>
+    <string name="flatline_call">مكالمة واردة</string>
+    <string name="flatline_vitals">المؤشرات الحيوية</string>
+    <string name="flatline_vitals_preview">74% · المنبّه 6:30</string>
+    <string name="flatline_alarm">المنبّه <xliff:g id="time" example="6:30">%1$s</xliff:g></string>
+    <string name="now_bar_unpin">إلغاء التثبيت من شاشة العرض الدائم</string>
+    <string name="now_bar_open">فتح</string>
+    <string name="now_bar_output">الإخراج</string>
+    <string name="now_bar_close">إغلاق</string>
+    <string name="now_bar_minutes_left">متبقي <xliff:g id="minutes" example="4">%1$d</xliff:g> دقيقة</string>
+    <string name="now_bar_minutes"><xliff:g id="minutes" example="12">%1$d</xliff:g> دقيقة</string>
+    <string name="now_bar_versus"><xliff:g id="team" example="Lakers">%1$s</xliff:g> مقابل <xliff:g id="team" example="Celtics">%2$s</xliff:g></string>
+    <string name="charge_report_channel">تقارير الشحن</string>
+    <string name="charge_report_title">تقرير الشحن</string>
+    <string name="charge_report_summary">+<xliff:g id="added" example="62">%1$d</xliff:g>%% خلال <xliff:g id="time" example="31 min">%2$s</xliff:g> · الذروة <xliff:g id="watts" example="55.0">%3$s</xliff:g> واط · الحد الأقصى <xliff:g id="temp" example="38">%4$s</xliff:g> °م</string>
+    <string name="charge_report_details"><xliff:g id="charger" example="Wired">%1$s</xliff:g> · من <xliff:g id="from" example="12">%2$d</xliff:g>%% إلى <xliff:g id="to" example="74">%3$d</xliff:g>%% · المتوسط <xliff:g id="watts" example="41.3">%4$s</xliff:g> واط</string>
+    <string name="charge_report_wired">سلكي</string>
+    <string name="charge_report_wireless">لاسلكي</string>
+    <string name="charge_report_dock">القاعدة</string>
+    <string name="usb_mode_picker_title">اختر وضع USB</string>
+    <string name="usb_mode_photo_transfer">نقل الصور &amp; الفيديو</string>
+    <string name="usb_mode_webcam">كاميرا ويب USB</string>
+    <string name="usb_mode_charging_only">الشحن فقط</string>
+    <string name="usb_charging_status">شحن USB مُفعّل</string>
+    <string name="usb_island_title">تم توصيل USB</string>
+    <string name="usb_island_settings">إعدادات USB</string>
+    <string name="usb_mode_short_charge">شحن</string>
+    <string name="keyguard_indication_dash_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • شحن Dash (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> حتى الامتلاء)</string>
+    <string name="keyguard_plugged_in_dash_charging"><xliff:g id="percentage">%s</xliff:g> • شحن Dash</string>
+    <string name="keyguard_indication_warp_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • شحن Warp (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> حتى الامتلاء)</string>
+    <string name="keyguard_plugged_in_warp_charging"><xliff:g id="percentage">%s</xliff:g> • شحن Warp</string>
+    <string name="keyguard_indication_vooc_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • شحن VOOC (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> حتى الامتلاء)</string>
+    <string name="keyguard_plugged_in_vooc_charging"><xliff:g id="percentage">%s</xliff:g> • شحن VOOC</string>
+    <string name="keyguard_indication_turbo_power_time"><xliff:g id="percentage">%2$s</xliff:g> • شحن Turbo (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> حتى الامتلاء)</string>
+    <string name="keyguard_plugged_in_turbo_charging"><xliff:g id="percentage">%s</xliff:g> • شحن Turbo</string>
+    <string name="charging_vfx_long_press_to_speed">المس مع الاستمرار لزيادة السرعة</string>
+    <string name="charging_vfx_source_wireless">لاسلكي</string>
+    <string name="charging_vfx_source_dock">القاعدة</string>
+    <string name="charging_vfx_time_to_full">ممتلئ خلال <xliff:g id="time" example="25 min">%s</xliff:g></string>
+    <string name="qs_media_tile_idle">لا يوجد تشغيل</string>
+    <string name="qs_volume_tile_muted">مكتوم</string>
+    <string name="qs_custom_volume_half">نصف</string>
+    <string name="qs_custom_volume_slider">شريط منزلق</string>
+    <string name="qs_custom_volume_fill">تعبئة</string>
+    <string name="qs_custom_volume_stack">مكدّس</string>
+    <string name="qs_custom_volume_ring">الرنين</string>
+    <string name="qs_custom_volume_call">مكالمة</string>
+    <string name="qs_custom_volume_show_all">الاسم والنسبة</string>
+    <string name="qs_custom_volume_show_percent">النسبة</string>
+    <string name="qs_custom_volume_show_icon">الرمز فقط</string>
+    <string name="qs_custom_volume_tap">اضغط على الرمز</string>
+    <string name="qs_custom_volume_mute">كتم</string>
+    <string name="qs_custom_volume_ticks">عند السحب، الاهتزاز عند كل علامة</string>
+    <string name="qs_custom_accent">التمييز</string>
+    <string name="qs_custom_add_tile">إضافة مربّع</string>
+    <string name="qs_custom_all_added">كل المربّعات موجودة في اللوحة</string>
+    <string name="qs_custom_all_icons">كل الرموز</string>
+    <string name="qs_custom_all_long">الكل طويل</string>
+    <string name="qs_custom_backing">خلفية الرمز</string>
+    <string name="qs_custom_blob">فقاعة</string>
+    <string name="qs_custom_code_applied">تم تطبيق المظهر</string>
+    <string name="qs_custom_code_bad">لا يوجد رمز مظهر للصقه</string>
+    <string name="qs_custom_code_copied">تم نسخ رمز المظهر</string>
+    <string name="qs_custom_color_amber">كهرماني</string>
+    <string name="qs_custom_color_rose">وردي</string>
+    <string name="qs_custom_columns">الأعمدة</string>
+    <string name="qs_custom_copy_code">نسخ الرمز</string>
+    <string name="qs_custom_corners">الزوايا</string>
+    <string name="qs_custom_depth">العمق</string>
+    <string name="qs_custom_depth_flat">مسطّح</string>
+    <string name="qs_custom_depth_raised">مرتفع</string>
+    <string name="qs_custom_drop_remove">أفلت هنا للإزالة</string>
+    <string name="qs_custom_fill_clear">مسح</string>
+    <string name="qs_custom_fill_dark">داكن</string>
+    <string name="qs_custom_fill_gradient">متدرج</string>
+    <string name="qs_custom_fill_icon">الرمز فقط</string>
+    <string name="qs_custom_fill_solid">صلب</string>
+    <string name="qs_custom_fill_surface">السطح</string>
+    <string name="qs_custom_fill_tint">صبغة</string>
+    <string name="qs_custom_font_caps">الأغطية</string>
+    <string name="qs_custom_font_mono">Mono</string>
+    <string name="qs_custom_font_sans">Sans</string>
+    <string name="qs_custom_glow">توهج عند التشغيل</string>
+    <string name="qs_custom_hide">إخفاء</string>
+    <string name="qs_custom_hint">اضغط على مربّع لخياراته · المس مع الاستمرار للتحريك · اسحب الزاوية لتغيير الحجم</string>
+    <string name="qs_custom_icon_size">حجم الرمز</string>
+    <string name="qs_custom_label">التسمية</string>
+    <string name="qs_custom_label_inside">داخل</string>
+    <string name="qs_custom_label_under">أسفل</string>
+    <string name="qs_custom_look">نمط</string>
+    <string name="qs_custom_media_art">الغلاف</string>
+    <string name="qs_custom_media_blocks">كتل</string>
+    <string name="qs_custom_media_cover">تغطية</string>
+    <string name="qs_custom_media_full">كامل</string>
+    <string name="qs_custom_media_glow">توهج</string>
+    <string name="qs_custom_media_line">خط</string>
+    <string name="qs_custom_media_look">نمط</string>
+    <string name="qs_custom_media_place">الموضع</string>
+    <string name="qs_custom_media_place_above">فوق المربّعات</string>
+    <string name="qs_custom_media_place_below">أسفل المربّعات</string>
+    <string name="qs_custom_media_place_grid">مع المربّعات</string>
+    <string name="qs_custom_media_play">التشغيل فقط</string>
+    <string name="qs_custom_media_progress">التقدم</string>
+    <string name="qs_custom_media_tall">طويل</string>
+    <string name="qs_custom_media_trio">السابق، تشغيل، التالي</string>
+    <string name="qs_custom_media_wave">موجة</string>
+    <string name="qs_custom_media_wide">عريض</string>
+    <string name="qs_custom_mix_footer">أزرار التذييل</string>
+    <string name="qs_custom_mix_media">مشغل الوسائط</string>
+    <string name="qs_custom_mix_paint">ألوان المربّعات</string>
+    <string name="qs_custom_mix_slider">شريط منزلق</string>
+    <string name="qs_custom_mixed">مختلط</string>
+    <string name="qs_custom_my_theme_name">مظهري %1$d</string>
+    <string name="qs_custom_my_themes">مظاهري (المس مع الاستمرار للحذف)</string>
+    <string name="qs_custom_off_fill">المربّعات المطفأة</string>
+    <string name="qs_custom_on_fill">المربّعات المفعّلة</string>
+    <string name="qs_custom_paste_code">لصق الرمز</string>
+    <string name="qs_custom_pill">الشريط</string>
+    <string name="qs_custom_reset">إعادة تعيين هذا المظهر</string>
+    <string name="qs_custom_reset_tiles">إعادة تعيين المربّعات</string>
+    <string name="qs_custom_rounded">مستدير</string>
+    <string name="qs_custom_rows">الصفوف في الصفحة</string>
+    <string name="qs_custom_same_as_panel">مطابق للوحة</string>
+    <string name="qs_custom_save">حفظ كمظهري</string>
+    <string name="qs_custom_scroll">تمرير بدلاً من الصفحات</string>
+    <string name="qs_custom_second_line">السطر الثاني</string>
+    <string name="qs_custom_show">إظهار</string>
+    <string name="qs_custom_sizes">أحجام المربّعات</string>
+    <string name="qs_custom_slider_by_player">بجانب المشغّل</string>
+    <string name="qs_custom_slider_look">نمط</string>
+    <string name="qs_custom_slider_place">الموضع</string>
+    <string name="qs_custom_slider_top">أعلى</string>
+    <string name="qs_custom_slider_under">أسفل المربّعات</string>
+    <string name="qs_custom_spacing">المسافة</string>
+    <string name="qs_custom_start_from">ابدأ من</string>
+    <string name="qs_custom_tab_add">إضافة</string>
+    <string name="qs_custom_tab_mix">مزيج</string>
+    <string name="qs_custom_tab_slider">شريط منزلق</string>
+    <string name="qs_custom_tab_tiles">المربّعات</string>
+    <string name="qs_custom_theme_blueprint">مخطط</string>
+    <string name="qs_custom_theme_cards">بطاقات</string>
+    <string name="qs_custom_theme_circles">دوائر</string>
+    <string name="qs_custom_theme_classic">كلاسيكي</string>
+    <string name="qs_custom_theme_compact">مدمج</string>
+    <string name="qs_custom_theme_duo">ثنائي</string>
+    <string name="qs_custom_theme_glass">زجاجي</string>
+    <string name="qs_custom_theme_neon">نيون</string>
+    <string name="qs_custom_theme_remix">Remix</string>
+    <string name="qs_custom_theme_shapes">أشكال</string>
+    <string name="qs_custom_theme_soft">ناعم</string>
+    <string name="qs_custom_theme_stock">الافتراضي</string>
+    <string name="qs_custom_tile_color">اللون عند التشغيل</string>
+    <string name="qs_custom_tile_height">الارتفاع</string>
+    <string name="qs_custom_tile_height_dp">ارتفاع المربّع</string>
+    <string name="qs_look_label">نمط</string>
+    <string name="qs_look_none">اضغط للنمط التالي</string>
+    <string name="quick_settings_clear_voice_label">الصوت الواضح</string>
+    <string name="accessibility_quick_settings_clear_voice_on">تم تشغيل الصوت الواضح.</string>
+    <string name="accessibility_quick_settings_clear_voice_off">تم إيقاف الصوت الواضح.</string>
 </resources>

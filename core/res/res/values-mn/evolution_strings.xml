@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="pocket_mode_title">Халаасны горим идэвхтэй байна</string>
+    <string name="pocket_mode_illustration_description">Халаасанд байгаа утасны зураг</string>
+    <string name="pocket_mode_instructions_header">Утсаа ашиглахын тулд:</string>
+    <string name="pocket_mode_instruction_step1">1. Дээрх цэнхэр хэсэг (ойртлын мэдрэгч) саадгүй, шороо, тоосноос ангид байгаа эсэхийг шалгана уу.</string>
+    <string name="pocket_mode_instruction_step2">2. Халаасны горимоос гарахын тулд асаах товчийг удаан дарна уу.</string>
+</resources>

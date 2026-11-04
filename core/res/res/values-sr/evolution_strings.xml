@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="pocket_mode_title">Режим џепа је активан</string>
+    <string name="pocket_mode_illustration_description">Илустрација телефона у џепу</string>
+    <string name="pocket_mode_instructions_header">Да бисте користили телефон:</string>
+    <string name="pocket_mode_instruction_step1">1. Уверите се да је плаво подручје (сензор близине) приказано изнад без препрека и без прљавштине или прашине.</string>
+    <string name="pocket_mode_instruction_step2">2. Притисните и држите дугме за укључивање да бисте изашли из режима џепа.</string>
+</resources>

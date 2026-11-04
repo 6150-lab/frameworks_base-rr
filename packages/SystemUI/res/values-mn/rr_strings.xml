@@ -49,4 +49,205 @@
     <string name="qs_custom_tile_icon">"Дүрс тэмдэг"</string>
     <string name="qs_custom_tile_width">"Өргөн"</string>
     <string name="qs_custom_title">"Өөрчлөх"</string>
+    <string name="rr_power_title">Асаалт</string>
+    <string name="rr_power_status">%1$s дээш · %2$s батарей</string>
+    <string name="rr_power_status_uptime">%1$s дээш</string>
+    <string name="rr_power_back">Асаах/унтраах цэс рүү буцах</string>
+    <string name="rr_shutdown_back_soon">Resurrected Remix удахгүй буцна</string>
+    <string name="global_action_restart_subtitle">Утсыг хэрхэн дахин асаахаа сонгоно уу</string>
+    <string name="global_action_restart_system_summary">Android-ийг дахин асаана. Удаан дарвал аюулгүй горим</string>
+    <string name="global_action_restart_recovery_summary">Шинэчлэлт суулгах, sideload эсвэл өгөгдлийг арилгах</string>
+    <string name="global_action_restart_bootloader_summary">Fastboot, boot зураг бичихэд</string>
+    <string name="global_action_restart_fastboot_summary">Userspace fastboot, системийн хуваалтуудад</string>
+    <string name="global_action_restart_download_summary">Татаж авах горим, vendor флаш хэрэгслэлд</string>
+    <string name="volume_ringer_priority_only">Чухал</string>
+    <string name="volume_ringer_dnd">Бүү саад бол</string>
+    <string name="tristate_flashlight_blink">Гар чийдэн анивчих</string>
+    <string name="tristate_brightness_bright">Хамгийн их гэрэлтүүлэг</string>
+    <string name="tristate_brightness_dark">Хамгийн бага гэрэлтүүлэг</string>
+    <string name="tristate_brightness_auto">Автомат гэрэлтүүлэг</string>
+    <string name="tristate_rotation_0">Босоо</string>
+    <string name="tristate_rotation_90">Хэвтээ (90°)</string>
+    <string name="tristate_rotation_270">Хэвтээ (270°)</string>
+    <string name="tristate_app_launch">Аппликейшн нээгдэж байна</string>
+    <string name="face_unlock_recognizing">Нүүр таньж байна...</string>
+    <string name="screen_on_time_label">SOT <xliff:g id="duration" example="5 hr 12 min">%1$s</xliff:g></string>
+    <string name="quick_launch_video">Видео</string>
+    <string name="quick_launch_qr">QR уншуулах</string>
+    <string name="now_bar_charging">Цэнэглэж байна · <xliff:g id="level" example="74">%1$d</xliff:g>%%</string>
+    <string name="now_bar_full_in">Дүүрэх хүртэл <xliff:g id="duration" example="22 min">%1$s</xliff:g></string>
+    <string name="now_bar_charged">Цэнэглэгдсэн</string>
+    <string name="now_bar_flashlight_on">Гар чийдэн асаалттай</string>
+    <string name="now_bar_buds">Чихэвч</string>
+    <string name="now_bar_buds_case">Кейс <xliff:g id="level" example="61">%1$d</xliff:g></string>
+    <string name="now_bar_play">Тоглуулах</string>
+    <string name="now_bar_pause">Түр зогсоох</string>
+    <string name="now_bar_previous">Өмнөх</string>
+    <string name="now_bar_next">Дараах</string>
+    <string name="now_bar_hide">Дуусах хүртэл нуух</string>
+    <string name="now_bar_settings">Now Bar тохиргоо</string>
+    <string name="now_bar_pin">Байнгын дэлгэцэд бэхлэх</string>
+    <string name="stage_battery_description">Батарей <xliff:g id="percent" example="74">%1$d</xliff:g> хувь</string>
+    <string name="stage_alarm_description">Дараагийн сэрүүлэг <xliff:g id="time" example="Tue 6:30">%1$s</xliff:g></string>
+    <string name="flatline_playing">ОДОО ТОГЛОЖ БАЙНА</string>
+    <string name="flatline_call">ОРООД ДУУДЛАГА</string>
+    <string name="flatline_vitals">Эрүүл мэндийн үзүүлэлт</string>
+    <string name="flatline_vitals_preview">74% · Сэрүүлэг 6:30</string>
+    <string name="flatline_alarm">Сэрүүлэг <xliff:g id="time" example="6:30">%1$s</xliff:g></string>
+    <string name="now_bar_unpin">Байнгын дэлгэцнээс салгах</string>
+    <string name="now_bar_open">Нээх</string>
+    <string name="now_bar_output">Гаралт</string>
+    <string name="now_bar_close">Хаах</string>
+    <string name="now_bar_minutes_left"><xliff:g id="minutes" example="4">%1$d</xliff:g> мин үлдсэн</string>
+    <string name="now_bar_minutes"><xliff:g id="minutes" example="12">%1$d</xliff:g> мин</string>
+    <string name="now_bar_versus"><xliff:g id="team" example="Lakers">%1$s</xliff:g> ба <xliff:g id="team" example="Celtics">%2$s</xliff:g></string>
+    <string name="charge_report_channel">Цэнэглэлтийн тайлан</string>
+    <string name="charge_report_title">Цэнэглэлтийн тайлан</string>
+    <string name="charge_report_summary">+<xliff:g id="added" example="62">%1$d</xliff:g>%% <xliff:g id="time" example="31 min">%2$s</xliff:g> дотор · дээд <xliff:g id="watts" example="55.0">%3$s</xliff:g> Вт · хамгийн их <xliff:g id="temp" example="38">%4$s</xliff:g> °C</string>
+    <string name="charge_report_details"><xliff:g id="charger" example="Wired">%1$s</xliff:g> · <xliff:g id="from" example="12">%2$d</xliff:g>%%-с <xliff:g id="to" example="74">%3$d</xliff:g>%% · дундаж <xliff:g id="watts" example="41.3">%4$s</xliff:g> Вт</string>
+    <string name="charge_report_wired">Утастай</string>
+    <string name="charge_report_wireless">Утасгүй</string>
+    <string name="charge_report_dock">Тавцан</string>
+    <string name="usb_mode_picker_title">USB горим сонгох</string>
+    <string name="usb_mode_photo_transfer">Зураг &amp; видео дамжуулалт</string>
+    <string name="usb_mode_webcam">USB вебкам</string>
+    <string name="usb_mode_charging_only">Зөвхөн цэнэглэх</string>
+    <string name="usb_charging_status">USB цэнэглэлт асаалттай</string>
+    <string name="usb_island_title">USB холбогдсон</string>
+    <string name="usb_island_settings">USB тохиргоо</string>
+    <string name="usb_mode_short_charge">Цэнэглэх</string>
+    <string name="keyguard_indication_dash_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Dash цэнэглэлт (дүүрэх хүртэл <xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g>)</string>
+    <string name="keyguard_plugged_in_dash_charging"><xliff:g id="percentage">%s</xliff:g> • Dash цэнэглэлт</string>
+    <string name="keyguard_indication_warp_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Warp цэнэглэлт (дүүрэх хүртэл <xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g>)</string>
+    <string name="keyguard_plugged_in_warp_charging"><xliff:g id="percentage">%s</xliff:g> • Warp цэнэглэлт</string>
+    <string name="keyguard_indication_vooc_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • VOOC цэнэглэлт (дүүрэх хүртэл <xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g>)</string>
+    <string name="keyguard_plugged_in_vooc_charging"><xliff:g id="percentage">%s</xliff:g> • VOOC цэнэглэлт</string>
+    <string name="keyguard_indication_turbo_power_time"><xliff:g id="percentage">%2$s</xliff:g> • Turbo цэнэглэлт (дүүрэх хүртэл <xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g>)</string>
+    <string name="keyguard_plugged_in_turbo_charging"><xliff:g id="percentage">%s</xliff:g> • Turbo цэнэглэлт</string>
+    <string name="charging_vfx_long_press_to_speed">Хүрээд удаан дарвал хурдыг нэмнэ</string>
+    <string name="charging_vfx_source_wireless">Утасгүй</string>
+    <string name="charging_vfx_source_dock">Тавцан</string>
+    <string name="charging_vfx_time_to_full">Дүүрэх хүртэл <xliff:g id="time" example="25 min">%s</xliff:g></string>
+    <string name="qs_media_tile_idle">Одоогоор тоглуулахгүй байна</string>
+    <string name="qs_volume_tile_muted">Дуугүй</string>
+    <string name="qs_custom_volume_half">Хагас</string>
+    <string name="qs_custom_volume_slider">Гулсуур</string>
+    <string name="qs_custom_volume_fill">Дүүргэлт</string>
+    <string name="qs_custom_volume_stack">Овоолго</string>
+    <string name="qs_custom_volume_ring">Хонх</string>
+    <string name="qs_custom_volume_call">Дуудлага</string>
+    <string name="qs_custom_volume_show_all">Нэр ба хувь</string>
+    <string name="qs_custom_volume_show_percent">Хувь</string>
+    <string name="qs_custom_volume_show_icon">Зөвхөн дүрс</string>
+    <string name="qs_custom_volume_tap">Дүрс дээр дарах</string>
+    <string name="qs_custom_volume_mute">Дуугүй болгох</string>
+    <string name="qs_custom_volume_panel">Дууны самбар</string>
+    <string name="qs_custom_volume_ticks">Чирэх үед тэмдэглэгээ</string>
+    <string name="qs_custom_accent">Акцент</string>
+    <string name="qs_custom_add_tile">Хавтан нэмэх</string>
+    <string name="qs_custom_all_added">Бүх хавтан самбарт байна</string>
+    <string name="qs_custom_all_icons">Бүх дүрс</string>
+    <string name="qs_custom_all_long">Бүгд урт</string>
+    <string name="qs_custom_backing">Дүрсний дэвсгэр</string>
+    <string name="qs_custom_blob">Блоб</string>
+    <string name="qs_custom_code_applied">Загвар хэрэглэгдлээ</string>
+    <string name="qs_custom_code_bad">Буулгах загварын код алга</string>
+    <string name="qs_custom_code_copied">Загварын код хуулагдлаа</string>
+    <string name="qs_custom_color_amber">Амбер</string>
+    <string name="qs_custom_color_rose">Роуз</string>
+    <string name="qs_custom_columns">Багана</string>
+    <string name="qs_custom_copy_code">Код хуулах</string>
+    <string name="qs_custom_corners">Булан</string>
+    <string name="qs_custom_depth">Гүн</string>
+    <string name="qs_custom_depth_flat">Хавтгай</string>
+    <string name="qs_custom_depth_raised">Өндөрлөсөн</string>
+    <string name="qs_custom_drop_remove">Энд чирж хасах</string>
+    <string name="qs_custom_fill_clear">Цэвэрлэх</string>
+    <string name="qs_custom_fill_dark">Бараан</string>
+    <string name="qs_custom_fill_gradient">Градиент</string>
+    <string name="qs_custom_fill_icon">Зөвхөн дүрс</string>
+    <string name="qs_custom_fill_solid">Тогтмол</string>
+    <string name="qs_custom_fill_surface">Гадаргуу</string>
+    <string name="qs_custom_fill_tint">Өнгөлөг</string>
+    <string name="qs_custom_font_caps">Caps</string>
+    <string name="qs_custom_font_mono">Mono</string>
+    <string name="qs_custom_font_sans">Sans</string>
+    <string name="qs_custom_glow">Асаалттай үед гэрэлтэх</string>
+    <string name="qs_custom_hide">Нуух</string>
+    <string name="qs_custom_hint">Хавтан дээр дарвал сонголт · Удаан дарвал зөөх · Буланг чирж хэмжээг өөрчлөх</string>
+    <string name="qs_custom_icon_size">Дүрсний хэмжээ</string>
+    <string name="qs_custom_label">Нэр</string>
+    <string name="qs_custom_label_inside">Дотор</string>
+    <string name="qs_custom_label_under">Доор</string>
+    <string name="qs_custom_look">Харагдац</string>
+    <string name="qs_custom_media_art">Уран зураг</string>
+    <string name="qs_custom_media_blocks">Блокууд</string>
+    <string name="qs_custom_media_cover">Хавтас</string>
+    <string name="qs_custom_media_full">Бүрэн</string>
+    <string name="qs_custom_media_glow">Гэрэл</string>
+    <string name="qs_custom_media_line">Шугам</string>
+    <string name="qs_custom_media_look">Харагдац</string>
+    <string name="qs_custom_media_place">Байрлал</string>
+    <string name="qs_custom_media_place_above">Хавтангийн дээр</string>
+    <string name="qs_custom_media_place_below">Хавтангийн доор</string>
+    <string name="qs_custom_media_place_grid">Хавтантай зэрэгцүүлэх</string>
+    <string name="qs_custom_media_play">Зөвхөн тоглуулах</string>
+    <string name="qs_custom_media_progress">Явц</string>
+    <string name="qs_custom_media_tall">Өндөр</string>
+    <string name="qs_custom_media_trio">Өмнөх, тоглуулах, дараах</string>
+    <string name="qs_custom_media_wave">Долгион</string>
+    <string name="qs_custom_media_wide">Өргөн</string>
+    <string name="qs_custom_mix_footer">Доорх товчлуурууд</string>
+    <string name="qs_custom_mix_media">Медиа тоглуулагч</string>
+    <string name="qs_custom_mix_paint">Хавтангийн өнгө</string>
+    <string name="qs_custom_mix_shape">Хавтангийн хэлбэр</string>
+    <string name="qs_custom_mix_slider">Гулсуур</string>
+    <string name="qs_custom_mixed">Холимог</string>
+    <string name="qs_custom_my_theme_name">Миний загвар %1$d</string>
+    <string name="qs_custom_my_themes">Миний загварууд (удаан дарж устгах)</string>
+    <string name="qs_custom_off_fill">Унтраасан хавтан</string>
+    <string name="qs_custom_on_fill">Асаасан хавтан</string>
+    <string name="qs_custom_paste_code">Код буулгах</string>
+    <string name="qs_custom_pill">Капсул</string>
+    <string name="qs_custom_reset">Энэ загварыг шинэчлэх</string>
+    <string name="qs_custom_reset_tiles">Хавтанг дахин тохируулах</string>
+    <string name="qs_custom_rounded">Дугуй</string>
+    <string name="qs_custom_rows">Хуудас дээрх мөр</string>
+    <string name="qs_custom_same_as_panel">Самбартай адил</string>
+    <string name="qs_custom_save">Миний загвар болгон хадгалах</string>
+    <string name="qs_custom_scroll">Хуудас оронд гүйлгэх</string>
+    <string name="qs_custom_second_line">Хоёр дахь мөр</string>
+    <string name="qs_custom_show">Харуулах</string>
+    <string name="qs_custom_sizes">Хавтангийн хэмжээ</string>
+    <string name="qs_custom_slider_by_player">Тоглуулагчийн дэргэд</string>
+    <string name="qs_custom_slider_look">Харагдац</string>
+    <string name="qs_custom_slider_place">Байрлал</string>
+    <string name="qs_custom_slider_top">Дээд</string>
+    <string name="qs_custom_slider_under">Хавтангийн доор</string>
+    <string name="qs_custom_spacing">Зай</string>
+    <string name="qs_custom_start_from">Эхлэх</string>
+    <string name="qs_custom_tab_add">Нэмэх</string>
+    <string name="qs_custom_tab_mix">Холих</string>
+    <string name="qs_custom_tab_slider">Гулсуур</string>
+    <string name="qs_custom_tab_tiles">Хавтан</string>
+    <string name="qs_custom_theme_blueprint">Blueprint</string>
+    <string name="qs_custom_theme_cards">Картууд</string>
+    <string name="qs_custom_theme_circles">Дугуйнууд</string>
+    <string name="qs_custom_theme_classic">Сонгодог</string>
+    <string name="qs_custom_theme_compact">Шахмал</string>
+    <string name="qs_custom_theme_duo">Duo</string>
+    <string name="qs_custom_theme_glass">Шил</string>
+    <string name="qs_custom_theme_neon">Неон</string>
+    <string name="qs_custom_theme_remix">Remix</string>
+    <string name="qs_custom_theme_shapes">Хэлбэрүүд</string>
+    <string name="qs_custom_theme_soft">Soft</string>
+    <string name="qs_custom_theme_stock">Анхдагч</string>
+    <string name="qs_custom_tile_color">Асаалттай үеийн өнгө</string>
+    <string name="qs_custom_tile_height">Өндөр</string>
+    <string name="qs_custom_tile_height_dp">Хавтангийн өндөр</string>
+    <string name="qs_look_label">Харагдац</string>
+    <string name="qs_look_none">Дараагийн харагдацыг дарна уу</string>
+    <string name="quick_settings_clear_voice_label">Clear Voice</string>
+    <string name="accessibility_quick_settings_clear_voice_on">Clear Voice асаалттай.</string>
+    <string name="accessibility_quick_settings_clear_voice_off">Clear Voice унтраалттай.</string>
 </resources>

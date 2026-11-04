@@ -49,4 +49,205 @@
     <string name="qs_custom_tile_icon">"Икона"</string>
     <string name="qs_custom_tile_width">"Ширина"</string>
     <string name="qs_custom_title">"Приспособете"</string>
+    <string name="rr_power_title">Напојување</string>
+    <string name="rr_power_status">Up %1$s · %2$s батерија</string>
+    <string name="rr_power_status_uptime">Up %1$s</string>
+    <string name="rr_power_back">Назад во менито за напојување</string>
+    <string name="rr_shutdown_back_soon">Resurrected Remix ќе се врати наскоро</string>
+    <string name="global_action_restart_subtitle">Изберете како телефонот повторно да се вклучи</string>
+    <string name="global_action_restart_system_summary">Повторно стартувај го Android. Долго притиснете за безбеден режим</string>
+    <string name="global_action_restart_recovery_summary">Инсталирај ажурирања, sideload или избриши податоци</string>
+    <string name="global_action_restart_bootloader_summary">Fastboot, за flash на boot слики</string>
+    <string name="global_action_restart_fastboot_summary">Userspace fastboot, за системски партиции</string>
+    <string name="global_action_restart_download_summary">Режим за преземање, за алатката на продавачот за flash</string>
+    <string name="volume_ringer_priority_only">Приоритет</string>
+    <string name="volume_ringer_dnd">Не вознемирувај</string>
+    <string name="tristate_flashlight_blink">Трепкање со светилката</string>
+    <string name="tristate_brightness_bright">Максимална осветленост</string>
+    <string name="tristate_brightness_dark">Минимална осветленост</string>
+    <string name="tristate_brightness_auto">Автоматска осветленост</string>
+    <string name="tristate_rotation_0">Портрет</string>
+    <string name="tristate_rotation_90">Пејзаж (90°)</string>
+    <string name="tristate_rotation_270">Пејзаж (270°)</string>
+    <string name="tristate_app_launch">Се вчитува апликација</string>
+    <string name="face_unlock_recognizing">Препознавање на лице...</string>
+    <string name="screen_on_time_label">SOT <xliff:g id="duration" example="5 hr 12 min">%1$s</xliff:g></string>
+    <string name="quick_launch_video">Видео</string>
+    <string name="quick_launch_qr">Скенирај QR</string>
+    <string name="now_bar_charging">Се полни · <xliff:g id="level" example="74">%1$d</xliff:g>%%</string>
+    <string name="now_bar_full_in">Полно за <xliff:g id="duration" example="22 min">%1$s</xliff:g></string>
+    <string name="now_bar_charged">Наполнето</string>
+    <string name="now_bar_flashlight_on">Светилката е вклучена</string>
+    <string name="now_bar_buds">Слушалки</string>
+    <string name="now_bar_buds_case">Кутија <xliff:g id="level" example="61">%1$d</xliff:g></string>
+    <string name="now_bar_play">Пушти</string>
+    <string name="now_bar_pause">Паузирај</string>
+    <string name="now_bar_previous">Претходно</string>
+    <string name="now_bar_next">Следно</string>
+    <string name="now_bar_hide">Сокриј додека трае</string>
+    <string name="now_bar_settings">Поставки за Now Bar</string>
+    <string name="now_bar_pin">Закачи на екран во мирување</string>
+    <string name="stage_battery_description">Батерија <xliff:g id="percent" example="74">%1$d</xliff:g> проценти</string>
+    <string name="stage_alarm_description">Следен аларм <xliff:g id="time" example="Tue 6:30">%1$s</xliff:g></string>
+    <string name="flatline_playing">ВО ТЕК</string>
+    <string name="flatline_call">ДОЈДУВАЊЕ НА ПОВИК</string>
+    <string name="flatline_vitals">Витални</string>
+    <string name="flatline_vitals_preview">74% · Аларм 6:30</string>
+    <string name="flatline_alarm">Аларм <xliff:g id="time" example="6:30">%1$s</xliff:g></string>
+    <string name="now_bar_unpin">Откачи од екран во мирување</string>
+    <string name="now_bar_open">Отвори</string>
+    <string name="now_bar_output">Излез</string>
+    <string name="now_bar_close">Затвори</string>
+    <string name="now_bar_minutes_left">Уште <xliff:g id="minutes" example="4">%1$d</xliff:g> мин</string>
+    <string name="now_bar_minutes"><xliff:g id="minutes" example="12">%1$d</xliff:g> мин</string>
+    <string name="now_bar_versus"><xliff:g id="team" example="Lakers">%1$s</xliff:g> наспроти <xliff:g id="team" example="Celtics">%2$s</xliff:g></string>
+    <string name="charge_report_channel">Извештаи за полнење</string>
+    <string name="charge_report_title">Извештај за полнење</string>
+    <string name="charge_report_summary">+<xliff:g id="added" example="62">%1$d</xliff:g>%% за <xliff:g id="time" example="31 min">%2$s</xliff:g> · врв <xliff:g id="watts" example="55.0">%3$s</xliff:g> W · макс. <xliff:g id="temp" example="38">%4$s</xliff:g> °C</string>
+    <string name="charge_report_details"><xliff:g id="charger" example="Wired">%1$s</xliff:g> · <xliff:g id="from" example="12">%2$d</xliff:g>%% до <xliff:g id="to" example="74">%3$d</xliff:g>%% · просек <xliff:g id="watts" example="41.3">%4$s</xliff:g> W</string>
+    <string name="charge_report_wired">Жичен</string>
+    <string name="charge_report_wireless">Безжичен</string>
+    <string name="charge_report_dock">Док</string>
+    <string name="usb_mode_picker_title">Изберете USB режим</string>
+    <string name="usb_mode_photo_transfer">Пренос на фотографии и видео</string>
+    <string name="usb_mode_webcam">USB веб-камера</string>
+    <string name="usb_mode_charging_only">Само полнење</string>
+    <string name="usb_charging_status">USB полнењето е вклучено</string>
+    <string name="usb_island_title">USB е поврзан</string>
+    <string name="usb_island_settings">USB поставки</string>
+    <string name="usb_mode_short_charge">Полнење</string>
+    <string name="keyguard_indication_dash_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Dash полнење (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> до полно)</string>
+    <string name="keyguard_plugged_in_dash_charging"><xliff:g id="percentage">%s</xliff:g> • Dash полнење</string>
+    <string name="keyguard_indication_warp_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Warp полнење (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> до полно)</string>
+    <string name="keyguard_plugged_in_warp_charging"><xliff:g id="percentage">%s</xliff:g> • Warp полнење</string>
+    <string name="keyguard_indication_vooc_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • VOOC полнење (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> до полно)</string>
+    <string name="keyguard_plugged_in_vooc_charging"><xliff:g id="percentage">%s</xliff:g> • VOOC полнење</string>
+    <string name="keyguard_indication_turbo_power_time"><xliff:g id="percentage">%2$s</xliff:g> • Turbo полнење (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> до полно)</string>
+    <string name="keyguard_plugged_in_turbo_charging"><xliff:g id="percentage">%s</xliff:g> • Turbo полнење</string>
+    <string name="charging_vfx_long_press_to_speed">Задржете за да ја зголемите брзината</string>
+    <string name="charging_vfx_source_wireless">Безжичен</string>
+    <string name="charging_vfx_source_dock">Док</string>
+    <string name="charging_vfx_time_to_full">Полно за <xliff:g id="time" example="25 min">%s</xliff:g></string>
+    <string name="qs_media_tile_idle">Ништо не се пушта</string>
+    <string name="qs_volume_tile_muted">Исклучен звук</string>
+    <string name="qs_custom_volume_half">Половина</string>
+    <string name="qs_custom_volume_slider">Лизгач</string>
+    <string name="qs_custom_volume_fill">Пополни</string>
+    <string name="qs_custom_volume_stack">Наредени</string>
+    <string name="qs_custom_volume_ring">Ѕвонење</string>
+    <string name="qs_custom_volume_call">Повик</string>
+    <string name="qs_custom_volume_show_all">Име и процент</string>
+    <string name="qs_custom_volume_show_percent">Процент</string>
+    <string name="qs_custom_volume_show_icon">Само икона</string>
+    <string name="qs_custom_volume_tap">Допрете ја иконата</string>
+    <string name="qs_custom_volume_mute">Исклучи звук</string>
+    <string name="qs_custom_volume_panel">Панел за јачина на звук</string>
+    <string name="qs_custom_volume_ticks">Ознаки при влечење</string>
+    <string name="qs_custom_accent">Акцент</string>
+    <string name="qs_custom_add_tile">Додај плочка</string>
+    <string name="qs_custom_all_added">Секоја плочка е на панелот</string>
+    <string name="qs_custom_all_icons">Сите икони</string>
+    <string name="qs_custom_all_long">Сите долги</string>
+    <string name="qs_custom_backing">Позадина на иконата</string>
+    <string name="qs_custom_blob">Облик</string>
+    <string name="qs_custom_code_applied">Темата е применета</string>
+    <string name="qs_custom_code_bad">Нема код за темата за залепување</string>
+    <string name="qs_custom_code_copied">Кодот за темата е копиран</string>
+    <string name="qs_custom_color_amber">Килибарна</string>
+    <string name="qs_custom_color_rose">Розова</string>
+    <string name="qs_custom_columns">Колони</string>
+    <string name="qs_custom_copy_code">Копирај код</string>
+    <string name="qs_custom_corners">Аглови</string>
+    <string name="qs_custom_depth">Длабочина</string>
+    <string name="qs_custom_depth_flat">Рамна</string>
+    <string name="qs_custom_depth_raised">Издигната</string>
+    <string name="qs_custom_drop_remove">Спуштете тука за отстранување</string>
+    <string name="qs_custom_fill_clear">Исчисти</string>
+    <string name="qs_custom_fill_dark">Темна</string>
+    <string name="qs_custom_fill_gradient">Градиент</string>
+    <string name="qs_custom_fill_icon">Само икона</string>
+    <string name="qs_custom_fill_solid">Цврста</string>
+    <string name="qs_custom_fill_surface">Површина</string>
+    <string name="qs_custom_fill_tint">Нијанса</string>
+    <string name="qs_custom_font_caps">Големи букви</string>
+    <string name="qs_custom_font_mono">Mono</string>
+    <string name="qs_custom_font_sans">Sans</string>
+    <string name="qs_custom_glow">Сјај кога е вклучено</string>
+    <string name="qs_custom_hide">Сокриј</string>
+    <string name="qs_custom_hint">Допрете плочка за опции · Задржете за да поместите · Влечете го аголот за промена на големина</string>
+    <string name="qs_custom_icon_size">Големина на иконата</string>
+    <string name="qs_custom_label">Ознака</string>
+    <string name="qs_custom_label_inside">Внатре</string>
+    <string name="qs_custom_label_under">Одоздола</string>
+    <string name="qs_custom_look">Изглед</string>
+    <string name="qs_custom_media_art">Уметничко дело</string>
+    <string name="qs_custom_media_blocks">Блокови</string>
+    <string name="qs_custom_media_cover">Покриј</string>
+    <string name="qs_custom_media_full">Целосна</string>
+    <string name="qs_custom_media_glow">Сјај</string>
+    <string name="qs_custom_media_line">Линија</string>
+    <string name="qs_custom_media_look">Изглед</string>
+    <string name="qs_custom_media_place">Каде</string>
+    <string name="qs_custom_media_place_above">Над плочките</string>
+    <string name="qs_custom_media_place_below">Под плочките</string>
+    <string name="qs_custom_media_place_grid">Со плочките</string>
+    <string name="qs_custom_media_play">Само пуштање</string>
+    <string name="qs_custom_media_progress">Напредок</string>
+    <string name="qs_custom_media_tall">Висока</string>
+    <string name="qs_custom_media_trio">Претходно, пушти, следно</string>
+    <string name="qs_custom_media_wave">Бранови</string>
+    <string name="qs_custom_media_wide">Широка</string>
+    <string name="qs_custom_mix_footer">Копчиња на долниот дел</string>
+    <string name="qs_custom_mix_media">Плеер</string>
+    <string name="qs_custom_mix_paint">Бои на плочките</string>
+    <string name="qs_custom_mix_shape">Облик на плочките</string>
+    <string name="qs_custom_mix_slider">Лизгач</string>
+    <string name="qs_custom_mixed">Мешано</string>
+    <string name="qs_custom_my_theme_name">Мојата тема %1$d</string>
+    <string name="qs_custom_my_themes">Моите теми (задржете за бришење)</string>
+    <string name="qs_custom_off_fill">Исклучени плочки</string>
+    <string name="qs_custom_on_fill">Вклучени плочки</string>
+    <string name="qs_custom_paste_code">Залепи код</string>
+    <string name="qs_custom_pill">Таблетка</string>
+    <string name="qs_custom_reset">Ресетирај ја оваа тема</string>
+    <string name="qs_custom_reset_tiles">Ресетирај плочки</string>
+    <string name="qs_custom_rounded">Заоблени</string>
+    <string name="qs_custom_rows">Редови по страница</string>
+    <string name="qs_custom_same_as_panel">Исто како панелот</string>
+    <string name="qs_custom_save">Зачувај како моја тема</string>
+    <string name="qs_custom_scroll">Лизгање наместо страници</string>
+    <string name="qs_custom_second_line">Втор ред</string>
+    <string name="qs_custom_show">Прикажи</string>
+    <string name="qs_custom_sizes">Големини на плочките</string>
+    <string name="qs_custom_slider_by_player">Покрај плеерот</string>
+    <string name="qs_custom_slider_look">Изглед</string>
+    <string name="qs_custom_slider_place">Каде</string>
+    <string name="qs_custom_slider_top">Горе</string>
+    <string name="qs_custom_slider_under">Под плочките</string>
+    <string name="qs_custom_spacing">Размак</string>
+    <string name="qs_custom_start_from">Почни од</string>
+    <string name="qs_custom_tab_add">Додај</string>
+    <string name="qs_custom_tab_mix">Мешавина</string>
+    <string name="qs_custom_tab_slider">Лизгач</string>
+    <string name="qs_custom_tab_tiles">Плочки</string>
+    <string name="qs_custom_theme_blueprint">Blueprint</string>
+    <string name="qs_custom_theme_cards">Картички</string>
+    <string name="qs_custom_theme_circles">Кругови</string>
+    <string name="qs_custom_theme_classic">Класично</string>
+    <string name="qs_custom_theme_compact">Компактно</string>
+    <string name="qs_custom_theme_duo">Duo</string>
+    <string name="qs_custom_theme_glass">Стакло</string>
+    <string name="qs_custom_theme_neon">Неон</string>
+    <string name="qs_custom_theme_remix">Remix</string>
+    <string name="qs_custom_theme_shapes">Облици</string>
+    <string name="qs_custom_theme_soft">Меки</string>
+    <string name="qs_custom_theme_stock">Стандардно</string>
+    <string name="qs_custom_tile_color">Боја кога е вклучено</string>
+    <string name="qs_custom_tile_height">Висина</string>
+    <string name="qs_custom_tile_height_dp">Висина на плочката</string>
+    <string name="qs_look_label">Изглед</string>
+    <string name="qs_look_none">Допрете за следниот изглед</string>
+    <string name="quick_settings_clear_voice_label">Чист глас</string>
+    <string name="accessibility_quick_settings_clear_voice_on">Чист глас вклучен.</string>
+    <string name="accessibility_quick_settings_clear_voice_off">Чист глас исклучен.</string>
 </resources>

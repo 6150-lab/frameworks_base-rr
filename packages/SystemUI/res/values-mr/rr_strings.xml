@@ -48,4 +48,206 @@
     <string name="qs_custom_tile_icon">"आयकन"</string>
     <string name="qs_custom_tile_width">"रूंदी"</string>
     <string name="qs_custom_title">"कस्टमाइझ करा"</string>
+    <string name="rr_power_title">पॉवर</string>
+    <string name="rr_power_status">%1$s वर · बॅटरी %2$s</string>
+    <string name="rr_power_status_uptime">%1$s वर</string>
+    <string name="rr_power_back">पॉवर मेनूवर परत</string>
+    <string name="rr_shutdown_back_soon">Resurrected Remix लवकरच परत येत आहे</string>
+    <string name="global_action_restart_subtitle">फोन पुन्हा कसा सुरू करायचा ते निवडा</string>
+    <string name="global_action_restart_system_summary">Android रीस्टार्ट करा. सेफ मोडसाठी दाबून ठेवा</string>
+    <string name="global_action_restart_recovery_summary">अपडेट्स इन्स्टॉल करा, साइडलोड करा किंवा डेटा पुसा</string>
+    <string name="global_action_restart_bootloader_summary">बूट इमेजेस फ्लॅश करण्यासाठी Fastboot</string>
+    <string name="global_action_restart_fastboot_summary">सिस्टम पार्टिशनसाठी युझरस्पेस Fastboot</string>
+    <string name="global_action_restart_download_summary">व्हेंडर फ्लॅश टूलसाठी डाउनलोड मोड</string>
+    <string name="volume_ringer_priority_only">प्राधान्य</string>
+    <string name="volume_ringer_dnd">DnD</string>
+    <string name="tristate_flashlight_blink">टॉर्च ब्लिंक</string>
+    <string name="tristate_brightness_bright">कमाल ब्राइटनेस</string>
+    <string name="tristate_brightness_dark">किमान ब्राइटनेस</string>
+    <string name="tristate_brightness_auto">ऑटो-ब्राइटनेस</string>
+    <string name="tristate_rotation_0">पोर्ट्रेट</string>
+    <string name="tristate_rotation_90">लँडस्केप (90°)</string>
+    <string name="tristate_rotation_270">लँडस्केप (270°)</string>
+    <string name="tristate_app_launch">ॲप सुरू होत आहे</string>
+    <string name="face_unlock_recognizing">चेहरा ओळखत आहे...</string>
+    <string name="screen_on_time_label">SOT <xliff:g id="duration" example="5 hr 12 min">%1$s</xliff:g></string>
+    <string name="quick_launch_video">व्हिडिओ</string>
+    <string name="quick_launch_qr">QR स्कॅन करा</string>
+    <string name="now_bar_charging">चार्ज होत आहे · <xliff:g id="level" example="74">%1$d</xliff:g>%%</string>
+    <string name="now_bar_full_in"><xliff:g id="duration" example="22 min">%1$s</xliff:g> मध्ये पूर्ण चार्ज</string>
+    <string name="now_bar_charged">चार्ज झाला</string>
+    <string name="now_bar_flashlight_on">फ्लॅशलाइट सुरू</string>
+    <string name="now_bar_buds">इअरबड्स</string>
+    <string name="now_bar_buds_case">केस <xliff:g id="level" example="61">%1$d</xliff:g></string>
+    <string name="now_bar_play">प्ले</string>
+    <string name="now_bar_pause">पॉज</string>
+    <string name="now_bar_previous">मागील</string>
+    <string name="now_bar_next">पुढील</string>
+    <string name="now_bar_hide">संपेपर्यंत लपवा</string>
+    <string name="now_bar_settings">Now Bar सेटिंग्ज</string>
+    <string name="now_bar_pin">ऑलवेज-ऑन डिस्प्लेवर पिन करा</string>
+    <string name="stage_battery_description">बॅटरी <xliff:g id="percent" example="74">%1$d</xliff:g> टक्के</string>
+    <string name="stage_alarm_description">पुढील अलार्म <xliff:g id="time" example="Tue 6:30">%1$s</xliff:g></string>
+    <string name="flatline_playing">आता प्ले होत आहे</string>
+    <string name="flatline_call">येणारा कॉल</string>
+    <string name="flatline_vitals">व्हायटल्स</string>
+    <string name="flatline_vitals_preview">74% · अलार्म 6:30</string>
+    <string name="flatline_alarm">अलार्म <xliff:g id="time" example="6:30">%1$s</xliff:g></string>
+    <string name="now_bar_unpin">ऑलवेज-ऑन डिस्प्लेवरून अनपिन करा</string>
+    <string name="now_bar_open">उघडा</string>
+    <string name="now_bar_output">आउटपुट</string>
+    <string name="now_bar_close">बंद करा</string>
+    <string name="now_bar_minutes_left"><xliff:g id="minutes" example="4">%1$d</xliff:g> मिनिटे शिल्लक</string>
+    <string name="now_bar_minutes"><xliff:g id="minutes" example="12">%1$d</xliff:g> मिनिटे</string>
+    <string name="now_bar_versus"><xliff:g id="team" example="Lakers">%1$s</xliff:g> विरुद्ध <xliff:g id="team" example="Celtics">%2$s</xliff:g></string>
+    <string name="charge_report_channel">चार्ज अहवाल</string>
+    <string name="charge_report_title">चार्ज अहवाल</string>
+    <string name="charge_report_summary"><xliff:g id="time" example="31 min">%2$s</xliff:g> मध्ये +<xliff:g id="added" example="62">%1$d</xliff:g>%% · पीक <xliff:g id="watts" example="55.0">%3$s</xliff:g> W · कमाल <xliff:g id="temp" example="38">%4$s</xliff:g> °C</string>
+    <string name="charge_report_details"><xliff:g id="charger" example="Wired">%1$s</xliff:g> · <xliff:g id="from" example="12">%2$d</xliff:g>%% ते <xliff:g id="to" example="74">%3$d</xliff:g>%% · सरासरी <xliff:g id="watts" example="41.3">%4$s</xliff:g> W</string>
+    <string name="charge_report_wired">वायर्ड</string>
+    <string name="charge_report_wireless">वायरलेस</string>
+    <string name="charge_report_dock">डॉक</string>
+    <string name="usb_mode_picker_title">USB मोड निवडा</string>
+    <string name="usb_mode_photo_transfer">फोटो आणि व्हिडिओ ट्रान्सफर</string>
+    <string name="usb_mode_webcam">USB वेबकॅम</string>
+    <string name="usb_mode_charging_only">फक्त चार्जिंग</string>
+    <string name="usb_charging_status">USB चार्जिंग चालू आहे</string>
+    <string name="usb_island_title">USB जोडलेले</string>
+    <string name="usb_island_settings">USB सेटिंग्ज</string>
+    <string name="usb_mode_short_charge">चार्ज</string>
+    <string name="keyguard_indication_dash_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Dash चार्जिंग (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> पूर्ण होईपर्यंत)</string>
+    <string name="keyguard_plugged_in_dash_charging"><xliff:g id="percentage">%s</xliff:g> • Dash चार्जिंग</string>
+    <string name="keyguard_indication_warp_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Warp चार्जिंग (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> पूर्ण होईपर्यंत)</string>
+    <string name="keyguard_plugged_in_warp_charging"><xliff:g id="percentage">%s</xliff:g> • Warp चार्जिंग</string>
+    <string name="keyguard_indication_vooc_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • VOOC चार्जिंग (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> पूर्ण होईपर्यंत)</string>
+    <string name="keyguard_plugged_in_vooc_charging"><xliff:g id="percentage">%s</xliff:g> • VOOC चार्जिंग</string>
+    <string name="keyguard_indication_turbo_power_time"><xliff:g id="percentage">%2$s</xliff:g> • टर्बो चार्जिंग (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> पूर्ण होईपर्यंत)</string>
+    <string name="keyguard_plugged_in_turbo_charging"><xliff:g id="percentage">%s</xliff:g> • टर्बो चार्जिंग</string>
+    <string name="charging_vfx_long_press_to_speed">वेग वाढवण्यासाठी दाबून धरा</string>
+    <string name="charging_vfx_source_wireless">वायरलेस</string>
+    <string name="charging_vfx_source_dock">डॉक</string>
+    <string name="charging_vfx_time_to_full"><xliff:g id="time" example="25 min">%s</xliff:g> मध्ये पूर्ण चार्ज</string>
+    <string name="qs_media_tile_idle">काहीही प्ले होत नाही</string>
+    <string name="qs_volume_tile_muted">म्यूट</string>
+    <string name="qs_custom_volume_half">अर्धा</string>
+    <string name="qs_custom_volume_slider">स्लाइडर</string>
+    <string name="qs_custom_volume_fill">भरलेले</string>
+    <string name="qs_custom_volume_stack">स्टॅक</string>
+    <string name="qs_custom_volume_ring">रिंग</string>
+    <string name="qs_custom_volume_call">कॉल</string>
+    <string name="qs_custom_volume_show_all">नाव आणि टक्केवारी</string>
+    <string name="qs_custom_volume_show_percent">टक्केवारी</string>
+    <string name="qs_custom_volume_show_icon">फक्त आयकॉन</string>
+    <string name="qs_custom_volume_tap">आयकॉनवर टॅप करा</string>
+    <string name="qs_custom_volume_mute">म्यूट करा</string>
+    <string name="qs_custom_volume_panel">व्हॉल्यूम पॅनल</string>
+    <string name="qs_custom_volume_ticks">ड्रॅग करताना खुणा</string>
+    <string name="qs_custom_accent">ॲक्सेंट</string>
+    <string name="qs_custom_add_tile">टाइल जोडा</string>
+    <string name="qs_custom_all_added">सर्व टाइल पॅनलवर आहेत</string>
+    <string name="qs_custom_all_icons">सर्व आयकॉन</string>
+    <string name="qs_custom_all_long">सर्व लांब</string>
+    <string name="qs_custom_backing">आयकॉन बॅकिंग</string>
+    <string name="qs_custom_blob">ब्लॉब</string>
+    <string name="qs_custom_code_applied">थीम लागू झाली</string>
+    <string name="qs_custom_code_bad">पेस्ट करण्यासाठी थीम कोड नाही</string>
+    <string name="qs_custom_code_copied">थीम कोड कॉपी झाला</string>
+    <string name="qs_custom_color_amber">अंबर</string>
+    <string name="qs_custom_color_rose">रोझ</string>
+    <string name="qs_custom_columns">कॉलम</string>
+    <string name="qs_custom_copy_code">कोड कॉपी करा</string>
+    <string name="qs_custom_corners">कोपरे</string>
+    <string name="qs_custom_depth">डेप्थ</string>
+    <string name="qs_custom_depth_flat">फ्लॅट</string>
+    <string name="qs_custom_depth_raised">रेज्ड</string>
+    <string name="qs_custom_drop_remove">काढण्यासाठी येथे सोडा</string>
+    <string name="qs_custom_fill_clear">साफ करा</string>
+    <string name="qs_custom_fill_dark">डार्क</string>
+    <string name="qs_custom_fill_gradient">ग्रेडियंट</string>
+    <string name="qs_custom_fill_icon">फक्त आयकॉन</string>
+    <string name="qs_custom_fill_outline">आउटलाइन</string>
+    <string name="qs_custom_fill_solid">सॉलिड</string>
+    <string name="qs_custom_fill_surface">सरफेस</string>
+    <string name="qs_custom_fill_tint">टिंट</string>
+    <string name="qs_custom_font_caps">कॅप्स</string>
+    <string name="qs_custom_font_mono">मोनो</string>
+    <string name="qs_custom_font_sans">सॅन्स</string>
+    <string name="qs_custom_glow">चालू असताना चमक</string>
+    <string name="qs_custom_hide">लपवा</string>
+    <string name="qs_custom_hint">पर्यायांसाठी टाइलवर टॅप करा · हलवण्यासाठी दाबून धरा · आकार बदलण्यासाठी कोपरा ओढा</string>
+    <string name="qs_custom_icon_size">आयकॉनचा आकार</string>
+    <string name="qs_custom_label">लेबल</string>
+    <string name="qs_custom_label_inside">आत</string>
+    <string name="qs_custom_label_under">खाली</string>
+    <string name="qs_custom_look">लूक</string>
+    <string name="qs_custom_media_art">आर्टवर्क</string>
+    <string name="qs_custom_media_blocks">ब्लॉक्स</string>
+    <string name="qs_custom_media_cover">कव्हर</string>
+    <string name="qs_custom_media_full">पूर्ण</string>
+    <string name="qs_custom_media_glow">ग्लो</string>
+    <string name="qs_custom_media_line">लाइन</string>
+    <string name="qs_custom_media_look">लूक</string>
+    <string name="qs_custom_media_place">स्थान</string>
+    <string name="qs_custom_media_place_above">टाइल्सच्या वर</string>
+    <string name="qs_custom_media_place_below">टाइल्सच्या खाली</string>
+    <string name="qs_custom_media_place_grid">टाइल्ससोबत</string>
+    <string name="qs_custom_media_play">फक्त प्ले</string>
+    <string name="qs_custom_media_progress">प्रगती</string>
+    <string name="qs_custom_media_tall">उंच</string>
+    <string name="qs_custom_media_trio">मागील, प्ले, पुढील</string>
+    <string name="qs_custom_media_wave">वेव्ह</string>
+    <string name="qs_custom_media_wide">रुंद</string>
+    <string name="qs_custom_mix_footer">फूटर बटणे</string>
+    <string name="qs_custom_mix_media">मीडिया प्लेयर</string>
+    <string name="qs_custom_mix_paint">टाइल रंग</string>
+    <string name="qs_custom_mix_shape">टाइल आकार</string>
+    <string name="qs_custom_mix_slider">स्लाइडर</string>
+    <string name="qs_custom_mixed">मिश्र</string>
+    <string name="qs_custom_my_theme_name">माझी थीम %1$d</string>
+    <string name="qs_custom_my_themes">माझ्या थीम (हटवण्यासाठी दाबून धरा)</string>
+    <string name="qs_custom_off_fill">बंद टाइल</string>
+    <string name="qs_custom_on_fill">चालू टाइल</string>
+    <string name="qs_custom_paste_code">कोड पेस्ट करा</string>
+    <string name="qs_custom_pill">पिल</string>
+    <string name="qs_custom_reset">ही थीम रीसेट करा</string>
+    <string name="qs_custom_reset_tiles">टाइल रीसेट करा</string>
+    <string name="qs_custom_rounded">गोलाकार</string>
+    <string name="qs_custom_rows">पृष्ठावरील ओळी</string>
+    <string name="qs_custom_same_as_panel">पॅनलप्रमाणेच</string>
+    <string name="qs_custom_save">माझी थीम म्हणून सेव्ह करा</string>
+    <string name="qs_custom_scroll">पृष्ठांऐवजी स्क्रोल करा</string>
+    <string name="qs_custom_second_line">दुसरी ओळ</string>
+    <string name="qs_custom_show">दाखवा</string>
+    <string name="qs_custom_sizes">टाइलचे आकार</string>
+    <string name="qs_custom_slider_by_player">प्लेयरजवळ</string>
+    <string name="qs_custom_slider_look">लूक</string>
+    <string name="qs_custom_slider_place">स्थान</string>
+    <string name="qs_custom_slider_top">वर</string>
+    <string name="qs_custom_slider_under">टाइल्सच्या खाली</string>
+    <string name="qs_custom_spacing">अंतर</string>
+    <string name="qs_custom_start_from">यापासून सुरू करा</string>
+    <string name="qs_custom_tab_add">जोडा</string>
+    <string name="qs_custom_tab_mix">मिश्र</string>
+    <string name="qs_custom_tab_slider">स्लाइडर</string>
+    <string name="qs_custom_tab_tiles">टाइल्स</string>
+    <string name="qs_custom_theme_blueprint">ब्लूप्रिंट</string>
+    <string name="qs_custom_theme_cards">कार्ड्स</string>
+    <string name="qs_custom_theme_circles">वर्तुळे</string>
+    <string name="qs_custom_theme_classic">क्लासिक</string>
+    <string name="qs_custom_theme_compact">कॉम्पॅक्ट</string>
+    <string name="qs_custom_theme_duo">ड्युओ</string>
+    <string name="qs_custom_theme_glass">ग्लास</string>
+    <string name="qs_custom_theme_neon">निऑन</string>
+    <string name="qs_custom_theme_remix">Remix</string>
+    <string name="qs_custom_theme_shapes">आकार</string>
+    <string name="qs_custom_theme_soft">सॉफ्ट</string>
+    <string name="qs_custom_theme_stock">स्टॉक</string>
+    <string name="qs_custom_tile_color">चालू असताना रंग</string>
+    <string name="qs_custom_tile_height">उंची</string>
+    <string name="qs_custom_tile_height_dp">टाइलची उंची</string>
+    <string name="qs_look_label">लूक</string>
+    <string name="qs_look_none">पुढील लूकसाठी टॅप करा</string>
+    <string name="quick_settings_clear_voice_label">क्लिअर व्हॉइस</string>
+    <string name="accessibility_quick_settings_clear_voice_on">क्लिअर व्हॉइस चालू.</string>
+    <string name="accessibility_quick_settings_clear_voice_off">क्लिअर व्हॉइस बंद.</string>
 </resources>

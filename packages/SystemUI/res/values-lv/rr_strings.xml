@@ -49,4 +49,205 @@
     <string name="qs_custom_tile_icon">"Ikona"</string>
     <string name="qs_custom_tile_width">"Platums"</string>
     <string name="qs_custom_title">"Pielāgot"</string>
+    <string name="rr_power_title">Barošana</string>
+    <string name="rr_power_status">Līdz %1$s · %2$s akumulators</string>
+    <string name="rr_power_status_uptime">Līdz %1$s</string>
+    <string name="rr_power_back">Atpakaļ uz barošanas izvēlni</string>
+    <string name="rr_shutdown_back_soon">Resurrected Remix drīz atgriezīsies</string>
+    <string name="global_action_restart_subtitle">Izvēlieties, kā tālrunis atkal startē</string>
+    <string name="global_action_restart_system_summary">Restartēt Android. Turiet nospiestu drošajam režīmam</string>
+    <string name="global_action_restart_recovery_summary">Instalēt atjauninājumus, sideload vai dzēst datus</string>
+    <string name="global_action_restart_bootloader_summary">Fastboot, attēlu zibināšanai</string>
+    <string name="global_action_restart_fastboot_summary">Lietotāja vides fastboot, sistēmas nodalījumiem</string>
+    <string name="global_action_restart_download_summary">Lejupielādes režīms, ierīces zibināšanas rīkam</string>
+    <string name="volume_ringer_priority_only">Prioritāte</string>
+    <string name="volume_ringer_dnd">DnD</string>
+    <string name="tristate_flashlight_blink">Lukturīša mirgošana</string>
+    <string name="tristate_brightness_bright">Maksimālais spilgtums</string>
+    <string name="tristate_brightness_dark">Minimālais spilgtums</string>
+    <string name="tristate_brightness_auto">Automātiskais spilgtums</string>
+    <string name="tristate_rotation_0">Portrets</string>
+    <string name="tristate_rotation_90">Ainava (90°)</string>
+    <string name="tristate_rotation_270">Ainava (270°)</string>
+    <string name="tristate_app_launch">Lietotne tiek palaista</string>
+    <string name="face_unlock_recognizing">Tiek atpazīts sejas attēls…</string>
+    <string name="screen_on_time_label">SOT <xliff:g id="duration" example="5 hr 12 min">%1$s</xliff:g></string>
+    <string name="quick_launch_video">Video</string>
+    <string name="quick_launch_qr">Skenēt QR kodu</string>
+    <string name="now_bar_charging">Lādē · <xliff:g id="level" example="74">%1$d</xliff:g>%%</string>
+    <string name="now_bar_full_in">Pilna pēc <xliff:g id="duration" example="22 min">%1$s</xliff:g></string>
+    <string name="now_bar_charged">Uzlādēts</string>
+    <string name="now_bar_flashlight_on">Lukturītis ieslēgts</string>
+    <string name="now_bar_buds">Austiņas</string>
+    <string name="now_bar_buds_case">Futrālis <xliff:g id="level" example="61">%1$d</xliff:g></string>
+    <string name="now_bar_play">Atskaņot</string>
+    <string name="now_bar_pause">Pauze</string>
+    <string name="now_bar_previous">Iepriekšējais</string>
+    <string name="now_bar_next">Nākamais</string>
+    <string name="now_bar_hide">Paslēpt līdz beigām</string>
+    <string name="now_bar_settings">Now Bar iestatījumi</string>
+    <string name="now_bar_pin">Piespraust pastāvīgajam displejam</string>
+    <string name="stage_battery_description">Akumulators <xliff:g id="percent" example="74">%1$d</xliff:g> procenti</string>
+    <string name="stage_alarm_description">Nākamais signāls <xliff:g id="time" example="Tue 6:30">%1$s</xliff:g></string>
+    <string name="flatline_playing">TIEK ATSKAŅOTS</string>
+    <string name="flatline_call">IENĀKOŠAIS ZVANS</string>
+    <string name="flatline_vitals">Rādītāji</string>
+    <string name="flatline_vitals_preview">74% · Signāls 6:30</string>
+    <string name="flatline_alarm">Signāls <xliff:g id="time" example="6:30">%1$s</xliff:g></string>
+    <string name="now_bar_unpin">Atspraust no pastāvīgā displeja</string>
+    <string name="now_bar_open">Atvērt</string>
+    <string name="now_bar_output">Izvade</string>
+    <string name="now_bar_close">Aizvērt</string>
+    <string name="now_bar_minutes_left">Atlikušas <xliff:g id="minutes" example="4">%1$d</xliff:g> min</string>
+    <string name="now_bar_minutes"><xliff:g id="minutes" example="12">%1$d</xliff:g> min</string>
+    <string name="now_bar_versus"><xliff:g id="team" example="Lakers">%1$s</xliff:g> pret <xliff:g id="team" example="Celtics">%2$s</xliff:g></string>
+    <string name="charge_report_channel">Uzlādes pārskati</string>
+    <string name="charge_report_title">Uzlādes pārskats</string>
+    <string name="charge_report_summary">+<xliff:g id="added" example="62">%1$d</xliff:g>%% <xliff:g id="time" example="31 min">%2$s</xliff:g> laikā · maks. <xliff:g id="watts" example="55.0">%3$s</xliff:g> W · maks. <xliff:g id="temp" example="38">%4$s</xliff:g> °C</string>
+    <string name="charge_report_details"><xliff:g id="charger" example="Wired">%1$s</xliff:g> · <xliff:g id="from" example="12">%2$d</xliff:g>%% līdz <xliff:g id="to" example="74">%3$d</xliff:g>%% · vidēji <xliff:g id="watts" example="41.3">%4$s</xliff:g> W</string>
+    <string name="charge_report_wired">Ar vadu</string>
+    <string name="charge_report_wireless">Bezvadu</string>
+    <string name="charge_report_dock">Dokstacija</string>
+    <string name="usb_mode_picker_title">Atlasiet USB režīmu</string>
+    <string name="usb_mode_photo_transfer">Fotoattēlu un video pārsūtīšana</string>
+    <string name="usb_mode_webcam">USB tīmekļa kamera</string>
+    <string name="usb_mode_charging_only">Tikai uzlāde</string>
+    <string name="usb_charging_status">USB uzlāde ir ieslēgta</string>
+    <string name="usb_island_title">USB pievienots</string>
+    <string name="usb_island_settings">USB iestatījumi</string>
+    <string name="usb_mode_short_charge">Uzlāde</string>
+    <string name="keyguard_indication_dash_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Dash uzlāde (līdz pilnai <xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g>)</string>
+    <string name="keyguard_plugged_in_dash_charging"><xliff:g id="percentage">%s</xliff:g> • Dash uzlāde</string>
+    <string name="keyguard_indication_warp_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Warp uzlāde (līdz pilnai <xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g>)</string>
+    <string name="keyguard_plugged_in_warp_charging"><xliff:g id="percentage">%s</xliff:g> • Warp uzlāde</string>
+    <string name="keyguard_indication_vooc_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • VOOC uzlāde (līdz pilnai <xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g>)</string>
+    <string name="keyguard_plugged_in_vooc_charging"><xliff:g id="percentage">%s</xliff:g> • VOOC uzlāde</string>
+    <string name="keyguard_indication_turbo_power_time"><xliff:g id="percentage">%2$s</xliff:g> • Turbo uzlāde (līdz pilnai <xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g>)</string>
+    <string name="keyguard_plugged_in_turbo_charging"><xliff:g id="percentage">%s</xliff:g> • Turbo uzlāde</string>
+    <string name="charging_vfx_long_press_to_speed">Turiet nospiestu, lai palielinātu ātrumu</string>
+    <string name="charging_vfx_source_wireless">Bezvadu</string>
+    <string name="charging_vfx_source_dock">Dokstacija</string>
+    <string name="charging_vfx_time_to_full">Pilna pēc <xliff:g id="time" example="25 min">%s</xliff:g></string>
+    <string name="qs_media_tile_idle">Nekas netiek atskaņots</string>
+    <string name="qs_volume_tile_muted">Izslēgts skaņas</string>
+    <string name="qs_custom_volume_half">Puse</string>
+    <string name="qs_custom_volume_slider">Slīdnis</string>
+    <string name="qs_custom_volume_fill">Aizpildījums</string>
+    <string name="qs_custom_volume_stack">Kaudze</string>
+    <string name="qs_custom_volume_ring">Zvans</string>
+    <string name="qs_custom_volume_call">Zvans</string>
+    <string name="qs_custom_volume_show_all">Nosaukums un procenti</string>
+    <string name="qs_custom_volume_show_percent">Procenti</string>
+    <string name="qs_custom_volume_show_icon">Tikai ikona</string>
+    <string name="qs_custom_volume_tap">Pieskarieties ikonai</string>
+    <string name="qs_custom_volume_mute">Izslēgt skaņu</string>
+    <string name="qs_custom_volume_panel">Skaļuma panelis</string>
+    <string name="qs_custom_volume_ticks">Atzīmes velkot</string>
+    <string name="qs_custom_accent">Akcents</string>
+    <string name="qs_custom_add_tile">Pievienot elementu</string>
+    <string name="qs_custom_all_added">Visi elementi ir panelī</string>
+    <string name="qs_custom_all_icons">Visas ikonas</string>
+    <string name="qs_custom_all_long">Visi gari</string>
+    <string name="qs_custom_backing">Ikonas fons</string>
+    <string name="qs_custom_blob">Pilīte</string>
+    <string name="qs_custom_code_applied">Motīvs piemērots</string>
+    <string name="qs_custom_code_bad">Nav motīva koda, ko ievietot</string>
+    <string name="qs_custom_code_copied">Motīva kods nokopēts</string>
+    <string name="qs_custom_color_amber">Dzintars</string>
+    <string name="qs_custom_color_rose">Rozā</string>
+    <string name="qs_custom_columns">Kolonnas</string>
+    <string name="qs_custom_copy_code">Kopēt kodu</string>
+    <string name="qs_custom_corners">Stūri</string>
+    <string name="qs_custom_depth">Dziļums</string>
+    <string name="qs_custom_depth_flat">Plakans</string>
+    <string name="qs_custom_depth_raised">Paaugstināts</string>
+    <string name="qs_custom_drop_remove">Velciet šeit, lai noņemtu</string>
+    <string name="qs_custom_fill_clear">Notīrīt</string>
+    <string name="qs_custom_fill_dark">Tumšs</string>
+    <string name="qs_custom_fill_gradient">Gradients</string>
+    <string name="qs_custom_fill_icon">Tikai ikona</string>
+    <string name="qs_custom_fill_solid">Ciets</string>
+    <string name="qs_custom_fill_surface">Virsma</string>
+    <string name="qs_custom_fill_tint">Krāsojums</string>
+    <string name="qs_custom_font_caps">Lielie burti</string>
+    <string name="qs_custom_font_mono">Monospace</string>
+    <string name="qs_custom_font_sans">Bez serifiem</string>
+    <string name="qs_custom_glow">Spīdēt, kad ieslēgts</string>
+    <string name="qs_custom_hide">Paslēpt</string>
+    <string name="qs_custom_hint">Pieskarieties elementam, lai redzētu tā iespējas · Turiet, lai pārvietotu · Velciet stūri, lai mainītu izmēru</string>
+    <string name="qs_custom_icon_size">Ikonas izmērs</string>
+    <string name="qs_custom_label">Uzraksts</string>
+    <string name="qs_custom_label_inside">Iekšpusē</string>
+    <string name="qs_custom_label_under">Zem</string>
+    <string name="qs_custom_look">Izskats</string>
+    <string name="qs_custom_media_art">Vāks</string>
+    <string name="qs_custom_media_blocks">Bloki</string>
+    <string name="qs_custom_media_cover">Vāks</string>
+    <string name="qs_custom_media_full">Pilns</string>
+    <string name="qs_custom_media_glow">Spīdums</string>
+    <string name="qs_custom_media_line">Līnija</string>
+    <string name="qs_custom_media_look">Izskats</string>
+    <string name="qs_custom_media_place">Atrašanās vieta</string>
+    <string name="qs_custom_media_place_above">Virs elementiem</string>
+    <string name="qs_custom_media_place_below">Zem elementiem</string>
+    <string name="qs_custom_media_place_grid">Kopā ar elementiem</string>
+    <string name="qs_custom_media_play">Tikai atskaņošana</string>
+    <string name="qs_custom_media_progress">Progress</string>
+    <string name="qs_custom_media_tall">Augsts</string>
+    <string name="qs_custom_media_trio">Iepriekšējais, atskaņot, nākamais</string>
+    <string name="qs_custom_media_wave">Vilnis</string>
+    <string name="qs_custom_media_wide">Plats</string>
+    <string name="qs_custom_mix_footer">Pogas apakšā</string>
+    <string name="qs_custom_mix_media">Multivides atskaņotājs</string>
+    <string name="qs_custom_mix_paint">Elementu krāsas</string>
+    <string name="qs_custom_mix_shape">Elementu forma</string>
+    <string name="qs_custom_mix_slider">Slīdnis</string>
+    <string name="qs_custom_mixed">Jaukts</string>
+    <string name="qs_custom_my_theme_name">Mans motīvs %1$d</string>
+    <string name="qs_custom_my_themes">Mani motīvi (turiet, lai dzēstu)</string>
+    <string name="qs_custom_off_fill">Izslēgtie elementi</string>
+    <string name="qs_custom_on_fill">Ieslēgtie elementi</string>
+    <string name="qs_custom_paste_code">Ielīmēt kodu</string>
+    <string name="qs_custom_pill">Kapsula</string>
+    <string name="qs_custom_reset">Atiestatīt šo motīvu</string>
+    <string name="qs_custom_reset_tiles">Atiestatīt elementus</string>
+    <string name="qs_custom_rounded">Noapaļots</string>
+    <string name="qs_custom_rows">Rindas vienā lappusē</string>
+    <string name="qs_custom_same_as_panel">Kā panelī</string>
+    <string name="qs_custom_save">Saglabāt kā manu motīvu</string>
+    <string name="qs_custom_scroll">Ritināt, nevis lappuses</string>
+    <string name="qs_custom_second_line">Otrā rindiņa</string>
+    <string name="qs_custom_show">Rādīt</string>
+    <string name="qs_custom_sizes">Elementu izmēri</string>
+    <string name="qs_custom_slider_by_player">Pie atskaņotāja</string>
+    <string name="qs_custom_slider_look">Izskats</string>
+    <string name="qs_custom_slider_place">Atrašanās vieta</string>
+    <string name="qs_custom_slider_top">Augšā</string>
+    <string name="qs_custom_slider_under">Zem elementiem</string>
+    <string name="qs_custom_spacing">Atstarpe</string>
+    <string name="qs_custom_start_from">Sākt no</string>
+    <string name="qs_custom_tab_add">Pievienot</string>
+    <string name="qs_custom_tab_mix">Jaukt</string>
+    <string name="qs_custom_tab_slider">Slīdnis</string>
+    <string name="qs_custom_tab_tiles">Elementi</string>
+    <string name="qs_custom_theme_blueprint">Zilbilde</string>
+    <string name="qs_custom_theme_cards">Kartes</string>
+    <string name="qs_custom_theme_circles">Apļi</string>
+    <string name="qs_custom_theme_classic">Klasiskais</string>
+    <string name="qs_custom_theme_compact">Kompakts</string>
+    <string name="qs_custom_theme_duo">Duo</string>
+    <string name="qs_custom_theme_glass">Stikls</string>
+    <string name="qs_custom_theme_neon">Neona</string>
+    <string name="qs_custom_theme_remix">Pārveidots</string>
+    <string name="qs_custom_theme_shapes">Formas</string>
+    <string name="qs_custom_theme_soft">Maigais</string>
+    <string name="qs_custom_theme_stock">Standarta</string>
+    <string name="qs_custom_tile_color">Krāsa, kad ieslēgts</string>
+    <string name="qs_custom_tile_height">Augstums</string>
+    <string name="qs_custom_tile_height_dp">Elementa augstums</string>
+    <string name="qs_look_label">Izskats</string>
+    <string name="qs_look_none">Pieskarieties, lai pārslēgtu nākamo izskatu</string>
+    <string name="quick_settings_clear_voice_label">Skaidra balss</string>
+    <string name="accessibility_quick_settings_clear_voice_on">Skaidra balss ieslēgta.</string>
+    <string name="accessibility_quick_settings_clear_voice_off">Skaidra balss izslēgta.</string>
 </resources>

@@ -49,4 +49,205 @@
     <string name="qs_custom_tile_icon">"İkona"</string>
     <string name="qs_custom_tile_width">"Enlilik"</string>
     <string name="qs_custom_title">"Fərdiləşdirin"</string>
+    <string name="rr_power_title">Qidalanma</string>
+    <string name="rr_power_status">Yuxarı %1$s · %2$s batareya</string>
+    <string name="rr_power_status_uptime">Yuxarı %1$s</string>
+    <string name="rr_power_back">Qidalanma menyusuna qayıt</string>
+    <string name="rr_shutdown_back_soon">Resurrected Remix tezliklə qayıdacaq</string>
+    <string name="global_action_restart_subtitle">Telefonun yenidən necə başlamasını seçin</string>
+    <string name="global_action_restart_system_summary">Android-i yenidən başladın. Təhlükəsiz rejim üçün basıb saxlayın</string>
+    <string name="global_action_restart_recovery_summary">Yeniləmələri quraşdırın, sideload edin və ya məlumatları silin</string>
+    <string name="global_action_restart_bootloader_summary">Fastboot, açılış şəkillərini yükləmək üçün</string>
+    <string name="global_action_restart_fastboot_summary">İstifadəçi fastboot, sistem bölmələri üçün</string>
+    <string name="global_action_restart_download_summary">Yükləmə rejimi, satıcı flash alətinə görə</string>
+    <string name="volume_ringer_priority_only">Prioritet</string>
+    <string name="volume_ringer_dnd">DnD</string>
+    <string name="tristate_flashlight_blink">Fənər yanıb-sönməsi</string>
+    <string name="tristate_brightness_bright">Maksimum parlaqlıq</string>
+    <string name="tristate_brightness_dark">Minimum parlaqlıq</string>
+    <string name="tristate_brightness_auto">Avtomatik parlaqlıq</string>
+    <string name="tristate_rotation_0">Portret</string>
+    <string name="tristate_rotation_90">Mənzərə (90°)</string>
+    <string name="tristate_rotation_270">Mənzərə (270°)</string>
+    <string name="tristate_app_launch">Tətbiq başladılır</string>
+    <string name="face_unlock_recognizing">Üz tanınır...</string>
+    <string name="screen_on_time_label">SOT <xliff:g id="duration" example="5 hr 12 min">%1$s</xliff:g></string>
+    <string name="quick_launch_video">Video</string>
+    <string name="quick_launch_qr">QR kodu skan edin</string>
+    <string name="now_bar_charging">Şarj olunur · <xliff:g id="level" example="74">%1$d</xliff:g>%%</string>
+    <string name="now_bar_full_in"><xliff:g id="duration" example="22 min">%1$s</xliff:g> sonra tam dolacaq</string>
+    <string name="now_bar_charged">Şarj olundu</string>
+    <string name="now_bar_flashlight_on">Fənər yandırılıb</string>
+    <string name="now_bar_buds">Qulaqlıqlar</string>
+    <string name="now_bar_buds_case">Qutu <xliff:g id="level" example="61">%1$d</xliff:g></string>
+    <string name="now_bar_play">Oynat</string>
+    <string name="now_bar_pause">Durdur</string>
+    <string name="now_bar_previous">Əvvəlki</string>
+    <string name="now_bar_next">Növbəti</string>
+    <string name="now_bar_hide">Bitənə qədər gizlət</string>
+    <string name="now_bar_settings">Now Bar parametrləri</string>
+    <string name="now_bar_pin">Həmişə açıq ekrana sabitləyin</string>
+    <string name="stage_battery_description">Batareya <xliff:g id="percent" example="74">%1$d</xliff:g> faiz</string>
+    <string name="stage_alarm_description">Növbəti zəng <xliff:g id="time" example="Tue 6:30">%1$s</xliff:g></string>
+    <string name="flatline_playing">İNDİ OYNANIR</string>
+    <string name="flatline_call">GƏLƏN ZƏNG</string>
+    <string name="flatline_vitals">Göstəricilər</string>
+    <string name="flatline_vitals_preview">74% · Həyəcan 6:30</string>
+    <string name="flatline_alarm">Həyəcan <xliff:g id="time" example="6:30">%1$s</xliff:g></string>
+    <string name="now_bar_unpin">Həmişə açıq ekrandan çıxarın</string>
+    <string name="now_bar_open">Aç</string>
+    <string name="now_bar_output">Çıxış</string>
+    <string name="now_bar_close">Bağla</string>
+    <string name="now_bar_minutes_left"><xliff:g id="minutes" example="4">%1$d</xliff:g> dəq qalıb</string>
+    <string name="now_bar_minutes"><xliff:g id="minutes" example="12">%1$d</xliff:g> dəq</string>
+    <string name="now_bar_versus"><xliff:g id="team" example="Lakers">%1$s</xliff:g> / <xliff:g id="team" example="Celtics">%2$s</xliff:g></string>
+    <string name="charge_report_channel">Şarj hesabatları</string>
+    <string name="charge_report_title">Şarj hesabatı</string>
+    <string name="charge_report_summary"><xliff:g id="added" example="62">%1$d</xliff:g>%% artım <xliff:g id="time" example="31 min">%2$s</xliff:g> ərzində · pik <xliff:g id="watts" example="55.0">%3$s</xliff:g> Vt · maks <xliff:g id="temp" example="38">%4$s</xliff:g> °C</string>
+    <string name="charge_report_details"><xliff:g id="charger" example="Wired">%1$s</xliff:g> · <xliff:g id="from" example="12">%2$d</xliff:g>%% → <xliff:g id="to" example="74">%3$d</xliff:g>%% · orta <xliff:g id="watts" example="41.3">%4$s</xliff:g> Vt</string>
+    <string name="charge_report_wired">Simli</string>
+    <string name="charge_report_wireless">Simsiz</string>
+    <string name="charge_report_dock">Yerləşdirmə</string>
+    <string name="usb_mode_picker_title">USB rejimini seçin</string>
+    <string name="usb_mode_photo_transfer">Foto və video ötürülməsi</string>
+    <string name="usb_mode_webcam">USB veb-kamera</string>
+    <string name="usb_mode_charging_only">Yalnız şarj</string>
+    <string name="usb_charging_status">USB ilə şarj aktivdir</string>
+    <string name="usb_island_title">USB qoşulub</string>
+    <string name="usb_island_settings">USB parametrləri</string>
+    <string name="usb_mode_short_charge">Şarj</string>
+    <string name="keyguard_indication_dash_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Dash şarjı (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> tam dolana qədər)</string>
+    <string name="keyguard_plugged_in_dash_charging"><xliff:g id="percentage">%s</xliff:g> • Dash şarjı</string>
+    <string name="keyguard_indication_warp_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Warp şarjı (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> tam dolana qədər)</string>
+    <string name="keyguard_plugged_in_warp_charging"><xliff:g id="percentage">%s</xliff:g> • Warp şarjı</string>
+    <string name="keyguard_indication_vooc_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • VOOC şarjı (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> tam dolana qədər)</string>
+    <string name="keyguard_plugged_in_vooc_charging"><xliff:g id="percentage">%s</xliff:g> • VOOC şarjı</string>
+    <string name="keyguard_indication_turbo_power_time"><xliff:g id="percentage">%2$s</xliff:g> • Turbo şarj (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> tam dolana qədər)</string>
+    <string name="keyguard_plugged_in_turbo_charging"><xliff:g id="percentage">%s</xliff:g> • Turbo şarj</string>
+    <string name="charging_vfx_long_press_to_speed">Sürəti artırmaq üçün basıb saxlayın</string>
+    <string name="charging_vfx_source_wireless">Simsiz</string>
+    <string name="charging_vfx_source_dock">Yerləşdirmə</string>
+    <string name="charging_vfx_time_to_full"><xliff:g id="time" example="25 min">%s</xliff:g> sonra tam dolacaq</string>
+    <string name="qs_media_tile_label">Media</string>
+    <string name="qs_media_tile_idle">Heç nə oynamır</string>
+    <string name="qs_volume_tile_muted">Səssiz</string>
+    <string name="qs_custom_volume_half">Yarım</string>
+    <string name="qs_custom_volume_slider">Sürüşdürücü</string>
+    <string name="qs_custom_volume_fill">Dolu</string>
+    <string name="qs_custom_volume_stack">Yığın</string>
+    <string name="qs_custom_volume_ring">Zəng səsi</string>
+    <string name="qs_custom_volume_call">Zəng</string>
+    <string name="qs_custom_volume_show_all">Ad və faiz</string>
+    <string name="qs_custom_volume_show_percent">Faiz</string>
+    <string name="qs_custom_volume_show_icon">Yalnız ikonka</string>
+    <string name="qs_custom_volume_tap">İkonkaya toxunun</string>
+    <string name="qs_custom_volume_mute">Səssiz</string>
+    <string name="qs_custom_volume_ticks">Sürüşdürərkən işarələr</string>
+    <string name="qs_custom_accent">Vurğu</string>
+    <string name="qs_custom_add_tile">Mozaik əlavə edin</string>
+    <string name="qs_custom_all_added">Bütün mozaiklər panelindədir</string>
+    <string name="qs_custom_all_icons">Bütün ikonkalar</string>
+    <string name="qs_custom_all_long">Bütün uzun</string>
+    <string name="qs_custom_backing">İkonka fonu</string>
+    <string name="qs_custom_blob">Damcı</string>
+    <string name="qs_custom_code_applied">Tema tətbiq olundu</string>
+    <string name="qs_custom_code_bad">Yapışdırılacaq tema kodu yoxdur</string>
+    <string name="qs_custom_code_copied">Tema kodu kopyalandı</string>
+    <string name="qs_custom_color_amber">Kəhrəba</string>
+    <string name="qs_custom_color_rose">Gül</string>
+    <string name="qs_custom_columns">Sütunlar</string>
+    <string name="qs_custom_copy_code">Kodu kopyalayın</string>
+    <string name="qs_custom_corners">Künclər</string>
+    <string name="qs_custom_depth">Dərinlik</string>
+    <string name="qs_custom_depth_flat">Düz</string>
+    <string name="qs_custom_depth_raised">Qabarıq</string>
+    <string name="qs_custom_drop_remove">Silmək üçün bura buraxın</string>
+    <string name="qs_custom_fill_clear">Təmizlə</string>
+    <string name="qs_custom_fill_dark">Tünd</string>
+    <string name="qs_custom_fill_gradient">Gradiyent</string>
+    <string name="qs_custom_fill_icon">Yalnız ikonka</string>
+    <string name="qs_custom_fill_solid">Bərk</string>
+    <string name="qs_custom_fill_surface">Səth</string>
+    <string name="qs_custom_fill_tint">Rəng çaları</string>
+    <string name="qs_custom_font_caps">Böyük hərflər</string>
+    <string name="qs_custom_font_mono">Mono</string>
+    <string name="qs_custom_font_sans">Sans</string>
+    <string name="qs_custom_glow">Açıq olanda parıldasın</string>
+    <string name="qs_custom_hide">Gizlət</string>
+    <string name="qs_custom_hint">Seçimləri üçün mozaikə toxunun · Köçürmək üçün basıb saxlayın · Ölçünü dəyişmək üçün küncü çəkin</string>
+    <string name="qs_custom_icon_size">İkonka ölçüsü</string>
+    <string name="qs_custom_label">Etiket</string>
+    <string name="qs_custom_label_inside">Daxildə</string>
+    <string name="qs_custom_label_under">Altında</string>
+    <string name="qs_custom_look">Görünüş</string>
+    <string name="qs_custom_media_art">Şəkil</string>
+    <string name="qs_custom_media_blocks">Bloklar</string>
+    <string name="qs_custom_media_cover">Örtük</string>
+    <string name="qs_custom_media_full">Tam</string>
+    <string name="qs_custom_media_glow">Parıltı</string>
+    <string name="qs_custom_media_line">Xətt</string>
+    <string name="qs_custom_media_look">Görünüş</string>
+    <string name="qs_custom_media_place">Yer</string>
+    <string name="qs_custom_media_place_above">Mozaiklərin üstündə</string>
+    <string name="qs_custom_media_place_below">Mozaiklərin altında</string>
+    <string name="qs_custom_media_place_grid">Mozaiklərlə birlikdə</string>
+    <string name="qs_custom_media_play">Yalnız oynatma</string>
+    <string name="qs_custom_media_progress">İrəliləyiş</string>
+    <string name="qs_custom_media_tall">Hündür</string>
+    <string name="qs_custom_media_trio">Əvvəlki, oynat, növbəti</string>
+    <string name="qs_custom_media_wave">Dalğa</string>
+    <string name="qs_custom_media_wide">Geniş</string>
+    <string name="qs_custom_mix_footer">Alt düymələr</string>
+    <string name="qs_custom_mix_media">Media pleyer</string>
+    <string name="qs_custom_mix_paint">Mozaik rəngləri</string>
+    <string name="qs_custom_mix_shape">Mozaik forması</string>
+    <string name="qs_custom_mix_slider">Sürüşdürücü</string>
+    <string name="qs_custom_mixed">Qarışıq</string>
+    <string name="qs_custom_my_theme_name">Mənim temam %1$d</string>
+    <string name="qs_custom_my_themes">Mənim temalarım (silmək üçün basıb saxlayın)</string>
+    <string name="qs_custom_off_fill">Söndürülmüş mozaiklər</string>
+    <string name="qs_custom_on_fill">Açıq mozaiklər</string>
+    <string name="qs_custom_paste_code">Kodu yapışdırın</string>
+    <string name="qs_custom_pill">Həb</string>
+    <string name="qs_custom_reset">Bu temanı sıfırlayın</string>
+    <string name="qs_custom_reset_tiles">Mozaikləri sıfırlayın</string>
+    <string name="qs_custom_rounded">Yumru</string>
+    <string name="qs_custom_rows">Səhifədə sətirlər</string>
+    <string name="qs_custom_same_as_panel">Panel ilə eyni</string>
+    <string name="qs_custom_save">Mənim temam kimi saxlayın</string>
+    <string name="qs_custom_scroll">Səhifələr əvəzinə sürüşdürmə</string>
+    <string name="qs_custom_second_line">İkinci sətir</string>
+    <string name="qs_custom_show">Göstər</string>
+    <string name="qs_custom_sizes">Mozaik ölçüləri</string>
+    <string name="qs_custom_slider_by_player">Pleyerin yanında</string>
+    <string name="qs_custom_slider_look">Görünüş</string>
+    <string name="qs_custom_slider_place">Yer</string>
+    <string name="qs_custom_slider_top">Yuxarı</string>
+    <string name="qs_custom_slider_under">Mozaiklərin altında</string>
+    <string name="qs_custom_spacing">Boşluq</string>
+    <string name="qs_custom_start_from">Başlanğıc</string>
+    <string name="qs_custom_tab_add">Əlavə et</string>
+    <string name="qs_custom_tab_mix">Qarışıq</string>
+    <string name="qs_custom_tab_slider">Sürüşdürücü</string>
+    <string name="qs_custom_tab_tiles">Mozaiklər</string>
+    <string name="qs_custom_theme_blueprint">Blueprint</string>
+    <string name="qs_custom_theme_cards">Kartlar</string>
+    <string name="qs_custom_theme_circles">Dairələr</string>
+    <string name="qs_custom_theme_classic">Klassik</string>
+    <string name="qs_custom_theme_compact">Yığcam</string>
+    <string name="qs_custom_theme_duo">Duo</string>
+    <string name="qs_custom_theme_glass">Şüşə</string>
+    <string name="qs_custom_theme_neon">Neon</string>
+    <string name="qs_custom_theme_remix">Remix</string>
+    <string name="qs_custom_theme_shapes">Fiqurlar</string>
+    <string name="qs_custom_theme_soft">Yumşaq</string>
+    <string name="qs_custom_theme_stock">Standart</string>
+    <string name="qs_custom_tile_color">Açıq olanda rəng</string>
+    <string name="qs_custom_tile_height">Hündürlük</string>
+    <string name="qs_custom_tile_height_dp">Mozaik hündürlüyü</string>
+    <string name="qs_look_label">Görünüş</string>
+    <string name="qs_look_none">Növbəti Görünüş üçün toxunun</string>
+    <string name="quick_settings_clear_voice_label">Səsi təmizləyin</string>
+    <string name="accessibility_quick_settings_clear_voice_on">Səsi təmizləmə aktivdir.</string>
+    <string name="accessibility_quick_settings_clear_voice_off">Səsi təmizləmə deaktivdir.</string>
 </resources>

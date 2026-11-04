@@ -49,4 +49,205 @@
     <string name="qs_custom_tile_icon">"Белгіше"</string>
     <string name="qs_custom_tile_width">"Ені"</string>
     <string name="qs_custom_title">"Реттеу"</string>
+    <string name="rr_power_title">Қуат</string>
+    <string name="rr_power_status">%1$s жоғары · батарея %2$s</string>
+    <string name="rr_power_status_uptime">%1$s жоғары</string>
+    <string name="rr_power_back">Қуат мәзіріне оралу</string>
+    <string name="rr_shutdown_back_soon">Resurrected Remix жақын арада оралады</string>
+    <string name="global_action_restart_subtitle">Телефон қайта іске қосылғанда қалай жүктелетінін таңдаңыз</string>
+    <string name="global_action_restart_system_summary">Android-ті қайта іске қосу. Қауіпсіз режим үшін ұзақ басыңыз</string>
+    <string name="global_action_restart_recovery_summary">Жаңартуларды орнату, sideload немесе деректерді өшіру</string>
+    <string name="global_action_restart_bootloader_summary">Fastboot, жүктеу бейнелерін жазу үшін</string>
+    <string name="global_action_restart_fastboot_summary">Пайдаланушы кеңістігі fastboot, жүйе бөлімдері үшін</string>
+    <string name="global_action_restart_download_summary">Download режимі, жеткізушінің жазу құралы үшін</string>
+    <string name="volume_ringer_priority_only">Басымдық</string>
+    <string name="volume_ringer_dnd">Мазаламау</string>
+    <string name="tristate_flashlight_blink">Фонарьді жыпылықтату</string>
+    <string name="tristate_brightness_bright">Ең жоғары жарықтық</string>
+    <string name="tristate_brightness_dark">Ең төмен жарықтық</string>
+    <string name="tristate_brightness_auto">Автожарықтық</string>
+    <string name="tristate_rotation_0">Портрет</string>
+    <string name="tristate_rotation_90">Альбомдық (90°)</string>
+    <string name="tristate_rotation_270">Альбомдық (270°)</string>
+    <string name="tristate_app_launch">Қолданба іске қосылуда</string>
+    <string name="face_unlock_recognizing">Бетті тануда...</string>
+    <string name="screen_on_time_label">SOT <xliff:g id="duration" example="5 hr 12 min">%1$s</xliff:g></string>
+    <string name="quick_launch_video">Бейне</string>
+    <string name="quick_launch_qr">QR кодты сканерлеу</string>
+    <string name="now_bar_charging">Зарядталуда · <xliff:g id="level" example="74">%1$d</xliff:g>%%</string>
+    <string name="now_bar_full_in"><xliff:g id="duration" example="22 min">%1$s</xliff:g> ішінде толады</string>
+    <string name="now_bar_charged">Зарядталды</string>
+    <string name="now_bar_flashlight_on">Қолшам қосулы</string>
+    <string name="now_bar_buds">Құлақаспаптар</string>
+    <string name="now_bar_buds_case">Футляр <xliff:g id="level" example="61">%1$d</xliff:g></string>
+    <string name="now_bar_play">Ойнату</string>
+    <string name="now_bar_pause">Үзу</string>
+    <string name="now_bar_previous">Алдыңғы</string>
+    <string name="now_bar_next">Келесі</string>
+    <string name="now_bar_hide">Аяқталғанша жасыру</string>
+    <string name="now_bar_settings">Now Bar параметрлері</string>
+    <string name="now_bar_pin">Әрдайым қосулы дисплейге бекіту</string>
+    <string name="stage_battery_description">Батарея <xliff:g id="percent" example="74">%1$d</xliff:g> пайыз</string>
+    <string name="stage_alarm_description">Келесі оятқыш <xliff:g id="time" example="Tue 6:30">%1$s</xliff:g></string>
+    <string name="flatline_playing">ҚАЗІР ОЙНАТЫЛУДА</string>
+    <string name="flatline_call">КЕЛГЕН ҚОҢЫРАУ</string>
+    <string name="flatline_vitals">Көрсеткіштер</string>
+    <string name="flatline_vitals_preview">74% · Оятқыш 6:30</string>
+    <string name="flatline_alarm">Оятқыш <xliff:g id="time" example="6:30">%1$s</xliff:g></string>
+    <string name="now_bar_unpin">Әрдайым қосулы дисплейден босату</string>
+    <string name="now_bar_open">Ашу</string>
+    <string name="now_bar_output">Шығыс</string>
+    <string name="now_bar_close">Жабу</string>
+    <string name="now_bar_minutes_left"><xliff:g id="minutes" example="4">%1$d</xliff:g> мин қалды</string>
+    <string name="now_bar_minutes"><xliff:g id="minutes" example="12">%1$d</xliff:g> мин</string>
+    <string name="now_bar_versus"><xliff:g id="team" example="Lakers">%1$s</xliff:g> мен <xliff:g id="team" example="Celtics">%2$s</xliff:g></string>
+    <string name="charge_report_channel">Зарядтау есептері</string>
+    <string name="charge_report_title">Зарядтау есебі</string>
+    <string name="charge_report_summary">+<xliff:g id="added" example="62">%1$d</xliff:g>%% · <xliff:g id="time" example="31 min">%2$s</xliff:g> ішінде · шоқтық <xliff:g id="watts" example="55.0">%3$s</xliff:g> Вт · ең жоғары <xliff:g id="temp" example="38">%4$s</xliff:g> °C</string>
+    <string name="charge_report_details"><xliff:g id="charger" example="Wired">%1$s</xliff:g> · <xliff:g id="from" example="12">%2$d</xliff:g>%% бастап <xliff:g id="to" example="74">%3$d</xliff:g>%% дейін · орташа <xliff:g id="watts" example="41.3">%4$s</xliff:g> Вт</string>
+    <string name="charge_report_wired">Сымды</string>
+    <string name="charge_report_wireless">Сымсыз</string>
+    <string name="charge_report_dock">Док</string>
+    <string name="usb_mode_picker_title">USB режимін таңдау</string>
+    <string name="usb_mode_photo_transfer">Фото және бейне беру</string>
+    <string name="usb_mode_webcam">USB веб-камера</string>
+    <string name="usb_mode_charging_only">Тек зарядтау</string>
+    <string name="usb_charging_status">USB арқылы зарядтау қосулы</string>
+    <string name="usb_island_title">USB қосылған</string>
+    <string name="usb_island_settings">USB параметрлері</string>
+    <string name="usb_mode_short_charge">Зарядтау</string>
+    <string name="keyguard_indication_dash_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Dash зарядтау (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> толғанша)</string>
+    <string name="keyguard_plugged_in_dash_charging"><xliff:g id="percentage">%s</xliff:g> • Dash зарядтау</string>
+    <string name="keyguard_indication_warp_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Warp зарядтау (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> толғанша)</string>
+    <string name="keyguard_plugged_in_warp_charging"><xliff:g id="percentage">%s</xliff:g> • Warp зарядтау</string>
+    <string name="keyguard_indication_vooc_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • VOOC зарядтау (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> толғанша)</string>
+    <string name="keyguard_plugged_in_vooc_charging"><xliff:g id="percentage">%s</xliff:g> • VOOC зарядтау</string>
+    <string name="keyguard_indication_turbo_power_time"><xliff:g id="percentage">%2$s</xliff:g> • Turbo зарядтау (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> толғанша)</string>
+    <string name="keyguard_plugged_in_turbo_charging"><xliff:g id="percentage">%s</xliff:g> • Turbo зарядтау</string>
+    <string name="charging_vfx_long_press_to_speed">Жылдамдықты арттыру үшін ұзақ басыңыз</string>
+    <string name="charging_vfx_source_wireless">Сымсыз</string>
+    <string name="charging_vfx_source_dock">Док</string>
+    <string name="charging_vfx_time_to_full"><xliff:g id="time" example="25 min">%s</xliff:g> ішінде толады</string>
+    <string name="qs_media_tile_idle">Ойнатылып жатқан жоқ</string>
+    <string name="qs_volume_tile_muted">Дыбыссыз</string>
+    <string name="qs_custom_volume_half">Жартылай</string>
+    <string name="qs_custom_volume_slider">Жүгірткі</string>
+    <string name="qs_custom_volume_fill">Толтыру</string>
+    <string name="qs_custom_volume_stack">Үйме</string>
+    <string name="qs_custom_volume_ring">Ring</string>
+    <string name="qs_custom_volume_call">Қоңырау</string>
+    <string name="qs_custom_volume_show_all">Атауы және пайыз</string>
+    <string name="qs_custom_volume_show_percent">Пайыз</string>
+    <string name="qs_custom_volume_show_icon">Тек белгіше</string>
+    <string name="qs_custom_volume_tap">Белгішені басыңыз</string>
+    <string name="qs_custom_volume_mute">Дыбысын өшіру</string>
+    <string name="qs_custom_volume_panel">Дыбыс панелі</string>
+    <string name="qs_custom_volume_ticks">Сүйреу кезінде белгілер</string>
+    <string name="qs_custom_accent">Акцент</string>
+    <string name="qs_custom_add_tile">Бөлшек қосу</string>
+    <string name="qs_custom_all_added">Барлық бөлшек панельде</string>
+    <string name="qs_custom_all_icons">Барлық белгішелер</string>
+    <string name="qs_custom_all_long">Барлығы ұзын</string>
+    <string name="qs_custom_backing">Белгіше астындағы фон</string>
+    <string name="qs_custom_blob">Блоб</string>
+    <string name="qs_custom_code_applied">Тақырып қолданылды</string>
+    <string name="qs_custom_code_bad">Қоюға тақырып коды жоқ</string>
+    <string name="qs_custom_code_copied">Тақырып коды көшірілді</string>
+    <string name="qs_custom_color_amber">Кәрімтық</string>
+    <string name="qs_custom_color_rose">Раушан</string>
+    <string name="qs_custom_columns">Бағандар</string>
+    <string name="qs_custom_copy_code">Кодты көшіру</string>
+    <string name="qs_custom_corners">Бұрыштар</string>
+    <string name="qs_custom_depth">Тереңдік</string>
+    <string name="qs_custom_depth_flat">Жазық</string>
+    <string name="qs_custom_depth_raised">Көтерілген</string>
+    <string name="qs_custom_drop_remove">Жою үшін мұнда тастаңыз</string>
+    <string name="qs_custom_fill_clear">Тазарту</string>
+    <string name="qs_custom_fill_dark">Қараңғы</string>
+    <string name="qs_custom_fill_gradient">Градиент</string>
+    <string name="qs_custom_fill_icon">Тек белгіше</string>
+    <string name="qs_custom_fill_solid">Тұтас</string>
+    <string name="qs_custom_fill_surface">Бет</string>
+    <string name="qs_custom_fill_tint">Реңк</string>
+    <string name="qs_custom_font_caps">Бас әріптер</string>
+    <string name="qs_custom_font_mono">Mono</string>
+    <string name="qs_custom_font_sans">Sans</string>
+    <string name="qs_custom_glow">Қосулы кезде жарқырау</string>
+    <string name="qs_custom_hide">Жасыру</string>
+    <string name="qs_custom_hint">Параметрлерін көру үшін бөлшекті басыңыз · Жылжыту үшін ұстап тұрыңыз · Өлшемін өзгерту үшін бұрышын сүйреңіз</string>
+    <string name="qs_custom_icon_size">Белгіше өлшемі</string>
+    <string name="qs_custom_label">Белгі</string>
+    <string name="qs_custom_label_inside">Ішінде</string>
+    <string name="qs_custom_label_under">Астында</string>
+    <string name="qs_custom_look">Look</string>
+    <string name="qs_custom_media_art">Суреттер</string>
+    <string name="qs_custom_media_blocks">Блоктар</string>
+    <string name="qs_custom_media_cover">Мұқаба</string>
+    <string name="qs_custom_media_full">Толық</string>
+    <string name="qs_custom_media_glow">Жарқыраңқы</string>
+    <string name="qs_custom_media_line">Сызық</string>
+    <string name="qs_custom_media_look">Look</string>
+    <string name="qs_custom_media_place">Орны</string>
+    <string name="qs_custom_media_place_above">Бөлшектердің үстінде</string>
+    <string name="qs_custom_media_place_below">Бөлшектердің астында</string>
+    <string name="qs_custom_media_place_grid">Бөлшектермен бірге</string>
+    <string name="qs_custom_media_play">Тек ойнату</string>
+    <string name="qs_custom_media_progress">Прогресс</string>
+    <string name="qs_custom_media_tall">Биік</string>
+    <string name="qs_custom_media_trio">Алдыңғы, ойнату, келесі</string>
+    <string name="qs_custom_media_wave">Толқын</string>
+    <string name="qs_custom_media_wide">Кең</string>
+    <string name="qs_custom_mix_footer">Төменгі түймелер</string>
+    <string name="qs_custom_mix_media">Медиа ойнатқыш</string>
+    <string name="qs_custom_mix_paint">Бөлшек түстері</string>
+    <string name="qs_custom_mix_shape">Бөлшек пішіні</string>
+    <string name="qs_custom_mix_slider">Жүгірткі</string>
+    <string name="qs_custom_mixed">Аралас</string>
+    <string name="qs_custom_my_theme_name">Менің тақырыбым %1$d</string>
+    <string name="qs_custom_my_themes">Менің тақырыптарым (өшіру үшін ұстап тұрыңыз)</string>
+    <string name="qs_custom_off_fill">Өшірулі бөлшектер</string>
+    <string name="qs_custom_on_fill">Қосулы бөлшектер</string>
+    <string name="qs_custom_paste_code">Кодты қою</string>
+    <string name="qs_custom_pill">Пилл</string>
+    <string name="qs_custom_reset">Осы тақырыпты қалпына келтіру</string>
+    <string name="qs_custom_reset_tiles">Бөлшектерді қалпына келтіру</string>
+    <string name="qs_custom_rounded">Дөңгелектенген</string>
+    <string name="qs_custom_rows">Бетте жолдар саны</string>
+    <string name="qs_custom_same_as_panel">Панельмен бірдей</string>
+    <string name="qs_custom_save">Менің тақырыбым ретінде сақтау</string>
+    <string name="qs_custom_scroll">Беттердің орнына айналдыру</string>
+    <string name="qs_custom_second_line">Екінші жол</string>
+    <string name="qs_custom_show">Көрсету</string>
+    <string name="qs_custom_sizes">Бөлшек өлшемдері</string>
+    <string name="qs_custom_slider_by_player">Ойнатқыш жанында</string>
+    <string name="qs_custom_slider_look">Look</string>
+    <string name="qs_custom_slider_place">Орны</string>
+    <string name="qs_custom_slider_top">Жоғарғы</string>
+    <string name="qs_custom_slider_under">Бөлшектердің астында</string>
+    <string name="qs_custom_spacing">Аралық</string>
+    <string name="qs_custom_start_from">Бастапқы</string>
+    <string name="qs_custom_tab_add">Қосу</string>
+    <string name="qs_custom_tab_mix">Аралас</string>
+    <string name="qs_custom_tab_slider">Жүгірткі</string>
+    <string name="qs_custom_tab_tiles">Бөлшектер</string>
+    <string name="qs_custom_theme_blueprint">Blueprint</string>
+    <string name="qs_custom_theme_cards">Карточкалар</string>
+    <string name="qs_custom_theme_circles">Шеңберлер</string>
+    <string name="qs_custom_theme_classic">Классикалық</string>
+    <string name="qs_custom_theme_compact">Ықшам</string>
+    <string name="qs_custom_theme_duo">Duo</string>
+    <string name="qs_custom_theme_glass">Шыны</string>
+    <string name="qs_custom_theme_neon">Неон</string>
+    <string name="qs_custom_theme_remix">Remix</string>
+    <string name="qs_custom_theme_shapes">Пішіндер</string>
+    <string name="qs_custom_theme_soft">Жұмсақ</string>
+    <string name="qs_custom_theme_stock">Стандартты</string>
+    <string name="qs_custom_tile_color">Қосулы кездегі түс</string>
+    <string name="qs_custom_tile_height">Биіктік</string>
+    <string name="qs_custom_tile_height_dp">Бөлшек биіктігі</string>
+    <string name="qs_look_label">Look</string>
+    <string name="qs_look_none">Келесі Look үшін түртіңіз</string>
+    <string name="quick_settings_clear_voice_label">Айқын дауыс</string>
+    <string name="accessibility_quick_settings_clear_voice_on">Айқын дауыс қосулы.</string>
+    <string name="accessibility_quick_settings_clear_voice_off">Айқын дауыс өшірулі.</string>
 </resources>

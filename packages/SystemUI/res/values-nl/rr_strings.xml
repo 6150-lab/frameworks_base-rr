@@ -46,4 +46,208 @@
     <string name="qs_custom_tile_icon">"Icoon"</string>
     <string name="qs_custom_tile_width">"Breedte"</string>
     <string name="qs_custom_title">"Aanpassen"</string>
+    <string name="rr_power_title">Aan/uit</string>
+    <string name="rr_power_status">Omhoog %1$s · batterij %2$s</string>
+    <string name="rr_power_status_uptime">Omhoog %1$s</string>
+    <string name="rr_power_back">Terug naar aan/uit-menu</string>
+    <string name="rr_shutdown_back_soon">Resurrected Remix is zo terug</string>
+    <string name="global_action_restart_subtitle">Kies hoe de telefoon weer opstart</string>
+    <string name="global_action_restart_system_summary">Android opnieuw starten. Lang indrukken voor veilige modus</string>
+    <string name="global_action_restart_recovery_summary">Updates installeren, sideloaden of gegevens wissen</string>
+    <string name="global_action_restart_bootloader_summary">Fastboot, voor het flashen van opstartimages</string>
+    <string name="global_action_restart_fastboot_summary">Fastboot in userspace, voor systeempartities</string>
+    <string name="global_action_restart_download_summary">Downloadmodus, voor het flashprogramma van de fabrikant</string>
+    <string name="volume_ringer_priority_only">Prioriteit</string>
+    <string name="volume_ringer_dnd">Niet storen</string>
+    <string name="tristate_flashlight_blink">Zaklamp laten knipperen</string>
+    <string name="tristate_brightness_bright">Maximale helderheid</string>
+    <string name="tristate_brightness_dark">Minimale helderheid</string>
+    <string name="tristate_brightness_auto">Automatische helderheid</string>
+    <string name="tristate_rotation_0">Staand</string>
+    <string name="tristate_rotation_90">Liggend (90°)</string>
+    <string name="tristate_rotation_270">Liggend (270°)</string>
+    <string name="tristate_app_launch">App wordt gestart</string>
+    <string name="face_unlock_recognizing">Gezicht herkennen...</string>
+    <string name="screen_on_time_label">SOT <xliff:g id="duration" example="5 hr 12 min">%1$s</xliff:g></string>
+    <string name="quick_launch_camera">Camera</string>
+    <string name="quick_launch_video">Video</string>
+    <string name="quick_launch_qr">QR-code scannen</string>
+    <string name="now_bar_charging">Opladen · <xliff:g id="level" example="74">%1$d</xliff:g>%%</string>
+    <string name="now_bar_full_in">Vol over <xliff:g id="duration" example="22 min">%1$s</xliff:g></string>
+    <string name="now_bar_charged">Opgeladen</string>
+    <string name="now_bar_flashlight_on">Zaklamp aan</string>
+    <string name="now_bar_buds">Oordopjes</string>
+    <string name="now_bar_buds_case">Hoesje <xliff:g id="level" example="61">%1$d</xliff:g></string>
+    <string name="now_bar_play">Afspelen</string>
+    <string name="now_bar_pause">Pauzeren</string>
+    <string name="now_bar_previous">Vorige</string>
+    <string name="now_bar_next">Volgende</string>
+    <string name="now_bar_hide">Verbergen tot het einde</string>
+    <string name="now_bar_settings">Instellingen Now Bar</string>
+    <string name="now_bar_pin">Vastzetten op always-on-display</string>
+    <string name="stage_battery_description">Batterij <xliff:g id="percent" example="74">%1$d</xliff:g> procent</string>
+    <string name="stage_alarm_description">Volgend alarm <xliff:g id="time" example="Tue 6:30">%1$s</xliff:g></string>
+    <string name="flatline_playing">NU AFGESPEELD</string>
+    <string name="flatline_call">BINNENKOMENDE OPROEP</string>
+    <string name="flatline_vitals">Vitale gegevens</string>
+    <string name="flatline_vitals_preview">74% · Alarm 6:30</string>
+    <string name="flatline_alarm">Alarm <xliff:g id="time" example="6:30">%1$s</xliff:g></string>
+    <string name="now_bar_unpin">Losmaken van always-on-display</string>
+    <string name="now_bar_open">Openen</string>
+    <string name="now_bar_output">Uitvoer</string>
+    <string name="now_bar_close">Sluiten</string>
+    <string name="now_bar_minutes_left">Nog <xliff:g id="minutes" example="4">%1$d</xliff:g> min</string>
+    <string name="now_bar_minutes"><xliff:g id="minutes" example="12">%1$d</xliff:g> min</string>
+    <string name="now_bar_versus"><xliff:g id="team" example="Lakers">%1$s</xliff:g> tegenover <xliff:g id="team" example="Celtics">%2$s</xliff:g></string>
+    <string name="charge_report_channel">Oplaadrapporten</string>
+    <string name="charge_report_title">Oplaadrapport</string>
+    <string name="charge_report_summary">+<xliff:g id="added" example="62">%1$d</xliff:g>%% in <xliff:g id="time" example="31 min">%2$s</xliff:g> · piek <xliff:g id="watts" example="55.0">%3$s</xliff:g> W · max. <xliff:g id="temp" example="38">%4$s</xliff:g> °C</string>
+    <string name="charge_report_details"><xliff:g id="charger" example="Wired">%1$s</xliff:g> · <xliff:g id="from" example="12">%2$d</xliff:g>%% tot <xliff:g id="to" example="74">%3$d</xliff:g>%% · gemiddeld <xliff:g id="watts" example="41.3">%4$s</xliff:g> W</string>
+    <string name="charge_report_wired">Bekabeld</string>
+    <string name="charge_report_wireless">Draadloos</string>
+    <string name="charge_report_dock">Dock</string>
+    <string name="usb_mode_picker_title">USB-modus selecteren</string>
+    <string name="usb_mode_photo_transfer">Foto- en video-overdracht</string>
+    <string name="usb_mode_webcam">USB-webcam</string>
+    <string name="usb_mode_charging_only">Alleen opladen</string>
+    <string name="usb_charging_status">USB-opladen is aan</string>
+    <string name="usb_island_title">USB verbonden</string>
+    <string name="usb_island_settings">USB-instellingen</string>
+    <string name="usb_mode_short_charge">Opladen</string>
+    <string name="keyguard_indication_dash_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Dash Charging (nog <xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> tot vol)</string>
+    <string name="keyguard_plugged_in_dash_charging"><xliff:g id="percentage">%s</xliff:g> • Dash Charging</string>
+    <string name="keyguard_indication_warp_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Warp Charging (nog <xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> tot vol)</string>
+    <string name="keyguard_plugged_in_warp_charging"><xliff:g id="percentage">%s</xliff:g> • Warp Charging</string>
+    <string name="keyguard_indication_vooc_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • VOOC Charging (nog <xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> tot vol)</string>
+    <string name="keyguard_plugged_in_vooc_charging"><xliff:g id="percentage">%s</xliff:g> • VOOC Charging</string>
+    <string name="keyguard_indication_turbo_power_time"><xliff:g id="percentage">%2$s</xliff:g> • Turbo Charging (nog <xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> tot vol)</string>
+    <string name="keyguard_plugged_in_turbo_charging"><xliff:g id="percentage">%s</xliff:g> • Turbo Charging</string>
+    <string name="charging_vfx_long_press_to_speed">Houd ingedrukt om sneller te laden</string>
+    <string name="charging_vfx_source_wireless">Draadloos</string>
+    <string name="charging_vfx_source_dock">Dock</string>
+    <string name="charging_vfx_time_to_full">Vol over <xliff:g id="time" example="25 min">%s</xliff:g></string>
+    <string name="qs_media_tile_label">Media</string>
+    <string name="qs_media_tile_idle">Niets aan het afspelen</string>
+    <string name="qs_volume_tile_label">Volume</string>
+    <string name="qs_volume_tile_muted">Gedempt</string>
+    <string name="qs_custom_volume_half">Half</string>
+    <string name="qs_custom_volume_slider">Schuifregelaar</string>
+    <string name="qs_custom_volume_fill">Vullen</string>
+    <string name="qs_custom_volume_stack">Stapel</string>
+    <string name="qs_custom_volume_ring">Beltoon</string>
+    <string name="qs_custom_volume_call">Oproep</string>
+    <string name="qs_custom_volume_show_all">Naam en percentage</string>
+    <string name="qs_custom_volume_show_percent">Percentage</string>
+    <string name="qs_custom_volume_show_icon">Alleen pictogram</string>
+    <string name="qs_custom_volume_tap">Tik op het pictogram</string>
+    <string name="qs_custom_volume_mute">Dempen</string>
+    <string name="qs_custom_volume_ticks">Tikjes bij slepen</string>
+    <string name="qs_custom_accent">Accent</string>
+    <string name="qs_custom_add_tile">Een tegel toevoegen</string>
+    <string name="qs_custom_all_added">Alle tegels staan op het paneel</string>
+    <string name="qs_custom_all_icons">Alle pictogrammen</string>
+    <string name="qs_custom_all_long">Alle lang</string>
+    <string name="qs_custom_backing">Achtergrond van pictogram</string>
+    <string name="qs_custom_blob">Blob</string>
+    <string name="qs_custom_code_applied">Thema toegepast</string>
+    <string name="qs_custom_code_bad">Geen themacode om te plakken</string>
+    <string name="qs_custom_code_copied">Themacode gekopieerd</string>
+    <string name="qs_custom_color_amber">Amber</string>
+    <string name="qs_custom_color_rose">Roze</string>
+    <string name="qs_custom_color_violet">Paars</string>
+    <string name="qs_custom_columns">Kolommen</string>
+    <string name="qs_custom_copy_code">Code kopiëren</string>
+    <string name="qs_custom_corners">Hoeken</string>
+    <string name="qs_custom_depth">Diepte</string>
+    <string name="qs_custom_depth_flat">Plat</string>
+    <string name="qs_custom_depth_raised">Verhoogd</string>
+    <string name="qs_custom_drop_remove">Laat los hier om te verwijderen</string>
+    <string name="qs_custom_fill_clear">Wissen</string>
+    <string name="qs_custom_fill_dark">Donker</string>
+    <string name="qs_custom_fill_gradient">Verloop</string>
+    <string name="qs_custom_fill_icon">Alleen pictogram</string>
+    <string name="qs_custom_fill_solid">Effen</string>
+    <string name="qs_custom_fill_surface">Oppervlak</string>
+    <string name="qs_custom_fill_tint">Tint</string>
+    <string name="qs_custom_font_caps">Hoofdletters</string>
+    <string name="qs_custom_font_mono">Mono</string>
+    <string name="qs_custom_font_sans">Sans</string>
+    <string name="qs_custom_glow">Gloed wanneer aan</string>
+    <string name="qs_custom_hide">Verbergen</string>
+    <string name="qs_custom_hint">Tik op een tegel voor de opties · Houd ingedrukt om te verplaatsen · Sleep de hoek om het formaat te wijzigen</string>
+    <string name="qs_custom_icon_size">Pictogramgrootte</string>
+    <string name="qs_custom_label">Label</string>
+    <string name="qs_custom_label_inside">Binnen</string>
+    <string name="qs_custom_label_under">Onder</string>
+    <string name="qs_custom_look">Look</string>
+    <string name="qs_custom_media_art">Hoesafbeelding</string>
+    <string name="qs_custom_media_blocks">Blokken</string>
+    <string name="qs_custom_media_cover">Omslag</string>
+    <string name="qs_custom_media_full">Volledig</string>
+    <string name="qs_custom_media_glow">Gloed</string>
+    <string name="qs_custom_media_line">Lijn</string>
+    <string name="qs_custom_media_look">Look</string>
+    <string name="qs_custom_media_place">Waar</string>
+    <string name="qs_custom_media_place_above">Boven de tegels</string>
+    <string name="qs_custom_media_place_below">Onder de tegels</string>
+    <string name="qs_custom_media_place_grid">Naast de tegels</string>
+    <string name="qs_custom_media_play">Alleen afspelen</string>
+    <string name="qs_custom_media_progress">Voortgang</string>
+    <string name="qs_custom_media_tall">Hoog</string>
+    <string name="qs_custom_media_trio">Vorige, afspelen, volgende</string>
+    <string name="qs_custom_media_wave">Golf</string>
+    <string name="qs_custom_media_wide">Breed</string>
+    <string name="qs_custom_mix_footer">Knoppen onderaan</string>
+    <string name="qs_custom_mix_media">Mediaspeler</string>
+    <string name="qs_custom_mix_paint">Tegelkleuren</string>
+    <string name="qs_custom_mix_shape">Tegelvorm</string>
+    <string name="qs_custom_mix_slider">Schuifregelaar</string>
+    <string name="qs_custom_mixed">Gemengd</string>
+    <string name="qs_custom_my_theme_name">Mijn thema %1$d</string>
+    <string name="qs_custom_my_themes">Mijn thema\'s (ingedrukt houden om te verwijderen)</string>
+    <string name="qs_custom_off_fill">Tegels uit</string>
+    <string name="qs_custom_on_fill">Tegels aan</string>
+    <string name="qs_custom_paste_code">Code plakken</string>
+    <string name="qs_custom_pill">Pil</string>
+    <string name="qs_custom_reset">Dit thema resetten</string>
+    <string name="qs_custom_reset_tiles">Tegels resetten</string>
+    <string name="qs_custom_rounded">Afgerond</string>
+    <string name="qs_custom_rows">Rijen per pagina</string>
+    <string name="qs_custom_same_as_panel">Zelfde als paneel</string>
+    <string name="qs_custom_save">Opslaan als mijn thema</string>
+    <string name="qs_custom_scroll">Scrollen in plaats van pagina\'s</string>
+    <string name="qs_custom_second_line">Tweede regel</string>
+    <string name="qs_custom_show">Tonen</string>
+    <string name="qs_custom_sizes">Tegelformaten</string>
+    <string name="qs_custom_slider_by_player">Bij de speler</string>
+    <string name="qs_custom_slider_look">Look</string>
+    <string name="qs_custom_slider_place">Waar</string>
+    <string name="qs_custom_slider_top">Boven</string>
+    <string name="qs_custom_slider_under">Onder tegels</string>
+    <string name="qs_custom_spacing">Afstand</string>
+    <string name="qs_custom_start_from">Beginnen vanaf</string>
+    <string name="qs_custom_tab_add">Toevoegen</string>
+    <string name="qs_custom_tab_mix">Mix</string>
+    <string name="qs_custom_tab_slider">Schuifregelaar</string>
+    <string name="qs_custom_tab_tiles">Tegels</string>
+    <string name="qs_custom_theme_blueprint">Blueprint</string>
+    <string name="qs_custom_theme_cards">Kaarten</string>
+    <string name="qs_custom_theme_circles">Cirkels</string>
+    <string name="qs_custom_theme_classic">Klassiek</string>
+    <string name="qs_custom_theme_compact">Compact</string>
+    <string name="qs_custom_theme_duo">Duo</string>
+    <string name="qs_custom_theme_glass">Glas</string>
+    <string name="qs_custom_theme_neon">Neon</string>
+    <string name="qs_custom_theme_remix">Remix</string>
+    <string name="qs_custom_theme_shapes">Vormen</string>
+    <string name="qs_custom_theme_soft">Zacht</string>
+    <string name="qs_custom_theme_stock">Standaard</string>
+    <string name="qs_custom_tile_color">Kleur wanneer aan</string>
+    <string name="qs_custom_tile_height">Hoogte</string>
+    <string name="qs_custom_tile_height_dp">Tegelhoogte</string>
+    <string name="qs_look_label">Look</string>
+    <string name="qs_look_none">Tik voor de volgende Look</string>
+    <string name="quick_settings_clear_voice_label">Heldere stem</string>
+    <string name="accessibility_quick_settings_clear_voice_on">Heldere stem aan.</string>
+    <string name="accessibility_quick_settings_clear_voice_off">Heldere stem uit.</string>
 </resources>

@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="weather_condition_clouds">"Συννεφιά"</string>
+    <string name="weather_condition_rain">Βροχερός</string>
+    <string name="weather_condition_clear">Αίθριος</string>
+    <string name="weather_condition_storm">Καταιγιδώδης</string>
+    <string name="weather_condition_snow">Χιονώδης</string>
+    <string name="weather_condition_wind">Windy</string>
+    <string name="weather_condition_mist">Ομιχλώδης</string>
 </resources>

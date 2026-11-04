@@ -49,4 +49,205 @@
     <string name="qs_custom_tile_icon">"Piktograma"</string>
     <string name="qs_custom_tile_width">"Plotis"</string>
     <string name="qs_custom_title">"Tinkinti"</string>
+    <string name="rr_power_title">Maitinimas</string>
+    <string name="rr_power_status">Aukštyn %1$s · baterija %2$s</string>
+    <string name="rr_power_status_uptime">Aukštyn %1$s</string>
+    <string name="rr_power_back">Atgal į maitinimo meniu</string>
+    <string name="rr_shutdown_back_soon">Resurrected Remix netrukus grįš</string>
+    <string name="global_action_restart_subtitle">Pasirinkite, kaip telefonas vėl paleidžiamas</string>
+    <string name="global_action_restart_system_summary">Paleisti Android iš naujo. Ilgai spauskite saugiam režimui</string>
+    <string name="global_action_restart_recovery_summary">Įdiegti naujinimus, įkelti tiesiogiai arba ištrinti duomenis</string>
+    <string name="global_action_restart_bootloader_summary">Fastboot, skirtas paleisties vaizdams įrašyti</string>
+    <string name="global_action_restart_fastboot_summary">Vartotojo erdvės fastboot, skirtas sistemos skyriams</string>
+    <string name="global_action_restart_download_summary">Atsisiuntimo režimas, skirtas gamintojo įrašymo įrankiui</string>
+    <string name="volume_ringer_priority_only">Prioritetas</string>
+    <string name="volume_ringer_dnd">DnD</string>
+    <string name="tristate_flashlight_blink">Ekrano mirksėjimas žibintuvėliu</string>
+    <string name="tristate_brightness_bright">Didžiausias ryškumas</string>
+    <string name="tristate_brightness_dark">Mažiausias ryškumas</string>
+    <string name="tristate_brightness_auto">Automatinis ryškumas</string>
+    <string name="tristate_rotation_0">Portretas</string>
+    <string name="tristate_rotation_90">Albumas (90°)</string>
+    <string name="tristate_rotation_270">Albumas (270°)</string>
+    <string name="tristate_app_launch">Paleidžiama programa</string>
+    <string name="face_unlock_recognizing">Atpažįstamas veidas...</string>
+    <string name="screen_on_time_label">SOT <xliff:g id="duration" example="5 hr 12 min">%1$s</xliff:g></string>
+    <string name="quick_launch_video">Vaizdas</string>
+    <string name="quick_launch_qr">Nuskaityti QR kodą</string>
+    <string name="now_bar_charging">Kraunama · <xliff:g id="level" example="74">%1$d</xliff:g>%%</string>
+    <string name="now_bar_full_in">Pilnai įkrovus po <xliff:g id="duration" example="22 min">%1$s</xliff:g></string>
+    <string name="now_bar_charged">Įkrauta</string>
+    <string name="now_bar_flashlight_on">Žibintuvėlis įjungtas</string>
+    <string name="now_bar_buds">Ausinės</string>
+    <string name="now_bar_buds_case">Dėklas <xliff:g id="level" example="61">%1$d</xliff:g></string>
+    <string name="now_bar_play">Groti</string>
+    <string name="now_bar_pause">Pristabdyti</string>
+    <string name="now_bar_previous">Ankstesnis</string>
+    <string name="now_bar_next">Kitas</string>
+    <string name="now_bar_hide">Slėpti, kol baigsis</string>
+    <string name="now_bar_settings">Now Bar nustatymai</string>
+    <string name="now_bar_pin">Prisegti prie visada rodomo ekrano</string>
+    <string name="stage_battery_description">Akumuliatorius <xliff:g id="percent" example="74">%1$d</xliff:g> procentai</string>
+    <string name="stage_alarm_description">Kitas signalas <xliff:g id="time" example="Tue 6:30">%1$s</xliff:g></string>
+    <string name="flatline_playing">DABAR GROJAMA</string>
+    <string name="flatline_call">ATEINANTIS SKAMBUTIS</string>
+    <string name="flatline_vitals">Gyvybiniai rodikliai</string>
+    <string name="flatline_vitals_preview">74% · Signalas 6:30</string>
+    <string name="flatline_alarm">Signalas <xliff:g id="time" example="6:30">%1$s</xliff:g></string>
+    <string name="now_bar_unpin">Atsegti nuo visada rodomo ekrano</string>
+    <string name="now_bar_open">Atidaryti</string>
+    <string name="now_bar_output">Išvestis</string>
+    <string name="now_bar_close">Uždaryti</string>
+    <string name="now_bar_minutes_left">Liko <xliff:g id="minutes" example="4">%1$d</xliff:g> min.</string>
+    <string name="now_bar_minutes"><xliff:g id="minutes" example="12">%1$d</xliff:g> min.</string>
+    <string name="now_bar_versus"><xliff:g id="team" example="Lakers">%1$s</xliff:g> prieš <xliff:g id="team" example="Celtics">%2$s</xliff:g></string>
+    <string name="charge_report_channel">Įkrovimo ataskaitos</string>
+    <string name="charge_report_title">Įkrovimo ataskaita</string>
+    <string name="charge_report_summary">+<xliff:g id="added" example="62">%1$d</xliff:g>%% per <xliff:g id="time" example="31 min">%2$s</xliff:g> · didžiausia <xliff:g id="watts" example="55.0">%3$s</xliff:g> W · daugiausia <xliff:g id="temp" example="38">%4$s</xliff:g> °C</string>
+    <string name="charge_report_details"><xliff:g id="charger" example="Wired">%1$s</xliff:g> · nuo <xliff:g id="from" example="12">%2$d</xliff:g>%% iki <xliff:g id="to" example="74">%3$d</xliff:g>%% · vidutiniškai <xliff:g id="watts" example="41.3">%4$s</xliff:g> W</string>
+    <string name="charge_report_wired">Laidinis</string>
+    <string name="charge_report_wireless">Belaidis</string>
+    <string name="charge_report_dock">Lizdas</string>
+    <string name="usb_mode_picker_title">Pasirinkite USB režimą</string>
+    <string name="usb_mode_photo_transfer">Nuotraukų ir vaizdo perkėlimas</string>
+    <string name="usb_mode_webcam">USB kamera</string>
+    <string name="usb_mode_charging_only">Tik įkrovimas</string>
+    <string name="usb_charging_status">USB įkrovimas įjungtas</string>
+    <string name="usb_island_title">USB prijungtas</string>
+    <string name="usb_island_settings">USB nustatymai</string>
+    <string name="usb_mode_short_charge">Įkrovimas</string>
+    <string name="keyguard_indication_dash_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Dash įkrovimas (iki pilnos – <xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g>)</string>
+    <string name="keyguard_plugged_in_dash_charging"><xliff:g id="percentage">%s</xliff:g> • Dash įkrovimas</string>
+    <string name="keyguard_indication_warp_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Warp įkrovimas (iki pilnos – <xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g>)</string>
+    <string name="keyguard_plugged_in_warp_charging"><xliff:g id="percentage">%s</xliff:g> • Warp įkrovimas</string>
+    <string name="keyguard_indication_vooc_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • VOOC įkrovimas (iki pilnos – <xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g>)</string>
+    <string name="keyguard_plugged_in_vooc_charging"><xliff:g id="percentage">%s</xliff:g> • VOOC įkrovimas</string>
+    <string name="keyguard_indication_turbo_power_time"><xliff:g id="percentage">%2$s</xliff:g> • Turbo įkrovimas (iki pilnos – <xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g>)</string>
+    <string name="keyguard_plugged_in_turbo_charging"><xliff:g id="percentage">%s</xliff:g> • Turbo įkrovimas</string>
+    <string name="charging_vfx_long_press_to_speed">Palaikykite, kad pagreitintumėte</string>
+    <string name="charging_vfx_source_wireless">Belaidis</string>
+    <string name="charging_vfx_source_dock">Lizdas</string>
+    <string name="charging_vfx_time_to_full">Pilnai įkrovus po <xliff:g id="time" example="25 min">%s</xliff:g></string>
+    <string name="qs_media_tile_idle">Nieko negroja</string>
+    <string name="qs_volume_tile_muted">Nutildyta</string>
+    <string name="qs_custom_volume_half">Pusė</string>
+    <string name="qs_custom_volume_slider">Slankiklis</string>
+    <string name="qs_custom_volume_fill">Užpildymas</string>
+    <string name="qs_custom_volume_stack">Krūva</string>
+    <string name="qs_custom_volume_ring">Garsas</string>
+    <string name="qs_custom_volume_call">Skambutis</string>
+    <string name="qs_custom_volume_show_all">Pavadinimas ir procentai</string>
+    <string name="qs_custom_volume_show_percent">Procentai</string>
+    <string name="qs_custom_volume_show_icon">Tik piktograma</string>
+    <string name="qs_custom_volume_tap">Bakstelėkite piktogramą</string>
+    <string name="qs_custom_volume_mute">Nutildyti</string>
+    <string name="qs_custom_volume_panel">Garsumo skydelis</string>
+    <string name="qs_custom_volume_ticks">Žymės vilkiant</string>
+    <string name="qs_custom_accent">Akcentas</string>
+    <string name="qs_custom_add_tile">Pridėti elementą</string>
+    <string name="qs_custom_all_added">Kiekviena išklotinės plytelė yra skydelyje</string>
+    <string name="qs_custom_all_icons">Visos piktogramos</string>
+    <string name="qs_custom_all_long">Visi ilgi</string>
+    <string name="qs_custom_backing">Piktogramos fonas</string>
+    <string name="qs_custom_blob">Burbulas</string>
+    <string name="qs_custom_code_applied">Tema pritaikyta</string>
+    <string name="qs_custom_code_bad">Nėra temos kodo įklijavimui</string>
+    <string name="qs_custom_code_copied">Temos kodas nukopijuotas</string>
+    <string name="qs_custom_color_amber">Gintaro</string>
+    <string name="qs_custom_color_rose">Rožinė</string>
+    <string name="qs_custom_columns">Stulpeliai</string>
+    <string name="qs_custom_copy_code">Kopijuoti kodą</string>
+    <string name="qs_custom_corners">Kampai</string>
+    <string name="qs_custom_depth">Gylis</string>
+    <string name="qs_custom_depth_flat">Plokščias</string>
+    <string name="qs_custom_depth_raised">Pakeltas</string>
+    <string name="qs_custom_drop_remove">Nuvilkite čia, kad pašalintumėte</string>
+    <string name="qs_custom_fill_clear">Išvalyti</string>
+    <string name="qs_custom_fill_dark">Tamsi</string>
+    <string name="qs_custom_fill_gradient">Gradientas</string>
+    <string name="qs_custom_fill_icon">Tik piktograma</string>
+    <string name="qs_custom_fill_solid">Vientisa</string>
+    <string name="qs_custom_fill_surface">Paviršius</string>
+    <string name="qs_custom_fill_tint">Atspalvis</string>
+    <string name="qs_custom_font_caps">Didžiosios raidės</string>
+    <string name="qs_custom_font_mono">Pastovaus pločio</string>
+    <string name="qs_custom_font_sans">Be serifų</string>
+    <string name="qs_custom_glow">Švytėjimas, kai įjungta</string>
+    <string name="qs_custom_hide">Slėpti</string>
+    <string name="qs_custom_hint">Bakstelėkite elementą, kad matytumėte parinktis · Palaikykite, kad perkeltumėte · Vilkite kampą, kad keistumėte dydį</string>
+    <string name="qs_custom_icon_size">Piktogramos dydis</string>
+    <string name="qs_custom_label">Etiketė</string>
+    <string name="qs_custom_label_inside">Viduje</string>
+    <string name="qs_custom_label_under">Apačioje</string>
+    <string name="qs_custom_look">Išvaizda</string>
+    <string name="qs_custom_media_art">Viršelis</string>
+    <string name="qs_custom_media_blocks">Blokai</string>
+    <string name="qs_custom_media_cover">Viršelis</string>
+    <string name="qs_custom_media_full">Visas</string>
+    <string name="qs_custom_media_glow">Švytėjimas</string>
+    <string name="qs_custom_media_line">Linija</string>
+    <string name="qs_custom_media_look">Išvaizda</string>
+    <string name="qs_custom_media_place">Kur</string>
+    <string name="qs_custom_media_place_above">Virš elementų</string>
+    <string name="qs_custom_media_place_below">Po elementais</string>
+    <string name="qs_custom_media_place_grid">Kartu su elementais</string>
+    <string name="qs_custom_media_play">Tik grojimas</string>
+    <string name="qs_custom_media_progress">Eiga</string>
+    <string name="qs_custom_media_tall">Aukšti</string>
+    <string name="qs_custom_media_trio">Ankstesnis, groti, kitas</string>
+    <string name="qs_custom_media_wave">Banga</string>
+    <string name="qs_custom_media_wide">Platūs</string>
+    <string name="qs_custom_mix_footer">Apatiniai mygtukai</string>
+    <string name="qs_custom_mix_media">Medijos grotuvas</string>
+    <string name="qs_custom_mix_paint">Elementų spalvos</string>
+    <string name="qs_custom_mix_shape">Elementų forma</string>
+    <string name="qs_custom_mix_slider">Slankiklis</string>
+    <string name="qs_custom_mixed">Mišri</string>
+    <string name="qs_custom_my_theme_name">Mano tema %1$d</string>
+    <string name="qs_custom_my_themes">Mano temos (laikykite, kad ištrintumėte)</string>
+    <string name="qs_custom_off_fill">Elementai išjungti</string>
+    <string name="qs_custom_on_fill">Elementai įjungti</string>
+    <string name="qs_custom_paste_code">Įklijuoti kodą</string>
+    <string name="qs_custom_pill">Piliulė</string>
+    <string name="qs_custom_reset">Atstatyti šią temą</string>
+    <string name="qs_custom_reset_tiles">Atstatyti elementus</string>
+    <string name="qs_custom_rounded">Suapvalinti</string>
+    <string name="qs_custom_rows">Eilutės puslapyje</string>
+    <string name="qs_custom_same_as_panel">Kaip skydelyje</string>
+    <string name="qs_custom_save">Išsaugoti kaip mano temą</string>
+    <string name="qs_custom_scroll">Slinkti, o ne puslapiais</string>
+    <string name="qs_custom_second_line">Antra eilutė</string>
+    <string name="qs_custom_show">Rodyti</string>
+    <string name="qs_custom_sizes">Elementų dydžiai</string>
+    <string name="qs_custom_slider_by_player">Prie grotuvo</string>
+    <string name="qs_custom_slider_look">Išvaizda</string>
+    <string name="qs_custom_slider_place">Kur</string>
+    <string name="qs_custom_slider_top">Viršuje</string>
+    <string name="qs_custom_slider_under">Po elementais</string>
+    <string name="qs_custom_spacing">Tarpai</string>
+    <string name="qs_custom_start_from">Pradėti nuo</string>
+    <string name="qs_custom_tab_add">Pridėti</string>
+    <string name="qs_custom_tab_mix">Mišri</string>
+    <string name="qs_custom_tab_slider">Slankiklis</string>
+    <string name="qs_custom_tab_tiles">Elementai</string>
+    <string name="qs_custom_theme_blueprint">Brėžinys</string>
+    <string name="qs_custom_theme_cards">Kortelės</string>
+    <string name="qs_custom_theme_circles">Apskritimai</string>
+    <string name="qs_custom_theme_classic">Klasikinis</string>
+    <string name="qs_custom_theme_compact">Kompaktiškas</string>
+    <string name="qs_custom_theme_duo">Duetas</string>
+    <string name="qs_custom_theme_glass">Stiklas</string>
+    <string name="qs_custom_theme_neon">Neoninis</string>
+    <string name="qs_custom_theme_remix">Remix</string>
+    <string name="qs_custom_theme_shapes">Figūros</string>
+    <string name="qs_custom_theme_soft">Minkštas</string>
+    <string name="qs_custom_theme_stock">Standartinė</string>
+    <string name="qs_custom_tile_color">Spalva, kai įjungta</string>
+    <string name="qs_custom_tile_height">Aukštis</string>
+    <string name="qs_custom_tile_height_dp">Elemento aukštis</string>
+    <string name="qs_look_label">Išvaizda</string>
+    <string name="qs_look_none">Bakstelėkite kitai išvaizdai</string>
+    <string name="quick_settings_clear_voice_label">Aiškus balsas</string>
+    <string name="accessibility_quick_settings_clear_voice_on">Švarus balsas įjungtas.</string>
+    <string name="accessibility_quick_settings_clear_voice_off">Švarus balsas išjungtas.</string>
 </resources>

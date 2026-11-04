@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="pocket_mode_title">ପକେଟ ମୋଡ ସକ୍ରିୟ ଅଛି</string>
+    <string name="pocket_mode_illustration_description">ପକେଟରେ ଫୋନର ଚିତ୍ର</string>
+    <string name="pocket_mode_instructions_header">ଆପଣଙ୍କ ଫୋନ ବ୍ୟବହାର କରିବାକୁ:</string>
+    <string name="pocket_mode_instruction_step1">1. ଉପରେ ଦେଖାଯାଉଥିବା ନୀଳ କ୍ଷେତ୍ର (ନିକଟତା ସେନସର) ଅବରୋଧମୁକ୍ତ ଏବଂ ମଇଳା କିମ୍ବା ଧୂଳିମୁକ୍ତ ଅଛି ନିଶ୍ଚିତ କରନ୍ତୁ।</string>
+    <string name="pocket_mode_instruction_step2">2. ପକେଟ ମୋଡରୁ ବାହାରିବା ପାଇଁ ପାୱାର ବଟନକୁ ଦବାଇ ଧରନ୍ତୁ।</string>
+</resources>

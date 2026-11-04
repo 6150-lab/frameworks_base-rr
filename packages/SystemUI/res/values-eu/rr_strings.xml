@@ -49,4 +49,205 @@
     <string name="qs_custom_tile_icon">"Ikonoa"</string>
     <string name="qs_custom_tile_width">"Zabalera"</string>
     <string name="qs_custom_title">"Pertsonalizatu"</string>
+    <string name="rr_power_title">Energia</string>
+    <string name="rr_power_status">Piztuta %1$s · %2$s bateria</string>
+    <string name="rr_power_status_uptime">Piztuta %1$s</string>
+    <string name="rr_power_back">Itzaltzeko menura itzuli</string>
+    <string name="rr_shutdown_back_soon">Resurrected Remix berehala itzuliko da</string>
+    <string name="global_action_restart_subtitle">Aukeratu nola berrabiarazi telefonoa</string>
+    <string name="global_action_restart_system_summary">Berrabiarazi Android. Luze sakatu modu seguruan sartzeko</string>
+    <string name="global_action_restart_recovery_summary">Instalatu eguneraketak, sideload egin edo datuak garbitu</string>
+    <string name="global_action_restart_bootloader_summary">Fastboot, boot irudiak flasheatzeko</string>
+    <string name="global_action_restart_fastboot_summary">Erabiltzaile-espazioko fastboot, sistema-partizioetarako</string>
+    <string name="global_action_restart_download_summary">Deskarga modua, hornitzailearen flash tool-erako</string>
+    <string name="volume_ringer_priority_only">Lehentasuna</string>
+    <string name="volume_ringer_dnd">DnD</string>
+    <string name="tristate_flashlight_blink">Torch blink</string>
+    <string name="tristate_brightness_bright">Max-brightness</string>
+    <string name="tristate_brightness_dark">Min-brightness</string>
+    <string name="tristate_brightness_auto">Auto-brightness</string>
+    <string name="tristate_rotation_0">Bertikala</string>
+    <string name="tristate_rotation_90">Horizontala (90°)</string>
+    <string name="tristate_rotation_270">Horizontala (270°)</string>
+    <string name="tristate_app_launch">Aplikazioa abiarazten</string>
+    <string name="face_unlock_recognizing">Aurpegia atzematen...</string>
+    <string name="screen_on_time_label">SOT <xliff:g id="duration" example="5 hr 12 min">%1$s</xliff:g></string>
+    <string name="quick_launch_video">Bideoa</string>
+    <string name="quick_launch_qr">Eskaneatu QR</string>
+    <string name="now_bar_charging">Kargatzen · <xliff:g id="level" example="74">%1$d</xliff:g>%%</string>
+    <string name="now_bar_full_in">Beteta <xliff:g id="duration" example="22 min">%1$s</xliff:g> barru</string>
+    <string name="now_bar_charged">Kargatuta</string>
+    <string name="now_bar_flashlight_on">Linterna piztuta</string>
+    <string name="now_bar_buds">Belarritakoak</string>
+    <string name="now_bar_buds_case">Kutxa <xliff:g id="level" example="61">%1$d</xliff:g></string>
+    <string name="now_bar_play">Erreproduzitu</string>
+    <string name="now_bar_pause">Pausatu</string>
+    <string name="now_bar_previous">Aurrekoa</string>
+    <string name="now_bar_next">Hurrengoa</string>
+    <string name="now_bar_hide">Amaitu arte ezkutatu</string>
+    <string name="now_bar_settings">Now Bar ezarpenak</string>
+    <string name="now_bar_pin">Finkatu pantaila beti piztuta</string>
+    <string name="stage_battery_description">Bateria <xliff:g id="percent" example="74">%1$d</xliff:g> ehuneko</string>
+    <string name="stage_alarm_description">Hurrengo alarma <xliff:g id="time" example="Tue 6:30">%1$s</xliff:g></string>
+    <string name="flatline_playing">ORAIN ERREPRODUZITZEN</string>
+    <string name="flatline_call">DEIA SARTZEN</string>
+    <string name="flatline_vitals">Bizi-seinaleak</string>
+    <string name="flatline_vitals_preview">%74 · Alarma 6:30</string>
+    <string name="flatline_alarm">Alarma <xliff:g id="time" example="6:30">%1$s</xliff:g></string>
+    <string name="now_bar_unpin">Askatu pantaila beti piztuta</string>
+    <string name="now_bar_open">Ireki</string>
+    <string name="now_bar_output">Irteera</string>
+    <string name="now_bar_close">Itxi</string>
+    <string name="now_bar_minutes_left"><xliff:g id="minutes" example="4">%1$d</xliff:g> min falta</string>
+    <string name="now_bar_minutes"><xliff:g id="minutes" example="12">%1$d</xliff:g> min</string>
+    <string name="now_bar_versus"><xliff:g id="team" example="Lakers">%1$s</xliff:g> vs <xliff:g id="team" example="Celtics">%2$s</xliff:g></string>
+    <string name="charge_report_channel">Karga-txostenak</string>
+    <string name="charge_report_title">Karga-txostena</string>
+    <string name="charge_report_summary">+<xliff:g id="added" example="62">%1$d</xliff:g>%% <xliff:g id="time" example="31 min">%2$s</xliff:g>-n · gailurik handiena <xliff:g id="watts" example="55.0">%3$s</xliff:g> W · gehienez <xliff:g id="temp" example="38">%4$s</xliff:g> °C</string>
+    <string name="charge_report_details"><xliff:g id="charger" example="Wired">%1$s</xliff:g> · <xliff:g id="from" example="12">%2$d</xliff:g>%% - <xliff:g id="to" example="74">%3$d</xliff:g>%% · batez bestekoa <xliff:g id="watts" example="41.3">%4$s</xliff:g> W</string>
+    <string name="charge_report_wired">Kablea</string>
+    <string name="charge_report_wireless">Hari gabekoa</string>
+    <string name="charge_report_dock">Dock</string>
+    <string name="usb_mode_picker_title">Hautatu USB modua</string>
+    <string name="usb_mode_photo_transfer">Argazki eta bideo transferentzia</string>
+    <string name="usb_mode_webcam">USB web-kamera</string>
+    <string name="usb_mode_charging_only">Karga soilik</string>
+    <string name="usb_charging_status">USB karga aktibatuta dago</string>
+    <string name="usb_island_title">USB konektatuta</string>
+    <string name="usb_island_settings">USB ezarpenak</string>
+    <string name="usb_mode_short_charge">Kargatu</string>
+    <string name="keyguard_indication_dash_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Dash karga (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> beteta arte)</string>
+    <string name="keyguard_plugged_in_dash_charging"><xliff:g id="percentage">%s</xliff:g> • Dash karga</string>
+    <string name="keyguard_indication_warp_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Warp karga (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> beteta arte)</string>
+    <string name="keyguard_plugged_in_warp_charging"><xliff:g id="percentage">%s</xliff:g> • Warp karga</string>
+    <string name="keyguard_indication_vooc_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • VOOC karga (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> beteta arte)</string>
+    <string name="keyguard_plugged_in_vooc_charging"><xliff:g id="percentage">%s</xliff:g> • VOOC karga</string>
+    <string name="keyguard_indication_turbo_power_time"><xliff:g id="percentage">%2$s</xliff:g> • Turbo karga (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> beteta arte)</string>
+    <string name="keyguard_plugged_in_turbo_charging"><xliff:g id="percentage">%s</xliff:g> • Turbo karga</string>
+    <string name="charging_vfx_long_press_to_speed">Eduki sakatuta abiadura igotzeko</string>
+    <string name="charging_vfx_source_wireless">Hari gabekoa</string>
+    <string name="charging_vfx_source_dock">Dock</string>
+    <string name="charging_vfx_time_to_full">Beteta <xliff:g id="time" example="25 min">%s</xliff:g> barru</string>
+    <string name="qs_media_tile_idle">Ez dago ezer erreproduzitzen</string>
+    <string name="qs_volume_tile_muted">Isilarazita</string>
+    <string name="qs_custom_volume_half">Erdia</string>
+    <string name="qs_custom_volume_slider">Graduatzailea</string>
+    <string name="qs_custom_volume_fill">Betea</string>
+    <string name="qs_custom_volume_stack">Pila</string>
+    <string name="qs_custom_volume_ring">Tonua</string>
+    <string name="qs_custom_volume_call">Deia</string>
+    <string name="qs_custom_volume_show_all">Izena eta ehunekoa</string>
+    <string name="qs_custom_volume_show_percent">Ehunekoa</string>
+    <string name="qs_custom_volume_show_icon">Ikonoa soilik</string>
+    <string name="qs_custom_volume_tap">Sakatu ikonoa</string>
+    <string name="qs_custom_volume_mute">Isildu</string>
+    <string name="qs_custom_volume_panel">Bolumen panela</string>
+    <string name="qs_custom_volume_ticks">Markak arrastatzean</string>
+    <string name="qs_custom_accent">Azentua</string>
+    <string name="qs_custom_add_tile">Gehitu lauza</string>
+    <string name="qs_custom_all_added">Lauza guztiak panelean daude</string>
+    <string name="qs_custom_all_icons">Ikono guztiak</string>
+    <string name="qs_custom_all_long">Dena luze</string>
+    <string name="qs_custom_backing">Ikonoaren atzealdea</string>
+    <string name="qs_custom_blob">Blob</string>
+    <string name="qs_custom_code_applied">Gaia aplikatuta</string>
+    <string name="qs_custom_code_bad">Ez dago itsatsi beharreko gai-koderik</string>
+    <string name="qs_custom_code_copied">Gai-kodea kopiatuta</string>
+    <string name="qs_custom_color_amber">Anbarra</string>
+    <string name="qs_custom_color_rose">Arrosa</string>
+    <string name="qs_custom_columns">Zutabeak</string>
+    <string name="qs_custom_copy_code">Kopiatu kodea</string>
+    <string name="qs_custom_corners">Ertzak</string>
+    <string name="qs_custom_depth">Sakonera</string>
+    <string name="qs_custom_depth_flat">Laua</string>
+    <string name="qs_custom_depth_raised">Altxatua</string>
+    <string name="qs_custom_drop_remove">Jaregin hemen kentzeko</string>
+    <string name="qs_custom_fill_clear">Garbitu</string>
+    <string name="qs_custom_fill_dark">Iluna</string>
+    <string name="qs_custom_fill_gradient">Gradientea</string>
+    <string name="qs_custom_fill_icon">Ikonoa soilik</string>
+    <string name="qs_custom_fill_solid">Solidoa</string>
+    <string name="qs_custom_fill_surface">Gainazala</string>
+    <string name="qs_custom_fill_tint">Tinta</string>
+    <string name="qs_custom_font_caps">Letra larriak</string>
+    <string name="qs_custom_font_mono">Mono</string>
+    <string name="qs_custom_font_sans">Sans</string>
+    <string name="qs_custom_glow">Distira piztuta dagoenean</string>
+    <string name="qs_custom_hide">Ezkutatu</string>
+    <string name="qs_custom_hint">Sakatu lauza bere aukerak ikusteko · Eduki sakatuta mugitzeko · Arrastatu izkinatik tamaina aldatzeko</string>
+    <string name="qs_custom_icon_size">Ikonoaren tamaina</string>
+    <string name="qs_custom_label">Etiketa</string>
+    <string name="qs_custom_label_inside">Barruan</string>
+    <string name="qs_custom_label_under">Azpian</string>
+    <string name="qs_custom_look">Look</string>
+    <string name="qs_custom_media_art">Artelana</string>
+    <string name="qs_custom_media_blocks">Blokeak</string>
+    <string name="qs_custom_media_cover">Estali</string>
+    <string name="qs_custom_media_full">Osoa</string>
+    <string name="qs_custom_media_glow">Distira</string>
+    <string name="qs_custom_media_line">Lerroa</string>
+    <string name="qs_custom_media_look">Look</string>
+    <string name="qs_custom_media_place">Non</string>
+    <string name="qs_custom_media_place_above">Lauzen gainean</string>
+    <string name="qs_custom_media_place_below">Lauzen azpian</string>
+    <string name="qs_custom_media_place_grid">Lauzekin batera</string>
+    <string name="qs_custom_media_play">Erreproduzitzailea soilik</string>
+    <string name="qs_custom_media_progress">Aurrerapena</string>
+    <string name="qs_custom_media_tall">Altua</string>
+    <string name="qs_custom_media_trio">Aurrekoa, erreproduzitu, hurrengoa</string>
+    <string name="qs_custom_media_wave">Olatua</string>
+    <string name="qs_custom_media_wide">Zabala</string>
+    <string name="qs_custom_mix_footer">Oinaldeko botoiak</string>
+    <string name="qs_custom_mix_media">Multimedia erreproduzitzailea</string>
+    <string name="qs_custom_mix_paint">Lauzen koloreak</string>
+    <string name="qs_custom_mix_shape">Lauzen forma</string>
+    <string name="qs_custom_mix_slider">Graduatzailea</string>
+    <string name="qs_custom_mixed">Nahasia</string>
+    <string name="qs_custom_my_theme_name">Nire gaia %1$d</string>
+    <string name="qs_custom_my_themes">Nire gaiak (eduki sakatuta ezabatzeko)</string>
+    <string name="qs_custom_off_fill">Lauza itzaliak</string>
+    <string name="qs_custom_on_fill">Lauza piztuak</string>
+    <string name="qs_custom_paste_code">Itsatsi kodea</string>
+    <string name="qs_custom_pill">Pilula</string>
+    <string name="qs_custom_reset">Berrezarri gai hau</string>
+    <string name="qs_custom_reset_tiles">Berrezarri lauzak</string>
+    <string name="qs_custom_rounded">Biribildua</string>
+    <string name="qs_custom_rows">Orrialde bakoitzeko errenkadak</string>
+    <string name="qs_custom_same_as_panel">Panela bezala</string>
+    <string name="qs_custom_save">Gorde nire gai gisa</string>
+    <string name="qs_custom_scroll">Korritu orriak aldatu beharrean</string>
+    <string name="qs_custom_second_line">Bigarren lerroa</string>
+    <string name="qs_custom_show">Erakutsi</string>
+    <string name="qs_custom_sizes">Lauzen tamainak</string>
+    <string name="qs_custom_slider_by_player">Erreproduzitzailearen ondoan</string>
+    <string name="qs_custom_slider_look">Look</string>
+    <string name="qs_custom_slider_place">Non</string>
+    <string name="qs_custom_slider_top">Goian</string>
+    <string name="qs_custom_slider_under">Lauzen azpian</string>
+    <string name="qs_custom_spacing">Tartea</string>
+    <string name="qs_custom_start_from">Hasi hemendik</string>
+    <string name="qs_custom_tab_add">Gehitu</string>
+    <string name="qs_custom_tab_mix">Nahastu</string>
+    <string name="qs_custom_tab_slider">Graduatzailea</string>
+    <string name="qs_custom_tab_tiles">Lauzak</string>
+    <string name="qs_custom_theme_blueprint">Blueprint</string>
+    <string name="qs_custom_theme_cards">Txartelak</string>
+    <string name="qs_custom_theme_circles">Zirkuluak</string>
+    <string name="qs_custom_theme_classic">Klasikoa</string>
+    <string name="qs_custom_theme_compact">Trinkoa</string>
+    <string name="qs_custom_theme_duo">Duo</string>
+    <string name="qs_custom_theme_glass">Kristala</string>
+    <string name="qs_custom_theme_neon">Neoia</string>
+    <string name="qs_custom_theme_remix">Remix</string>
+    <string name="qs_custom_theme_shapes">Formak</string>
+    <string name="qs_custom_theme_soft">Leuna</string>
+    <string name="qs_custom_theme_stock">Lehenetsia</string>
+    <string name="qs_custom_tile_color">Piztuta dagoenean kolorea</string>
+    <string name="qs_custom_tile_height">Altuera</string>
+    <string name="qs_custom_tile_height_dp">Lauzaren altuera</string>
+    <string name="qs_look_label">Look</string>
+    <string name="qs_look_none">Sakatu hurrengo Look-erako</string>
+    <string name="quick_settings_clear_voice_label">Ahots argia</string>
+    <string name="accessibility_quick_settings_clear_voice_on">Ahots argia aktibatuta.</string>
+    <string name="accessibility_quick_settings_clear_voice_off">Ahots-garbiketa itzalita.</string>
 </resources>

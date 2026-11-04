@@ -2,4 +2,9 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="weather_condition_clouds">"Bewölkt"</string>
     <string name="weather_condition_wind">Windig</string>
+    <string name="weather_condition_rain">Regnerisch</string>
+    <string name="weather_condition_clear">Klarer Himmel</string>
+    <string name="weather_condition_storm">Stürmisch</string>
+    <string name="weather_condition_snow">Schneereich</string>
+    <string name="weather_condition_mist">Neblig</string>
 </resources>

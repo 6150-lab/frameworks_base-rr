@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="pocket_mode_title">Mode poche actif</string>
+    <string name="pocket_mode_illustration_description">Illustration d\'un téléphone dans une poche</string>
+    <string name="pocket_mode_instructions_header">Pour utiliser votre téléphone :</string>
+    <string name="pocket_mode_instruction_step1">1. Assurez-vous que la zone bleue (capteur de proximité) affichée ci-dessus est dégagée et exempte de saleté ou de poussière.</string>
+    <string name="pocket_mode_instruction_step2">2. Maintenez le bouton Marche/Arrêt enfoncé pour quitter le mode poche.</string>
+</resources>

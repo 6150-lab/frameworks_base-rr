@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="weather_condition_clouds">"მოღრუბლული"</string>
+    <string name="weather_condition_rain">წვიმიანი</string>
+    <string name="weather_condition_clear">მოწმენდილი ცა</string>
+    <string name="weather_condition_storm">ქარიშხლიანი</string>
+    <string name="weather_condition_snow">თოვლიანი</string>
+    <string name="weather_condition_wind">ქარიანი</string>
+    <string name="weather_condition_mist">ნისლიანი</string>
 </resources>

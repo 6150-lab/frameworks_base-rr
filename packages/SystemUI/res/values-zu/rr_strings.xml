@@ -49,4 +49,205 @@
     <string name="qs_custom_tile_icon">"Isithonjana"</string>
     <string name="qs_custom_tile_width">"Ububanzi"</string>
     <string name="qs_custom_title">"Enza ngendlela oyifisayo"</string>
+    <string name="rr_power_title">Amandla</string>
+    <string name="rr_power_status">Kuphezulu %1$s · ibhethri %2$s</string>
+    <string name="rr_power_status_uptime">Kuphezulu %1$s</string>
+    <string name="rr_power_back">Buyela ku-imenyu yamandla</string>
+    <string name="rr_shutdown_back_soon">I-Resurrected Remix izobuya masinyane</string>
+    <string name="global_action_restart_subtitle">Khetha indlela ifoni eqala ngayo futhi</string>
+    <string name="global_action_restart_system_summary">Qalisa kabusha i-Android. Cindezela isikhathi eside ukuze uthole imodi ephephile</string>
+    <string name="global_action_restart_recovery_summary">Faka izibuyekezo, sideload noma sula idatha</string>
+    <string name="global_action_restart_bootloader_summary">I-Fastboot, yokufaka izithombe zokuqalisa</string>
+    <string name="global_action_restart_fastboot_summary">I-Userspace fastboot, yezigaba zesistimu</string>
+    <string name="global_action_restart_download_summary">Imodi yokulanda, yesisetshenziswa sokufaka umbhalo somkhiqizi</string>
+    <string name="volume_ringer_priority_only">Ukubaluleka</string>
+    <string name="volume_ringer_dnd">DnD</string>
+    <string name="tristate_flashlight_blink">Ukukhanyisa kwe-torch</string>
+    <string name="tristate_brightness_bright">Ukukhanya okuphezulu</string>
+    <string name="tristate_brightness_dark">Ukukhanya okuphansi</string>
+    <string name="tristate_brightness_auto">Ukukhanya okuzenzekelayo</string>
+    <string name="tristate_rotation_0">Okuthi-ma</string>
+    <string name="tristate_rotation_90">Okuthi-lala (90°)</string>
+    <string name="tristate_rotation_270">Okuthi-lala (270°)</string>
+    <string name="tristate_app_launch">Kuqalwa uhlelo</string>
+    <string name="face_unlock_recognizing">Kuhlonzwa ubuso...</string>
+    <string name="screen_on_time_label">SOT <xliff:g id="duration" example="5 hr 12 min">%1$s</xliff:g></string>
+    <string name="quick_launch_video">Ividiyo</string>
+    <string name="quick_launch_qr">Skena i-QR</string>
+    <string name="now_bar_charging">Kuyashaja · <xliff:g id="level" example="74">%1$d</xliff:g>%%</string>
+    <string name="now_bar_full_in">Igcwele kwi-<xliff:g id="duration" example="22 min">%1$s</xliff:g></string>
+    <string name="now_bar_charged">Kushajiwe</string>
+    <string name="now_bar_flashlight_on">I-flashlight ivuliwe</string>
+    <string name="now_bar_buds">Izinsimbi zezindlebe</string>
+    <string name="now_bar_buds_case">Ikhesi <xliff:g id="level" example="61">%1$d</xliff:g></string>
+    <string name="now_bar_play">Dlala</string>
+    <string name="now_bar_pause">Misa</string>
+    <string name="now_bar_previous">Okwangaphambili</string>
+    <string name="now_bar_next">Okulandelayo</string>
+    <string name="now_bar_hide">Fihla kuze kuphele</string>
+    <string name="now_bar_settings">Izilungiselelo ze-Now Bar</string>
+    <string name="now_bar_pin">Phina ku-always-on display</string>
+    <string name="stage_battery_description">Ibhethri <xliff:g id="percent" example="74">%1$d</xliff:g> ekhulwini</string>
+    <string name="stage_alarm_description">I-alamu elandelayo <xliff:g id="time" example="Tue 6:30">%1$s</xliff:g></string>
+    <string name="flatline_playing">KUDLALWAYO</string>
+    <string name="flatline_call">ISHAYELO LOKUFONA</string>
+    <string name="flatline_vitals">Izimpilo</string>
+    <string name="flatline_vitals_preview">74% · I-alamu 6:30</string>
+    <string name="flatline_alarm">I-alamu <xliff:g id="time" example="6:30">%1$s</xliff:g></string>
+    <string name="now_bar_unpin">Khumula ku-always-on display</string>
+    <string name="now_bar_open">Vula</string>
+    <string name="now_bar_output">Okuphumayo</string>
+    <string name="now_bar_close">Vala</string>
+    <string name="now_bar_minutes_left"><xliff:g id="minutes" example="4">%1$d</xliff:g> imizuzu eseleyo</string>
+    <string name="now_bar_minutes"><xliff:g id="minutes" example="12">%1$d</xliff:g> imizuzu</string>
+    <string name="now_bar_versus"><xliff:g id="team" example="Lakers">%1$s</xliff:g> vs <xliff:g id="team" example="Celtics">%2$s</xliff:g></string>
+    <string name="charge_report_channel">Imibiko yokushaja</string>
+    <string name="charge_report_title">Umbiko wokushaja</string>
+    <string name="charge_report_summary">+<xliff:g id="added" example="62">%1$d</xliff:g>%% ku-<xliff:g id="time" example="31 min">%2$s</xliff:g> · amandla aphezulu <xliff:g id="watts" example="55.0">%3$s</xliff:g> W · okuphezulu <xliff:g id="temp" example="38">%4$s</xliff:g> °C</string>
+    <string name="charge_report_details"><xliff:g id="charger" example="Wired">%1$s</xliff:g> · <xliff:g id="from" example="12">%2$d</xliff:g>%% kuya ku-<xliff:g id="to" example="74">%3$d</xliff:g>%% · isilinganiso <xliff:g id="watts" example="41.3">%4$s</xliff:g> W</string>
+    <string name="charge_report_wired">Ngocingo</string>
+    <string name="charge_report_wireless">Ngaphandle kocingo</string>
+    <string name="charge_report_dock">Idokhi</string>
+    <string name="usb_mode_picker_title">Khetha imodi ye-USB</string>
+    <string name="usb_mode_photo_transfer">Ukudluliselwa kwezithombe nevidiyo</string>
+    <string name="usb_mode_webcam">I-USB Webcam</string>
+    <string name="usb_mode_charging_only">Ukushaja kuphela</string>
+    <string name="usb_charging_status">Ukushaja nge-USB kuvuliwe</string>
+    <string name="usb_island_title">I-USB ixhumekile</string>
+    <string name="usb_island_settings">Izilungiselelo ze-USB</string>
+    <string name="usb_mode_short_charge">Shaja</string>
+    <string name="keyguard_indication_dash_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Ukushaja nge-Dash (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> kuze kugcwale)</string>
+    <string name="keyguard_plugged_in_dash_charging"><xliff:g id="percentage">%s</xliff:g> • Ukushaja nge-Dash</string>
+    <string name="keyguard_indication_warp_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Ukushaja nge-Warp (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> kuze kugcwale)</string>
+    <string name="keyguard_plugged_in_warp_charging"><xliff:g id="percentage">%s</xliff:g> • Ukushaja nge-Warp</string>
+    <string name="keyguard_indication_vooc_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Ukushaja nge-VOOC (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> kuze kugcwale)</string>
+    <string name="keyguard_plugged_in_vooc_charging"><xliff:g id="percentage">%s</xliff:g> • Ukushaja nge-VOOC</string>
+    <string name="keyguard_indication_turbo_power_time"><xliff:g id="percentage">%2$s</xliff:g> • Ukushaja okusheshayo (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> kuze kugcwale)</string>
+    <string name="keyguard_plugged_in_turbo_charging"><xliff:g id="percentage">%s</xliff:g> • Ukushaja okusheshayo</string>
+    <string name="charging_vfx_long_press_to_speed">Bamba isikhathi eside ukuze ukhulise isivinini</string>
+    <string name="charging_vfx_source_wireless">Ngaphandle kocingo</string>
+    <string name="charging_vfx_source_dock">Idokhi</string>
+    <string name="charging_vfx_time_to_full">Igcwele kwi-<xliff:g id="time" example="25 min">%s</xliff:g></string>
+    <string name="qs_media_tile_idle">Akukho okudlalwayo</string>
+    <string name="qs_volume_tile_muted">Kuthuliwe</string>
+    <string name="qs_custom_volume_half">Ingxenye</string>
+    <string name="qs_custom_volume_slider">Isilayidi</string>
+    <string name="qs_custom_volume_fill">Gcwalisa</string>
+    <string name="qs_custom_volume_stack">Isitaki</string>
+    <string name="qs_custom_volume_ring">Ishaywa</string>
+    <string name="qs_custom_volume_call">Ikholi</string>
+    <string name="qs_custom_volume_show_all">Igama nephesenti</string>
+    <string name="qs_custom_volume_show_percent">Iphesenti</string>
+    <string name="qs_custom_volume_show_icon">Isithonjana kuphela</string>
+    <string name="qs_custom_volume_tap">Thepha isithonjana</string>
+    <string name="qs_custom_volume_mute">Thulisa</string>
+    <string name="qs_custom_volume_panel">Iphaneli yevolumu</string>
+    <string name="qs_custom_volume_ticks">Amathikhi ngenkathi uhudula</string>
+    <string name="qs_custom_accent">Umbala oyinhloko</string>
+    <string name="qs_custom_add_tile">Engeza ithayela</string>
+    <string name="qs_custom_all_added">Wonke amathayela akuphaneli</string>
+    <string name="qs_custom_all_icons">Zonke izithonjana</string>
+    <string name="qs_custom_all_long">Zonke ezinde</string>
+    <string name="qs_custom_backing">Ingemuva lesithonjana</string>
+    <string name="qs_custom_blob">Ibhlobo</string>
+    <string name="qs_custom_code_applied">Itimu isetshenzisiwe</string>
+    <string name="qs_custom_code_bad">Akukho khodi yetimu okufanele uyinamathisele</string>
+    <string name="qs_custom_code_copied">Ikhodi yetimu ikopishiwe</string>
+    <string name="qs_custom_color_amber">I-Amber</string>
+    <string name="qs_custom_color_rose">I-Rose</string>
+    <string name="qs_custom_columns">Amakholomu</string>
+    <string name="qs_custom_copy_code">Kopisha ikhodi</string>
+    <string name="qs_custom_corners">Amakhona</string>
+    <string name="qs_custom_depth">Ukujula</string>
+    <string name="qs_custom_depth_flat">Okulinganayo</string>
+    <string name="qs_custom_depth_raised">Kuphakanyisiwe</string>
+    <string name="qs_custom_drop_remove">Ndondela lapha ukuze ususe</string>
+    <string name="qs_custom_fill_clear">Sula</string>
+    <string name="qs_custom_fill_dark">Mnyama</string>
+    <string name="qs_custom_fill_gradient">Ukuhlanganiswa kombala</string>
+    <string name="qs_custom_fill_icon">Isithonjana kuphela</string>
+    <string name="qs_custom_fill_solid">Okuqinile</string>
+    <string name="qs_custom_fill_surface">Indawo</string>
+    <string name="qs_custom_fill_tint">Umbala ofiphele</string>
+    <string name="qs_custom_font_caps">Okukhulu</string>
+    <string name="qs_custom_font_mono">Mono</string>
+    <string name="qs_custom_font_sans">Sans</string>
+    <string name="qs_custom_glow">Khanya uma kuvuliwe</string>
+    <string name="qs_custom_hide">Fihla</string>
+    <string name="qs_custom_hint">Thepha ithayela ukuze uthole izinketho zalo · Bamba ukuze uhambise · Hudula ikhona ukuze ushintshe usayizi</string>
+    <string name="qs_custom_icon_size">Usayizi wesithonjana</string>
+    <string name="qs_custom_label">Isilebhuli</string>
+    <string name="qs_custom_label_inside">Ngaphakathi</string>
+    <string name="qs_custom_label_under">Ngaphansi</string>
+    <string name="qs_custom_look">Ukubukeka</string>
+    <string name="qs_custom_media_art">Izinto zobuciko</string>
+    <string name="qs_custom_media_blocks">Izingxenye</string>
+    <string name="qs_custom_media_cover">Imboza</string>
+    <string name="qs_custom_media_full">Igcwele</string>
+    <string name="qs_custom_media_glow">Ukukhanya</string>
+    <string name="qs_custom_media_line">Umugqa</string>
+    <string name="qs_custom_media_look">Ukubukeka</string>
+    <string name="qs_custom_media_place">Lapho</string>
+    <string name="qs_custom_media_place_above">Phezu kwamathayela</string>
+    <string name="qs_custom_media_place_below">Ngaphansi kwamathayela</string>
+    <string name="qs_custom_media_place_grid">Nawo amathayela</string>
+    <string name="qs_custom_media_play">Dlala kuphela</string>
+    <string name="qs_custom_media_progress">Inqubekela phambili</string>
+    <string name="qs_custom_media_tall">Ude</string>
+    <string name="qs_custom_media_trio">Okwangaphambili, dlala, okulandelayo</string>
+    <string name="qs_custom_media_wave">Igagasi</string>
+    <string name="qs_custom_media_wide">Obanzi</string>
+    <string name="qs_custom_mix_footer">Izinkinobho zesiphansi</string>
+    <string name="qs_custom_mix_media">Umdlali wemidiya</string>
+    <string name="qs_custom_mix_paint">Imibala yamathayela</string>
+    <string name="qs_custom_mix_shape">Isimo samathayela</string>
+    <string name="qs_custom_mix_slider">Isilayidi</string>
+    <string name="qs_custom_mixed">Okuxubile</string>
+    <string name="qs_custom_my_theme_name">Itimu yami %1$d</string>
+    <string name="qs_custom_my_themes">Amathimu ami (bamba ukuze usule)</string>
+    <string name="qs_custom_off_fill">Amathayela avaliwe</string>
+    <string name="qs_custom_on_fill">Amathayela avulekile</string>
+    <string name="qs_custom_paste_code">Namathisela ikhodi</string>
+    <string name="qs_custom_pill">Upilisi</string>
+    <string name="qs_custom_reset">Setha kabusha le timu</string>
+    <string name="qs_custom_reset_tiles">Setha kabusha amathayela</string>
+    <string name="qs_custom_rounded">Okuzungezile</string>
+    <string name="qs_custom_rows">Imigqa ekhasini</string>
+    <string name="qs_custom_same_as_panel">Njengephaneli</string>
+    <string name="qs_custom_save">Gcina njengetimu yami</string>
+    <string name="qs_custom_scroll">Skrola esikhundleni samakhasi</string>
+    <string name="qs_custom_second_line">Umugqa wesibili</string>
+    <string name="qs_custom_show">Bonisa</string>
+    <string name="qs_custom_sizes">Osayizi bamathayela</string>
+    <string name="qs_custom_slider_by_player">Ngomdlali</string>
+    <string name="qs_custom_slider_look">Ukubukeka</string>
+    <string name="qs_custom_slider_place">Lapho</string>
+    <string name="qs_custom_slider_top">Phezulu</string>
+    <string name="qs_custom_slider_under">Ngaphansi kwamathayela</string>
+    <string name="qs_custom_spacing">Isikhala</string>
+    <string name="qs_custom_start_from">Qala kusuka ku-</string>
+    <string name="qs_custom_tab_add">Engeza</string>
+    <string name="qs_custom_tab_mix">Xuba</string>
+    <string name="qs_custom_tab_slider">Isilayidi</string>
+    <string name="qs_custom_tab_tiles">Amathayela</string>
+    <string name="qs_custom_theme_blueprint">I-Blueprint</string>
+    <string name="qs_custom_theme_cards">Amakhadi</string>
+    <string name="qs_custom_theme_circles">Imibuthano</string>
+    <string name="qs_custom_theme_classic">Okwakudala</string>
+    <string name="qs_custom_theme_compact">Okuncane</string>
+    <string name="qs_custom_theme_duo">Duo</string>
+    <string name="qs_custom_theme_glass">Iglasi</string>
+    <string name="qs_custom_theme_neon">I-Neon</string>
+    <string name="qs_custom_theme_remix">Ukuhlanganisa</string>
+    <string name="qs_custom_theme_shapes">Izimo</string>
+    <string name="qs_custom_theme_soft">Soft</string>
+    <string name="qs_custom_theme_stock">Okujwayelekile</string>
+    <string name="qs_custom_tile_color">Umbala lapho kuvuliwe</string>
+    <string name="qs_custom_tile_height">Ubude</string>
+    <string name="qs_custom_tile_height_dp">Ukuphakama kwethayela</string>
+    <string name="qs_look_label">Ukubukeka</string>
+    <string name="qs_look_none">Thepha ukuze uthole okulandelayo</string>
+    <string name="quick_settings_clear_voice_label">Isiphimbo esicacile</string>
+    <string name="accessibility_quick_settings_clear_voice_on">Isiphimbo esicacile sivuliwe.</string>
+    <string name="accessibility_quick_settings_clear_voice_off">Isiphimbo esicacile sivaliwe.</string>
 </resources>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="pocket_mode_title">Taschenmodus ist aktiv</string>
+    <string name="pocket_mode_illustration_description">Illustration eines Telefons in der Tasche</string>
+    <string name="pocket_mode_instructions_header">So verwendest du dein Telefon:</string>
+    <string name="pocket_mode_instruction_step1">1. Stelle sicher, dass der blaue Bereich (Näherungssensor) oben frei und sauber von Schmutz oder Staub ist.</string>
+    <string name="pocket_mode_instruction_step2">2. Halte die Ein/Aus-Taste gedrückt, um den Taschenmodus zu beenden.</string>
+</resources>

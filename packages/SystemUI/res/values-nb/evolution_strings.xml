@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="weather_condition_clouds">"Overskyet"</string>
+    <string name="weather_condition_rain">Regn</string>
+    <string name="weather_condition_clear">Klar himmel</string>
+    <string name="weather_condition_storm">Storm</string>
+    <string name="weather_condition_snow">Snø</string>
+    <string name="weather_condition_wind">Vind</string>
+    <string name="weather_condition_mist">Tåke</string>
 </resources>

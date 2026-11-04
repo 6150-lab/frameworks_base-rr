@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="weather_condition_clouds">"Pilvinen"</string>
+    <string name="weather_condition_rain">Sateinen</string>
+    <string name="weather_condition_clear">Selkeä taivas</string>
+    <string name="weather_condition_storm">Myrskyinen</string>
+    <string name="weather_condition_snow">Lumisateinen</string>
+    <string name="weather_condition_wind">Tuulinen</string>
+    <string name="weather_condition_mist">Utuinen</string>
 </resources>

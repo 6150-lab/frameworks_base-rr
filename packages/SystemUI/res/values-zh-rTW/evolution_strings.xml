@@ -2,4 +2,9 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="weather_condition_clouds">"陰天"</string>
     <string name="weather_condition_wind">颳風</string>
+    <string name="weather_condition_rain">下雨</string>
+    <string name="weather_condition_clear">晴朗</string>
+    <string name="weather_condition_storm">暴風雨</string>
+    <string name="weather_condition_snow">下雪</string>
+    <string name="weather_condition_mist">有霧</string>
 </resources>

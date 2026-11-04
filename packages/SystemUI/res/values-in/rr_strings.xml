@@ -247,4 +247,7 @@
     <string name="qs_custom_tile_height_dp">Tinggi kartu</string>
     <string name="qs_look_label">Tampilan</string>
     <string name="qs_look_none">Ketuk untuk Tampilan berikutnya</string>
+    <string name="quick_settings_clear_voice_label">Suara Jernih</string>
+    <string name="accessibility_quick_settings_clear_voice_on">Suara Jernih aktif.</string>
+    <string name="accessibility_quick_settings_clear_voice_off">Suara Jernih nonaktif.</string>
 </resources>

@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="weather_condition_clouds">"Vranësirë"</string>
+    <string name="weather_condition_rain">Me shi</string>
+    <string name="weather_condition_clear">Qiell i pastër</string>
+    <string name="weather_condition_storm">Me stuhi</string>
+    <string name="weather_condition_snow">Me borë</string>
+    <string name="weather_condition_wind">Me erë</string>
+    <string name="weather_condition_mist">Me mjegull</string>
 </resources>

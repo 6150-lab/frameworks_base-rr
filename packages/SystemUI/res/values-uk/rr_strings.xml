@@ -61,4 +61,193 @@
     <string name="qs_custom_tile_icon">"Значок"</string>
     <string name="qs_custom_tile_width">"Ширина"</string>
     <string name="qs_custom_title">"Налаштувати"</string>
+    <string name="rr_power_title">Живлення</string>
+    <string name="rr_power_status">Вгору %1$s · акумулятор %2$s</string>
+    <string name="rr_power_status_uptime">Вгору %1$s</string>
+    <string name="rr_power_back">Назад до меню живлення</string>
+    <string name="rr_shutdown_back_soon">Resurrected Remix скоро повернеться</string>
+    <string name="global_action_restart_subtitle">Виберіть, як телефон запускатиметься знову</string>
+    <string name="global_action_restart_system_summary">Перезапустити Android. Утримуйте для безпечного режиму</string>
+    <string name="global_action_restart_recovery_summary">Встановити оновлення, sideload або стерти дані</string>
+    <string name="global_action_restart_bootloader_summary">Fastboot для прошивки образів завантаження</string>
+    <string name="global_action_restart_fastboot_summary">Userspace fastboot для системних розділів</string>
+    <string name="global_action_restart_download_summary">Режим завантаження для інструмента прошивки виробника</string>
+    <string name="volume_ringer_priority_only">Пріоритет</string>
+    <string name="volume_ringer_dnd">DnD</string>
+    <string name="tristate_flashlight_blink">Блимання ліхтарика</string>
+    <string name="tristate_brightness_bright">Макс. яскравість</string>
+    <string name="tristate_brightness_dark">Мін. яскравість</string>
+    <string name="tristate_brightness_auto">Автояскравість</string>
+    <string name="tristate_rotation_0">Портрет</string>
+    <string name="tristate_rotation_90">Альбомна (90°)</string>
+    <string name="tristate_rotation_270">Альбомна (270°)</string>
+    <string name="tristate_app_launch">Запуск застосунку</string>
+    <string name="screen_on_time_label">SOT <xliff:g id="duration" example="5 hr 12 min">%1$s</xliff:g></string>
+    <string name="quick_launch_video">Відео</string>
+    <string name="quick_launch_qr">Сканувати QR</string>
+    <string name="now_bar_charging">Заряджання · <xliff:g id="level" example="74">%1$d</xliff:g>%%</string>
+    <string name="now_bar_full_in">Повністю через <xliff:g id="duration" example="22 min">%1$s</xliff:g></string>
+    <string name="now_bar_charged">Заряджено</string>
+    <string name="now_bar_flashlight_on">Ліхтарик увімкнено</string>
+    <string name="now_bar_buds">Навушники</string>
+    <string name="now_bar_buds_case">Футляр <xliff:g id="level" example="61">%1$d</xliff:g></string>
+    <string name="now_bar_play">Відтворити</string>
+    <string name="now_bar_pause">Пауза</string>
+    <string name="now_bar_previous">Попередній</string>
+    <string name="now_bar_next">Наступний</string>
+    <string name="now_bar_hide">Сховати до завершення</string>
+    <string name="now_bar_settings">Налаштування панелі Now Bar</string>
+    <string name="now_bar_pin">Закріпити на екрані очікування</string>
+    <string name="stage_battery_description">Акумулятор <xliff:g id="percent" example="74">%1$d</xliff:g> відсотків</string>
+    <string name="stage_alarm_description">Наступний будильник <xliff:g id="time" example="Tue 6:30">%1$s</xliff:g></string>
+    <string name="flatline_playing">ЗАРА�  ВІДТВОРЮЄТЬСЯ</string>
+    <string name="flatline_call">ВХІДНИЙ ДЗВІНОК</string>
+    <string name="flatline_vitals">Показники</string>
+    <string name="flatline_vitals_preview">74% · Будильник 6:30</string>
+    <string name="flatline_alarm">Будильник <xliff:g id="time" example="6:30">%1$s</xliff:g></string>
+    <string name="now_bar_unpin">Відкріпити з екрана очікування</string>
+    <string name="now_bar_open">Відкрити</string>
+    <string name="now_bar_output">Вихід</string>
+    <string name="now_bar_close">Закрити</string>
+    <string name="now_bar_minutes_left">Залишилось <xliff:g id="minutes" example="4">%1$d</xliff:g> хв</string>
+    <string name="now_bar_minutes"><xliff:g id="minutes" example="12">%1$d</xliff:g> хв</string>
+    <string name="now_bar_versus"><xliff:g id="team" example="Lakers">%1$s</xliff:g> проти <xliff:g id="team" example="Celtics">%2$s</xliff:g></string>
+    <string name="charge_report_channel">Звіти про заряджання</string>
+    <string name="charge_report_title">Звіт про заряджання</string>
+    <string name="charge_report_summary">+<xliff:g id="added" example="62">%1$d</xliff:g>%% за <xliff:g id="time" example="31 min">%2$s</xliff:g> · пік <xliff:g id="watts" example="55.0">%3$s</xliff:g> Вт · макс. <xliff:g id="temp" example="38">%4$s</xliff:g> °C</string>
+    <string name="charge_report_details"><xliff:g id="charger" example="Wired">%1$s</xliff:g> · <xliff:g id="from" example="12">%2$d</xliff:g>%% до <xliff:g id="to" example="74">%3$d</xliff:g>%% · середньо <xliff:g id="watts" example="41.3">%4$s</xliff:g> Вт</string>
+    <string name="charge_report_wired">Дротове</string>
+    <string name="charge_report_dock">Док-станція</string>
+    <string name="usb_island_title">USB підключено</string>
+    <string name="usb_island_settings">Налаштування USB</string>
+    <string name="usb_mode_short_charge">Заряджання</string>
+    <string name="keyguard_indication_dash_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Dash Charging (до повного через <xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g>)</string>
+    <string name="keyguard_plugged_in_dash_charging"><xliff:g id="percentage">%s</xliff:g> • Dash Charging</string>
+    <string name="keyguard_indication_warp_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Warp Charging (до повного через <xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g>)</string>
+    <string name="keyguard_plugged_in_warp_charging"><xliff:g id="percentage">%s</xliff:g> • Warp Charging</string>
+    <string name="keyguard_indication_vooc_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • VOOC Charging (до повного через <xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g>)</string>
+    <string name="keyguard_plugged_in_vooc_charging"><xliff:g id="percentage">%s</xliff:g> • VOOC Charging</string>
+    <string name="keyguard_indication_turbo_power_time"><xliff:g id="percentage">%2$s</xliff:g> • Turbo Charging (до повного через <xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g>)</string>
+    <string name="keyguard_plugged_in_turbo_charging"><xliff:g id="percentage">%s</xliff:g> • Turbo Charging</string>
+    <string name="charging_vfx_long_press_to_speed">Утримуйте, щоб прискорити</string>
+    <string name="charging_vfx_source_dock">Док-станція</string>
+    <string name="charging_vfx_time_to_full">Повністю через <xliff:g id="time" example="25 min">%s</xliff:g></string>
+    <string name="qs_media_tile_idle">Нічого не відтворюється</string>
+    <string name="qs_volume_tile_muted">Вимкнено звук</string>
+    <string name="qs_custom_volume_half">Половина</string>
+    <string name="qs_custom_volume_slider">Повзунок</string>
+    <string name="qs_custom_volume_fill">Заповнення</string>
+    <string name="qs_custom_volume_stack">Стопка</string>
+    <string name="qs_custom_volume_ring">Гучність дзвінка</string>
+    <string name="qs_custom_volume_call">Дзвінок</string>
+    <string name="qs_custom_volume_show_all">Назва і відсоток</string>
+    <string name="qs_custom_volume_show_percent">Відсоток</string>
+    <string name="qs_custom_volume_show_icon">Лише значок</string>
+    <string name="qs_custom_volume_tap">Торкніться значка</string>
+    <string name="qs_custom_volume_mute">Вимкнути звук</string>
+    <string name="qs_custom_volume_ticks">Позначки під час перетягування</string>
+    <string name="qs_custom_accent">Акцент</string>
+    <string name="qs_custom_add_tile">Додати плитку</string>
+    <string name="qs_custom_all_added">Кожна плитка вже на панелі</string>
+    <string name="qs_custom_all_icons">Усі значки</string>
+    <string name="qs_custom_all_long">Усі довгі</string>
+    <string name="qs_custom_backing">Фон значка</string>
+    <string name="qs_custom_blob">Крапля</string>
+    <string name="qs_custom_code_applied">Тему застосовано</string>
+    <string name="qs_custom_code_bad">Немає коду теми для вставлення</string>
+    <string name="qs_custom_code_copied">Код теми скопійовано</string>
+    <string name="qs_custom_color_amber">Бурштиновий</string>
+    <string name="qs_custom_color_rose">Рожевий</string>
+    <string name="qs_custom_columns">Колонки</string>
+    <string name="qs_custom_copy_code">Копіювати код</string>
+    <string name="qs_custom_corners">Кути</string>
+    <string name="qs_custom_depth">Глибина</string>
+    <string name="qs_custom_depth_flat">Плоский</string>
+    <string name="qs_custom_depth_raised">Піднятий</string>
+    <string name="qs_custom_drop_remove">Перетягніть сюди, щоб вилучити</string>
+    <string name="qs_custom_fill_clear">Очистити</string>
+    <string name="qs_custom_fill_dark">Темний</string>
+    <string name="qs_custom_fill_gradient">Градієнт</string>
+    <string name="qs_custom_fill_icon">Лише значок</string>
+    <string name="qs_custom_fill_solid">Суцільний</string>
+    <string name="qs_custom_fill_surface">Поверхня</string>
+    <string name="qs_custom_fill_tint">Відтінок</string>
+    <string name="qs_custom_font_caps">Великі літери</string>
+    <string name="qs_custom_font_mono">Mono</string>
+    <string name="qs_custom_font_sans">Sans</string>
+    <string name="qs_custom_glow">Світитись, коли увімкнено</string>
+    <string name="qs_custom_hide">Сховати</string>
+    <string name="qs_custom_hint">Торкніться плитки для її параметрів · Утримуйте, щоб перемістити · Перетягніть кут, щоб змінити розмір</string>
+    <string name="qs_custom_label">Підпис</string>
+    <string name="qs_custom_label_inside">Всередині</string>
+    <string name="qs_custom_label_under">Знизу</string>
+    <string name="qs_custom_look">Образ</string>
+    <string name="qs_custom_media_art">Обкладинка</string>
+    <string name="qs_custom_media_blocks">Блоки</string>
+    <string name="qs_custom_media_cover">Обкладинка</string>
+    <string name="qs_custom_media_full">Повний</string>
+    <string name="qs_custom_media_glow">Світіння</string>
+    <string name="qs_custom_media_line">Лінія</string>
+    <string name="qs_custom_media_look">Образ</string>
+    <string name="qs_custom_media_place">Розташування</string>
+    <string name="qs_custom_media_place_above">Над плитками</string>
+    <string name="qs_custom_media_place_below">Під плитками</string>
+    <string name="qs_custom_media_place_grid">Разом із плитками</string>
+    <string name="qs_custom_media_play">Лише відтворення</string>
+    <string name="qs_custom_media_tall">Високий</string>
+    <string name="qs_custom_media_trio">Попередній, відтворити, наступний</string>
+    <string name="qs_custom_media_wave">Хвиля</string>
+    <string name="qs_custom_media_wide">Широкий</string>
+    <string name="qs_custom_mix_footer">Кнопки внизу</string>
+    <string name="qs_custom_mix_media">Медіаплеєр</string>
+    <string name="qs_custom_mix_paint">Кольори плиток</string>
+    <string name="qs_custom_mix_slider">Повзунок</string>
+    <string name="qs_custom_mixed">Змішані</string>
+    <string name="qs_custom_my_theme_name">Моя тема %1$d</string>
+    <string name="qs_custom_my_themes">Мої теми (утримуйте, щоб видалити)</string>
+    <string name="qs_custom_off_fill">Вимкнені плитки</string>
+    <string name="qs_custom_on_fill">Увімкнені плитки</string>
+    <string name="qs_custom_paste_code">Вставити код</string>
+    <string name="qs_custom_pill">Пілюля</string>
+    <string name="qs_custom_reset">Скинути цю тему</string>
+    <string name="qs_custom_reset_tiles">Скинути плитки</string>
+    <string name="qs_custom_rounded">Округлені</string>
+    <string name="qs_custom_rows">Рядків на сторінці</string>
+    <string name="qs_custom_same_as_panel">Як на панелі</string>
+    <string name="qs_custom_save">Зберегти як мою тему</string>
+    <string name="qs_custom_scroll">Прокрутка замість сторінок</string>
+    <string name="qs_custom_second_line">Другий рядок</string>
+    <string name="qs_custom_show">Показати</string>
+    <string name="qs_custom_sizes">Розміри плиток</string>
+    <string name="qs_custom_slider_by_player">Біля плеєра</string>
+    <string name="qs_custom_slider_look">Образ</string>
+    <string name="qs_custom_slider_place">Розташування</string>
+    <string name="qs_custom_slider_top">Угорі</string>
+    <string name="qs_custom_slider_under">Під плитками</string>
+    <string name="qs_custom_spacing">Інтервал</string>
+    <string name="qs_custom_start_from">Почати з</string>
+    <string name="qs_custom_tab_add">Додати</string>
+    <string name="qs_custom_tab_mix">Змішати</string>
+    <string name="qs_custom_tab_slider">Повзунок</string>
+    <string name="qs_custom_tab_tiles">Плитки</string>
+    <string name="qs_custom_theme_blueprint">Blueprint</string>
+    <string name="qs_custom_theme_cards">Картки</string>
+    <string name="qs_custom_theme_circles">Кола</string>
+    <string name="qs_custom_theme_classic">Класичний</string>
+    <string name="qs_custom_theme_compact">Компактний</string>
+    <string name="qs_custom_theme_duo">Duo</string>
+    <string name="qs_custom_theme_glass">Скло</string>
+    <string name="qs_custom_theme_neon">Неон</string>
+    <string name="qs_custom_theme_remix">Ремікс</string>
+    <string name="qs_custom_theme_shapes">Фігури</string>
+    <string name="qs_custom_theme_soft">М’який</string>
+    <string name="qs_custom_theme_stock">Стандартна</string>
+    <string name="qs_custom_tile_color">Колір, коли увімкнено</string>
+    <string name="qs_custom_tile_height">Висота</string>
+    <string name="qs_custom_tile_height_dp">Висота плитки</string>
+    <string name="qs_look_label">Образ</string>
+    <string name="qs_look_none">Торкніться, щоб перейти до наступного образу</string>
+    <string name="quick_settings_clear_voice_label">Голосове очищення</string>
+    <string name="accessibility_quick_settings_clear_voice_on">Голосове очищення увімкнено.</string>
+    <string name="accessibility_quick_settings_clear_voice_off">Голосове очищення вимкнено.</string>
 </resources>

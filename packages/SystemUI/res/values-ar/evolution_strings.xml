@@ -2,4 +2,9 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="weather_condition_clouds">"غائم"</string>
     <string name="weather_condition_wind">رياح</string>
+    <string name="weather_condition_rain">ممطر</string>
+    <string name="weather_condition_clear">صافٍ</string>
+    <string name="weather_condition_storm">عاصف</string>
+    <string name="weather_condition_snow">ثلجي</string>
+    <string name="weather_condition_mist">ضبابي</string>
 </resources>

@@ -247,4 +247,7 @@
     <string name="qs_custom_tile_height_dp">功能块高度</string>
     <string name="qs_look_label">外观</string>
     <string name="qs_look_none">点按切换下一个造型</string>
+    <string name="quick_settings_clear_voice_label">Clear Voice</string>
+    <string name="accessibility_quick_settings_clear_voice_on">Clear Voice 已开启。</string>
+    <string name="accessibility_quick_settings_clear_voice_off">Clear Voice 已关闭。</string>
 </resources>

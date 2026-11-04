@@ -49,4 +49,205 @@
     <string name="qs_custom_tile_icon">"ໄອຄອນ"</string>
     <string name="qs_custom_tile_width">"ກວ້າງ"</string>
     <string name="qs_custom_title">"ປັບແຕ່ງ"</string>
+    <string name="rr_power_title">ພະລັງງານ</string>
+    <string name="rr_power_status">ຂຶ້ນ %1$s · ແບັດເຕີຣີ %2$s</string>
+    <string name="rr_power_status_uptime">ຂຶ້ນ %1$s</string>
+    <string name="rr_power_back">ກັບໄປເມນູເປີດປິດ</string>
+    <string name="rr_shutdown_back_soon">Resurrected Remix ຈະກັບມາທັນທີ</string>
+    <string name="global_action_restart_subtitle">ເລືອກວິທີເລີ່ມໂທລະສັບອີກຄັ້ງ</string>
+    <string name="global_action_restart_system_summary">ເລີ່ມ Android ໃໝ່. ກົດຄ້າງເພື່ອເຂົ້າໂໝດປອດໄພ</string>
+    <string name="global_action_restart_recovery_summary">ຕິດຕັ້ງອັບເດດ, sideload ຫຼື ລຶບຂໍ້ມູນ</string>
+    <string name="global_action_restart_bootloader_summary">Fastboot, ສຳລັບ flash ໄອມເມຈ boot</string>
+    <string name="global_action_restart_fastboot_summary">Userspace fastboot, ສຳລັບພາທິຊັນລະບົບ</string>
+    <string name="global_action_restart_download_summary">ໂໝດດາວໂຫຼດ, ສຳລັບເຄື່ອງມື flash ຂອງຜູ້ຜະລິດ</string>
+    <string name="volume_ringer_priority_only">ລຳດັບຄວາມສຳຄັນ</string>
+    <string name="volume_ringer_dnd">ຫ້າມລົບກວນ</string>
+    <string name="tristate_flashlight_blink">ໄຟສາຍກະພິບ</string>
+    <string name="tristate_brightness_bright">ຄວາມສະຫວ່າງສູງສຸດ</string>
+    <string name="tristate_brightness_dark">ຄວາມສະຫວ່າງຕ່ຳສຸດ</string>
+    <string name="tristate_brightness_auto">ຄວາມສະຫວ່າງອັດຕະໂນມັດ</string>
+    <string name="tristate_rotation_0">ແນວຕັ້ງ</string>
+    <string name="tristate_rotation_90">ແນວນອນ (90°)</string>
+    <string name="tristate_rotation_270">ແນວນອນ (270°)</string>
+    <string name="tristate_app_launch">ກຳລັງເປີດແອັບ</string>
+    <string name="face_unlock_recognizing">ກຳລັງຈຳແນກໃບໜ້າ...</string>
+    <string name="screen_on_time_label">SOT <xliff:g id="duration" example="5 hr 12 min">%1$s</xliff:g></string>
+    <string name="quick_launch_video">ວິດີໂອ</string>
+    <string name="quick_launch_qr">ສະແກນ QR</string>
+    <string name="now_bar_charging">ກຳລັງສາກ · <xliff:g id="level" example="74">%1$d</xliff:g>%%</string>
+    <string name="now_bar_full_in">ເຕັມໃນ <xliff:g id="duration" example="22 min">%1$s</xliff:g></string>
+    <string name="now_bar_charged">ສາກເຕັມແລ້ວ</string>
+    <string name="now_bar_flashlight_on">ເປີດໄຟສາຍແລ້ວ</string>
+    <string name="now_bar_buds">ຫູຟັງ</string>
+    <string name="now_bar_buds_case">ກ່ອງ <xliff:g id="level" example="61">%1$d</xliff:g></string>
+    <string name="now_bar_play">ຫຼິ້ນ</string>
+    <string name="now_bar_pause">ຢຸດຊົ່ວຄາວ</string>
+    <string name="now_bar_previous">ກ່ອນໜ້າ</string>
+    <string name="now_bar_next">ຖັດໄປ</string>
+    <string name="now_bar_hide">ເຊື່ອງຈົນກວ່າຈະຈົບ</string>
+    <string name="now_bar_settings">ການຕັ້ງຄ່າ Now Bar</string>
+    <string name="now_bar_pin">ປັກໝຸດໄວ້ໃນໜ້າຈໍສະເໝີ</string>
+    <string name="stage_battery_description">ແບັດເຕີຣີ <xliff:g id="percent" example="74">%1$d</xliff:g> ເປີເຊັນ</string>
+    <string name="stage_alarm_description">ປຸກຄັ້ງຕໍ່ໄປ <xliff:g id="time" example="Tue 6:30">%1$s</xliff:g></string>
+    <string name="flatline_playing">ກຳລັງຫຼິ້ນ</string>
+    <string name="flatline_call">ສາຍເຂົ້າ</string>
+    <string name="flatline_vitals">ສຸຂະພາບ</string>
+    <string name="flatline_vitals_preview">74% · ປຸກ 6:30</string>
+    <string name="flatline_alarm">ປຸກ <xliff:g id="time" example="6:30">%1$s</xliff:g></string>
+    <string name="now_bar_unpin">ຖອນປັກໝຸດອອກຈາກໜ້າຈໍສະເໝີ</string>
+    <string name="now_bar_open">ເປີດ</string>
+    <string name="now_bar_output">ຜົນອອກ</string>
+    <string name="now_bar_close">ປິດ</string>
+    <string name="now_bar_minutes_left">ເຫຼືອ <xliff:g id="minutes" example="4">%1$d</xliff:g> ນາທີ</string>
+    <string name="now_bar_minutes"><xliff:g id="minutes" example="12">%1$d</xliff:g> ນາທີ</string>
+    <string name="now_bar_versus"><xliff:g id="team" example="Lakers">%1$s</xliff:g> ປຽບທຽບກັບ <xliff:g id="team" example="Celtics">%2$s</xliff:g></string>
+    <string name="charge_report_channel">ລາຍງານການສາກ</string>
+    <string name="charge_report_title">ລາຍງານການສາກ</string>
+    <string name="charge_report_summary">+<xliff:g id="added" example="62">%1$d</xliff:g>%% ໃນ <xliff:g id="time" example="31 min">%2$s</xliff:g> · ສູງສຸດ <xliff:g id="watts" example="55.0">%3$s</xliff:g> W · ສູງສຸດ <xliff:g id="temp" example="38">%4$s</xliff:g> °C</string>
+    <string name="charge_report_details"><xliff:g id="charger" example="Wired">%1$s</xliff:g> · <xliff:g id="from" example="12">%2$d</xliff:g>%% ຫາ <xliff:g id="to" example="74">%3$d</xliff:g>%% · ສະເລ່ຍ <xliff:g id="watts" example="41.3">%4$s</xliff:g> W</string>
+    <string name="charge_report_wired">ສາຍ</string>
+    <string name="charge_report_wireless">ໄຮ້ສາຍ</string>
+    <string name="charge_report_dock">ດັອກ</string>
+    <string name="usb_mode_picker_title">ເລືອກໂໝດ USB</string>
+    <string name="usb_mode_photo_transfer">ໂອນຮູບ ແລະ ວິດີໂອ</string>
+    <string name="usb_mode_webcam">ກ້ອງເວັບ USB</string>
+    <string name="usb_mode_charging_only">ສາກໄຟເທົ່ານັ້ນ</string>
+    <string name="usb_charging_status">ການສາກ USB ເປີດຢູ່</string>
+    <string name="usb_island_title">ເຊື່ອມຕໍ່ USB ແລ້ວ</string>
+    <string name="usb_island_settings">ການຕັ້ງຄ່າ USB</string>
+    <string name="usb_mode_short_charge">ສາກ</string>
+    <string name="keyguard_indication_dash_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • ການສາກ Dash (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> ຈົນເຕັມ)</string>
+    <string name="keyguard_plugged_in_dash_charging"><xliff:g id="percentage">%s</xliff:g> • ການສາກ Dash</string>
+    <string name="keyguard_indication_warp_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • ການສາກ Warp (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> ຈົນເຕັມ)</string>
+    <string name="keyguard_plugged_in_warp_charging"><xliff:g id="percentage">%s</xliff:g> • ການສາກ Warp</string>
+    <string name="keyguard_indication_vooc_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • ການສາກ VOOC (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> ຈົນເຕັມ)</string>
+    <string name="keyguard_plugged_in_vooc_charging"><xliff:g id="percentage">%s</xliff:g> • ການສາກ VOOC</string>
+    <string name="keyguard_indication_turbo_power_time"><xliff:g id="percentage">%2$s</xliff:g> • ການສາກ Turbo (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> ຈົນເຕັມ)</string>
+    <string name="keyguard_plugged_in_turbo_charging"><xliff:g id="percentage">%s</xliff:g> • ການສາກ Turbo</string>
+    <string name="charging_vfx_long_press_to_speed">ກົດຄ້າງເພື່ອເພີ່ມຄວາມໄວ</string>
+    <string name="charging_vfx_source_wireless">ໄຮ້ສາຍ</string>
+    <string name="charging_vfx_source_dock">ດັອກ</string>
+    <string name="charging_vfx_time_to_full">ເຕັມໃນ <xliff:g id="time" example="25 min">%s</xliff:g></string>
+    <string name="qs_media_tile_idle">ບໍ່ມີສິ່ງທີ່ກຳລັງຫຼິ້ນ</string>
+    <string name="qs_volume_tile_muted">ປິດສຽງ</string>
+    <string name="qs_custom_volume_half">ເຄິ່ງໜຶ່ງ</string>
+    <string name="qs_custom_volume_slider">ແຖບເລື່ອນ</string>
+    <string name="qs_custom_volume_fill">ເຕັມ</string>
+    <string name="qs_custom_volume_stack">ຊ້ອນກັນ</string>
+    <string name="qs_custom_volume_ring">ສຽງຣິງ</string>
+    <string name="qs_custom_volume_call">ສາຍ</string>
+    <string name="qs_custom_volume_show_all">ຊື່ ແລະ ເປີເຊັນ</string>
+    <string name="qs_custom_volume_show_percent">ເປີເຊັນ</string>
+    <string name="qs_custom_volume_show_icon">ສະເພາະໄອຄອນ</string>
+    <string name="qs_custom_volume_tap">ແຕະທີ່ໄອຄອນ</string>
+    <string name="qs_custom_volume_mute">ປິດສຽງ</string>
+    <string name="qs_custom_volume_panel">ແຜງປັບສຽງ</string>
+    <string name="qs_custom_volume_ticks">ຂີດໝາຍຕອນລາກ</string>
+    <string name="qs_custom_accent">ສີເນັ້ນ</string>
+    <string name="qs_custom_add_tile">ເພີ່ມແຜ່ນ</string>
+    <string name="qs_custom_all_added">ທຸກແຜ່ນຢູ່ໃນແຜງແລ້ວ</string>
+    <string name="qs_custom_all_icons">ທຸກໄອຄອນ</string>
+    <string name="qs_custom_all_long">ທຸກອັນຍາວ</string>
+    <string name="qs_custom_backing">ພື້ນຫຼັງໄອຄອນ</string>
+    <string name="qs_custom_blob">ກ້ອນມົນ</string>
+    <string name="qs_custom_code_applied">ນຳໃຊ້ຮູບແບບສີສັນແລ້ວ</string>
+    <string name="qs_custom_code_bad">ບໍ່ມີລະຫັດຮູບແບບສີສັນໃຫ້ວາງ</string>
+    <string name="qs_custom_code_copied">ສຳເນົາລະຫັດຮູບແບບສີສັນແລ້ວ</string>
+    <string name="qs_custom_color_amber">ອຳພັນ</string>
+    <string name="qs_custom_color_rose">ກຸຫຼາບ</string>
+    <string name="qs_custom_columns">ຖັນ</string>
+    <string name="qs_custom_copy_code">ສຳເນົາລະຫັດ</string>
+    <string name="qs_custom_corners">ມຸມ</string>
+    <string name="qs_custom_depth">ຄວາມເລິກ</string>
+    <string name="qs_custom_depth_flat">ແບນ</string>
+    <string name="qs_custom_depth_raised">ຍົກຂຶ້ນ</string>
+    <string name="qs_custom_drop_remove">ວາງທີ່ນີ້ເພື່ອລຶບອອກ</string>
+    <string name="qs_custom_fill_clear">ລ້າງ</string>
+    <string name="qs_custom_fill_dark">ມືດ</string>
+    <string name="qs_custom_fill_gradient">ໄລ່ລະດັບສີ</string>
+    <string name="qs_custom_fill_icon">ສະເພາະໄອຄອນ</string>
+    <string name="qs_custom_fill_solid">ທຶບ</string>
+    <string name="qs_custom_fill_surface">ພື້ນຜິວ</string>
+    <string name="qs_custom_fill_tint">ສີປະສົມ</string>
+    <string name="qs_custom_font_caps">ຕົວພິມໃຫຍ່</string>
+    <string name="qs_custom_font_mono">Mono</string>
+    <string name="qs_custom_font_sans">Sans</string>
+    <string name="qs_custom_glow">ເຮືອງແສງເມື່ອເປີດ</string>
+    <string name="qs_custom_hide">ເຊື່ອງ</string>
+    <string name="qs_custom_hint">ແຕະແຜ່ນເພື່ອເບິ່ງຕົວເລືອກ · ກົດຄ້າງເພື່ອຍ້າຍ · ລາກມຸມເພື່ອປັບຂະໜາດ</string>
+    <string name="qs_custom_icon_size">ຂະໜາດໄອຄອນ</string>
+    <string name="qs_custom_label">ປ້າຍຊື່</string>
+    <string name="qs_custom_label_inside">ພາຍໃນ</string>
+    <string name="qs_custom_label_under">ດ້ານລຸ່ມ</string>
+    <string name="qs_custom_look">ຮູບແບບ</string>
+    <string name="qs_custom_media_art">ຮູບປົກ</string>
+    <string name="qs_custom_media_blocks">ບລັອກ</string>
+    <string name="qs_custom_media_cover">ປົກ</string>
+    <string name="qs_custom_media_full">ເຕັມ</string>
+    <string name="qs_custom_media_glow">ແສງເຮືອງ</string>
+    <string name="qs_custom_media_line">ເສັ້ນ</string>
+    <string name="qs_custom_media_look">ຮູບແບບ</string>
+    <string name="qs_custom_media_place">ຕຳແໜ່ງ</string>
+    <string name="qs_custom_media_place_above">ເໜືອແຜ່ນ</string>
+    <string name="qs_custom_media_place_below">ຕ່ຳກວ່າແຜ່ນ</string>
+    <string name="qs_custom_media_place_grid">ພ້ອມກັບແຜ່ນ</string>
+    <string name="qs_custom_media_play">ສະເພາະການຫຼິ້ນ</string>
+    <string name="qs_custom_media_progress">ຄວາມຄືບໜ້າ</string>
+    <string name="qs_custom_media_tall">ສູງ</string>
+    <string name="qs_custom_media_trio">ກ່ອນໜ້າ, ຫຼິ້ນ, ຖັດໄປ</string>
+    <string name="qs_custom_media_wave">ຄື້ນ</string>
+    <string name="qs_custom_media_wide">ກວ້າງ</string>
+    <string name="qs_custom_mix_footer">ປຸ່ມທາງລຸ່ມ</string>
+    <string name="qs_custom_mix_media">ຕົວຫຼິ້ນມີເດຍ</string>
+    <string name="qs_custom_mix_paint">ສີແຜ່ນ</string>
+    <string name="qs_custom_mix_shape">ຮູບຮ່າງແຜ່ນ</string>
+    <string name="qs_custom_mix_slider">ແຖບເລື່ອນ</string>
+    <string name="qs_custom_mixed">ປະສົມ</string>
+    <string name="qs_custom_my_theme_name">ຮູບແບບຂອງຂ້ອຍ %1$d</string>
+    <string name="qs_custom_my_themes">ຮູບແບບຂອງຂ້ອຍ (ກົດຄ້າງເພື່ອລຶບ)</string>
+    <string name="qs_custom_off_fill">ແຜ່ນປິດ</string>
+    <string name="qs_custom_on_fill">ແຜ່ນເປີດ</string>
+    <string name="qs_custom_paste_code">ວາງລະຫັດ</string>
+    <string name="qs_custom_pill">ແຖບ</string>
+    <string name="qs_custom_reset">ຣີເຊັດຮູບແບບນີ້</string>
+    <string name="qs_custom_reset_tiles">ຣີເຊັດແຜ່ນ</string>
+    <string name="qs_custom_rounded">ໂຄ້ງມົນ</string>
+    <string name="qs_custom_rows">ແຖວຕໍ່ໜ້າ</string>
+    <string name="qs_custom_same_as_panel">ເໝືອນແຜງ</string>
+    <string name="qs_custom_save">ບັນທຶກເປັນຮູບແບບຂອງຂ້ອຍ</string>
+    <string name="qs_custom_scroll">ເລື່ອນແທນການປ່ຽນໜ້າ</string>
+    <string name="qs_custom_second_line">ແຖວທີສອງ</string>
+    <string name="qs_custom_show">ສະແດງ</string>
+    <string name="qs_custom_sizes">ຂະໜາດແຜ່ນ</string>
+    <string name="qs_custom_slider_by_player">ຢູ່ກັບຕົວຫຼິ້ນ</string>
+    <string name="qs_custom_slider_look">ຮູບແບບ</string>
+    <string name="qs_custom_slider_place">ຕຳແໜ່ງ</string>
+    <string name="qs_custom_slider_top">ດ້ານເທິງ</string>
+    <string name="qs_custom_slider_under">ໃຕ້ແຜ່ນ</string>
+    <string name="qs_custom_spacing">ໄລຍະຫ່າງ</string>
+    <string name="qs_custom_start_from">ເລີ່ມຈາກ</string>
+    <string name="qs_custom_tab_add">ເພີ່ມ</string>
+    <string name="qs_custom_tab_mix">ປະສົມ</string>
+    <string name="qs_custom_tab_slider">ແຖບເລື່ອນ</string>
+    <string name="qs_custom_tab_tiles">ແຜ່ນ</string>
+    <string name="qs_custom_theme_blueprint">Blueprint</string>
+    <string name="qs_custom_theme_cards">ກາດ</string>
+    <string name="qs_custom_theme_circles">ວົງມົນ</string>
+    <string name="qs_custom_theme_classic">ຄລາສສິກ</string>
+    <string name="qs_custom_theme_compact">ກະທັດຮັດ</string>
+    <string name="qs_custom_theme_duo">Duo</string>
+    <string name="qs_custom_theme_glass">ແກ້ວ</string>
+    <string name="qs_custom_theme_neon">ນີອອນ</string>
+    <string name="qs_custom_theme_remix">Remix</string>
+    <string name="qs_custom_theme_shapes">ຮູບຊົງ</string>
+    <string name="qs_custom_theme_soft">ນຸ່ມ</string>
+    <string name="qs_custom_theme_stock">ມາດຕະຖານ</string>
+    <string name="qs_custom_tile_color">ສີເມື່ອເປີດ</string>
+    <string name="qs_custom_tile_height">ຄວາມສູງ</string>
+    <string name="qs_custom_tile_height_dp">ຄວາມສູງແຜ່ນ</string>
+    <string name="qs_look_label">ຮູບແບບ</string>
+    <string name="qs_look_none">ແຕະເພື່ອເບິ່ງຮູບແບບຖັດໄປ</string>
+    <string name="quick_settings_clear_voice_label">ລຶບສຽງລົບກວນ</string>
+    <string name="accessibility_quick_settings_clear_voice_on">ເປີດລຶບສຽງລົບກວນແລ້ວ.</string>
+    <string name="accessibility_quick_settings_clear_voice_off">ປິດລຶບສຽງລົບກວນແລ້ວ.</string>
 </resources>

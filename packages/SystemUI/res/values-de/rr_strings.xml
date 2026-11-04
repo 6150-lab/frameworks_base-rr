@@ -247,4 +247,7 @@
     <string name="qs_custom_tile_height_dp">Kachelhöhe</string>
     <string name="qs_look_label">Aussehen</string>
     <string name="qs_look_none">Tippen für den nächsten Look</string>
+    <string name="quick_settings_clear_voice_label">Klare Sprache</string>
+    <string name="accessibility_quick_settings_clear_voice_on">Klare Sprache an.</string>
+    <string name="accessibility_quick_settings_clear_voice_off">Klare Sprache aus.</string>
 </resources>

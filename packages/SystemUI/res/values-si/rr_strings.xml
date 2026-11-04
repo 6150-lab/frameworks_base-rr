@@ -49,4 +49,205 @@
     <string name="qs_custom_tile_icon">"නිරූපකය"</string>
     <string name="qs_custom_tile_width">"පළල"</string>
     <string name="qs_custom_title">"අභිරුචිකරණය"</string>
+    <string name="rr_power_title">බලය</string>
+    <string name="rr_power_status">%1$s ඉහළට · %2$s බැටරිය</string>
+    <string name="rr_power_status_uptime">%1$s ඉහළට</string>
+    <string name="rr_power_back">බල මෙනුවට ආපසු</string>
+    <string name="rr_shutdown_back_soon">Resurrected Remix ඉක්මනින් ආපසු පැමිණේ</string>
+    <string name="global_action_restart_subtitle">දුරකථනය නැවත ආරම්භ වන ආකාරය තෝරන්න</string>
+    <string name="global_action_restart_system_summary">Android නැවත ආරම්භ කරන්න. ආරක්ෂිත මාදිලිය සඳහා දිගු වේලා ඔබන්න</string>
+    <string name="global_action_restart_recovery_summary">යාවත්කාලීන ස්ථාපනය කරන්න, sideload හෝ දත්ත මකන්න</string>
+    <string name="global_action_restart_bootloader_summary">Fastboot, boot රූප flash කිරීම සඳහා</string>
+    <string name="global_action_restart_fastboot_summary">Userspace fastboot, පද්ධති කොටස් සඳහා</string>
+    <string name="global_action_restart_download_summary">Download mode, වෙන්දේසි flash මෙවලම සඳහා</string>
+    <string name="volume_ringer_priority_only">ප්‍රමුඛතාව</string>
+    <string name="volume_ringer_dnd">බාධා නොකරන්න</string>
+    <string name="tristate_flashlight_blink">ටෝච් දැල්වීම</string>
+    <string name="tristate_brightness_bright">උපරිම දීප්තිය</string>
+    <string name="tristate_brightness_dark">අවම දීප්තිය</string>
+    <string name="tristate_brightness_auto">ස්වයංක්‍රීය දීප්තිය</string>
+    <string name="tristate_rotation_0">සිරස්</string>
+    <string name="tristate_rotation_90">තිරස් (90°)</string>
+    <string name="tristate_rotation_270">තිරස් (270°)</string>
+    <string name="tristate_app_launch">යෙදුම දියත් කරමින්</string>
+    <string name="face_unlock_recognizing">මුහුණ හඳුනාගනිමින්...</string>
+    <string name="screen_on_time_label">SOT <xliff:g id="duration" example="5 hr 12 min">%1$s</xliff:g></string>
+    <string name="quick_launch_video">වීඩියෝ</string>
+    <string name="quick_launch_qr">QR ස්කෑන් කරන්න</string>
+    <string name="now_bar_charging">ආරෝපණය වෙමින් · <xliff:g id="level" example="74">%1$d</xliff:g>%%</string>
+    <string name="now_bar_full_in"><xliff:g id="duration" example="22 min">%1$s</xliff:g> තුළ සම්පූර්ණ වේ</string>
+    <string name="now_bar_charged">ආරෝපණය වී ඇත</string>
+    <string name="now_bar_flashlight_on">සැණෙළි ආලෝකය ක්‍රියාත්මකයි</string>
+    <string name="now_bar_buds">කන්ද්‍රාසි</string>
+    <string name="now_bar_buds_case">පෙට්ටිය <xliff:g id="level" example="61">%1$d</xliff:g></string>
+    <string name="now_bar_play">ධාවනය</string>
+    <string name="now_bar_pause">විරාම</string>
+    <string name="now_bar_previous">පෙර</string>
+    <string name="now_bar_next">ඊළඟ</string>
+    <string name="now_bar_hide">අවසන් වන තෙක් සඟවන්න</string>
+    <string name="now_bar_settings">Now Bar සැකසීම්</string>
+    <string name="now_bar_pin">සැමවිටම පෙන්වන තිරයට අමුණන්න</string>
+    <string name="stage_battery_description">බැටරිය <xliff:g id="percent" example="74">%1$d</xliff:g> ප්‍රතිශතයි</string>
+    <string name="stage_alarm_description">ඊළඟ එලාරමය <xliff:g id="time" example="Tue 6:30">%1$s</xliff:g></string>
+    <string name="flatline_playing">දැන් වාදනය වෙයි</string>
+    <string name="flatline_call">ඇතුළත් ඇමතුම</string>
+    <string name="flatline_vitals">සජීවී දත්ත</string>
+    <string name="flatline_vitals_preview">74% · එලාරමය 6:30</string>
+    <string name="flatline_alarm">එලාරමය <xliff:g id="time" example="6:30">%1$s</xliff:g></string>
+    <string name="now_bar_unpin">සැමවිටම පෙන්වන තිරයෙන් ගළවන්න</string>
+    <string name="now_bar_open">විවෘත කරන්න</string>
+    <string name="now_bar_output">ප්‍රතිදානය</string>
+    <string name="now_bar_close">වසන්න</string>
+    <string name="now_bar_minutes_left">විනාඩි <xliff:g id="minutes" example="4">%1$d</xliff:g> ඉතිරියි</string>
+    <string name="now_bar_minutes">විනාඩි <xliff:g id="minutes" example="12">%1$d</xliff:g></string>
+    <string name="now_bar_versus"><xliff:g id="team" example="Lakers">%1$s</xliff:g> හා <xliff:g id="team" example="Celtics">%2$s</xliff:g></string>
+    <string name="charge_report_channel">ආරෝපණ වාර්තා</string>
+    <string name="charge_report_title">ආරෝපණ වාර්තාව</string>
+    <string name="charge_report_summary"><xliff:g id="time" example="31 min">%2$s</xliff:g> තුළ +<xliff:g id="added" example="62">%1$d</xliff:g>%% · උච්චය <xliff:g id="watts" example="55.0">%3$s</xliff:g> W · උපරිම <xliff:g id="temp" example="38">%4$s</xliff:g> °C</string>
+    <string name="charge_report_details"><xliff:g id="charger" example="Wired">%1$s</xliff:g> · <xliff:g id="from" example="12">%2$d</xliff:g>%% සිට <xliff:g id="to" example="74">%3$d</xliff:g>%% දක්වා · සාමාන්‍යය <xliff:g id="watts" example="41.3">%4$s</xliff:g> W</string>
+    <string name="charge_report_wired">රිහැඳි</string>
+    <string name="charge_report_wireless">රිහැඳි නොවන</string>
+    <string name="charge_report_dock">ඩොක්</string>
+    <string name="usb_mode_picker_title">USB ප්‍රකාරය තෝරන්න</string>
+    <string name="usb_mode_photo_transfer">ඡායාරූප සහ වීඩියෝ මාරුව</string>
+    <string name="usb_mode_webcam">USB වෙබ් කැමරාව</string>
+    <string name="usb_mode_charging_only">ආරෝපණය පමණි</string>
+    <string name="usb_charging_status">USB ආරෝපණය ක්‍රියාත්මකයි</string>
+    <string name="usb_island_title">USB සම්බන්ධයි</string>
+    <string name="usb_island_settings">USB සැකසීම්</string>
+    <string name="usb_mode_short_charge">ආරෝපණය</string>
+    <string name="keyguard_indication_dash_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • ඩෑෂ් ආරෝපණය (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> සම්පූර්ණ වන තෙක්)</string>
+    <string name="keyguard_plugged_in_dash_charging"><xliff:g id="percentage">%s</xliff:g> • ඩෑෂ් ආරෝපණය</string>
+    <string name="keyguard_indication_warp_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • වෝප් ආරෝපණය (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> සම්පූර්ණ වන තෙක්)</string>
+    <string name="keyguard_plugged_in_warp_charging"><xliff:g id="percentage">%s</xliff:g> • වෝප් ආරෝපණය</string>
+    <string name="keyguard_indication_vooc_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • VOOC ආරෝපණය (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> සම්පූර්ණ වන තෙක්)</string>
+    <string name="keyguard_plugged_in_vooc_charging"><xliff:g id="percentage">%s</xliff:g> • VOOC ආරෝපණය</string>
+    <string name="keyguard_indication_turbo_power_time"><xliff:g id="percentage">%2$s</xliff:g> • ටර්බෝ ආරෝපණය (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> සම්පූර්ණ වන තෙක්)</string>
+    <string name="keyguard_plugged_in_turbo_charging"><xliff:g id="percentage">%s</xliff:g> • ටර්බෝ ආරෝපණය</string>
+    <string name="charging_vfx_long_press_to_speed">වේගය වැඩි කිරීමට ස්පර්ශ කර තබා ගන්න</string>
+    <string name="charging_vfx_source_wireless">රිහැඳි නොවන</string>
+    <string name="charging_vfx_source_dock">ඩොක්</string>
+    <string name="charging_vfx_time_to_full"><xliff:g id="time" example="25 min">%s</xliff:g> තුළ සම්පූර්ණ වේ</string>
+    <string name="qs_media_tile_idle">කිසිවක් වාදනය නොවේ</string>
+    <string name="qs_volume_tile_muted">හඬ නිශ්ශබ්දයි</string>
+    <string name="qs_custom_volume_half">අඩක්</string>
+    <string name="qs_custom_volume_slider">ස්ලයිඩර්</string>
+    <string name="qs_custom_volume_fill">පිරවුම</string>
+    <string name="qs_custom_volume_stack">ගොඩ</string>
+    <string name="qs_custom_volume_ring">රින්ග්</string>
+    <string name="qs_custom_volume_call">ඇමතුම</string>
+    <string name="qs_custom_volume_show_all">නම සහ ප්‍රතිශතය</string>
+    <string name="qs_custom_volume_show_percent">ප්‍රතිශතය</string>
+    <string name="qs_custom_volume_show_icon">නිරූපකය පමණි</string>
+    <string name="qs_custom_volume_tap">නිරූපකය ස්පර්ශ කරන්න</string>
+    <string name="qs_custom_volume_mute">නිශ්ශබ්ද කරන්න</string>
+    <string name="qs_custom_volume_panel">හඬ පැනලය</string>
+    <string name="qs_custom_volume_ticks">ඇදීමේදී සලකුණු</string>
+    <string name="qs_custom_accent">උච්චාරණ</string>
+    <string name="qs_custom_add_tile">කැබැල්ලක් එකතු කරන්න</string>
+    <string name="qs_custom_all_added">සියලු කැබලි පැනලයේ ඇත</string>
+    <string name="qs_custom_all_icons">සියලු නිරූපක</string>
+    <string name="qs_custom_all_long">සියල්ල දිගු</string>
+    <string name="qs_custom_backing">නිරූපක පසුබිම</string>
+    <string name="qs_custom_blob">බ්ලොබ්</string>
+    <string name="qs_custom_code_applied">තේමාව යොදන ලදී</string>
+    <string name="qs_custom_code_bad">ඇලවීමට තේමා කේතයක් නැත</string>
+    <string name="qs_custom_code_copied">තේමා කේතය පිටපත් කරන ලදී</string>
+    <string name="qs_custom_color_amber">ඇම්බර්</string>
+    <string name="qs_custom_color_rose">රෝස</string>
+    <string name="qs_custom_columns">තීරු</string>
+    <string name="qs_custom_copy_code">කේතය පිටපත් කරන්න</string>
+    <string name="qs_custom_corners">මුල්ලි</string>
+    <string name="qs_custom_depth">ගැඹුර</string>
+    <string name="qs_custom_depth_flat">පැතලි</string>
+    <string name="qs_custom_depth_raised">උස්</string>
+    <string name="qs_custom_drop_remove">ඉවත් කිරීමට මෙහි දමන්න</string>
+    <string name="qs_custom_fill_clear">හිස් කරන්න</string>
+    <string name="qs_custom_fill_dark">අඳුරු</string>
+    <string name="qs_custom_fill_gradient">අනුක්‍රමණය</string>
+    <string name="qs_custom_fill_icon">නිරූපකය පමණි</string>
+    <string name="qs_custom_fill_solid">ඝන</string>
+    <string name="qs_custom_fill_surface">පෘෂ්ඨය</string>
+    <string name="qs_custom_fill_tint">වර්ණ මිශ්‍රණය</string>
+    <string name="qs_custom_font_caps">කැප්ස්</string>
+    <string name="qs_custom_font_mono">Mono</string>
+    <string name="qs_custom_font_sans">Sans</string>
+    <string name="qs_custom_glow">ක්‍රියාවිටි විට දීප්තිමත්</string>
+    <string name="qs_custom_hide">සඟවන්න</string>
+    <string name="qs_custom_hint">විකල්ප සඳහා කැබැල්ලක් ස්පර්ශ කරන්න · චලනය කිරීමට තදින් ඔබන්න · ප්‍රමාණය වෙනස් කිරීමට කෝනරය ඇදගන්න</string>
+    <string name="qs_custom_icon_size">නිරූපක ප්‍රමාණය</string>
+    <string name="qs_custom_label">ලේබලය</string>
+    <string name="qs_custom_label_inside">ඇතුලත</string>
+    <string name="qs_custom_label_under">යට</string>
+    <string name="qs_custom_look">පෙනුම</string>
+    <string name="qs_custom_media_art">කලා කෘතිය</string>
+    <string name="qs_custom_media_blocks">කොටු</string>
+    <string name="qs_custom_media_cover">ආවරණය</string>
+    <string name="qs_custom_media_full">සම්පූර්ණ</string>
+    <string name="qs_custom_media_glow">දීප්තිය</string>
+    <string name="qs_custom_media_line">රේඛාව</string>
+    <string name="qs_custom_media_look">පෙනුම</string>
+    <string name="qs_custom_media_place">ස්ථානය</string>
+    <string name="qs_custom_media_place_above">කැබලිවලට ඉහලින්</string>
+    <string name="qs_custom_media_place_below">කැබලිවලට පහලින්</string>
+    <string name="qs_custom_media_place_grid">කැබලි සමඟ</string>
+    <string name="qs_custom_media_play">වාදනය පමණි</string>
+    <string name="qs_custom_media_progress">ප්‍රගතිය</string>
+    <string name="qs_custom_media_tall">උස්</string>
+    <string name="qs_custom_media_trio">පෙර, වාදනය, ඊළඟ</string>
+    <string name="qs_custom_media_wave">රැල්ල</string>
+    <string name="qs_custom_media_wide">පළල්</string>
+    <string name="qs_custom_mix_footer">පාදක බොත්තම්</string>
+    <string name="qs_custom_mix_media">මාධ්‍ය වාදකය</string>
+    <string name="qs_custom_mix_paint">කැබලි වර්ණ</string>
+    <string name="qs_custom_mix_shape">කැබලි හැඩය</string>
+    <string name="qs_custom_mix_slider">ස්ලයිඩර්</string>
+    <string name="qs_custom_mixed">මිශ්‍ර</string>
+    <string name="qs_custom_my_theme_name">මගේ තේමාව %1$d</string>
+    <string name="qs_custom_my_themes">මගේ තේමා (මකා දැමීමට තදින් ඔබන්න)</string>
+    <string name="qs_custom_off_fill">ක්‍රියාවිරහිත කැබලි</string>
+    <string name="qs_custom_on_fill">ක්‍රියාවිත කැබලි</string>
+    <string name="qs_custom_paste_code">කේතය අලවන්න</string>
+    <string name="qs_custom_pill">පිල්ල</string>
+    <string name="qs_custom_reset">මෙම තේමාව යළි සකසන්න</string>
+    <string name="qs_custom_reset_tiles">කැබලි යළි සකසන්න</string>
+    <string name="qs_custom_rounded">වටකුරු</string>
+    <string name="qs_custom_rows">පිටුවකට පේළි</string>
+    <string name="qs_custom_same_as_panel">පැනලය හා සමාන</string>
+    <string name="qs_custom_save">මගේ තේමාව ලෙස සුරකින්න</string>
+    <string name="qs_custom_scroll">පිටු වෙනුවට අනුචලනය</string>
+    <string name="qs_custom_second_line">දෙවන පේළිය</string>
+    <string name="qs_custom_show">පෙන්වන්න</string>
+    <string name="qs_custom_sizes">කැබලි ප්‍රමාණ</string>
+    <string name="qs_custom_slider_by_player">වාදකය අසල</string>
+    <string name="qs_custom_slider_look">පෙනුම</string>
+    <string name="qs_custom_slider_place">ස්ථානය</string>
+    <string name="qs_custom_slider_top">ඉහල</string>
+    <string name="qs_custom_slider_under">කැබලි යට</string>
+    <string name="qs_custom_spacing">පරතරය</string>
+    <string name="qs_custom_start_from">ආරම්භය</string>
+    <string name="qs_custom_tab_add">එකතු කරන්න</string>
+    <string name="qs_custom_tab_mix">මිශ්‍ර</string>
+    <string name="qs_custom_tab_slider">ස්ලයිඩර්</string>
+    <string name="qs_custom_tab_tiles">කැබලි</string>
+    <string name="qs_custom_theme_blueprint">ප්ලූප්‍රින්ට්</string>
+    <string name="qs_custom_theme_cards">කාඩ්පත්</string>
+    <string name="qs_custom_theme_circles">වට</string>
+    <string name="qs_custom_theme_classic">සම්භාව්‍ය</string>
+    <string name="qs_custom_theme_compact">සංක්ෂිප්ත</string>
+    <string name="qs_custom_theme_duo">ද්විත්ව</string>
+    <string name="qs_custom_theme_glass">වීදුරු</string>
+    <string name="qs_custom_theme_neon">නියොන්</string>
+    <string name="qs_custom_theme_remix">Remix</string>
+    <string name="qs_custom_theme_shapes">හැඩ</string>
+    <string name="qs_custom_theme_soft">මෘදු</string>
+    <string name="qs_custom_theme_stock">පෙරනිමි</string>
+    <string name="qs_custom_tile_color">ක්‍රියාවිට වර්ණය</string>
+    <string name="qs_custom_tile_height">උස</string>
+    <string name="qs_custom_tile_height_dp">කැබලි උස</string>
+    <string name="qs_look_label">පෙනුම</string>
+    <string name="qs_look_none">ඊළඟ පෙනුම සඳහා ස්පර්ශ කරන්න</string>
+    <string name="quick_settings_clear_voice_label">පැහැදිලි හඬ</string>
+    <string name="accessibility_quick_settings_clear_voice_on">පැහැදිලි හඬ සක්‍රියයි.</string>
+    <string name="accessibility_quick_settings_clear_voice_off">පැහැදිලි හඬ අක්‍රියයි.</string>
 </resources>

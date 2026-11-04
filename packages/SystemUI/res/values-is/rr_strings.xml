@@ -49,4 +49,205 @@
     <string name="qs_custom_tile_icon">"Tákn"</string>
     <string name="qs_custom_tile_width">"Breidd"</string>
     <string name="qs_custom_title">"Sérsníða"</string>
+    <string name="rr_power_title">Aflrofi</string>
+    <string name="rr_power_status">Upp %1$s · %2$s rafhlaða</string>
+    <string name="rr_power_status_uptime">Upp %1$s</string>
+    <string name="rr_power_back">Til baka í aflrofavalmynd</string>
+    <string name="rr_shutdown_back_soon">Resurrected Remix kemur strax aftur</string>
+    <string name="global_action_restart_subtitle">Veldu hvernig síminn ræsist aftur</string>
+    <string name="global_action_restart_system_summary">Endurræsa Android. Haltu inni fyrir öruggan ham</string>
+    <string name="global_action_restart_recovery_summary">Setja upp uppfærslur, hliða eða hreinsa gögn</string>
+    <string name="global_action_restart_bootloader_summary">Fastboot, til að flassa ræsimyndir</string>
+    <string name="global_action_restart_fastboot_summary">Notendarýmis fastboot, fyrir kerfisskipting</string>
+    <string name="global_action_restart_download_summary">Niðurhalsháttur, fyrir flassforrit söluaðila</string>
+    <string name="volume_ringer_priority_only">Forgangur</string>
+    <string name="volume_ringer_dnd">DnD</string>
+    <string name="tristate_flashlight_blink">Blikk vasaljóss</string>
+    <string name="tristate_brightness_bright">Hámarksbirta</string>
+    <string name="tristate_brightness_dark">Lágmarksbirta</string>
+    <string name="tristate_brightness_auto">Sjálfvirk birta</string>
+    <string name="tristate_rotation_0">Andlitsmynd</string>
+    <string name="tristate_rotation_90">Landslag (90°)</string>
+    <string name="tristate_rotation_270">Landslag (270°)</string>
+    <string name="tristate_app_launch">Ræsir forrit</string>
+    <string name="face_unlock_recognizing">Þekki andlit...</string>
+    <string name="screen_on_time_label">SOT <xliff:g id="duration" example="5 hr 12 min">%1$s</xliff:g></string>
+    <string name="quick_launch_video">Myndband</string>
+    <string name="quick_launch_qr">Skanna QR</string>
+    <string name="now_bar_charging">Hleður · <xliff:g id="level" example="74">%1$d</xliff:g>%%</string>
+    <string name="now_bar_full_in">Fullhlaðin eftir <xliff:g id="duration" example="22 min">%1$s</xliff:g></string>
+    <string name="now_bar_charged">Fullhlaðin</string>
+    <string name="now_bar_flashlight_on">Vasaljós kveikt</string>
+    <string name="now_bar_buds">Heyrnartól</string>
+    <string name="now_bar_buds_case">Hulstur <xliff:g id="level" example="61">%1$d</xliff:g></string>
+    <string name="now_bar_play">Spila</string>
+    <string name="now_bar_pause">Hlé</string>
+    <string name="now_bar_previous">Fyrra</string>
+    <string name="now_bar_next">Næsta</string>
+    <string name="now_bar_hide">Fela þar til því lýkur</string>
+    <string name="now_bar_settings">Stillingar Now Bar</string>
+    <string name="now_bar_pin">Festa á sífellda skjá</string>
+    <string name="stage_battery_description">Rafhlaða <xliff:g id="percent" example="74">%1$d</xliff:g> prósent</string>
+    <string name="stage_alarm_description">Næsta vekjari <xliff:g id="time" example="Tue 6:30">%1$s</xliff:g></string>
+    <string name="flatline_playing">SPILAR NÚNA</string>
+    <string name="flatline_call">INNHRINGING</string>
+    <string name="flatline_vitals">Lífsmörk</string>
+    <string name="flatline_vitals_preview">74% · Vekjari 6:30</string>
+    <string name="flatline_alarm">Vekjari <xliff:g id="time" example="6:30">%1$s</xliff:g></string>
+    <string name="now_bar_unpin">Losa af sífelldum skjá</string>
+    <string name="now_bar_open">Opna</string>
+    <string name="now_bar_output">Úttak</string>
+    <string name="now_bar_close">Loka</string>
+    <string name="now_bar_minutes_left"><xliff:g id="minutes" example="4">%1$d</xliff:g> mín eftir</string>
+    <string name="now_bar_minutes"><xliff:g id="minutes" example="12">%1$d</xliff:g> mín</string>
+    <string name="now_bar_versus"><xliff:g id="team" example="Lakers">%1$s</xliff:g> á móti <xliff:g id="team" example="Celtics">%2$s</xliff:g></string>
+    <string name="charge_report_channel">Hleðsluskýrslur</string>
+    <string name="charge_report_title">Hleðsluskýrsla</string>
+    <string name="charge_report_summary">+<xliff:g id="added" example="62">%1$d</xliff:g>%% á <xliff:g id="time" example="31 min">%2$s</xliff:g> · hámark <xliff:g id="watts" example="55.0">%3$s</xliff:g> W · mest <xliff:g id="temp" example="38">%4$s</xliff:g> °C</string>
+    <string name="charge_report_details"><xliff:g id="charger" example="Wired">%1$s</xliff:g> · <xliff:g id="from" example="12">%2$d</xliff:g>%% í <xliff:g id="to" example="74">%3$d</xliff:g>%% · meðaltal <xliff:g id="watts" example="41.3">%4$s</xliff:g> W</string>
+    <string name="charge_report_wired">Með snúru</string>
+    <string name="charge_report_wireless">Þráðlaust</string>
+    <string name="charge_report_dock">Hleðslustöð</string>
+    <string name="usb_mode_picker_title">Veldu USB-ham</string>
+    <string name="usb_mode_photo_transfer">Flutningur mynda og myndskeiða</string>
+    <string name="usb_mode_webcam">USB-vefmyndavél</string>
+    <string name="usb_mode_charging_only">Aðeins hleðsla</string>
+    <string name="usb_charging_status">USB-hleðsla er kveikt</string>
+    <string name="usb_island_title">USB tengt</string>
+    <string name="usb_island_settings">USB-stillingar</string>
+    <string name="usb_mode_short_charge">Hleðsla</string>
+    <string name="keyguard_indication_dash_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Dash-hleðsla (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> þar til fullt)</string>
+    <string name="keyguard_plugged_in_dash_charging"><xliff:g id="percentage">%s</xliff:g> • Dash-hleðsla</string>
+    <string name="keyguard_indication_warp_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Warp-hleðsla (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> þar til fullt)</string>
+    <string name="keyguard_plugged_in_warp_charging"><xliff:g id="percentage">%s</xliff:g> • Warp-hleðsla</string>
+    <string name="keyguard_indication_vooc_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • VOOC-hleðsla (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> þar til fullt)</string>
+    <string name="keyguard_plugged_in_vooc_charging"><xliff:g id="percentage">%s</xliff:g> • VOOC-hleðsla</string>
+    <string name="keyguard_indication_turbo_power_time"><xliff:g id="percentage">%2$s</xliff:g> • Turbo-hleðsla (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> þar til fullt)</string>
+    <string name="keyguard_plugged_in_turbo_charging"><xliff:g id="percentage">%s</xliff:g> • Turbo-hleðsla</string>
+    <string name="charging_vfx_long_press_to_speed">Haltu inni til að auka hraða</string>
+    <string name="charging_vfx_source_wireless">Þráðlaust</string>
+    <string name="charging_vfx_source_dock">Hleðslustöð</string>
+    <string name="charging_vfx_time_to_full">Fullhlaðin eftir <xliff:g id="time" example="25 min">%s</xliff:g></string>
+    <string name="qs_media_tile_idle">Ekkert í spilun</string>
+    <string name="qs_volume_tile_muted">Þagnað</string>
+    <string name="qs_custom_volume_half">Hálf</string>
+    <string name="qs_custom_volume_slider">Renna</string>
+    <string name="qs_custom_volume_fill">Fylling</string>
+    <string name="qs_custom_volume_stack">Staflað</string>
+    <string name="qs_custom_volume_ring">Hringing</string>
+    <string name="qs_custom_volume_call">Símtal</string>
+    <string name="qs_custom_volume_show_all">Nafn og prósenta</string>
+    <string name="qs_custom_volume_show_percent">Prósenta</string>
+    <string name="qs_custom_volume_show_icon">Aðeins tákn</string>
+    <string name="qs_custom_volume_tap">Pikkaðu á táknið</string>
+    <string name="qs_custom_volume_mute">Þagga</string>
+    <string name="qs_custom_volume_panel">Hljóðstyrkspjald</string>
+    <string name="qs_custom_volume_ticks">Strik meðan dregið er</string>
+    <string name="qs_custom_accent">Áherslulitur</string>
+    <string name="qs_custom_add_tile">Bæta við reit</string>
+    <string name="qs_custom_all_added">Allir reitir eru á spjaldinu</string>
+    <string name="qs_custom_all_icons">Öll tákn</string>
+    <string name="qs_custom_all_long">Allt langt</string>
+    <string name="qs_custom_backing">Bakgrunnur tákns</string>
+    <string name="qs_custom_blob">Klessa</string>
+    <string name="qs_custom_code_applied">Þema notað</string>
+    <string name="qs_custom_code_bad">Enginn þemakóði til að líma</string>
+    <string name="qs_custom_code_copied">Þemakóði afritaður</string>
+    <string name="qs_custom_color_amber">Gulbrúnt</string>
+    <string name="qs_custom_color_rose">Bleikt</string>
+    <string name="qs_custom_columns">Dálkar</string>
+    <string name="qs_custom_copy_code">Afrita kóða</string>
+    <string name="qs_custom_corners">Horn</string>
+    <string name="qs_custom_depth">Dýpt</string>
+    <string name="qs_custom_depth_flat">Flatt</string>
+    <string name="qs_custom_depth_raised">Upphafið</string>
+    <string name="qs_custom_drop_remove">Slepptu hér til að fjarlægja</string>
+    <string name="qs_custom_fill_clear">Hreinsa</string>
+    <string name="qs_custom_fill_dark">Dökkt</string>
+    <string name="qs_custom_fill_gradient">Stigull</string>
+    <string name="qs_custom_fill_icon">Aðeins tákn</string>
+    <string name="qs_custom_fill_solid">Heilt</string>
+    <string name="qs_custom_fill_surface">Yfirborð</string>
+    <string name="qs_custom_fill_tint">Litblær</string>
+    <string name="qs_custom_font_caps">Hástafir</string>
+    <string name="qs_custom_font_mono">Einbil</string>
+    <string name="qs_custom_font_sans">Án serifs</string>
+    <string name="qs_custom_glow">Glóa þegar kveikt</string>
+    <string name="qs_custom_hide">Fela</string>
+    <string name="qs_custom_hint">Pikkaðu á reit fyrir valkosti · Haltu inni til að færa · Dragðu hornið til að breyta stærð</string>
+    <string name="qs_custom_icon_size">Stærð tákns</string>
+    <string name="qs_custom_label">Texti</string>
+    <string name="qs_custom_label_inside">Inni</string>
+    <string name="qs_custom_label_under">Undir</string>
+    <string name="qs_custom_look">Útlit</string>
+    <string name="qs_custom_media_art">Listaverk</string>
+    <string name="qs_custom_media_blocks">Kubbar</string>
+    <string name="qs_custom_media_cover">Forsíða</string>
+    <string name="qs_custom_media_full">Fullt</string>
+    <string name="qs_custom_media_glow">Glóð</string>
+    <string name="qs_custom_media_line">Lína</string>
+    <string name="qs_custom_media_look">Útlit</string>
+    <string name="qs_custom_media_place">Staðsetning</string>
+    <string name="qs_custom_media_place_above">Fyrir ofan reitina</string>
+    <string name="qs_custom_media_place_below">Fyrir neðan reitina</string>
+    <string name="qs_custom_media_place_grid">Með reitunum</string>
+    <string name="qs_custom_media_play">Aðeins spilun</string>
+    <string name="qs_custom_media_progress">Framvinda</string>
+    <string name="qs_custom_media_tall">Hátt</string>
+    <string name="qs_custom_media_trio">Fyrra, spila, næsta</string>
+    <string name="qs_custom_media_wave">Bylgja</string>
+    <string name="qs_custom_media_wide">Breitt</string>
+    <string name="qs_custom_mix_footer">Hnappar neðst</string>
+    <string name="qs_custom_mix_media">Margmiðlunarspilari</string>
+    <string name="qs_custom_mix_paint">Litir reita</string>
+    <string name="qs_custom_mix_shape">Lögun reita</string>
+    <string name="qs_custom_mix_slider">Renna</string>
+    <string name="qs_custom_mixed">Blandað</string>
+    <string name="qs_custom_my_theme_name">Þema mitt %1$d</string>
+    <string name="qs_custom_my_themes">Mín þemu (haltu inni til að eyða)</string>
+    <string name="qs_custom_off_fill">Reitir slökktir</string>
+    <string name="qs_custom_on_fill">Reitir kveiktir</string>
+    <string name="qs_custom_paste_code">Líma kóða</string>
+    <string name="qs_custom_pill">Pilla</string>
+    <string name="qs_custom_reset">Endurstilla þetta þema</string>
+    <string name="qs_custom_reset_tiles">Endurstilla reiti</string>
+    <string name="qs_custom_rounded">Ávöl</string>
+    <string name="qs_custom_rows">Raðir á síðu</string>
+    <string name="qs_custom_same_as_panel">Sama og spjald</string>
+    <string name="qs_custom_save">Vista sem þema mitt</string>
+    <string name="qs_custom_scroll">Skrolla í stað síðna</string>
+    <string name="qs_custom_second_line">Önnur lína</string>
+    <string name="qs_custom_show">Sýna</string>
+    <string name="qs_custom_sizes">Stærðir reita</string>
+    <string name="qs_custom_slider_by_player">Við spilarann</string>
+    <string name="qs_custom_slider_look">Útlit</string>
+    <string name="qs_custom_slider_place">Staðsetning</string>
+    <string name="qs_custom_slider_top">Efst</string>
+    <string name="qs_custom_slider_under">Undir reitum</string>
+    <string name="qs_custom_spacing">Bil</string>
+    <string name="qs_custom_start_from">Byrja frá</string>
+    <string name="qs_custom_tab_add">Bæta við</string>
+    <string name="qs_custom_tab_mix">Blanda</string>
+    <string name="qs_custom_tab_slider">Renna</string>
+    <string name="qs_custom_tab_tiles">Reitir</string>
+    <string name="qs_custom_theme_blueprint">Blárprent</string>
+    <string name="qs_custom_theme_cards">Spjöld</string>
+    <string name="qs_custom_theme_circles">Hringir</string>
+    <string name="qs_custom_theme_classic">Klassískt</string>
+    <string name="qs_custom_theme_compact">Þjappað</string>
+    <string name="qs_custom_theme_duo">Tvíþætt</string>
+    <string name="qs_custom_theme_glass">Gler</string>
+    <string name="qs_custom_theme_neon">Neon</string>
+    <string name="qs_custom_theme_remix">Remix</string>
+    <string name="qs_custom_theme_shapes">Form</string>
+    <string name="qs_custom_theme_soft">Mjúkt</string>
+    <string name="qs_custom_theme_stock">Sjálfgefið</string>
+    <string name="qs_custom_tile_color">Litur þegar kveikt</string>
+    <string name="qs_custom_tile_height">Hæð</string>
+    <string name="qs_custom_tile_height_dp">Hæð reits</string>
+    <string name="qs_look_label">Útlit</string>
+    <string name="qs_look_none">Pikkaðu fyrir næsta útlit</string>
+    <string name="quick_settings_clear_voice_label">Skýr rödd</string>
+    <string name="accessibility_quick_settings_clear_voice_on">Skýr rödd kveikt.</string>
+    <string name="accessibility_quick_settings_clear_voice_off">Skýr rödd slökkt.</string>
 </resources>

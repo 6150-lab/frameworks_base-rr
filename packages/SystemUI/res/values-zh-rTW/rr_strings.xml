@@ -247,4 +247,7 @@
     <string name="qs_custom_tile_height_dp">設定方塊高度</string>
     <string name="qs_look_label">外觀</string>
     <string name="qs_look_none">點按切換下一個造型</string>
+    <string name="quick_settings_clear_voice_label">Clear Voice</string>
+    <string name="accessibility_quick_settings_clear_voice_on">Clear Voice 已開啟。</string>
+    <string name="accessibility_quick_settings_clear_voice_off">Clear Voice 已關閉。</string>
 </resources>

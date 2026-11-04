@@ -49,4 +49,205 @@
     <string name="qs_custom_tile_icon">"አዶ"</string>
     <string name="qs_custom_tile_width">"ስፋት"</string>
     <string name="qs_custom_title">"አብጅ"</string>
+    <string name="rr_power_title">ኃይል</string>
+    <string name="rr_power_status">%1$s ላይ · ባትሪ %2$s</string>
+    <string name="rr_power_status_uptime">%1$s ላይ</string>
+    <string name="rr_power_back">ወደ የኃይል ምናሌ ተመለስ</string>
+    <string name="rr_shutdown_back_soon">Resurrected Remix ወዲያው ይመለሳል</string>
+    <string name="global_action_restart_subtitle">ስልኩ እንዴት እንደገና እንደሚነሳ ይምረጡ</string>
+    <string name="global_action_restart_system_summary">Androidን እንደገና ያስነሱ። ለ safe mode ረጅም ይጫኑ</string>
+    <string name="global_action_restart_recovery_summary">ዝማኔዎችን ይጫኑ፣ sideload ያድርጉ ወይም ውሂብ ይደምስሱ</string>
+    <string name="global_action_restart_bootloader_summary">Fastboot፣ ለቡት ምስሎች ብልጭ ማድረጊያ</string>
+    <string name="global_action_restart_fastboot_summary">Userspace fastboot፣ ለሲስተም ክፍልፋዮች</string>
+    <string name="global_action_restart_download_summary">Download mode፣ ለvendor ብልጭ ማድረጊያ መሣሪያ</string>
+    <string name="volume_ringer_priority_only">ቅድሚያ</string>
+    <string name="volume_ringer_dnd">DnD</string>
+    <string name="tristate_flashlight_blink">ብልጭ ድርግም (የባትሪ ብርሃን)</string>
+    <string name="tristate_brightness_bright">ከፍተኛ ብሩህነት</string>
+    <string name="tristate_brightness_dark">ዝቅተኛ ብሩህነት</string>
+    <string name="tristate_brightness_auto">ራስ-ሰር ብሩህነት</string>
+    <string name="tristate_rotation_0">ቁም</string>
+    <string name="tristate_rotation_90">አግድም (90°)</string>
+    <string name="tristate_rotation_270">አግድም (270°)</string>
+    <string name="tristate_app_launch">መተግበሪያ በመክፈት ላይ</string>
+    <string name="face_unlock_recognizing">ፊት በመለየት ላይ...</string>
+    <string name="screen_on_time_label">SOT <xliff:g id="duration" example="5 hr 12 min">%1$s</xliff:g></string>
+    <string name="quick_launch_video">ቪዲዮ</string>
+    <string name="quick_launch_qr">QR ኮድ ቃኝ</string>
+    <string name="now_bar_charging">በመሙላት ላይ · <xliff:g id="level" example="74">%1$d</xliff:g>%%</string>
+    <string name="now_bar_full_in">በ<xliff:g id="duration" example="22 min">%1$s</xliff:g> ይሞላል</string>
+    <string name="now_bar_charged">ተሞልቷል</string>
+    <string name="now_bar_flashlight_on">የባትሪ ብርሃን በርቷል</string>
+    <string name="now_bar_buds">ጆሮ ማዳመጫዎች</string>
+    <string name="now_bar_buds_case">ሣጥን <xliff:g id="level" example="61">%1$d</xliff:g></string>
+    <string name="now_bar_play">አጫውት</string>
+    <string name="now_bar_pause">ቆይታ</string>
+    <string name="now_bar_previous">ቀዳሚ</string>
+    <string name="now_bar_next">ቀጣይ</string>
+    <string name="now_bar_hide">እስኪያልቅ ድረስ ደብቅ</string>
+    <string name="now_bar_settings">የ Now Bar ቅንብሮች</string>
+    <string name="now_bar_pin">ሁልጊዜ በሚታይ ማያ ላይ ሰካ</string>
+    <string name="stage_battery_description">ባትሪ <xliff:g id="percent" example="74">%1$d</xliff:g> በመቶ</string>
+    <string name="stage_alarm_description">ቀጣይ ማንቂያ <xliff:g id="time" example="Tue 6:30">%1$s</xliff:g></string>
+    <string name="flatline_playing">አሁን በመጫወት ላይ</string>
+    <string name="flatline_call">ገቢ ጥሪ</string>
+    <string name="flatline_vitals">ወሳኝ መረጃ</string>
+    <string name="flatline_vitals_preview">74% · ማንቂያ 6:30</string>
+    <string name="flatline_alarm">ማንቂያ <xliff:g id="time" example="6:30">%1$s</xliff:g></string>
+    <string name="now_bar_unpin">ከሁልጊዜ በሚታይ ማያ ላይ ንቀል</string>
+    <string name="now_bar_open">ክፈት</string>
+    <string name="now_bar_output">ውጤት</string>
+    <string name="now_bar_close">ዝጋ</string>
+    <string name="now_bar_minutes_left"><xliff:g id="minutes" example="4">%1$d</xliff:g> ደቂቃ ቀርቷል</string>
+    <string name="now_bar_minutes"><xliff:g id="minutes" example="12">%1$d</xliff:g> ደቂቃ</string>
+    <string name="now_bar_versus"><xliff:g id="team" example="Lakers">%1$s</xliff:g> ከ <xliff:g id="team" example="Celtics">%2$s</xliff:g></string>
+    <string name="charge_report_channel">የመሙያ ሪፖርቶች</string>
+    <string name="charge_report_title">የመሙያ ሪፖርት</string>
+    <string name="charge_report_summary">በ<xliff:g id="time" example="31 min">%2$s</xliff:g> +<xliff:g id="added" example="62">%1$d</xliff:g>%% · ከፍተኛ <xliff:g id="watts" example="55.0">%3$s</xliff:g> ዋ · ከፍተኛ <xliff:g id="temp" example="38">%4$s</xliff:g> °C</string>
+    <string name="charge_report_details"><xliff:g id="charger" example="Wired">%1$s</xliff:g> · <xliff:g id="from" example="12">%2$d</xliff:g>%% እስከ <xliff:g id="to" example="74">%3$d</xliff:g>%% · አማካይ <xliff:g id="watts" example="41.3">%4$s</xliff:g> ዋ</string>
+    <string name="charge_report_wired">በገመድ</string>
+    <string name="charge_report_wireless">ያለ ገመድ</string>
+    <string name="charge_report_dock">ዶክ</string>
+    <string name="usb_mode_picker_title">የUSB ሁነታ ይምረጡ</string>
+    <string name="usb_mode_photo_transfer">ፎቶ እና ቪዲዮ ማስተላለፍ</string>
+    <string name="usb_mode_webcam">USB ዌብካም</string>
+    <string name="usb_mode_charging_only">መሙላት ብቻ</string>
+    <string name="usb_charging_status">የUSB መሙላት በርቷል</string>
+    <string name="usb_island_title">USB ተገናኝቷል</string>
+    <string name="usb_island_settings">የUSB ቅንብሮች</string>
+    <string name="usb_mode_short_charge">መሙላት</string>
+    <string name="keyguard_indication_dash_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Dash መሙላት (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> እስከ ሙሉ)</string>
+    <string name="keyguard_plugged_in_dash_charging"><xliff:g id="percentage">%s</xliff:g> • Dash መሙላት</string>
+    <string name="keyguard_indication_warp_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Warp መሙላት (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> እስከ ሙሉ)</string>
+    <string name="keyguard_plugged_in_warp_charging"><xliff:g id="percentage">%s</xliff:g> • Warp መሙላት</string>
+    <string name="keyguard_indication_vooc_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • VOOC መሙላት (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> እስከ ሙሉ)</string>
+    <string name="keyguard_plugged_in_vooc_charging"><xliff:g id="percentage">%s</xliff:g> • VOOC መሙላት</string>
+    <string name="keyguard_indication_turbo_power_time"><xliff:g id="percentage">%2$s</xliff:g> • Turbo መሙላት (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> እስከ ሙሉ)</string>
+    <string name="keyguard_plugged_in_turbo_charging"><xliff:g id="percentage">%s</xliff:g> • Turbo መሙላት</string>
+    <string name="charging_vfx_long_press_to_speed">ፍጥነት ለመጨመር ተጭነው ይያዙ</string>
+    <string name="charging_vfx_source_wireless">ያለ ገመድ</string>
+    <string name="charging_vfx_source_dock">ዶክ</string>
+    <string name="charging_vfx_time_to_full">በ<xliff:g id="time" example="25 min">%s</xliff:g> ይሞላል</string>
+    <string name="qs_media_tile_idle">ምንም እየተጫወተ አይደለም</string>
+    <string name="qs_volume_tile_muted">ድምጽ ተዘግቷል</string>
+    <string name="qs_custom_volume_half">ግማሽ</string>
+    <string name="qs_custom_volume_slider">ተንሸራታች</string>
+    <string name="qs_custom_volume_fill">ሙላ</string>
+    <string name="qs_custom_volume_stack">ቁልል</string>
+    <string name="qs_custom_volume_ring">ደውል</string>
+    <string name="qs_custom_volume_call">ጥሪ</string>
+    <string name="qs_custom_volume_show_all">ስም እና መቶኛ</string>
+    <string name="qs_custom_volume_show_percent">መቶኛ</string>
+    <string name="qs_custom_volume_show_icon">አዶ ብቻ</string>
+    <string name="qs_custom_volume_tap">አዶውን ይንኩ</string>
+    <string name="qs_custom_volume_mute">ዝጋ</string>
+    <string name="qs_custom_volume_panel">የድምጽ ፓነል</string>
+    <string name="qs_custom_volume_ticks">በመጎተት ጊዜ ምልክቶች</string>
+    <string name="qs_custom_accent">ማድመቂያ</string>
+    <string name="qs_custom_add_tile">ሰቅ ጨምር</string>
+    <string name="qs_custom_all_added">ሁሉም ሰቆች በፓነሉ ላይ ናቸው</string>
+    <string name="qs_custom_all_icons">ሁሉም አዶዎች</string>
+    <string name="qs_custom_all_long">ሁሉም ረጅም</string>
+    <string name="qs_custom_backing">የአዶ ዳራ</string>
+    <string name="qs_custom_blob">ጠብታ</string>
+    <string name="qs_custom_code_applied">ገፅታ ተተግብሯል</string>
+    <string name="qs_custom_code_bad">ለመለጠፍ የገፅታ ኮድ የለም</string>
+    <string name="qs_custom_code_copied">የገፅታ ኮድ ተቀድቷል</string>
+    <string name="qs_custom_color_amber">ዐምበር</string>
+    <string name="qs_custom_color_rose">ሮዝ</string>
+    <string name="qs_custom_columns">ዓምዶች</string>
+    <string name="qs_custom_copy_code">ኮድ ቅዳ</string>
+    <string name="qs_custom_corners">ማዕዘኖች</string>
+    <string name="qs_custom_depth">ጥልቀት</string>
+    <string name="qs_custom_depth_flat">ጠፍጣፋ</string>
+    <string name="qs_custom_depth_raised">ከፍ ያለ</string>
+    <string name="qs_custom_drop_remove">ለማስወገድ እዚህ ጣል</string>
+    <string name="qs_custom_fill_clear">አጽዳ</string>
+    <string name="qs_custom_fill_dark">ጨለማ</string>
+    <string name="qs_custom_fill_gradient">ቅልመት</string>
+    <string name="qs_custom_fill_icon">አዶ ብቻ</string>
+    <string name="qs_custom_fill_solid">ጠንካራ</string>
+    <string name="qs_custom_fill_surface">ወለል</string>
+    <string name="qs_custom_fill_tint">ቀለም ቀላቅል</string>
+    <string name="qs_custom_font_caps">ካፒታል</string>
+    <string name="qs_custom_font_mono">Mono</string>
+    <string name="qs_custom_font_sans">Sans</string>
+    <string name="qs_custom_glow">ሲበራ አብራ</string>
+    <string name="qs_custom_hide">ደብቅ</string>
+    <string name="qs_custom_hint">አማራጮቹን ለማየት ሰቅን ይንኩ · ለማንቀሳቀስ ተጭነው ይያዙ · መጠን ለመቀየር ጥግን ይጎትቱ</string>
+    <string name="qs_custom_icon_size">የአዶ መጠን</string>
+    <string name="qs_custom_label">መለያ</string>
+    <string name="qs_custom_label_inside">ውስጥ</string>
+    <string name="qs_custom_label_under">ከታች</string>
+    <string name="qs_custom_look">ቅንብር</string>
+    <string name="qs_custom_media_art">ስዕል</string>
+    <string name="qs_custom_media_blocks">ብሎኮች</string>
+    <string name="qs_custom_media_cover">ሽፋን</string>
+    <string name="qs_custom_media_full">ሙሉ</string>
+    <string name="qs_custom_media_glow">ብርሃን</string>
+    <string name="qs_custom_media_line">መስመር</string>
+    <string name="qs_custom_media_look">ቅንብር</string>
+    <string name="qs_custom_media_place">የት</string>
+    <string name="qs_custom_media_place_above">ከሰቆቹ በላይ</string>
+    <string name="qs_custom_media_place_below">ከሰቆቹ በታች</string>
+    <string name="qs_custom_media_place_grid">ከሰቆቹ ጋር</string>
+    <string name="qs_custom_media_play">መጫወት ብቻ</string>
+    <string name="qs_custom_media_progress">እድገት</string>
+    <string name="qs_custom_media_tall">ረጅም</string>
+    <string name="qs_custom_media_trio">ቀዳሚ፣ አጫውት፣ ቀጣይ</string>
+    <string name="qs_custom_media_wave">ማዕበል</string>
+    <string name="qs_custom_media_wide">ሰፊ</string>
+    <string name="qs_custom_mix_footer">የታችኛው ቁልፎች</string>
+    <string name="qs_custom_mix_media">የሚዲያ ማጫወቻ</string>
+    <string name="qs_custom_mix_paint">የሰቅ ቀለሞች</string>
+    <string name="qs_custom_mix_shape">የሰቅ ቅርጽ</string>
+    <string name="qs_custom_mix_slider">ተንሸራታች</string>
+    <string name="qs_custom_mixed">ድብልቅ</string>
+    <string name="qs_custom_my_theme_name">የኔ ገፅታ %1$d</string>
+    <string name="qs_custom_my_themes">የኔ ገፅታዎች (ለመሰረዝ ተጭነው ይያዙ)</string>
+    <string name="qs_custom_off_fill">ጠፍተው ያሉ ሰቆች</string>
+    <string name="qs_custom_on_fill">በርተው ያሉ ሰቆች</string>
+    <string name="qs_custom_paste_code">ኮድ ለጥፍ</string>
+    <string name="qs_custom_pill">ክኒን</string>
+    <string name="qs_custom_reset">ይህን ገፅታ ዳግም አስጀምር</string>
+    <string name="qs_custom_reset_tiles">ሰቆችን ዳግም አስጀምር</string>
+    <string name="qs_custom_rounded">የተጠጋጋ</string>
+    <string name="qs_custom_rows">በገጽ ያሉ ረድፎች</string>
+    <string name="qs_custom_same_as_panel">ከፓነሉ ጋር ተመሳሳይ</string>
+    <string name="qs_custom_save">እንደ የኔ ገፅታ አስቀምጥ</string>
+    <string name="qs_custom_scroll">ገጾች ፈንታ ማሸብለል</string>
+    <string name="qs_custom_second_line">ሁለተኛ መስመር</string>
+    <string name="qs_custom_show">አሳይ</string>
+    <string name="qs_custom_sizes">የሰቅ መጠኖች</string>
+    <string name="qs_custom_slider_by_player">በማጫወቻው አጠገብ</string>
+    <string name="qs_custom_slider_look">ቅንብር</string>
+    <string name="qs_custom_slider_place">የት</string>
+    <string name="qs_custom_slider_top">ላይ</string>
+    <string name="qs_custom_slider_under">ከሰቆች በታች</string>
+    <string name="qs_custom_spacing">ክፍተት</string>
+    <string name="qs_custom_start_from">ከ ጀምር</string>
+    <string name="qs_custom_tab_add">ጨምር</string>
+    <string name="qs_custom_tab_mix">ድብልቅ</string>
+    <string name="qs_custom_tab_slider">ተንሸራታች</string>
+    <string name="qs_custom_tab_tiles">ሰቆች</string>
+    <string name="qs_custom_theme_blueprint">Blueprint</string>
+    <string name="qs_custom_theme_cards">ካርዶች</string>
+    <string name="qs_custom_theme_circles">ክበቦች</string>
+    <string name="qs_custom_theme_classic">ክላሲክ</string>
+    <string name="qs_custom_theme_compact">የታመቀ</string>
+    <string name="qs_custom_theme_duo">Duo</string>
+    <string name="qs_custom_theme_glass">ብርጭቆ</string>
+    <string name="qs_custom_theme_neon">ኒዮን</string>
+    <string name="qs_custom_theme_remix">Remix</string>
+    <string name="qs_custom_theme_shapes">Shapes</string>
+    <string name="qs_custom_theme_soft">ለስላሳ</string>
+    <string name="qs_custom_theme_stock">መደበኛ</string>
+    <string name="qs_custom_tile_color">ሲበራ ቀለም</string>
+    <string name="qs_custom_tile_height">ቁመት</string>
+    <string name="qs_custom_tile_height_dp">የሰቅ ቁመት</string>
+    <string name="qs_look_label">ቅንብር</string>
+    <string name="qs_look_none">ለቀጣዩ ቅንብር ይንኩ</string>
+    <string name="quick_settings_clear_voice_label">ግልጽ ድምፅ</string>
+    <string name="accessibility_quick_settings_clear_voice_on">ግልጽ ድምፅ በርቷል።</string>
+    <string name="accessibility_quick_settings_clear_voice_off">ግልጽ ድምፅ ጠፍቷል።</string>
 </resources>

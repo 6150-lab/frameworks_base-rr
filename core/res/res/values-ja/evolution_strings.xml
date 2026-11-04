@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="pocket_mode_title">ポケット モードが有効です</string>
+    <string name="pocket_mode_illustration_description">ポケットに入った端末のイラスト</string>
+    <string name="pocket_mode_instructions_header">端末を使用するには:</string>
+    <string name="pocket_mode_instruction_step1">1. 上に表示されている青い部分 (近接センサー) が遮られておらず、ほこりや汚れがないことを確認してください。</string>
+    <string name="pocket_mode_instruction_step2">ポケット モードを終了するには、電源ボタンを長押ししてください。</string>
+</resources>

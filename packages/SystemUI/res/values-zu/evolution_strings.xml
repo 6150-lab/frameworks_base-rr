@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="weather_condition_clouds">"Kunamafu"</string>
+    <string name="weather_condition_rain">Kuyanethwa</string>
+    <string name="weather_condition_clear">Isibhakabhaka Esicacile</string>
+    <string name="weather_condition_storm">Kuyadlidlizela</string>
+    <string name="weather_condition_snow">Kuyashona iqhwa</string>
+    <string name="weather_condition_wind">Kuyaphepha</string>
+    <string name="weather_condition_mist">Misty</string>
 </resources>

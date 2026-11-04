@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="pocket_mode_title">Kišenės režimas įjungtas</string>
+    <string name="pocket_mode_illustration_description">Telefono kišenėje iliustracija</string>
+    <string name="pocket_mode_instructions_header">Norėdami naudoti telefoną:</string>
+    <string name="pocket_mode_instruction_step1">1. Įsitikinkite, kad mėlyna sritis (artumo jutiklis), parodyta aukščiau, yra nepridengta ir švari.</string>
+    <string name="pocket_mode_instruction_step2">2. Palaikykite maitinimo mygtuką, kad išeitumėte iš kišenės režimo.</string>
+</resources>

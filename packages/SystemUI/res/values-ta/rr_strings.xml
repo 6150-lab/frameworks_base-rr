@@ -49,4 +49,205 @@
     <string name="qs_custom_tile_icon">"ஐகான்"</string>
     <string name="qs_custom_tile_width">"அகலம்"</string>
     <string name="qs_custom_title">"பிரத்தியேகமாக்கு"</string>
+    <string name="rr_power_title">பவர்</string>
+    <string name="rr_power_status">மேல் %1$s · %2$s பேட்டரி</string>
+    <string name="rr_power_status_uptime">மேல் %1$s</string>
+    <string name="rr_power_back">பவர் மெனுவுக்குத் திரும்பு</string>
+    <string name="rr_shutdown_back_soon">Resurrected Remix விரைவில் திரும்பும்</string>
+    <string name="global_action_restart_subtitle">ஃபோன் மீண்டும் தொடங்கும் விதத்தைத் தேர்ந்தெடுக்கவும்</string>
+    <string name="global_action_restart_system_summary">Android ஐ மறுதொடக்கம் செய். பாதுகாப்பான பயன்முறைக்கு நீண்ட நேரம் அழுத்தவும்</string>
+    <string name="global_action_restart_recovery_summary">புதுப்பிப்புகளை நிறுவு, sideload அல்லது தரவை அழி</string>
+    <string name="global_action_restart_bootloader_summary">Fastboot, boot படங்களை flash செய்ய</string>
+    <string name="global_action_restart_fastboot_summary">Userspace fastboot, system பகிர்வுகளுக்கு</string>
+    <string name="global_action_restart_download_summary">Download mode, vendor flash கருவிக்கு</string>
+    <string name="volume_ringer_priority_only">முன்னுரிமை</string>
+    <string name="volume_ringer_dnd">DnD</string>
+    <string name="tristate_flashlight_blink">ஒளிவிளக்கு ஒளிர்வு</string>
+    <string name="tristate_brightness_bright">அதிகபட்ச பிரகாசம்</string>
+    <string name="tristate_brightness_dark">குறைந்தபட்ச பிரகாசம்</string>
+    <string name="tristate_brightness_auto">தானியங்கி பிரகாசம்</string>
+    <string name="tristate_rotation_0">நிலைப்படம்</string>
+    <string name="tristate_rotation_90">நிலைக்குறுக்கு (90°)</string>
+    <string name="tristate_rotation_270">நிலைக்குறுக்கு (270°)</string>
+    <string name="tristate_app_launch">செயலியைத் தொடங்குகிறது</string>
+    <string name="face_unlock_recognizing">முகத்தை அடையாளம் காண்கிறது...</string>
+    <string name="screen_on_time_label">SOT <xliff:g id="duration" example="5 hr 12 min">%1$s</xliff:g></string>
+    <string name="quick_launch_video">வீடியோ</string>
+    <string name="quick_launch_qr">QR ஸ்கேன் செய்</string>
+    <string name="now_bar_charging">சார்ஜ் ஆகிறது · <xliff:g id="level" example="74">%1$d</xliff:g>%%</string>
+    <string name="now_bar_full_in"><xliff:g id="duration" example="22 min">%1$s</xliff:g> இல் முழுமையாகும்</string>
+    <string name="now_bar_charged">சார்ஜ் ஆனது</string>
+    <string name="now_bar_flashlight_on">ஒளிவிளக்கு இயக்கத்தில் உள்ளது</string>
+    <string name="now_bar_buds">இயர்பட்கள்</string>
+    <string name="now_bar_buds_case">கேஸ் <xliff:g id="level" example="61">%1$d</xliff:g></string>
+    <string name="now_bar_play">இயக்கு</string>
+    <string name="now_bar_pause">இடைநிறுத்து</string>
+    <string name="now_bar_previous">முந்தையது</string>
+    <string name="now_bar_next">அடுத்தது</string>
+    <string name="now_bar_hide">முடியும் வரை மறை</string>
+    <string name="now_bar_settings">Now Bar அமைப்புகள்</string>
+    <string name="now_bar_pin">எப்போதும் காட்சியில் பின் செய்</string>
+    <string name="stage_battery_description">பேட்டரி <xliff:g id="percent" example="74">%1$d</xliff:g> சதவீதம்</string>
+    <string name="stage_alarm_description">அடுத்த அலாரம் <xliff:g id="time" example="Tue 6:30">%1$s</xliff:g></string>
+    <string name="flatline_playing">இப்போது இயங்குகிறது</string>
+    <string name="flatline_call">உள்வரும் அழைப்பு</string>
+    <string name="flatline_vitals">உயிர்நிலைகள்</string>
+    <string name="flatline_vitals_preview">74% · அலாரம் 6:30</string>
+    <string name="flatline_alarm">அலாரம் <xliff:g id="time" example="6:30">%1$s</xliff:g></string>
+    <string name="now_bar_unpin">எப்போதும் காட்சியிலிருந்து அகற்று</string>
+    <string name="now_bar_open">திற</string>
+    <string name="now_bar_output">வெளியீடு</string>
+    <string name="now_bar_close">மூடு</string>
+    <string name="now_bar_minutes_left"><xliff:g id="minutes" example="4">%1$d</xliff:g> நிமிடம் மீதமுள்ளது</string>
+    <string name="now_bar_minutes"><xliff:g id="minutes" example="12">%1$d</xliff:g> நிமிடம்</string>
+    <string name="now_bar_versus"><xliff:g id="team" example="Lakers">%1$s</xliff:g> எதிர் <xliff:g id="team" example="Celtics">%2$s</xliff:g></string>
+    <string name="charge_report_channel">சார்ஜ் அறிக்கைகள்</string>
+    <string name="charge_report_title">சார்ஜ் அறிக்கை</string>
+    <string name="charge_report_summary"><xliff:g id="time" example="31 min">%2$s</xliff:g>இல் +<xliff:g id="added" example="62">%1$d</xliff:g>%% · உச்சம் <xliff:g id="watts" example="55.0">%3$s</xliff:g> W · அதிகபட்சம் <xliff:g id="temp" example="38">%4$s</xliff:g> °C</string>
+    <string name="charge_report_details"><xliff:g id="charger" example="Wired">%1$s</xliff:g> · <xliff:g id="from" example="12">%2$d</xliff:g>%% முதல் <xliff:g id="to" example="74">%3$d</xliff:g>%% வரை · சராசரி <xliff:g id="watts" example="41.3">%4$s</xliff:g> W</string>
+    <string name="charge_report_wired">கம்பி மூலம்</string>
+    <string name="charge_report_wireless">வயர்லெஸ்</string>
+    <string name="charge_report_dock">டாக்</string>
+    <string name="usb_mode_picker_title">USB பயன்முறையைத் தேர்ந்தெடு</string>
+    <string name="usb_mode_photo_transfer">புகைப்பட &amp; வீடியோ பரிமாற்றம்</string>
+    <string name="usb_mode_webcam">USB வெப்கேம்</string>
+    <string name="usb_mode_charging_only">சார்ஜ் மட்டும்</string>
+    <string name="usb_charging_status">USB சார்ஜிங் இயக்கத்தில் உள்ளது</string>
+    <string name="usb_island_title">USB இணைக்கப்பட்டது</string>
+    <string name="usb_island_settings">USB அமைப்புகள்</string>
+    <string name="usb_mode_short_charge">சார்ஜ்</string>
+    <string name="keyguard_indication_dash_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Dash சார்ஜிங் (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> முழுமையாகும் வரை)</string>
+    <string name="keyguard_plugged_in_dash_charging"><xliff:g id="percentage">%s</xliff:g> • Dash சார்ஜிங்</string>
+    <string name="keyguard_indication_warp_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Warp சார்ஜிங் (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> முழுமையாகும் வரை)</string>
+    <string name="keyguard_plugged_in_warp_charging"><xliff:g id="percentage">%s</xliff:g> • Warp சார்ஜிங்</string>
+    <string name="keyguard_indication_vooc_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • VOOC சார்ஜிங் (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> முழுமையாகும் வரை)</string>
+    <string name="keyguard_plugged_in_vooc_charging"><xliff:g id="percentage">%s</xliff:g> • VOOC சார்ஜிங்</string>
+    <string name="keyguard_indication_turbo_power_time"><xliff:g id="percentage">%2$s</xliff:g> • டர்போ சார்ஜிங் (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> முழுமையாகும் வரை)</string>
+    <string name="keyguard_plugged_in_turbo_charging"><xliff:g id="percentage">%s</xliff:g> • டர்போ சார்ஜிங்</string>
+    <string name="charging_vfx_long_press_to_speed">வேகத்தை அதிகரிக்க அழுத்திப் பிடி</string>
+    <string name="charging_vfx_source_wireless">வயர்லெஸ்</string>
+    <string name="charging_vfx_source_dock">டாக்</string>
+    <string name="charging_vfx_time_to_full"><xliff:g id="time" example="25 min">%s</xliff:g> இல் முழுமையாகும்</string>
+    <string name="qs_media_tile_idle">எதுவும் இயங்கவில்லை</string>
+    <string name="qs_volume_tile_muted">ஒலி முடக்கப்பட்டது</string>
+    <string name="qs_custom_volume_half">பாதி</string>
+    <string name="qs_custom_volume_slider">ஸ்லைடர்</string>
+    <string name="qs_custom_volume_fill">நிரப்பு</string>
+    <string name="qs_custom_volume_stack">அடுக்கு</string>
+    <string name="qs_custom_volume_ring">ரிங்</string>
+    <string name="qs_custom_volume_call">அழைப்பு</string>
+    <string name="qs_custom_volume_show_all">பெயரும் சதவீதமும்</string>
+    <string name="qs_custom_volume_show_percent">சதவீதம்</string>
+    <string name="qs_custom_volume_show_icon">ஐகான் மட்டும்</string>
+    <string name="qs_custom_volume_tap">ஐகானைத் தட்டு</string>
+    <string name="qs_custom_volume_mute">முடக்கு</string>
+    <string name="qs_custom_volume_panel">ஒலி பலகம்</string>
+    <string name="qs_custom_volume_ticks">இழுக்கும்போது குறிகள்</string>
+    <string name="qs_custom_accent">உச்சரிப்பு</string>
+    <string name="qs_custom_add_tile">கட்டம் சேர்</string>
+    <string name="qs_custom_all_added">ஒவ்வொரு கட்டமும் பலகத்தில் உள்ளது</string>
+    <string name="qs_custom_all_icons">எல்லா ஐகான்கள்</string>
+    <string name="qs_custom_all_long">எல்லாம் நீளம்</string>
+    <string name="qs_custom_backing">ஐகான் பின்னணி</string>
+    <string name="qs_custom_blob">குமிழ்</string>
+    <string name="qs_custom_code_applied">தீம் பயன்படுத்தப்பட்டது</string>
+    <string name="qs_custom_code_bad">ஒட்ட தீம் குறியீடு இல்லை</string>
+    <string name="qs_custom_code_copied">தீம் குறியீடு நகலெடுக்கப்பட்டது</string>
+    <string name="qs_custom_color_amber">அம்பர்</string>
+    <string name="qs_custom_color_rose">ரோஸ்</string>
+    <string name="qs_custom_columns">நெடுவரிசைகள்</string>
+    <string name="qs_custom_copy_code">குறியீட்டை நகலெடு</string>
+    <string name="qs_custom_corners">மூலைகள்</string>
+    <string name="qs_custom_depth">ஆழம்</string>
+    <string name="qs_custom_depth_flat">தட்டையான</string>
+    <string name="qs_custom_depth_raised">உயர்த்திய</string>
+    <string name="qs_custom_drop_remove">அகற்ற இங்கே விடு</string>
+    <string name="qs_custom_fill_clear">அழி</string>
+    <string name="qs_custom_fill_dark">இருள்</string>
+    <string name="qs_custom_fill_gradient">சாய்வு</string>
+    <string name="qs_custom_fill_icon">ஐகான் மட்டும்</string>
+    <string name="qs_custom_fill_solid">திடமான</string>
+    <string name="qs_custom_fill_surface">மேற்பரப்பு</string>
+    <string name="qs_custom_fill_tint">சாயல்</string>
+    <string name="qs_custom_font_caps">பெரிய எழுத்துகள்</string>
+    <string name="qs_custom_font_mono">Mono</string>
+    <string name="qs_custom_font_sans">Sans</string>
+    <string name="qs_custom_glow">இயக்கத்தில் ஒளிர்</string>
+    <string name="qs_custom_hide">மறை</string>
+    <string name="qs_custom_hint">விருப்பங்களுக்கு கட்டத்தைத் தட்டு · நகர்த்த அழுத்திப் பிடி · அளவை மாற்ற மூலையை இழு</string>
+    <string name="qs_custom_icon_size">ஐகான் அளவு</string>
+    <string name="qs_custom_label">லேபிள்</string>
+    <string name="qs_custom_label_inside">உள்ளே</string>
+    <string name="qs_custom_label_under">கீழே</string>
+    <string name="qs_custom_look">தோற்றம்</string>
+    <string name="qs_custom_media_art">கலைப்படைப்பு</string>
+    <string name="qs_custom_media_blocks">கட்டங்கள்</string>
+    <string name="qs_custom_media_cover">மூடு</string>
+    <string name="qs_custom_media_full">முழுமை</string>
+    <string name="qs_custom_media_glow">ஒளிர்வு</string>
+    <string name="qs_custom_media_line">கோடு</string>
+    <string name="qs_custom_media_look">தோற்றம்</string>
+    <string name="qs_custom_media_place">எங்கே</string>
+    <string name="qs_custom_media_place_above">கட்டங்களுக்கு மேலே</string>
+    <string name="qs_custom_media_place_below">கட்டங்களுக்குக் கீழே</string>
+    <string name="qs_custom_media_place_grid">கட்டங்களுடன்</string>
+    <string name="qs_custom_media_play">இயக்கி மட்டும்</string>
+    <string name="qs_custom_media_progress">முன்னேற்றம்</string>
+    <string name="qs_custom_media_tall">உயரமான</string>
+    <string name="qs_custom_media_trio">முந்தையது, இயக்கு, அடுத்தது</string>
+    <string name="qs_custom_media_wave">அலை</string>
+    <string name="qs_custom_media_wide">அகலமான</string>
+    <string name="qs_custom_mix_footer">கீழ்ப்பட்டன்கள்</string>
+    <string name="qs_custom_mix_media">மீடியா பிளேயர்</string>
+    <string name="qs_custom_mix_paint">கட்ட வண்ணங்கள்</string>
+    <string name="qs_custom_mix_shape">கட்ட வடிவம்</string>
+    <string name="qs_custom_mix_slider">ஸ்லைடர்</string>
+    <string name="qs_custom_mixed">கலப்பு</string>
+    <string name="qs_custom_my_theme_name">என் தீம் %1$d</string>
+    <string name="qs_custom_my_themes">என் தீம்கள் (நீக்க அழுத்திப் பிடி)</string>
+    <string name="qs_custom_off_fill">அணைக்கப்பட்ட கட்டங்கள்</string>
+    <string name="qs_custom_on_fill">இயக்கப்பட்ட கட்டங்கள்</string>
+    <string name="qs_custom_paste_code">குறியீட்டை ஒட்டு</string>
+    <string name="qs_custom_pill">பில்</string>
+    <string name="qs_custom_reset">இந்தத் தீமை மீட்டமை</string>
+    <string name="qs_custom_reset_tiles">கட்டங்களை மீட்டமை</string>
+    <string name="qs_custom_rounded">வட்டமான</string>
+    <string name="qs_custom_rows">ஒரு பக்கத்தில் உள்ள வரிசைகள்</string>
+    <string name="qs_custom_same_as_panel">பலகத்தைப் போன்றே</string>
+    <string name="qs_custom_save">என் தீமாகச் சேமி</string>
+    <string name="qs_custom_scroll">பக்கங்களுக்குப் பதிலாக உருட்டு</string>
+    <string name="qs_custom_second_line">இரண்டாம் வரி</string>
+    <string name="qs_custom_show">காட்டு</string>
+    <string name="qs_custom_sizes">கட்ட அளவுகள்</string>
+    <string name="qs_custom_slider_by_player">பிளேயருக்கு அருகில்</string>
+    <string name="qs_custom_slider_look">தோற்றம்</string>
+    <string name="qs_custom_slider_place">எங்கே</string>
+    <string name="qs_custom_slider_top">மேல்</string>
+    <string name="qs_custom_slider_under">கட்டங்களுக்குக் கீழே</string>
+    <string name="qs_custom_spacing">இடைவெளி</string>
+    <string name="qs_custom_start_from">இதிலிருந்து தொடங்கு</string>
+    <string name="qs_custom_tab_add">சேர்</string>
+    <string name="qs_custom_tab_mix">கலவை</string>
+    <string name="qs_custom_tab_slider">ஸ்லைடர்</string>
+    <string name="qs_custom_tab_tiles">கட்டங்கள்</string>
+    <string name="qs_custom_theme_blueprint">Blueprint</string>
+    <string name="qs_custom_theme_cards">அட்டைகள்</string>
+    <string name="qs_custom_theme_circles">வட்டங்கள்</string>
+    <string name="qs_custom_theme_classic">கிளாசிக்</string>
+    <string name="qs_custom_theme_compact">சுருக்கம்</string>
+    <string name="qs_custom_theme_duo">Duo</string>
+    <string name="qs_custom_theme_glass">கண்ணாடி</string>
+    <string name="qs_custom_theme_neon">நியான்</string>
+    <string name="qs_custom_theme_remix">Remix</string>
+    <string name="qs_custom_theme_shapes">வடிவங்கள்</string>
+    <string name="qs_custom_theme_soft">மென்மை</string>
+    <string name="qs_custom_theme_stock">இயல்பு</string>
+    <string name="qs_custom_tile_color">இயக்கத்தில் உள்ள வண்ணம்</string>
+    <string name="qs_custom_tile_height">உயரம்</string>
+    <string name="qs_custom_tile_height_dp">கட்ட உயரம்</string>
+    <string name="qs_look_label">தோற்றம்</string>
+    <string name="qs_look_none">அடுத்த தோற்றத்திற்கு தட்டு</string>
+    <string name="quick_settings_clear_voice_label">Clear Voice</string>
+    <string name="accessibility_quick_settings_clear_voice_on">Clear Voice இயக்கப்பட்டது.</string>
+    <string name="accessibility_quick_settings_clear_voice_off">Clear Voice அணைக்கப்பட்டது.</string>
 </resources>

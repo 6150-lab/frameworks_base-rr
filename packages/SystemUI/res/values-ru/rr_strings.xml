@@ -247,4 +247,7 @@
     <string name="qs_custom_tile_height_dp">Высота плитки</string>
     <string name="qs_look_label">Вид</string>
     <string name="qs_look_none">Нажмите, чтобы сменить образ</string>
+    <string name="quick_settings_clear_voice_label">Голосовой помощник для слабовидящих</string>
+    <string name="accessibility_quick_settings_clear_voice_on">Голосовой помощник для слабовидящих включён.</string>
+    <string name="accessibility_quick_settings_clear_voice_off">Голосовой помощник для слабовидящих выключен.</string>
 </resources>

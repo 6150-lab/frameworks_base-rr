@@ -52,4 +52,202 @@
     <string name="qs_custom_tile_icon">"アイコン"</string>
     <string name="qs_custom_tile_width">"幅"</string>
     <string name="qs_custom_title">"カスタマイズ"</string>
+    <string name="rr_power_title">電源</string>
+    <string name="rr_power_status">稼働 %1$s · バッテリー %2$s</string>
+    <string name="rr_power_status_uptime">稼働 %1$s</string>
+    <string name="rr_power_back">電源ボタン メニューに戻る</string>
+    <string name="rr_shutdown_back_soon">Resurrected Remix はまもなく戻ります</string>
+    <string name="global_action_restart_subtitle">次回の起動方法を選択</string>
+    <string name="global_action_restart_system_summary">Android を再起動します。長押しでセーフモード</string>
+    <string name="global_action_restart_recovery_summary">アップデートのインストール、サイドロード、データの消去</string>
+    <string name="global_action_restart_bootloader_summary">Fastboot。ブートイメージの書き込み用</string>
+    <string name="global_action_restart_fastboot_summary">ユーザースペース Fastboot。システム パーティション用</string>
+    <string name="global_action_restart_download_summary">ダウンロード モード。ベンダーのフラッシュ ツール用</string>
+    <string name="volume_ringer_priority_only">優先度</string>
+    <string name="volume_ringer_dnd">DnD</string>
+    <string name="tristate_flashlight_blink">ライト点滅</string>
+    <string name="tristate_brightness_bright">最大輝度</string>
+    <string name="tristate_brightness_dark">最小輝度</string>
+    <string name="tristate_brightness_auto">自動輝度</string>
+    <string name="tristate_rotation_0">縦向き</string>
+    <string name="tristate_rotation_90">横向き (90°)</string>
+    <string name="tristate_rotation_270">横向き（270°）</string>
+    <string name="tristate_app_launch">アプリを起動中</string>
+    <string name="face_unlock_recognizing">顔を認識しています…</string>
+    <string name="screen_on_time_label">SOT <xliff:g id="duration" example="5 hr 12 min">%1$s</xliff:g></string>
+    <string name="quick_launch_video">動画</string>
+    <string name="quick_launch_qr">QR コードをスキャン</string>
+    <string name="now_bar_charging">充電中 · <xliff:g id="level" example="74">%1$d</xliff:g>%%</string>
+    <string name="now_bar_full_in">満充電まで <xliff:g id="duration" example="22 min">%1$s</xliff:g></string>
+    <string name="now_bar_charged">充電完了</string>
+    <string name="now_bar_flashlight_on">ライトオン</string>
+    <string name="now_bar_buds">イヤホン</string>
+    <string name="now_bar_buds_case">ケース <xliff:g id="level" example="61">%1$d</xliff:g></string>
+    <string name="now_bar_play">再生</string>
+    <string name="now_bar_pause">一時停止</string>
+    <string name="now_bar_previous">前へ</string>
+    <string name="now_bar_next">次へ</string>
+    <string name="now_bar_hide">終了まで非表示</string>
+    <string name="now_bar_settings">Now Bar の設定</string>
+    <string name="now_bar_pin">常時表示ディスプレイに固定</string>
+    <string name="stage_battery_description">バッテリー <xliff:g id="percent" example="74">%1$d</xliff:g>%</string>
+    <string name="stage_alarm_description">次のアラーム <xliff:g id="time" example="Tue 6:30">%1$s</xliff:g></string>
+    <string name="flatline_playing">再生中</string>
+    <string name="flatline_call">着信中</string>
+    <string name="flatline_vitals">バイタル</string>
+    <string name="flatline_vitals_preview">74% · アラーム 6:30</string>
+    <string name="flatline_alarm">アラーム <xliff:g id="time" example="6:30">%1$s</xliff:g></string>
+    <string name="now_bar_unpin">常時表示ディスプレイから固定を解除</string>
+    <string name="now_bar_open">開く</string>
+    <string name="now_bar_output">出力</string>
+    <string name="now_bar_close">閉じる</string>
+    <string name="now_bar_minutes_left">残り <xliff:g id="minutes" example="4">%1$d</xliff:g> 分</string>
+    <string name="now_bar_minutes"><xliff:g id="minutes" example="12">%1$d</xliff:g> 分</string>
+    <string name="now_bar_versus"><xliff:g id="team" example="Lakers">%1$s</xliff:g> と <xliff:g id="team" example="Celtics">%2$s</xliff:g></string>
+    <string name="charge_report_channel">充電レポート</string>
+    <string name="charge_report_title">充電レポート</string>
+    <string name="charge_report_summary"><xliff:g id="time" example="31 min">%2$s</xliff:g> で +<xliff:g id="added" example="62">%1$d</xliff:g>%% · ピーク <xliff:g id="watts" example="55.0">%3$s</xliff:g> W · 最高 <xliff:g id="temp" example="38">%4$s</xliff:g> °C</string>
+    <string name="charge_report_details"><xliff:g id="charger" example="Wired">%1$s</xliff:g> · <xliff:g id="from" example="12">%2$d</xliff:g>%% から <xliff:g id="to" example="74">%3$d</xliff:g>%% · 平均 <xliff:g id="watts" example="41.3">%4$s</xliff:g> W</string>
+    <string name="charge_report_wired">有線</string>
+    <string name="charge_report_wireless">ワイヤレス</string>
+    <string name="charge_report_dock">ドック</string>
+    <string name="usb_mode_picker_title">USB モードを選択</string>
+    <string name="usb_mode_photo_transfer">写真と動画の転送</string>
+    <string name="usb_mode_webcam">USB ウェブカメラ</string>
+    <string name="usb_mode_charging_only">充電のみ</string>
+    <string name="usb_charging_status">USB 充電がオンです</string>
+    <string name="usb_island_title">USB 接続済み</string>
+    <string name="usb_island_settings">USB の設定</string>
+    <string name="usb_mode_short_charge">充電</string>
+    <string name="keyguard_indication_dash_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Dash 充電（満充電まで <xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g>）</string>
+    <string name="keyguard_plugged_in_dash_charging"><xliff:g id="percentage">%s</xliff:g> • Dash 充電</string>
+    <string name="keyguard_indication_warp_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Warp 充電（満充電まで <xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g>）</string>
+    <string name="keyguard_plugged_in_warp_charging"><xliff:g id="percentage">%s</xliff:g> • Warp 充電</string>
+    <string name="keyguard_indication_vooc_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • VOOC 充電（満充電まで <xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g>）</string>
+    <string name="keyguard_plugged_in_vooc_charging"><xliff:g id="percentage">%s</xliff:g> • VOOC 充電</string>
+    <string name="keyguard_indication_turbo_power_time"><xliff:g id="percentage">%2$s</xliff:g> • ターボ充電（満充電まで <xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g>）</string>
+    <string name="keyguard_plugged_in_turbo_charging"><xliff:g id="percentage">%s</xliff:g> • ターボ充電</string>
+    <string name="charging_vfx_long_press_to_speed">長押しで高速化</string>
+    <string name="charging_vfx_source_wireless">ワイヤレス</string>
+    <string name="charging_vfx_source_dock">ドック</string>
+    <string name="charging_vfx_time_to_full">満充電まで <xliff:g id="time" example="25 min">%s</xliff:g></string>
+    <string name="qs_media_tile_idle">再生していません</string>
+    <string name="qs_volume_tile_muted">ミュート</string>
+    <string name="qs_custom_volume_half">半分</string>
+    <string name="qs_custom_volume_slider">スライダー</string>
+    <string name="qs_custom_volume_fill">塗りつぶし</string>
+    <string name="qs_custom_volume_stack">スタック</string>
+    <string name="qs_custom_volume_ring">着信音</string>
+    <string name="qs_custom_volume_call">通話</string>
+    <string name="qs_custom_volume_show_all">名前と割合</string>
+    <string name="qs_custom_volume_show_percent">割合</string>
+    <string name="qs_custom_volume_show_icon">アイコンのみ</string>
+    <string name="qs_custom_volume_tap">アイコンをタップ</string>
+    <string name="qs_custom_volume_mute">ミュート</string>
+    <string name="qs_custom_volume_ticks">ドラッグ中に目盛りを表示</string>
+    <string name="qs_custom_accent">アクセント</string>
+    <string name="qs_custom_add_tile">タイルを追加</string>
+    <string name="qs_custom_all_added">すべてのタイルがパネルに配置されています</string>
+    <string name="qs_custom_all_icons">すべてのアイコン</string>
+    <string name="qs_custom_all_long">すべて長め</string>
+    <string name="qs_custom_backing">アイコンの背景</string>
+    <string name="qs_custom_blob">ブロブ</string>
+    <string name="qs_custom_code_applied">テーマを適用しました</string>
+    <string name="qs_custom_code_bad">貼り付けるテーマコードがありません</string>
+    <string name="qs_custom_code_copied">テーマコードをコピーしました</string>
+    <string name="qs_custom_color_amber">アンバー</string>
+    <string name="qs_custom_color_rose">ローズ</string>
+    <string name="qs_custom_columns">列数</string>
+    <string name="qs_custom_copy_code">コードをコピー</string>
+    <string name="qs_custom_corners">角の丸み</string>
+    <string name="qs_custom_depth">奥行き</string>
+    <string name="qs_custom_depth_flat">フラット</string>
+    <string name="qs_custom_depth_raised">浮き上がり</string>
+    <string name="qs_custom_drop_remove">ここにドロップして削除</string>
+    <string name="qs_custom_fill_clear">クリア</string>
+    <string name="qs_custom_fill_dark">ダーク</string>
+    <string name="qs_custom_fill_gradient">グラデーション</string>
+    <string name="qs_custom_fill_icon">アイコンのみ</string>
+    <string name="qs_custom_fill_solid">ソリッド</string>
+    <string name="qs_custom_fill_surface">サーフェス</string>
+    <string name="qs_custom_fill_tint">ティント</string>
+    <string name="qs_custom_font_caps">大文字</string>
+    <string name="qs_custom_font_mono">等幅</string>
+    <string name="qs_custom_font_sans">サンセリフ</string>
+    <string name="qs_custom_glow">オン時に光らせる</string>
+    <string name="qs_custom_hide">非表示</string>
+    <string name="qs_custom_hint">タイルをタップでオプション · 長押しで移動 · 角をドラッグしてサイズ変更</string>
+    <string name="qs_custom_label">ラベル</string>
+    <string name="qs_custom_label_inside">内側</string>
+    <string name="qs_custom_label_under">下</string>
+    <string name="qs_custom_look">ルック</string>
+    <string name="qs_custom_media_art">アートワーク</string>
+    <string name="qs_custom_media_blocks">ブロック</string>
+    <string name="qs_custom_media_cover">カバー</string>
+    <string name="qs_custom_media_full">全体</string>
+    <string name="qs_custom_media_glow">グロー</string>
+    <string name="qs_custom_media_line">線</string>
+    <string name="qs_custom_media_look">ルック</string>
+    <string name="qs_custom_media_place">表示位置</string>
+    <string name="qs_custom_media_place_above">タイルの上</string>
+    <string name="qs_custom_media_place_below">タイルの下</string>
+    <string name="qs_custom_media_place_grid">タイルと並べて</string>
+    <string name="qs_custom_media_play">再生のみ</string>
+    <string name="qs_custom_media_progress">進行状況</string>
+    <string name="qs_custom_media_tall">縦長</string>
+    <string name="qs_custom_media_trio">前へ・再生・次へ</string>
+    <string name="qs_custom_media_wave">波形</string>
+    <string name="qs_custom_media_wide">横長</string>
+    <string name="qs_custom_mix_footer">フッターのボタン</string>
+    <string name="qs_custom_mix_media">メディアプレーヤー</string>
+    <string name="qs_custom_mix_paint">タイルの色</string>
+    <string name="qs_custom_mix_slider">スライダー</string>
+    <string name="qs_custom_mixed">混合</string>
+    <string name="qs_custom_my_theme_name">マイテーマ %1$d</string>
+    <string name="qs_custom_my_themes">マイテーマ（長押しで削除）</string>
+    <string name="qs_custom_off_fill">オフ時のタイル</string>
+    <string name="qs_custom_on_fill">オン時のタイル</string>
+    <string name="qs_custom_paste_code">コードを貼り付け</string>
+    <string name="qs_custom_pill">ピル</string>
+    <string name="qs_custom_reset">このテーマをリセット</string>
+    <string name="qs_custom_reset_tiles">タイルをリセット</string>
+    <string name="qs_custom_rounded">角丸</string>
+    <string name="qs_custom_rows">1ページあたりの行数</string>
+    <string name="qs_custom_same_as_panel">パネルと同じ</string>
+    <string name="qs_custom_save">マイテーマとして保存</string>
+    <string name="qs_custom_scroll">ページ分割の代わりにスクロール</string>
+    <string name="qs_custom_second_line">2行目</string>
+    <string name="qs_custom_show">表示</string>
+    <string name="qs_custom_sizes">タイルのサイズ</string>
+    <string name="qs_custom_slider_by_player">プレーヤーの下</string>
+    <string name="qs_custom_slider_look">ルック</string>
+    <string name="qs_custom_slider_place">表示位置</string>
+    <string name="qs_custom_slider_top">上</string>
+    <string name="qs_custom_slider_under">タイルの下</string>
+    <string name="qs_custom_spacing">間隔</string>
+    <string name="qs_custom_start_from">開始元</string>
+    <string name="qs_custom_tab_add">追加</string>
+    <string name="qs_custom_tab_mix">混合</string>
+    <string name="qs_custom_tab_slider">スライダー</string>
+    <string name="qs_custom_tab_tiles">タイル</string>
+    <string name="qs_custom_theme_blueprint">ブループリント</string>
+    <string name="qs_custom_theme_cards">カード</string>
+    <string name="qs_custom_theme_circles">サークル</string>
+    <string name="qs_custom_theme_classic">クラシック</string>
+    <string name="qs_custom_theme_compact">コンパクト</string>
+    <string name="qs_custom_theme_duo">デュオ</string>
+    <string name="qs_custom_theme_glass">ガラス</string>
+    <string name="qs_custom_theme_neon">ネオン</string>
+    <string name="qs_custom_theme_remix">Remix</string>
+    <string name="qs_custom_theme_shapes">シェイプ</string>
+    <string name="qs_custom_theme_soft">ソフト</string>
+    <string name="qs_custom_theme_stock">標準</string>
+    <string name="qs_custom_tile_color">オン時の色</string>
+    <string name="qs_custom_tile_height">高さ</string>
+    <string name="qs_custom_tile_height_dp">タイルの高さ</string>
+    <string name="qs_look_label">ルック</string>
+    <string name="qs_look_none">タップで次のルックへ</string>
+    <string name="quick_settings_clear_voice_label">Clear Voice</string>
+    <string name="accessibility_quick_settings_clear_voice_on">Clear Voice をオンにしました。</string>
+    <string name="accessibility_quick_settings_clear_voice_off">Clear Voice をオフにしました。</string>
 </resources>

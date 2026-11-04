@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="pocket_mode_title">پاکٹ موڈ فعال ہے</string>
+    <string name="pocket_mode_illustration_description">جیب میں فون کی تصویر</string>
+    <string name="pocket_mode_instructions_header">فون استعمال کرنے کے لیے:</string>
+    <string name="pocket_mode_instruction_step1">1. اوپر دکھائے گئے نیلے حصے (پروکسیمٹی سینسر) کو بغیر رکاوٹ اور گرد یا دھول سے پاک رکھیں۔</string>
+    <string name="pocket_mode_instruction_step2">2. پاکٹ موڈ سے نکلنے کے لیے پاور بٹن دبا کر رکھیں۔</string>
+</resources>

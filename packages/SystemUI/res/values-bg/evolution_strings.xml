@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="weather_condition_clouds">"Облачно"</string>
+    <string name="weather_condition_rain">Дъжд</string>
+    <string name="weather_condition_clear">Ясно небе</string>
+    <string name="weather_condition_storm">Буря</string>
+    <string name="weather_condition_snow">Сняг</string>
+    <string name="weather_condition_wind">Вятър</string>
+    <string name="weather_condition_mist">Мъгла</string>
 </resources>

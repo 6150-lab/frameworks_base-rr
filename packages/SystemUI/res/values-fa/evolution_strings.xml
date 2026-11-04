@@ -2,4 +2,9 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="weather_condition_clouds">"ابری"</string>
     <string name="weather_condition_wind">باد زیاد</string>
+    <string name="weather_condition_rain">بارانی</string>
+    <string name="weather_condition_clear">آسمان صاف</string>
+    <string name="weather_condition_storm">طوفانی</string>
+    <string name="weather_condition_snow">برفی</string>
+    <string name="weather_condition_mist">مه‌آلود</string>
 </resources>

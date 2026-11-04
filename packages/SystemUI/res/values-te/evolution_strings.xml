@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="weather_condition_clouds">"మేఘావృతంగా"</string>
+    <string name="weather_condition_rain">వర్షం</string>
+    <string name="weather_condition_clear">స్పష్టమైన ఆకాశం</string>
+    <string name="weather_condition_storm">తుఫాను</string>
+    <string name="weather_condition_snow">మంచు</string>
+    <string name="weather_condition_wind">గాలులు</string>
+    <string name="weather_condition_mist">మంచుతో కూడిన</string>
 </resources>

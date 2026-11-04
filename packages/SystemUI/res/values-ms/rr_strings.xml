@@ -47,4 +47,207 @@
     <string name="qs_custom_tile_icon">"Ikon"</string>
     <string name="qs_custom_tile_width">"Lebar"</string>
     <string name="qs_custom_title">"Sesuaikan"</string>
+    <string name="rr_power_title">Kuasa</string>
+    <string name="rr_power_status">Naik %1$s · bateri %2$s</string>
+    <string name="rr_power_status_uptime">Naik %1$s</string>
+    <string name="rr_power_back">Kembali ke menu kuasa</string>
+    <string name="rr_shutdown_back_soon">Resurrected Remix akan kembali sebentar lagi</string>
+    <string name="global_action_restart_subtitle">Pilih cara telefon dihidupkan semula</string>
+    <string name="global_action_restart_system_summary">Mulakan semula Android. Tekan lama untuk mod selamat</string>
+    <string name="global_action_restart_recovery_summary">Pasang kemas kini, sideload atau padam data</string>
+    <string name="global_action_restart_bootloader_summary">Fastboot, untuk memflash imej boot</string>
+    <string name="global_action_restart_fastboot_summary">Fastboot ruang pengguna, untuk partition sistem</string>
+    <string name="global_action_restart_download_summary">Mod muat turun, untuk alat flash vendor</string>
+    <string name="volume_ringer_priority_only">Keutamaan</string>
+    <string name="volume_ringer_dnd">DnD</string>
+    <string name="tristate_flashlight_blink">Lampu kelip</string>
+    <string name="tristate_brightness_bright">Kecerahan maks</string>
+    <string name="tristate_brightness_dark">Kecerahan min</string>
+    <string name="tristate_brightness_auto">Kecerahan auto</string>
+    <string name="tristate_rotation_0">Potret</string>
+    <string name="tristate_rotation_90">Landskap (90°)</string>
+    <string name="tristate_rotation_270">Landskap (270°)</string>
+    <string name="tristate_app_launch">Melancarkan apl</string>
+    <string name="face_unlock_recognizing">Mengecam wajah...</string>
+    <string name="screen_on_time_label">SOT <xliff:g id="duration" example="5 hr 12 min">%1$s</xliff:g></string>
+    <string name="quick_launch_video">Video</string>
+    <string name="quick_launch_qr">Imbas QR</string>
+    <string name="now_bar_charging">Mengecas · <xliff:g id="level" example="74">%1$d</xliff:g>%%</string>
+    <string name="now_bar_full_in">Penuh dalam <xliff:g id="duration" example="22 min">%1$s</xliff:g></string>
+    <string name="now_bar_charged">Dicas</string>
+    <string name="now_bar_flashlight_on">Lampu suluh dihidupkan</string>
+    <string name="now_bar_buds">Fon telinga</string>
+    <string name="now_bar_buds_case">Kes <xliff:g id="level" example="61">%1$d</xliff:g></string>
+    <string name="now_bar_play">Main</string>
+    <string name="now_bar_pause">Jeda</string>
+    <string name="now_bar_previous">Sebelumnya</string>
+    <string name="now_bar_next">Seterusnya</string>
+    <string name="now_bar_hide">Sembunyi sehingga tamat</string>
+    <string name="now_bar_settings">Tetapan Now Bar</string>
+    <string name="now_bar_pin">Semat pada paparan sentiasa hidup</string>
+    <string name="stage_battery_description">Bateri <xliff:g id="percent" example="74">%1$d</xliff:g> peratus</string>
+    <string name="stage_alarm_description">Penggera seterusnya <xliff:g id="time" example="Tue 6:30">%1$s</xliff:g></string>
+    <string name="flatline_playing">SEDANG DIMAIN</string>
+    <string name="flatline_call">PANGGILAN MASUK</string>
+    <string name="flatline_vitals">Vitals</string>
+    <string name="flatline_vitals_preview">74% · Penggera 6:30</string>
+    <string name="flatline_alarm">Penggera <xliff:g id="time" example="6:30">%1$s</xliff:g></string>
+    <string name="now_bar_unpin">Nyahsemat daripada paparan sentiasa hidup</string>
+    <string name="now_bar_open">Buka</string>
+    <string name="now_bar_output">Output</string>
+    <string name="now_bar_close">Tutup</string>
+    <string name="now_bar_minutes_left">Baki <xliff:g id="minutes" example="4">%1$d</xliff:g> min</string>
+    <string name="now_bar_minutes"><xliff:g id="minutes" example="12">%1$d</xliff:g> min</string>
+    <string name="now_bar_versus"><xliff:g id="team" example="Lakers">%1$s</xliff:g> vs <xliff:g id="team" example="Celtics">%2$s</xliff:g></string>
+    <string name="charge_report_channel">Laporan pengecasan</string>
+    <string name="charge_report_title">Laporan pengecasan</string>
+    <string name="charge_report_summary">+<xliff:g id="added" example="62">%1$d</xliff:g>%% dalam <xliff:g id="time" example="31 min">%2$s</xliff:g> · puncak <xliff:g id="watts" example="55.0">%3$s</xliff:g> W · maks <xliff:g id="temp" example="38">%4$s</xliff:g> °C</string>
+    <string name="charge_report_details"><xliff:g id="charger" example="Wired">%1$s</xliff:g> · <xliff:g id="from" example="12">%2$d</xliff:g>%% hingga <xliff:g id="to" example="74">%3$d</xliff:g>%% · purata <xliff:g id="watts" example="41.3">%4$s</xliff:g> W</string>
+    <string name="charge_report_wired">Berwayar</string>
+    <string name="charge_report_wireless">Tanpa wayar</string>
+    <string name="charge_report_dock">Dok</string>
+    <string name="usb_mode_picker_title">Pilih mod USB</string>
+    <string name="usb_mode_photo_transfer">Pemindahan foto &amp; video</string>
+    <string name="usb_mode_webcam">Kamera web USB</string>
+    <string name="usb_mode_charging_only">Hanya mengecas</string>
+    <string name="usb_charging_status">Pengecasan USB dihidupkan</string>
+    <string name="usb_island_title">USB disambungkan</string>
+    <string name="usb_island_settings">Tetapan USB</string>
+    <string name="usb_mode_short_charge">Cas</string>
+    <string name="keyguard_indication_dash_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Pengecasan Dash (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> hingga penuh)</string>
+    <string name="keyguard_plugged_in_dash_charging"><xliff:g id="percentage">%s</xliff:g> • Pengecasan Dash</string>
+    <string name="keyguard_indication_warp_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Pengecasan Warp (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> hingga penuh)</string>
+    <string name="keyguard_plugged_in_warp_charging"><xliff:g id="percentage">%s</xliff:g> • Pengecasan Warp</string>
+    <string name="keyguard_indication_vooc_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Pengecasan VOOC (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> hingga penuh)</string>
+    <string name="keyguard_plugged_in_vooc_charging"><xliff:g id="percentage">%s</xliff:g> • Pengecasan VOOC</string>
+    <string name="keyguard_indication_turbo_power_time"><xliff:g id="percentage">%2$s</xliff:g> • Pengecasan Turbo (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> hingga penuh)</string>
+    <string name="keyguard_plugged_in_turbo_charging"><xliff:g id="percentage">%s</xliff:g> • Pengecasan Turbo</string>
+    <string name="charging_vfx_long_press_to_speed">Tekan lama untuk meningkatkan kelajuan</string>
+    <string name="charging_vfx_source_wireless">Tanpa wayar</string>
+    <string name="charging_vfx_source_dock">Dok</string>
+    <string name="charging_vfx_time_to_full">Penuh dalam <xliff:g id="time" example="25 min">%s</xliff:g></string>
+    <string name="qs_media_tile_label">Media</string>
+    <string name="qs_media_tile_idle">Tiada yang sedang dimainkan</string>
+    <string name="qs_volume_tile_muted">Senyap</string>
+    <string name="qs_custom_volume_half">Separuh</string>
+    <string name="qs_custom_volume_slider">Peluncur</string>
+    <string name="qs_custom_volume_fill">Isi</string>
+    <string name="qs_custom_volume_stack">Timbun</string>
+    <string name="qs_custom_volume_ring">Deringan</string>
+    <string name="qs_custom_volume_call">Panggilan</string>
+    <string name="qs_custom_volume_show_all">Nama dan peratus</string>
+    <string name="qs_custom_volume_show_percent">Peratus</string>
+    <string name="qs_custom_volume_show_icon">Ikon sahaja</string>
+    <string name="qs_custom_volume_tap">Ketik ikon</string>
+    <string name="qs_custom_volume_mute">Senyapkan</string>
+    <string name="qs_custom_volume_panel">Panel kelantangan</string>
+    <string name="qs_custom_volume_ticks">Tanda semasa menyeret</string>
+    <string name="qs_custom_accent">Aksen</string>
+    <string name="qs_custom_add_tile">Tambah jubin</string>
+    <string name="qs_custom_all_added">Setiap jubin ada pada panel</string>
+    <string name="qs_custom_all_icons">Semua ikon</string>
+    <string name="qs_custom_all_long">Semua panjang</string>
+    <string name="qs_custom_auto">Auto</string>
+    <string name="qs_custom_backing">Latar ikon</string>
+    <string name="qs_custom_blob">Gumpal</string>
+    <string name="qs_custom_code_applied">Tema digunakan</string>
+    <string name="qs_custom_code_bad">Tiada kod tema untuk ditampal</string>
+    <string name="qs_custom_code_copied">Kod tema disalin</string>
+    <string name="qs_custom_color_amber">Ambar</string>
+    <string name="qs_custom_color_rose">Merah jambu</string>
+    <string name="qs_custom_columns">Lajur</string>
+    <string name="qs_custom_copy_code">Salin kod</string>
+    <string name="qs_custom_corners">Bucu</string>
+    <string name="qs_custom_depth">Kedalaman</string>
+    <string name="qs_custom_depth_flat">Rata</string>
+    <string name="qs_custom_depth_raised">Timbul</string>
+    <string name="qs_custom_drop_remove">Lepaskan di sini untuk mengalih keluar</string>
+    <string name="qs_custom_fill_clear">Kosongkan</string>
+    <string name="qs_custom_fill_dark">Gelap</string>
+    <string name="qs_custom_fill_gradient">Kecerunan</string>
+    <string name="qs_custom_fill_icon">Ikon sahaja</string>
+    <string name="qs_custom_fill_solid">Pepejal</string>
+    <string name="qs_custom_fill_surface">Permukaan</string>
+    <string name="qs_custom_fill_tint">Warna</string>
+    <string name="qs_custom_font_caps">Huruf besar</string>
+    <string name="qs_custom_font_mono">Mono</string>
+    <string name="qs_custom_font_sans">Sans</string>
+    <string name="qs_custom_glow">Berkilau apabila dihidupkan</string>
+    <string name="qs_custom_hide">Sembunyikan</string>
+    <string name="qs_custom_hint">Ketik jubin untuk pilihannya · Tekan lama untuk mengalih · Seret bucu untuk mengubah saiz</string>
+    <string name="qs_custom_icon_size">Saiz ikon</string>
+    <string name="qs_custom_label">Label</string>
+    <string name="qs_custom_label_inside">Dalam</string>
+    <string name="qs_custom_label_under">Bawah</string>
+    <string name="qs_custom_look">Gaya</string>
+    <string name="qs_custom_media_art">Karya seni</string>
+    <string name="qs_custom_media_blocks">Blok</string>
+    <string name="qs_custom_media_cover">Penutup</string>
+    <string name="qs_custom_media_full">Penuh</string>
+    <string name="qs_custom_media_glow">Berkilau</string>
+    <string name="qs_custom_media_line">Garis</string>
+    <string name="qs_custom_media_look">Gaya</string>
+    <string name="qs_custom_media_place">Kedudukan</string>
+    <string name="qs_custom_media_place_above">Di atas jubin</string>
+    <string name="qs_custom_media_place_below">Di bawah jubin</string>
+    <string name="qs_custom_media_place_grid">Bersama jubin</string>
+    <string name="qs_custom_media_play">Main sahaja</string>
+    <string name="qs_custom_media_progress">Kemajuan</string>
+    <string name="qs_custom_media_tall">Tinggi</string>
+    <string name="qs_custom_media_trio">Sebelumnya, main, seterusnya</string>
+    <string name="qs_custom_media_wave">Gelombang</string>
+    <string name="qs_custom_media_wide">Lebar</string>
+    <string name="qs_custom_mix_footer">Butang bawah</string>
+    <string name="qs_custom_mix_media">Pemain media</string>
+    <string name="qs_custom_mix_paint">Warna jubin</string>
+    <string name="qs_custom_mix_shape">Bentuk jubin</string>
+    <string name="qs_custom_mix_slider">Peluncur</string>
+    <string name="qs_custom_mixed">Campuran</string>
+    <string name="qs_custom_my_theme_name">Tema saya %1$d</string>
+    <string name="qs_custom_my_themes">Tema saya (tekan lama untuk memadam)</string>
+    <string name="qs_custom_off_fill">Jubin mati</string>
+    <string name="qs_custom_on_fill">Jubin hidup</string>
+    <string name="qs_custom_paste_code">Tampal kod</string>
+    <string name="qs_custom_pill">Pil</string>
+    <string name="qs_custom_reset">Tetapkan semula tema ini</string>
+    <string name="qs_custom_reset_tiles">Tetapkan semula jubin</string>
+    <string name="qs_custom_rounded">Bulat</string>
+    <string name="qs_custom_rows">Baris setiap halaman</string>
+    <string name="qs_custom_same_as_panel">Sama seperti panel</string>
+    <string name="qs_custom_save">Simpan sebagai tema saya</string>
+    <string name="qs_custom_scroll">Tatal dan bukannya halaman</string>
+    <string name="qs_custom_second_line">Baris kedua</string>
+    <string name="qs_custom_show">Tunjuk</string>
+    <string name="qs_custom_sizes">Saiz jubin</string>
+    <string name="qs_custom_slider_by_player">Mengikut pemain</string>
+    <string name="qs_custom_slider_look">Gaya</string>
+    <string name="qs_custom_slider_place">Kedudukan</string>
+    <string name="qs_custom_slider_top">Atas</string>
+    <string name="qs_custom_slider_under">Bawah jubin</string>
+    <string name="qs_custom_spacing">Jarak</string>
+    <string name="qs_custom_start_from">Mula daripada</string>
+    <string name="qs_custom_tab_add">Tambah</string>
+    <string name="qs_custom_tab_mix">Campur</string>
+    <string name="qs_custom_tab_slider">Peluncur</string>
+    <string name="qs_custom_tab_tiles">Jubin</string>
+    <string name="qs_custom_theme_blueprint">Blueprint</string>
+    <string name="qs_custom_theme_cards">Kad</string>
+    <string name="qs_custom_theme_circles">Bulatan</string>
+    <string name="qs_custom_theme_classic">Klasik</string>
+    <string name="qs_custom_theme_compact">Padat</string>
+    <string name="qs_custom_theme_duo">Duo</string>
+    <string name="qs_custom_theme_glass">Kaca</string>
+    <string name="qs_custom_theme_neon">Neon</string>
+    <string name="qs_custom_theme_remix">Remix</string>
+    <string name="qs_custom_theme_shapes">Bentuk</string>
+    <string name="qs_custom_theme_soft">Lembut</string>
+    <string name="qs_custom_theme_stock">Asal</string>
+    <string name="qs_custom_tile_color">Warna apabila dihidupkan</string>
+    <string name="qs_custom_tile_height">Ketinggian</string>
+    <string name="qs_custom_tile_height_dp">Ketinggian jubin</string>
+    <string name="qs_look_label">Gaya</string>
+    <string name="qs_look_none">Ketik untuk Gaya seterusnya</string>
+    <string name="quick_settings_clear_voice_label">Suara Jelas</string>
+    <string name="accessibility_quick_settings_clear_voice_on">Suara Jelas dihidupkan.</string>
+    <string name="accessibility_quick_settings_clear_voice_off">Suara Jelas dimatikan.</string>
 </resources>

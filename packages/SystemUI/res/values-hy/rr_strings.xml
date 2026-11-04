@@ -49,4 +49,205 @@
     <string name="qs_custom_tile_icon">"Պատկերակ"</string>
     <string name="qs_custom_tile_width">"Լայնությունը"</string>
     <string name="qs_custom_title">"Կարգավորել"</string>
+    <string name="rr_power_title">Սնուցում</string>
+    <string name="rr_power_status">Վերև %1$s · %2$s մարտկոց</string>
+    <string name="rr_power_status_uptime">Վերև %1$s</string>
+    <string name="rr_power_back">Վերադառնալ սնուցման ընտրացանկ</string>
+    <string name="rr_shutdown_back_soon">Resurrected Remix-ը շուտով կվերադառնա</string>
+    <string name="global_action_restart_subtitle">Ընտրիր, թե ինչպես նորից միանալ հեռախոսը</string>
+    <string name="global_action_restart_system_summary">Վերագործարկել Android-ը։ Երկար սեղմիր՝ անվտանգ ռեժիմի համար</string>
+    <string name="global_action_restart_recovery_summary">Տեղադրել թարմացումներ, sideload կամ ջնջել տվյալները</string>
+    <string name="global_action_restart_bootloader_summary">Fastboot, պատկերների ֆլեշավորման համար</string>
+    <string name="global_action_restart_fastboot_summary">Userspace fastboot, համակարգային բաժինների համար</string>
+    <string name="global_action_restart_download_summary">Ներբեռնման ռեժիմ, վաճառողի ֆլեշ գործիքի համար</string>
+    <string name="volume_ringer_priority_only">Առաջնահերթություն</string>
+    <string name="volume_ringer_dnd">Չանհանգստացնել</string>
+    <string name="tristate_flashlight_blink">Լապտերի թարթում</string>
+    <string name="tristate_brightness_bright">Առավելագույն պայծառություն</string>
+    <string name="tristate_brightness_dark">Նվազագույն պայծառություն</string>
+    <string name="tristate_brightness_auto">Ավտոմատ պայծառություն</string>
+    <string name="tristate_rotation_0">Portrait</string>
+    <string name="tristate_rotation_90">Landscape (90°)</string>
+    <string name="tristate_rotation_270">Landscape (270°)</string>
+    <string name="tristate_app_launch">Բացվում է հավելված</string>
+    <string name="face_unlock_recognizing">Դեմքը ճանաչվում է...</string>
+    <string name="screen_on_time_label">SOT <xliff:g id="duration" example="5 hr 12 min">%1$s</xliff:g></string>
+    <string name="quick_launch_video">Տեսանյութ</string>
+    <string name="quick_launch_qr">Սկանավորել QR</string>
+    <string name="now_bar_charging">Լիցքավորում · <xliff:g id="level" example="74">%1$d</xliff:g>%%</string>
+    <string name="now_bar_full_in">Լրիվ կլինի <xliff:g id="duration" example="22 min">%1$s</xliff:g>-ից</string>
+    <string name="now_bar_charged">Լիցքավորված է</string>
+    <string name="now_bar_flashlight_on">Լապտերը միացված է</string>
+    <string name="now_bar_buds">Ականջակալներ</string>
+    <string name="now_bar_buds_case">Տուփ <xliff:g id="level" example="61">%1$d</xliff:g></string>
+    <string name="now_bar_play">Նվագարկել</string>
+    <string name="now_bar_pause">Դադար</string>
+    <string name="now_bar_previous">Նախորդը</string>
+    <string name="now_bar_next">Հաջորդը</string>
+    <string name="now_bar_hide">Թաքցնել մինչև ավարտ</string>
+    <string name="now_bar_settings">Now Bar կարգավորումներ</string>
+    <string name="now_bar_pin">Ամրացնել մշտական էկրանին</string>
+    <string name="stage_battery_description">Մարտկոց <xliff:g id="percent" example="74">%1$d</xliff:g> տոկոս</string>
+    <string name="stage_alarm_description">Հաջորդ զարթուցիչը <xliff:g id="time" example="Tue 6:30">%1$s</xliff:g></string>
+    <string name="flatline_playing">ՆՎԱԳԱՐԿՎՈՒՄ Է</string>
+    <string name="flatline_call">ՄՈՒՏՔԱՅԻՆ ԶԱՆԳ</string>
+    <string name="flatline_vitals">Կենսական ցուցանիշներ</string>
+    <string name="flatline_vitals_preview">74% · Զարթուցիչ 6:30</string>
+    <string name="flatline_alarm">Զարթուցիչ <xliff:g id="time" example="6:30">%1$s</xliff:g></string>
+    <string name="now_bar_unpin">Հանել մշտական էկրանից</string>
+    <string name="now_bar_open">Բացել</string>
+    <string name="now_bar_output">Ելք</string>
+    <string name="now_bar_close">Փակել</string>
+    <string name="now_bar_minutes_left">Մնացել է <xliff:g id="minutes" example="4">%1$d</xliff:g> ր</string>
+    <string name="now_bar_minutes"><xliff:g id="minutes" example="12">%1$d</xliff:g> ր</string>
+    <string name="now_bar_versus"><xliff:g id="team" example="Lakers">%1$s</xliff:g>՝ <xliff:g id="team" example="Celtics">%2$s</xliff:g>-ի դեմ</string>
+    <string name="charge_report_channel">Լիցքավորման հաշվետվություններ</string>
+    <string name="charge_report_title">Լիցքավորման հաշվետվություն</string>
+    <string name="charge_report_summary">+<xliff:g id="added" example="62">%1$d</xliff:g>%% <xliff:g id="time" example="31 min">%2$s</xliff:g>-ում · գագաթնակետ <xliff:g id="watts" example="55.0">%3$s</xliff:g> Վտ · առավելագույնը <xliff:g id="temp" example="38">%4$s</xliff:g> °C</string>
+    <string name="charge_report_details"><xliff:g id="charger" example="Wired">%1$s</xliff:g> · <xliff:g id="from" example="12">%2$d</xliff:g>%%-ից մինչև <xliff:g id="to" example="74">%3$d</xliff:g>%% · միջին <xliff:g id="watts" example="41.3">%4$s</xliff:g> Վտ</string>
+    <string name="charge_report_wired">Լարով</string>
+    <string name="charge_report_wireless">Անլար</string>
+    <string name="charge_report_dock">Դոկ</string>
+    <string name="usb_mode_picker_title">Ընտրել USB ռեժիմը</string>
+    <string name="usb_mode_photo_transfer">Լուսանկարների և տեսանյութի փոխանցում</string>
+    <string name="usb_mode_webcam">USB վեբկամերա</string>
+    <string name="usb_mode_charging_only">Միայն լիցքավորում</string>
+    <string name="usb_charging_status">USB լիցքավորումը միացված է</string>
+    <string name="usb_island_title">USB միացված է</string>
+    <string name="usb_island_settings">USB կարգավորումներ</string>
+    <string name="usb_mode_short_charge">Լիցքավորում</string>
+    <string name="keyguard_indication_dash_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Dash լիցքավորում (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> մինչև լրիվ)</string>
+    <string name="keyguard_plugged_in_dash_charging"><xliff:g id="percentage">%s</xliff:g> • Dash լիցքավորում</string>
+    <string name="keyguard_indication_warp_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Warp լիցքավորում (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> մինչև լրիվ)</string>
+    <string name="keyguard_plugged_in_warp_charging"><xliff:g id="percentage">%s</xliff:g> • Warp լիցքավորում</string>
+    <string name="keyguard_indication_vooc_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • VOOC լիցքավորում (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> մինչև լրիվ)</string>
+    <string name="keyguard_plugged_in_vooc_charging"><xliff:g id="percentage">%s</xliff:g> • VOOC լիցքավորում</string>
+    <string name="keyguard_indication_turbo_power_time"><xliff:g id="percentage">%2$s</xliff:g> • Turbo լիցքավորում (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> մինչև լրիվ)</string>
+    <string name="keyguard_plugged_in_turbo_charging"><xliff:g id="percentage">%s</xliff:g> • Turbo լիցքավորում</string>
+    <string name="charging_vfx_long_press_to_speed">Պահեք՝ արագությունը բարձրացնելու համար</string>
+    <string name="charging_vfx_source_wireless">Անլար</string>
+    <string name="charging_vfx_source_dock">Դոկ</string>
+    <string name="charging_vfx_time_to_full">Լրիվ կլինի <xliff:g id="time" example="25 min">%s</xliff:g>-ից</string>
+    <string name="qs_media_tile_idle">Ոչինչ չի նվագարկվում</string>
+    <string name="qs_volume_tile_muted">Անձայն</string>
+    <string name="qs_custom_volume_half">Կես</string>
+    <string name="qs_custom_volume_slider">Սլայդեր</string>
+    <string name="qs_custom_volume_fill">Լցում</string>
+    <string name="qs_custom_volume_stack">Դարսում</string>
+    <string name="qs_custom_volume_ring">Զանգի ձայն</string>
+    <string name="qs_custom_volume_call">Զանգ</string>
+    <string name="qs_custom_volume_show_all">Անունը և տոկոսը</string>
+    <string name="qs_custom_volume_show_percent">Տոկոս</string>
+    <string name="qs_custom_volume_show_icon">Միայն պատկերակ</string>
+    <string name="qs_custom_volume_tap">Հպեք պատկերակին</string>
+    <string name="qs_custom_volume_mute">Անջատել ձայնը</string>
+    <string name="qs_custom_volume_panel">Ձայնի վահանակ</string>
+    <string name="qs_custom_volume_ticks">Նշաններ քաշելիս</string>
+    <string name="qs_custom_accent">Շեշտ</string>
+    <string name="qs_custom_add_tile">Ավելացնել սալիկ</string>
+    <string name="qs_custom_all_added">Բոլոր սալիկները վահանակի վրա են</string>
+    <string name="qs_custom_all_icons">Բոլոր պատկերակները</string>
+    <string name="qs_custom_all_long">Բոլորը երկար</string>
+    <string name="qs_custom_backing">Պատկերակի ֆոն</string>
+    <string name="qs_custom_blob">Բլոբ</string>
+    <string name="qs_custom_code_applied">Թեման կիրառված է</string>
+    <string name="qs_custom_code_bad">Թեմայի կոդ չկա տեղադրելու համար</string>
+    <string name="qs_custom_code_copied">Թեմայի կոդը պատճենված է</string>
+    <string name="qs_custom_color_amber">Սաթե</string>
+    <string name="qs_custom_color_rose">Վարդագույն</string>
+    <string name="qs_custom_columns">Սյուներ</string>
+    <string name="qs_custom_copy_code">Պատճենել կոդը</string>
+    <string name="qs_custom_corners">Անկյուններ</string>
+    <string name="qs_custom_depth">Խորություն</string>
+    <string name="qs_custom_depth_flat">Հարթ</string>
+    <string name="qs_custom_depth_raised">Բարձրացված</string>
+    <string name="qs_custom_drop_remove">Թողեք այստեղ՝ հեռացնելու համար</string>
+    <string name="qs_custom_fill_clear">Մաքրել</string>
+    <string name="qs_custom_fill_dark">Մուգ</string>
+    <string name="qs_custom_fill_gradient">Գրադիենտ</string>
+    <string name="qs_custom_fill_icon">Միայն պատկերակ</string>
+    <string name="qs_custom_fill_solid">Ամուր</string>
+    <string name="qs_custom_fill_surface">Մակերես</string>
+    <string name="qs_custom_fill_tint">Երանգ</string>
+    <string name="qs_custom_font_caps">Մեծատառ</string>
+    <string name="qs_custom_font_mono">Mono</string>
+    <string name="qs_custom_font_sans">Sans</string>
+    <string name="qs_custom_glow">Փայլ՝ երբ միացված է</string>
+    <string name="qs_custom_hide">Թաքցնել</string>
+    <string name="qs_custom_hint">Հպեք սալիկին՝ տարբերակների համար · Պահեք՝ տեղափոխելու համար · Քաշեք անկյունից՝ չափը փոխելու համար</string>
+    <string name="qs_custom_icon_size">Պատկերակի չափը</string>
+    <string name="qs_custom_label">Պիտակ</string>
+    <string name="qs_custom_label_inside">Ներսում</string>
+    <string name="qs_custom_label_under">Ներքևում</string>
+    <string name="qs_custom_look">Տեսք</string>
+    <string name="qs_custom_media_art">Նկար</string>
+    <string name="qs_custom_media_blocks">Բլոկներ</string>
+    <string name="qs_custom_media_cover">Ծածկոց</string>
+    <string name="qs_custom_media_full">Լրիվ</string>
+    <string name="qs_custom_media_glow">Փայլ</string>
+    <string name="qs_custom_media_line">Գիծ</string>
+    <string name="qs_custom_media_look">Տեսք</string>
+    <string name="qs_custom_media_place">Տեղը</string>
+    <string name="qs_custom_media_place_above">Սալիկներից վերև</string>
+    <string name="qs_custom_media_place_below">Սալիկներից ներքև</string>
+    <string name="qs_custom_media_place_grid">Սալիկների հետ</string>
+    <string name="qs_custom_media_play">Միայն նվագարկում</string>
+    <string name="qs_custom_media_progress">Առաջընթաց</string>
+    <string name="qs_custom_media_tall">Բարձր</string>
+    <string name="qs_custom_media_trio">Նախորդը, նվագարկել, հաջորդը</string>
+    <string name="qs_custom_media_wave">Ալիք</string>
+    <string name="qs_custom_media_wide">Լայն</string>
+    <string name="qs_custom_mix_footer">Ներքևի կոճակներ</string>
+    <string name="qs_custom_mix_media">Մեդիա նվագարկիչ</string>
+    <string name="qs_custom_mix_paint">Սալիկների գույներ</string>
+    <string name="qs_custom_mix_shape">Սալիկների ձև</string>
+    <string name="qs_custom_mix_slider">Սլայդեր</string>
+    <string name="qs_custom_mixed">Խառը</string>
+    <string name="qs_custom_my_theme_name">Իմ թեման %1$d</string>
+    <string name="qs_custom_my_themes">Իմ թեմաները (պահեք՝ ջնջելու համար)</string>
+    <string name="qs_custom_off_fill">Անջատված սալիկներ</string>
+    <string name="qs_custom_on_fill">Միացված սալիկներ</string>
+    <string name="qs_custom_paste_code">Տեղադրել կոդը</string>
+    <string name="qs_custom_pill">Գլան</string>
+    <string name="qs_custom_reset">Վերականգնել այս թեման</string>
+    <string name="qs_custom_reset_tiles">Վերականգնել սալիկները</string>
+    <string name="qs_custom_rounded">Կլորացված</string>
+    <string name="qs_custom_rows">Տողեր էջում</string>
+    <string name="qs_custom_same_as_panel">Ինչպես վահանակը</string>
+    <string name="qs_custom_save">Պահել որպես իմ թեմա</string>
+    <string name="qs_custom_scroll">Ոլորել էջերի փոխարեն</string>
+    <string name="qs_custom_second_line">Երկրորդ տող</string>
+    <string name="qs_custom_show">Ցույց տալ</string>
+    <string name="qs_custom_sizes">Սալիկների չափերը</string>
+    <string name="qs_custom_slider_by_player">Նվագարկչի կողքին</string>
+    <string name="qs_custom_slider_look">Տեսք</string>
+    <string name="qs_custom_slider_place">Տեղը</string>
+    <string name="qs_custom_slider_top">Վերև</string>
+    <string name="qs_custom_slider_under">Սալիկների տակ</string>
+    <string name="qs_custom_spacing">Տարածություն</string>
+    <string name="qs_custom_start_from">Սկսել սկզբից</string>
+    <string name="qs_custom_tab_add">Ավելացնել</string>
+    <string name="qs_custom_tab_mix">Խառնել</string>
+    <string name="qs_custom_tab_slider">Սլայդեր</string>
+    <string name="qs_custom_tab_tiles">Սալիկներ</string>
+    <string name="qs_custom_theme_blueprint">Blueprint</string>
+    <string name="qs_custom_theme_cards">Քարտեր</string>
+    <string name="qs_custom_theme_circles">Շրջաններ</string>
+    <string name="qs_custom_theme_classic">Դասական</string>
+    <string name="qs_custom_theme_compact">Սեղմ</string>
+    <string name="qs_custom_theme_duo">Duo</string>
+    <string name="qs_custom_theme_glass">Ապակե</string>
+    <string name="qs_custom_theme_neon">Նեոն</string>
+    <string name="qs_custom_theme_remix">Remix</string>
+    <string name="qs_custom_theme_shapes">Ձևեր</string>
+    <string name="qs_custom_theme_soft">Փափուկ</string>
+    <string name="qs_custom_theme_stock">Ստանդարտ</string>
+    <string name="qs_custom_tile_color">Գույն՝ երբ միացված է</string>
+    <string name="qs_custom_tile_height">Բարձրություն</string>
+    <string name="qs_custom_tile_height_dp">Սալիկի բարձրություն</string>
+    <string name="qs_look_label">Տեսք</string>
+    <string name="qs_look_none">Հպեք հաջորդ տեսքի համար</string>
+    <string name="quick_settings_clear_voice_label">Clear Voice</string>
+    <string name="accessibility_quick_settings_clear_voice_on">Clear Voice միացված է։</string>
+    <string name="accessibility_quick_settings_clear_voice_off">Clear Voice անջատված է։</string>
 </resources>

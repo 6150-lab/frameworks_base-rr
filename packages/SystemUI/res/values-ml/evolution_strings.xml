@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="weather_condition_clouds">"മേഘാവൃതം"</string>
+    <string name="weather_condition_rain">മഴയുള്ളത്</string>
+    <string name="weather_condition_clear">തെളിഞ്ഞ ആകാശം</string>
+    <string name="weather_condition_storm">കൊടുങ്കാറ്റ്</string>
+    <string name="weather_condition_snow">മഞ്ഞുവീഴ്ച</string>
+    <string name="weather_condition_wind">കാറ്റുള്ളത്</string>
+    <string name="weather_condition_mist">മൂടൽമഞ്ഞ്</string>
 </resources>

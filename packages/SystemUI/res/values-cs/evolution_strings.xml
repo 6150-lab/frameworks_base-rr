@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="weather_condition_clouds">"Zataženo"</string>
+    <string name="weather_condition_rain">Deštivo</string>
+    <string name="weather_condition_clear">Jasno</string>
+    <string name="weather_condition_storm">Bouřlivo</string>
+    <string name="weather_condition_snow">Sněžení</string>
+    <string name="weather_condition_wind">Větrno</string>
+    <string name="weather_condition_mist">Mlhavo</string>
 </resources>

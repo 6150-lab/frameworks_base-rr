@@ -2,4 +2,9 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="weather_condition_clouds">"মেঘলা"</string>
     <string name="weather_condition_wind">বাতাসপূর্ণ</string>
+    <string name="weather_condition_rain">বৃষ্টি</string>
+    <string name="weather_condition_clear">পরিষ্কার আকাশ</string>
+    <string name="weather_condition_storm">ঝড়ো</string>
+    <string name="weather_condition_snow">তুষারপাত</string>
+    <string name="weather_condition_mist">কুয়াশা</string>
 </resources>

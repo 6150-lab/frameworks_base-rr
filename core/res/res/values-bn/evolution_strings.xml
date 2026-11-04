@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="pocket_mode_title">পকেট মোড সক্রিয় আছে</string>
+    <string name="pocket_mode_illustration_description">পকেটে ফোনের চিত্র</string>
+    <string name="pocket_mode_instructions_header">ফোন ব্যবহার করতে:</string>
+    <string name="pocket_mode_instruction_step1">১. উপরে দেখানো নীল এলাকা (প্রক্সিমিটি সেন্সর) বাধামুক্ত ও ধুলাবালিমুক্ত রাখুন।</string>
+    <string name="pocket_mode_instruction_step2">২. পকেট মোড থেকে বের হতে পাওয়ার বোতাম চেপে ধরে রাখুন।</string>
+</resources>

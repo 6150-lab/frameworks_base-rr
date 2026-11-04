@@ -50,4 +50,204 @@
     <string name="qs_custom_tile_icon">"סמל"</string>
     <string name="qs_custom_tile_width">"רוחב"</string>
     <string name="qs_custom_title">"התאמה אישית"</string>
+    <string name="rr_power_title">הפעלה</string>
+    <string name="rr_power_status">פעיל %1$s · סוללה %2$s</string>
+    <string name="rr_power_status_uptime">פעיל %1$s</string>
+    <string name="rr_power_back">חזרה לתפריט ההפעלה</string>
+    <string name="rr_shutdown_back_soon">Resurrected Remix יחזור מיד</string>
+    <string name="global_action_restart_subtitle">בחר איך הטלפון יופעל מחדש</string>
+    <string name="global_action_restart_system_summary">הפעל מחדש את Android. לחיצה ארוכה למצב בטוח</string>
+    <string name="global_action_restart_recovery_summary">התקן עדכונים, התקנה צדדית או מחק נתונים</string>
+    <string name="global_action_restart_bootloader_summary">Fastboot, להבזקת תמונות אתחול</string>
+    <string name="global_action_restart_fastboot_summary">Fastboot במרחב המשתמש, למחיצות מערכת</string>
+    <string name="global_action_restart_download_summary">מצב הורדה, לכלי ההבזקה של היצרן</string>
+    <string name="volume_ringer_priority_only">עדיפות</string>
+    <string name="volume_ringer_dnd">נא לא להפריע</string>
+    <string name="tristate_flashlight_blink">הבהוב פנס</string>
+    <string name="tristate_brightness_bright">בהירות מקסימלית</string>
+    <string name="tristate_brightness_dark">בהירות מינימלית</string>
+    <string name="tristate_brightness_auto">בהירות אוטומטית</string>
+    <string name="tristate_rotation_0">לאורך</string>
+    <string name="tristate_rotation_90">לרוחב (90°)</string>
+    <string name="tristate_rotation_270">לרוחב (270°)</string>
+    <string name="tristate_app_launch">מפעיל אפליקציה</string>
+    <string name="face_unlock_recognizing">מזהה פנים...</string>
+    <string name="screen_on_time_label">SOT <xliff:g id="duration" example="5 hr 12 min">%1$s</xliff:g></string>
+    <string name="quick_launch_video">סרטון</string>
+    <string name="quick_launch_qr">סרוק QR</string>
+    <string name="now_bar_charging">טעינה · <xliff:g id="level" example="74">%1$d</xliff:g>%%</string>
+    <string name="now_bar_full_in">טעינה מלאה בעוד <xliff:g id="duration" example="22 min">%1$s</xliff:g></string>
+    <string name="now_bar_charged">טעון</string>
+    <string name="now_bar_flashlight_on">הפנס דלוק</string>
+    <string name="now_bar_buds">אוזניות</string>
+    <string name="now_bar_buds_case">מארז <xliff:g id="level" example="61">%1$d</xliff:g></string>
+    <string name="now_bar_play">הפעלה</string>
+    <string name="now_bar_pause">השהיה</string>
+    <string name="now_bar_previous">הקודם</string>
+    <string name="now_bar_next">הבא</string>
+    <string name="now_bar_hide">הסתר עד הסוף</string>
+    <string name="now_bar_settings">הגדרות Now Bar</string>
+    <string name="now_bar_pin">הצמד למסך תמיד פועל</string>
+    <string name="stage_battery_description">סוללה <xliff:g id="percent" example="74">%1$d</xliff:g> אחוז</string>
+    <string name="stage_alarm_description">השעון הבא <xliff:g id="time" example="Tue 6:30">%1$s</xliff:g></string>
+    <string name="flatline_playing">מתנגן כעת</string>
+    <string name="flatline_call">שיחה נכנסת</string>
+    <string name="flatline_vitals">מדדים חיוניים</string>
+    <string name="flatline_vitals_preview">74% · שעון מעורר 6:30</string>
+    <string name="flatline_alarm">שעון מעורר <xliff:g id="time" example="6:30">%1$s</xliff:g></string>
+    <string name="now_bar_unpin">בטל הצמדה ממסך תמיד פועל</string>
+    <string name="now_bar_open">פתח</string>
+    <string name="now_bar_output">פלט</string>
+    <string name="now_bar_close">סגור</string>
+    <string name="now_bar_minutes_left">נותרו <xliff:g id="minutes" example="4">%1$d</xliff:g> דק׳</string>
+    <string name="now_bar_minutes"><xliff:g id="minutes" example="12">%1$d</xliff:g> דק׳</string>
+    <string name="now_bar_versus"><xliff:g id="team" example="Lakers">%1$s</xliff:g> לעומת <xliff:g id="team" example="Celtics">%2$s</xliff:g></string>
+    <string name="charge_report_channel">דוחות טעינה</string>
+    <string name="charge_report_title">דוח טעינה</string>
+    <string name="charge_report_summary">+<xliff:g id="added" example="62">%1$d</xliff:g>%% ב-<xliff:g id="time" example="31 min">%2$s</xliff:g> · שיא <xliff:g id="watts" example="55.0">%3$s</xliff:g> וואט · מקסימום <xliff:g id="temp" example="38">%4$s</xliff:g> °C</string>
+    <string name="charge_report_details"><xliff:g id="charger" example="Wired">%1$s</xliff:g> · <xliff:g id="from" example="12">%2$d</xliff:g>%% עד <xliff:g id="to" example="74">%3$d</xliff:g>%% · ממוצע <xliff:g id="watts" example="41.3">%4$s</xliff:g> וואט</string>
+    <string name="charge_report_wired">חוטית</string>
+    <string name="charge_report_wireless">אלחוטית</string>
+    <string name="charge_report_dock">עגינה</string>
+    <string name="usb_mode_picker_title">בחר מצב USB</string>
+    <string name="usb_mode_photo_transfer">העברת תמונות &amp; סרטונים</string>
+    <string name="usb_mode_webcam">מצלמת רשת USB</string>
+    <string name="usb_mode_charging_only">טעינה בלבד</string>
+    <string name="usb_charging_status">טעינת USB פעילה</string>
+    <string name="usb_island_title">USB מחובר</string>
+    <string name="usb_island_settings">הגדרות USB</string>
+    <string name="usb_mode_short_charge">טעינה</string>
+    <string name="keyguard_indication_dash_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • טעינת Dash (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> עד מלאה)</string>
+    <string name="keyguard_plugged_in_dash_charging"><xliff:g id="percentage">%s</xliff:g> • טעינת Dash</string>
+    <string name="keyguard_indication_warp_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • טעינת Warp (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> עד מלאה)</string>
+    <string name="keyguard_plugged_in_warp_charging"><xliff:g id="percentage">%s</xliff:g> • טעינת Warp</string>
+    <string name="keyguard_indication_vooc_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • טעינת VOOC (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> עד מלאה)</string>
+    <string name="keyguard_plugged_in_vooc_charging"><xliff:g id="percentage">%s</xliff:g> • טעינת VOOC</string>
+    <string name="keyguard_indication_turbo_power_time"><xliff:g id="percentage">%2$s</xliff:g> • טעינת Turbo (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> עד מלאה)</string>
+    <string name="keyguard_plugged_in_turbo_charging"><xliff:g id="percentage">%s</xliff:g> • טעינת Turbo</string>
+    <string name="charging_vfx_long_press_to_speed">לחיצה ארוכה להאצה</string>
+    <string name="charging_vfx_source_wireless">אלחוטית</string>
+    <string name="charging_vfx_source_dock">עגינה</string>
+    <string name="charging_vfx_time_to_full">טעינה מלאה בעוד <xliff:g id="time" example="25 min">%s</xliff:g></string>
+    <string name="qs_media_tile_idle">לא מתנגן דבר</string>
+    <string name="qs_volume_tile_muted">מושתק</string>
+    <string name="qs_custom_volume_half">חצי</string>
+    <string name="qs_custom_volume_slider">מחוון</string>
+    <string name="qs_custom_volume_fill">מילוי</string>
+    <string name="qs_custom_volume_stack">ערימה</string>
+    <string name="qs_custom_volume_ring">צלצול</string>
+    <string name="qs_custom_volume_call">שיחה</string>
+    <string name="qs_custom_volume_show_all">שם ואחוזים</string>
+    <string name="qs_custom_volume_show_percent">אחוזים</string>
+    <string name="qs_custom_volume_show_icon">אייקון בלבד</string>
+    <string name="qs_custom_volume_tap">הקש על האייקון</string>
+    <string name="qs_custom_volume_mute">השתק</string>
+    <string name="qs_custom_volume_ticks">סימונים בזמן גרירה</string>
+    <string name="qs_custom_accent">הדגשה</string>
+    <string name="qs_custom_add_tile">הוסף כפתור</string>
+    <string name="qs_custom_all_added">כל הכפתורים כבר בפאנל</string>
+    <string name="qs_custom_all_icons">כל האייקונים</string>
+    <string name="qs_custom_all_long">הכול ארוך</string>
+    <string name="qs_custom_backing">רקע לאייקון</string>
+    <string name="qs_custom_blob">טיפה</string>
+    <string name="qs_custom_code_applied">העיצוב הוחל</string>
+    <string name="qs_custom_code_bad">אין קוד עיצוב להדבקה</string>
+    <string name="qs_custom_code_copied">קוד העיצוב הועתק</string>
+    <string name="qs_custom_color_amber">ענבר</string>
+    <string name="qs_custom_color_rose">ורד</string>
+    <string name="qs_custom_columns">עמודות</string>
+    <string name="qs_custom_copy_code">העתק קוד</string>
+    <string name="qs_custom_corners">פינות</string>
+    <string name="qs_custom_depth">עומק</string>
+    <string name="qs_custom_depth_flat">שטוח</string>
+    <string name="qs_custom_depth_raised">מוגבה</string>
+    <string name="qs_custom_drop_remove">גרור לכאן להסרה</string>
+    <string name="qs_custom_fill_clear">נקה</string>
+    <string name="qs_custom_fill_dark">כהה</string>
+    <string name="qs_custom_fill_gradient">מדרגתי</string>
+    <string name="qs_custom_fill_icon">אייקון בלבד</string>
+    <string name="qs_custom_fill_solid">מלא</string>
+    <string name="qs_custom_fill_surface">משטח</string>
+    <string name="qs_custom_fill_tint">גוון</string>
+    <string name="qs_custom_font_caps">קצוות</string>
+    <string name="qs_custom_font_mono">מונו</string>
+    <string name="qs_custom_font_sans">סאנס</string>
+    <string name="qs_custom_glow">זוהר כשפעיל</string>
+    <string name="qs_custom_hide">הסתר</string>
+    <string name="qs_custom_hint">הקש על כפתור לאפשרויות · החזק להזזה · גרור את הפינה לשינוי גודל</string>
+    <string name="qs_custom_icon_size">גודל אייקון</string>
+    <string name="qs_custom_label">תווית</string>
+    <string name="qs_custom_label_inside">בפנים</string>
+    <string name="qs_custom_label_under">מתחת</string>
+    <string name="qs_custom_look">תבנית</string>
+    <string name="qs_custom_media_art">עטיפה</string>
+    <string name="qs_custom_media_blocks">בלוקים</string>
+    <string name="qs_custom_media_cover">כיסוי</string>
+    <string name="qs_custom_media_full">מלא</string>
+    <string name="qs_custom_media_glow">זוהר</string>
+    <string name="qs_custom_media_line">קו</string>
+    <string name="qs_custom_media_look">תבנית</string>
+    <string name="qs_custom_media_place">מיקום</string>
+    <string name="qs_custom_media_place_above">מעל הכפתורים</string>
+    <string name="qs_custom_media_place_below">מתחת לכפתורים</string>
+    <string name="qs_custom_media_place_grid">עם הכפתורים</string>
+    <string name="qs_custom_media_play">הפעלה בלבד</string>
+    <string name="qs_custom_media_progress">התקדמות</string>
+    <string name="qs_custom_media_tall">גבוה</string>
+    <string name="qs_custom_media_trio">הקודם, הפעלה, הבא</string>
+    <string name="qs_custom_media_wave">גל</string>
+    <string name="qs_custom_media_wide">רחב</string>
+    <string name="qs_custom_mix_footer">כפתורי תחתית</string>
+    <string name="qs_custom_mix_media">נגן מדיה</string>
+    <string name="qs_custom_mix_paint">צבעי כפתורים</string>
+    <string name="qs_custom_mix_shape">צורת כפתורים</string>
+    <string name="qs_custom_mix_slider">מחוון</string>
+    <string name="qs_custom_mixed">מעורב</string>
+    <string name="qs_custom_my_theme_name">העיצוב שלי %1$d</string>
+    <string name="qs_custom_my_themes">העיצובים שלי (החזק למחיקה)</string>
+    <string name="qs_custom_off_fill">כפתורים כבויים</string>
+    <string name="qs_custom_on_fill">כפתורים פעילים</string>
+    <string name="qs_custom_paste_code">הדבק קוד</string>
+    <string name="qs_custom_pill">קפסולה</string>
+    <string name="qs_custom_reset">אפס עיצוב זה</string>
+    <string name="qs_custom_reset_tiles">אפס כפתורים</string>
+    <string name="qs_custom_rounded">מעוגל</string>
+    <string name="qs_custom_rows">שורות בעמוד</string>
+    <string name="qs_custom_same_as_panel">זהה לפאנל</string>
+    <string name="qs_custom_save">שמור כעיצוב שלי</string>
+    <string name="qs_custom_scroll">גלילה במקום עמודים</string>
+    <string name="qs_custom_second_line">שורה שנייה</string>
+    <string name="qs_custom_show">הצג</string>
+    <string name="qs_custom_sizes">גדלי כפתורים</string>
+    <string name="qs_custom_slider_by_player">ליד הנגן</string>
+    <string name="qs_custom_slider_look">תבנית</string>
+    <string name="qs_custom_slider_place">מיקום</string>
+    <string name="qs_custom_slider_top">למעלה</string>
+    <string name="qs_custom_slider_under">מתחת לכפתורים</string>
+    <string name="qs_custom_spacing">מרווח</string>
+    <string name="qs_custom_start_from">התחל מ-</string>
+    <string name="qs_custom_tab_add">הוסף</string>
+    <string name="qs_custom_tab_mix">שילוב</string>
+    <string name="qs_custom_tab_slider">מחוון</string>
+    <string name="qs_custom_tab_tiles">כפתורים</string>
+    <string name="qs_custom_theme_blueprint">שרטוט</string>
+    <string name="qs_custom_theme_cards">כרטיסים</string>
+    <string name="qs_custom_theme_circles">עיגולים</string>
+    <string name="qs_custom_theme_classic">קלאסי</string>
+    <string name="qs_custom_theme_compact">קומפקטי</string>
+    <string name="qs_custom_theme_duo">Duo</string>
+    <string name="qs_custom_theme_glass">זכוכית</string>
+    <string name="qs_custom_theme_neon">ניאון</string>
+    <string name="qs_custom_theme_remix">Remix</string>
+    <string name="qs_custom_theme_shapes">צורות</string>
+    <string name="qs_custom_theme_soft">רך</string>
+    <string name="qs_custom_theme_stock">ברירת מחדל</string>
+    <string name="qs_custom_tile_color">צבע כשפעיל</string>
+    <string name="qs_custom_tile_height">גובה</string>
+    <string name="qs_custom_tile_height_dp">גובה כפתור</string>
+    <string name="qs_look_label">תבנית</string>
+    <string name="qs_look_none">הקש לתבנית הבאה</string>
+    <string name="quick_settings_clear_voice_label">קול ברור</string>
+    <string name="accessibility_quick_settings_clear_voice_on">קול ברור פעיל.</string>
+    <string name="accessibility_quick_settings_clear_voice_off">קול ברור כבוי.</string>
 </resources>

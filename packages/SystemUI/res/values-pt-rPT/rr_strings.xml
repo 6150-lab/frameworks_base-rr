@@ -247,4 +247,7 @@
     <string name="qs_custom_tile_height_dp">Altura do mosaico</string>
     <string name="qs_look_label">Aparência</string>
     <string name="qs_look_none">Toque para a próxima aparência</string>
+    <string name="quick_settings_clear_voice_label">Voz limpa</string>
+    <string name="accessibility_quick_settings_clear_voice_on">Voz limpa ativada.</string>
+    <string name="accessibility_quick_settings_clear_voice_off">Voz limpa desativada.</string>
 </resources>

@@ -48,4 +48,206 @@
     <string name="qs_custom_tile_icon">"Kuvake"</string>
     <string name="qs_custom_tile_width">"Leveys"</string>
     <string name="qs_custom_title">"Muokkaa"</string>
+    <string name="rr_power_title">Virta</string>
+    <string name="rr_power_status">Ylös %1$s · %2$s akku</string>
+    <string name="rr_power_status_uptime">Ylös %1$s</string>
+    <string name="rr_power_back">Takaisin virtavalikkoon</string>
+    <string name="rr_shutdown_back_soon">Resurrected Remix palaa pian</string>
+    <string name="global_action_restart_subtitle">Valitse, miten puhelin käynnistyy uudelleen</string>
+    <string name="global_action_restart_system_summary">Käynnistä Android uudelleen. Pitkä painallus avaa vikasietotilan</string>
+    <string name="global_action_restart_recovery_summary">Asenna päivitykset, sivulataa tai pyyhi tiedot</string>
+    <string name="global_action_restart_bootloader_summary">Fastboot, käynnistyskuvien flashaamiseen</string>
+    <string name="global_action_restart_fastboot_summary">Käyttäjätilan fastboot, järjestelmäosioille</string>
+    <string name="global_action_restart_download_summary">Lataustila, valmistajan flash-työkalulle</string>
+    <string name="volume_ringer_priority_only">Prioriteetti</string>
+    <string name="volume_ringer_dnd">Älä häiritse</string>
+    <string name="tristate_flashlight_blink">Taskulampun vilkkuminen</string>
+    <string name="tristate_brightness_bright">Enimmäiskirkkaus</string>
+    <string name="tristate_brightness_dark">Vähimmäiskirkkaus</string>
+    <string name="tristate_brightness_auto">Automaattinen kirkkaus</string>
+    <string name="tristate_rotation_0">Pystysuunta</string>
+    <string name="tristate_rotation_90">Vaakasuunta (90°)</string>
+    <string name="tristate_rotation_270">Vaakasuunta (270°)</string>
+    <string name="tristate_app_launch">Käynnistetään sovellusta</string>
+    <string name="face_unlock_recognizing">Tunnistetaan kasvoja…</string>
+    <string name="screen_on_time_label">SOT <xliff:g id="duration" example="5 hr 12 min">%1$s</xliff:g></string>
+    <string name="quick_launch_video">Video</string>
+    <string name="quick_launch_qr">Skannaa QR-koodi</string>
+    <string name="now_bar_charging">Latautuu · <xliff:g id="level" example="74">%1$d</xliff:g>%%</string>
+    <string name="now_bar_full_in">Täynnä <xliff:g id="duration" example="22 min">%1$s</xliff:g> kuluttua</string>
+    <string name="now_bar_charged">Ladattu</string>
+    <string name="now_bar_flashlight_on">Taskulamppu päällä</string>
+    <string name="now_bar_buds">Nappikuulokkeet</string>
+    <string name="now_bar_buds_case">Kotelo <xliff:g id="level" example="61">%1$d</xliff:g></string>
+    <string name="now_bar_play">Toista</string>
+    <string name="now_bar_pause">Tauko</string>
+    <string name="now_bar_previous">Edellinen</string>
+    <string name="now_bar_next">Seuraava</string>
+    <string name="now_bar_hide">Piilota kunnes päättyy</string>
+    <string name="now_bar_settings">Now Bar -asetukset</string>
+    <string name="now_bar_pin">Kiinnitä jatkuvaan näyttöön</string>
+    <string name="stage_battery_description">Akku <xliff:g id="percent" example="74">%1$d</xliff:g> prosenttia</string>
+    <string name="stage_alarm_description">Seuraava herätys <xliff:g id="time" example="Tue 6:30">%1$s</xliff:g></string>
+    <string name="flatline_playing">NYT SOITTAA</string>
+    <string name="flatline_call">SAAPUVA PUHELU</string>
+    <string name="flatline_vitals">Vitaalitiedot</string>
+    <string name="flatline_vitals_preview">74 % · Herätys 6:30</string>
+    <string name="flatline_alarm">Herätys <xliff:g id="time" example="6:30">%1$s</xliff:g></string>
+    <string name="now_bar_unpin">Poista kiinnitys jatkuvasta näytöstä</string>
+    <string name="now_bar_open">Avaa</string>
+    <string name="now_bar_output">Ulostulo</string>
+    <string name="now_bar_close">Sulje</string>
+    <string name="now_bar_minutes_left"><xliff:g id="minutes" example="4">%1$d</xliff:g> min jäljellä</string>
+    <string name="now_bar_minutes"><xliff:g id="minutes" example="12">%1$d</xliff:g> min</string>
+    <string name="now_bar_versus"><xliff:g id="team" example="Lakers">%1$s</xliff:g> vs <xliff:g id="team" example="Celtics">%2$s</xliff:g></string>
+    <string name="charge_report_channel">Latausraportit</string>
+    <string name="charge_report_title">Latausraportti</string>
+    <string name="charge_report_summary">+<xliff:g id="added" example="62">%1$d</xliff:g>%% ajassa <xliff:g id="time" example="31 min">%2$s</xliff:g> · huippu <xliff:g id="watts" example="55.0">%3$s</xliff:g> W · enimmäislämpötila <xliff:g id="temp" example="38">%4$s</xliff:g> °C</string>
+    <string name="charge_report_details"><xliff:g id="charger" example="Wired">%1$s</xliff:g> · <xliff:g id="from" example="12">%2$d</xliff:g>%% – <xliff:g id="to" example="74">%3$d</xliff:g>%% · keskiarvo <xliff:g id="watts" example="41.3">%4$s</xliff:g> W</string>
+    <string name="charge_report_wired">Langallinen</string>
+    <string name="charge_report_wireless">Langaton</string>
+    <string name="charge_report_dock">Telakka</string>
+    <string name="usb_mode_picker_title">Valitse USB-tila</string>
+    <string name="usb_mode_photo_transfer">Kuva- &amp; videosiirto</string>
+    <string name="usb_mode_webcam">USB-verkkokamera</string>
+    <string name="usb_mode_charging_only">Vain lataus</string>
+    <string name="usb_charging_status">USB-lataus on käytössä</string>
+    <string name="usb_island_title">USB-yhteys muodostettu</string>
+    <string name="usb_island_settings">USB-asetukset</string>
+    <string name="usb_mode_short_charge">Lataus</string>
+    <string name="keyguard_indication_dash_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Dash-lataus (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> täyteen)</string>
+    <string name="keyguard_plugged_in_dash_charging"><xliff:g id="percentage">%s</xliff:g> • Dash-lataus</string>
+    <string name="keyguard_indication_warp_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Warp-lataus (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> täyteen)</string>
+    <string name="keyguard_plugged_in_warp_charging"><xliff:g id="percentage">%s</xliff:g> • Warp-lataus</string>
+    <string name="keyguard_indication_vooc_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • VOOC-lataus (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> täyteen)</string>
+    <string name="keyguard_plugged_in_vooc_charging"><xliff:g id="percentage">%s</xliff:g> • VOOC-lataus</string>
+    <string name="keyguard_indication_turbo_power_time"><xliff:g id="percentage">%2$s</xliff:g> • Turbo-lataus (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> täyteen)</string>
+    <string name="keyguard_plugged_in_turbo_charging"><xliff:g id="percentage">%s</xliff:g> • Turbo-lataus</string>
+    <string name="charging_vfx_long_press_to_speed">Nopeuta koskettamalla pitkään</string>
+    <string name="charging_vfx_source_wireless">Langaton</string>
+    <string name="charging_vfx_source_dock">Telakka</string>
+    <string name="charging_vfx_time_to_full">Täynnä <xliff:g id="time" example="25 min">%s</xliff:g> kuluttua</string>
+    <string name="qs_media_tile_label">Media</string>
+    <string name="qs_media_tile_idle">Ei soitettavaa</string>
+    <string name="qs_volume_tile_muted">Mykistetty</string>
+    <string name="qs_custom_volume_half">Puoli</string>
+    <string name="qs_custom_volume_slider">Liukusäädin</string>
+    <string name="qs_custom_volume_fill">Täyte</string>
+    <string name="qs_custom_volume_stack">Pino</string>
+    <string name="qs_custom_volume_ring">Soittoääni</string>
+    <string name="qs_custom_volume_call">Puhelu</string>
+    <string name="qs_custom_volume_show_all">Nimi ja prosentti</string>
+    <string name="qs_custom_volume_show_percent">Prosentti</string>
+    <string name="qs_custom_volume_show_icon">Vain kuvake</string>
+    <string name="qs_custom_volume_tap">Napauta kuvaketta</string>
+    <string name="qs_custom_volume_mute">Mykistys</string>
+    <string name="qs_custom_volume_ticks">Merkit vedettäessä</string>
+    <string name="qs_custom_accent">Korostusväri</string>
+    <string name="qs_custom_add_tile">Lisää laatta</string>
+    <string name="qs_custom_all_added">Kaikki laatat ovat paneelissa</string>
+    <string name="qs_custom_all_icons">Kaikki kuvakkeet</string>
+    <string name="qs_custom_all_long">Kaikki pitkät</string>
+    <string name="qs_custom_auto">Automaattinen</string>
+    <string name="qs_custom_backing">Kuvakkeen tausta</string>
+    <string name="qs_custom_blob">Pehmeä</string>
+    <string name="qs_custom_code_applied">Teema otettu käyttöön</string>
+    <string name="qs_custom_code_bad">Liitettävää teemakoodia ei ole</string>
+    <string name="qs_custom_code_copied">Teemakoodi kopioitu</string>
+    <string name="qs_custom_color_amber">Meripihka</string>
+    <string name="qs_custom_color_rose">Ruusu</string>
+    <string name="qs_custom_columns">Sarakkeet</string>
+    <string name="qs_custom_copy_code">Kopioi koodi</string>
+    <string name="qs_custom_corners">Kulmat</string>
+    <string name="qs_custom_depth">Syvyys</string>
+    <string name="qs_custom_depth_flat">Tasainen</string>
+    <string name="qs_custom_depth_raised">Kohotettu</string>
+    <string name="qs_custom_drop_remove">Pudota tähän poistaaksesi</string>
+    <string name="qs_custom_fill_clear">Tyhjennä</string>
+    <string name="qs_custom_fill_dark">Tumma</string>
+    <string name="qs_custom_fill_gradient">Liukuväri</string>
+    <string name="qs_custom_fill_icon">Vain kuvake</string>
+    <string name="qs_custom_fill_solid">Yksivärinen</string>
+    <string name="qs_custom_fill_surface">Pinta</string>
+    <string name="qs_custom_fill_tint">Sävy</string>
+    <string name="qs_custom_font_caps">Päätteet</string>
+    <string name="qs_custom_font_mono">Mono</string>
+    <string name="qs_custom_font_sans">Sans</string>
+    <string name="qs_custom_glow">Hehku päällä ollessa</string>
+    <string name="qs_custom_hide">Piilota</string>
+    <string name="qs_custom_hint">Napauta laattaa asetuksia varten · Pidä painettuna siirtääksesi · Vedä kulmasta koon muuttamiseksi</string>
+    <string name="qs_custom_icon_size">Kuvakkeen koko</string>
+    <string name="qs_custom_label">Nimi</string>
+    <string name="qs_custom_label_inside">Sisällä</string>
+    <string name="qs_custom_label_under">Alla</string>
+    <string name="qs_custom_look">Look</string>
+    <string name="qs_custom_media_art">Kansikuva</string>
+    <string name="qs_custom_media_blocks">Lohkot</string>
+    <string name="qs_custom_media_cover">Kansi</string>
+    <string name="qs_custom_media_full">Täysi</string>
+    <string name="qs_custom_media_glow">Hehku</string>
+    <string name="qs_custom_media_line">Viiva</string>
+    <string name="qs_custom_media_look">Look</string>
+    <string name="qs_custom_media_place">Sijainti</string>
+    <string name="qs_custom_media_place_above">Laattojen yläpuolella</string>
+    <string name="qs_custom_media_place_below">Laattojen alapuolella</string>
+    <string name="qs_custom_media_place_grid">Laattojen kanssa</string>
+    <string name="qs_custom_media_play">Vain toisto</string>
+    <string name="qs_custom_media_progress">Edistyminen</string>
+    <string name="qs_custom_media_tall">Korkea</string>
+    <string name="qs_custom_media_trio">Edellinen, toista, seuraava</string>
+    <string name="qs_custom_media_wave">Aalto</string>
+    <string name="qs_custom_media_wide">Leveä</string>
+    <string name="qs_custom_mix_footer">Alapainikkeet</string>
+    <string name="qs_custom_mix_media">Mediasoitin</string>
+    <string name="qs_custom_mix_paint">Laattojen värit</string>
+    <string name="qs_custom_mix_shape">Laatan muoto</string>
+    <string name="qs_custom_mix_slider">Liukusäädin</string>
+    <string name="qs_custom_mixed">Sekoitus</string>
+    <string name="qs_custom_my_theme_name">Oma teema %1$d</string>
+    <string name="qs_custom_my_themes">Omat teemat (poista pitämällä painettuna)</string>
+    <string name="qs_custom_off_fill">Pois päältä olevat laatat</string>
+    <string name="qs_custom_on_fill">Päällä olevat laatat</string>
+    <string name="qs_custom_paste_code">Liitä koodi</string>
+    <string name="qs_custom_pill">Kapseli</string>
+    <string name="qs_custom_reset">Palauta tämä teema</string>
+    <string name="qs_custom_reset_tiles">Palauta laatat</string>
+    <string name="qs_custom_rounded">Pyöristetty</string>
+    <string name="qs_custom_rows">Rivejä sivulla</string>
+    <string name="qs_custom_same_as_panel">Sama kuin paneeli</string>
+    <string name="qs_custom_save">Tallenna omaksi teemaksi</string>
+    <string name="qs_custom_scroll">Vieritys sivujen sijaan</string>
+    <string name="qs_custom_second_line">Toinen rivi</string>
+    <string name="qs_custom_show">Näytä</string>
+    <string name="qs_custom_sizes">Laattojen koot</string>
+    <string name="qs_custom_slider_by_player">Soittimen vieressä</string>
+    <string name="qs_custom_slider_look">Look</string>
+    <string name="qs_custom_slider_place">Sijainti</string>
+    <string name="qs_custom_slider_top">Ylhäällä</string>
+    <string name="qs_custom_slider_under">Laattojen alla</string>
+    <string name="qs_custom_spacing">Väli</string>
+    <string name="qs_custom_start_from">Lähtökohta</string>
+    <string name="qs_custom_tab_add">Lisää</string>
+    <string name="qs_custom_tab_mix">Sekoitus</string>
+    <string name="qs_custom_tab_slider">Liukusäädin</string>
+    <string name="qs_custom_tab_tiles">Laatat</string>
+    <string name="qs_custom_theme_blueprint">Blueprint</string>
+    <string name="qs_custom_theme_cards">Kortit</string>
+    <string name="qs_custom_theme_circles">Ympyrät</string>
+    <string name="qs_custom_theme_classic">Klassinen</string>
+    <string name="qs_custom_theme_compact">Tiivis</string>
+    <string name="qs_custom_theme_duo">Duo</string>
+    <string name="qs_custom_theme_glass">Lasi</string>
+    <string name="qs_custom_theme_neon">Neon</string>
+    <string name="qs_custom_theme_remix">Remix</string>
+    <string name="qs_custom_theme_shapes">Muodot</string>
+    <string name="qs_custom_theme_soft">Pehmeä</string>
+    <string name="qs_custom_theme_stock">Oletus</string>
+    <string name="qs_custom_tile_color">Väri päällä ollessa</string>
+    <string name="qs_custom_tile_height">Korkeus</string>
+    <string name="qs_custom_tile_height_dp">Laatan korkeus</string>
+    <string name="qs_look_label">Look</string>
+    <string name="qs_look_none">Napauta seuraavaa Lookia varten</string>
+    <string name="quick_settings_clear_voice_label">Clear Voice</string>
+    <string name="accessibility_quick_settings_clear_voice_on">Clear Voice päällä.</string>
+    <string name="accessibility_quick_settings_clear_voice_off">Clear Voice pois päältä.</string>
 </resources>

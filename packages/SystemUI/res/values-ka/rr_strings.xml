@@ -49,4 +49,205 @@
     <string name="qs_custom_tile_icon">"ხატულა"</string>
     <string name="qs_custom_tile_width">"სიგანე"</string>
     <string name="qs_custom_title">"მორგება"</string>
+    <string name="rr_power_title">ჩართვა</string>
+    <string name="rr_power_status">ზევით %1$s · ბატარეა %2$s</string>
+    <string name="rr_power_status_uptime">ზევით %1$s</string>
+    <string name="rr_power_back">უკან ჩართვის მენიუში</string>
+    <string name="rr_shutdown_back_soon">Resurrected Remix მალე დაბრუნდება</string>
+    <string name="global_action_restart_subtitle">აირჩიეთ, როგორ ჩაიტვირთოს ტელეფონი ხელახლა</string>
+    <string name="global_action_restart_system_summary">Android-ის გადატვირთვა. გრძელად დაჭერა უსაფრთხო რეჟიმისთვის</string>
+    <string name="global_action_restart_recovery_summary">განახლებების დაყენება, გვერდიდან ჩატვირთვა ან მონაცემების წაშლა</string>
+    <string name="global_action_restart_bootloader_summary">Fastboot, ჩამტვირთავი სურათების ასატვირთად</string>
+    <string name="global_action_restart_fastboot_summary">Userspace fastboot, სისტემური დანაყოფებისთვის</string>
+    <string name="global_action_restart_download_summary">ჩამოტვირთვის რეჟიმი, მწარმოებლის ფლეშ ინსტრუმენტისთვის</string>
+    <string name="volume_ringer_priority_only">პრიორიტეტი</string>
+    <string name="volume_ringer_dnd">არ შემაწუხოთ</string>
+    <string name="tristate_flashlight_blink">ბლინკი ფანრისთვის</string>
+    <string name="tristate_brightness_bright">მაქს. სიკაშკაშე</string>
+    <string name="tristate_brightness_dark">მინ. სიკაშკაშე</string>
+    <string name="tristate_brightness_auto">ავტო სიკაშკაშე</string>
+    <string name="tristate_rotation_0">ვერტიკალური</string>
+    <string name="tristate_rotation_90">ჰორიზონტალური (90°)</string>
+    <string name="tristate_rotation_270">ჰორიზონტალური (270°)</string>
+    <string name="tristate_app_launch">აპის გახსნა</string>
+    <string name="face_unlock_recognizing">სახის ამოცნობა...</string>
+    <string name="screen_on_time_label">SOT <xliff:g id="duration" example="5 hr 12 min">%1$s</xliff:g></string>
+    <string name="quick_launch_video">ვიდეო</string>
+    <string name="quick_launch_qr">QR კოდის სკანირება</string>
+    <string name="now_bar_charging">იტენება · <xliff:g id="level" example="74">%1$d</xliff:g>%%</string>
+    <string name="now_bar_full_in">სრულად დაიტენება <xliff:g id="duration" example="22 min">%1$s</xliff:g>-ში</string>
+    <string name="now_bar_charged">დატენილია</string>
+    <string name="now_bar_flashlight_on">ფანარი ჩართულია</string>
+    <string name="now_bar_buds">ყურსასმენები</string>
+    <string name="now_bar_buds_case">Case <xliff:g id="level" example="61">%1$d</xliff:g></string>
+    <string name="now_bar_play">დაკვრა</string>
+    <string name="now_bar_pause">პაუზა</string>
+    <string name="now_bar_previous">წინა</string>
+    <string name="now_bar_next">შემდეგი</string>
+    <string name="now_bar_hide">დამთავრებამდე დამალვა</string>
+    <string name="now_bar_settings">Now Bar-ის პარამეტრები</string>
+    <string name="now_bar_pin">ჩამაგრება მუდმივად ჩართულ ეკრანზე</string>
+    <string name="stage_battery_description">ბატარეა <xliff:g id="percent" example="74">%1$d</xliff:g> პროცენტი</string>
+    <string name="stage_alarm_description">შემდეგი მაღვიძარა <xliff:g id="time" example="Tue 6:30">%1$s</xliff:g></string>
+    <string name="flatline_playing">ახლა უკრავს</string>
+    <string name="flatline_call">შემომავალი ზარი</string>
+    <string name="flatline_vitals">ვიტალები</string>
+    <string name="flatline_vitals_preview">74% · მაღვიძარა 6:30</string>
+    <string name="flatline_alarm">მაღვიძარა <xliff:g id="time" example="6:30">%1$s</xliff:g></string>
+    <string name="now_bar_unpin">მოხსნა მუდმივად ჩართული ეკრანიდან</string>
+    <string name="now_bar_open">გახსნა</string>
+    <string name="now_bar_output">გამოტანა</string>
+    <string name="now_bar_close">დახურვა</string>
+    <string name="now_bar_minutes_left">დარჩა <xliff:g id="minutes" example="4">%1$d</xliff:g> წთ</string>
+    <string name="now_bar_minutes"><xliff:g id="minutes" example="12">%1$d</xliff:g> წთ</string>
+    <string name="now_bar_versus"><xliff:g id="team" example="Lakers">%1$s</xliff:g> vs <xliff:g id="team" example="Celtics">%2$s</xliff:g></string>
+    <string name="charge_report_channel">დატენვის ანგარიშები</string>
+    <string name="charge_report_title">დატენვის ანგარიში</string>
+    <string name="charge_report_summary">+<xliff:g id="added" example="62">%1$d</xliff:g>%% <xliff:g id="time" example="31 min">%2$s</xliff:g>-ში · პიკი <xliff:g id="watts" example="55.0">%3$s</xliff:g> W · მაქს. <xliff:g id="temp" example="38">%4$s</xliff:g> °C</string>
+    <string name="charge_report_details"><xliff:g id="charger" example="Wired">%1$s</xliff:g> · <xliff:g id="from" example="12">%2$d</xliff:g>%%-დან <xliff:g id="to" example="74">%3$d</xliff:g>%%-მდე · საშუალო <xliff:g id="watts" example="41.3">%4$s</xliff:g> W</string>
+    <string name="charge_report_wired">სადენიანი</string>
+    <string name="charge_report_wireless">უსადენო</string>
+    <string name="charge_report_dock">სადგური</string>
+    <string name="usb_mode_picker_title">აირჩიეთ USB რეჟიმი</string>
+    <string name="usb_mode_photo_transfer">ფოტოს და ვიდეოს გადაცემა</string>
+    <string name="usb_mode_webcam">USB ვებკამერა</string>
+    <string name="usb_mode_charging_only">მხოლოდ დატენვა</string>
+    <string name="usb_charging_status">USB დატენვა ჩართულია</string>
+    <string name="usb_island_title">USB დაკავშირებულია</string>
+    <string name="usb_island_settings">USB პარამეტრები</string>
+    <string name="usb_mode_short_charge">დატენვა</string>
+    <string name="keyguard_indication_dash_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Dash დატენვა (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> სრულ დატენვამდე)</string>
+    <string name="keyguard_plugged_in_dash_charging"><xliff:g id="percentage">%s</xliff:g> • Dash დატენვა</string>
+    <string name="keyguard_indication_warp_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Warp დატენვა (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> სრულ დატენვამდე)</string>
+    <string name="keyguard_plugged_in_warp_charging"><xliff:g id="percentage">%s</xliff:g> • Warp დატენვა</string>
+    <string name="keyguard_indication_vooc_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • VOOC დატენვა (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> სრულ დატენვამდე)</string>
+    <string name="keyguard_plugged_in_vooc_charging"><xliff:g id="percentage">%s</xliff:g> • VOOC დატენვა</string>
+    <string name="keyguard_indication_turbo_power_time"><xliff:g id="percentage">%2$s</xliff:g> • Turbo დატენვა (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> სრულ დატენვამდე)</string>
+    <string name="keyguard_plugged_in_turbo_charging"><xliff:g id="percentage">%s</xliff:g> • Turbo დატენვა</string>
+    <string name="charging_vfx_long_press_to_speed">დააჭირეთ და ხანგრძლივად ჩაიჭირეთ სიჩქარისთვის</string>
+    <string name="charging_vfx_source_wireless">უსადენო</string>
+    <string name="charging_vfx_source_dock">სადგური</string>
+    <string name="charging_vfx_time_to_full">სრულად დაიტენება <xliff:g id="time" example="25 min">%s</xliff:g>-ში</string>
+    <string name="qs_media_tile_idle">არაფერი უკრავს</string>
+    <string name="qs_volume_tile_muted">გაჩუმებული</string>
+    <string name="qs_custom_volume_half">ნახევარი</string>
+    <string name="qs_custom_volume_slider">სლაიდერი</string>
+    <string name="qs_custom_volume_fill">შევსება</string>
+    <string name="qs_custom_volume_stack">დასტა</string>
+    <string name="qs_custom_volume_ring">ზარი</string>
+    <string name="qs_custom_volume_call">ზარი</string>
+    <string name="qs_custom_volume_show_all">სახელი და პროცენტი</string>
+    <string name="qs_custom_volume_show_percent">პროცენტი</string>
+    <string name="qs_custom_volume_show_icon">მხოლოდ ხატულა</string>
+    <string name="qs_custom_volume_tap">შეეხეთ ხატულას</string>
+    <string name="qs_custom_volume_mute">გაჩუმება</string>
+    <string name="qs_custom_volume_panel">ხმის პანელი</string>
+    <string name="qs_custom_volume_ticks">ნიშნები გადაადგილებისას</string>
+    <string name="qs_custom_accent">აქცენტი</string>
+    <string name="qs_custom_add_tile">ფილის დამატება</string>
+    <string name="qs_custom_all_added">ყველა ფილა პანელზეა</string>
+    <string name="qs_custom_all_icons">ყველა ხატულა</string>
+    <string name="qs_custom_all_long">ყველა გრძელი</string>
+    <string name="qs_custom_backing">ხატულას ფონი</string>
+    <string name="qs_custom_blob">ბლობი</string>
+    <string name="qs_custom_code_applied">თემა გამოყენებულია</string>
+    <string name="qs_custom_code_bad">ჩასასმელი თემის კოდი არ არის</string>
+    <string name="qs_custom_code_copied">თემის კოდი დაკოპირდა</string>
+    <string name="qs_custom_color_amber">ქარვისფერი</string>
+    <string name="qs_custom_color_rose">ვარდისფერი</string>
+    <string name="qs_custom_columns">სვეტები</string>
+    <string name="qs_custom_copy_code">კოდის კოპირება</string>
+    <string name="qs_custom_corners">კუთხეები</string>
+    <string name="qs_custom_depth">სიღრმე</string>
+    <string name="qs_custom_depth_flat">ბრტყელი</string>
+    <string name="qs_custom_depth_raised">ამოზნექილი</string>
+    <string name="qs_custom_drop_remove">ჩააგდეთ აქ ამოსაშლელად</string>
+    <string name="qs_custom_fill_clear">გასუფთავება</string>
+    <string name="qs_custom_fill_dark">მუქი</string>
+    <string name="qs_custom_fill_gradient">გრადიენტი</string>
+    <string name="qs_custom_fill_icon">მხოლოდ ხატულა</string>
+    <string name="qs_custom_fill_solid">მყარი</string>
+    <string name="qs_custom_fill_surface">ზედაპირი</string>
+    <string name="qs_custom_fill_tint">შეფერვა</string>
+    <string name="qs_custom_font_caps">დიდი ასოები</string>
+    <string name="qs_custom_font_mono">Mono</string>
+    <string name="qs_custom_font_sans">Sans</string>
+    <string name="qs_custom_glow">ანათებს ჩართვისას</string>
+    <string name="qs_custom_hide">დამალვა</string>
+    <string name="qs_custom_hint">შეეხეთ ფილას პარამეტრებისთვის · დააჭირეთ და ხანგრძლივად ჩაიჭირეთ გადასატანად · გადაათრიეთ კუთხე ზომის შესაცვლელად</string>
+    <string name="qs_custom_icon_size">ხატულის ზომა</string>
+    <string name="qs_custom_label">ეტიკეტი</string>
+    <string name="qs_custom_label_inside">შიგნით</string>
+    <string name="qs_custom_label_under">ქვემოთ</string>
+    <string name="qs_custom_look">ლუქი</string>
+    <string name="qs_custom_media_art">გარეკანი</string>
+    <string name="qs_custom_media_blocks">ბლოკები</string>
+    <string name="qs_custom_media_cover">ყდა</string>
+    <string name="qs_custom_media_full">სრული</string>
+    <string name="qs_custom_media_glow">ბზინვარება</string>
+    <string name="qs_custom_media_line">ხაზი</string>
+    <string name="qs_custom_media_look">ლუქი</string>
+    <string name="qs_custom_media_place">სად</string>
+    <string name="qs_custom_media_place_above">ფილების ზემოთ</string>
+    <string name="qs_custom_media_place_below">ფილების ქვემოთ</string>
+    <string name="qs_custom_media_place_grid">ფილებთან ერთად</string>
+    <string name="qs_custom_media_play">მხოლოდ დაკვრა</string>
+    <string name="qs_custom_media_progress">პროგრესი</string>
+    <string name="qs_custom_media_tall">მაღალი</string>
+    <string name="qs_custom_media_trio">წინა, დაკვრა, შემდეგი</string>
+    <string name="qs_custom_media_wave">ტალღა</string>
+    <string name="qs_custom_media_wide">განიერი</string>
+    <string name="qs_custom_mix_footer">ქვედა ღილაკები</string>
+    <string name="qs_custom_mix_media">მედიამფლეველი</string>
+    <string name="qs_custom_mix_paint">ფილების ფერები</string>
+    <string name="qs_custom_mix_shape">ფილის ფორმა</string>
+    <string name="qs_custom_mix_slider">სლაიდერი</string>
+    <string name="qs_custom_mixed">შერეული</string>
+    <string name="qs_custom_my_theme_name">ჩემი თემა %1$d</string>
+    <string name="qs_custom_my_themes">ჩემი თემები (დააჭირეთ და ხანგრძლივად ჩაიჭირეთ წასაშლელად)</string>
+    <string name="qs_custom_off_fill">გამორთული ფილები</string>
+    <string name="qs_custom_on_fill">ჩართული ფილები</string>
+    <string name="qs_custom_paste_code">კოდის ჩასმა</string>
+    <string name="qs_custom_pill">ტაბლეტი</string>
+    <string name="qs_custom_reset">ამ თემის გადაყენება</string>
+    <string name="qs_custom_reset_tiles">ფილების გადაყენება</string>
+    <string name="qs_custom_rounded">მომრგვალებული</string>
+    <string name="qs_custom_rows">რიგები გვერდზე</string>
+    <string name="qs_custom_same_as_panel">იგივე, რაც პანელზე</string>
+    <string name="qs_custom_save">შენახვა ჩემს თემად</string>
+    <string name="qs_custom_scroll">გვერდების ნაცვლად გადახვევა</string>
+    <string name="qs_custom_second_line">მეორე ხაზი</string>
+    <string name="qs_custom_show">ჩვენება</string>
+    <string name="qs_custom_sizes">ფილების ზომები</string>
+    <string name="qs_custom_slider_by_player">მედიამფლეველთან</string>
+    <string name="qs_custom_slider_look">ლუქი</string>
+    <string name="qs_custom_slider_place">სად</string>
+    <string name="qs_custom_slider_top">ზემოთ</string>
+    <string name="qs_custom_slider_under">ფილების ქვემოთ</string>
+    <string name="qs_custom_spacing">დაშორება</string>
+    <string name="qs_custom_start_from">დაწყება</string>
+    <string name="qs_custom_tab_add">დამატება</string>
+    <string name="qs_custom_tab_mix">შერევა</string>
+    <string name="qs_custom_tab_slider">სლაიდერი</string>
+    <string name="qs_custom_tab_tiles">ფილები</string>
+    <string name="qs_custom_theme_blueprint">Blueprint</string>
+    <string name="qs_custom_theme_cards">ბარათები</string>
+    <string name="qs_custom_theme_circles">წრეები</string>
+    <string name="qs_custom_theme_classic">კლასიკური</string>
+    <string name="qs_custom_theme_compact">კომპაქტური</string>
+    <string name="qs_custom_theme_duo">Duo</string>
+    <string name="qs_custom_theme_glass">მინა</string>
+    <string name="qs_custom_theme_neon">ნეონი</string>
+    <string name="qs_custom_theme_remix">Remix</string>
+    <string name="qs_custom_theme_shapes">ფორმები</string>
+    <string name="qs_custom_theme_soft">რბილი</string>
+    <string name="qs_custom_theme_stock">სტანდარტული</string>
+    <string name="qs_custom_tile_color">ფერი ჩართვისას</string>
+    <string name="qs_custom_tile_height">სიმაღლე</string>
+    <string name="qs_custom_tile_height_dp">ფილის სიმაღლე</string>
+    <string name="qs_look_label">ლუქი</string>
+    <string name="qs_look_none">შეეხეთ შემდეგი ლუქისთვის</string>
+    <string name="quick_settings_clear_voice_label">ნათელი ხმა</string>
+    <string name="accessibility_quick_settings_clear_voice_on">ნათელი ხმა ჩართულია.</string>
+    <string name="accessibility_quick_settings_clear_voice_off">ნათელი ხმა გამორთულია.</string>
 </resources>

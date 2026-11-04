@@ -57,4 +57,196 @@
     <string name="qs_custom_tile_icon">"نماد"</string>
     <string name="qs_custom_tile_width">"عرض"</string>
     <string name="qs_custom_title">"سفارشی کردن"</string>
+    <string name="rr_power_title">روشن/خاموش</string>
+    <string name="rr_power_status">روشن بودن %1$s · باتری %2$s</string>
+    <string name="rr_power_status_uptime">روشن بودن %1$s</string>
+    <string name="rr_power_back">بازگشت به منوی روشن/خاموش</string>
+    <string name="rr_shutdown_back_soon">Resurrected Remix به‌زودی برمی‌گردد</string>
+    <string name="global_action_restart_subtitle">انتخاب کنید گوشی چگونه دوباره راه‌اندازی شود</string>
+    <string name="global_action_restart_system_summary">راه‌اندازی مجدد اندروید. برای حالت ایمن نگه دارید</string>
+    <string name="global_action_restart_recovery_summary">نصب به‌روزرسانی‌ها، نصب مستقیم یا پاک‌کردن داده‌ها</string>
+    <string name="global_action_restart_bootloader_summary">Fastboot، برای فلش کردن تصاویر بوت</string>
+    <string name="global_action_restart_fastboot_summary">Fastboot فضای کاربر، برای پارتیشن‌های سیستم</string>
+    <string name="global_action_restart_download_summary">حالت دانلود، برای ابزار فلش فروشنده</string>
+    <string name="volume_ringer_priority_only">اولویت</string>
+    <string name="tristate_rotation_0">عمودی</string>
+    <string name="tristate_app_launch">در حال راه‌اندازی برنامه</string>
+    <string name="screen_on_time_label">SOT <xliff:g id="duration" example="5 hr 12 min">%1$s</xliff:g></string>
+    <string name="quick_launch_video">ویدیو</string>
+    <string name="quick_launch_qr">اسکن کد QR</string>
+    <string name="now_bar_charging">در حال شارژ · <xliff:g id="level" example="74">%1$d</xliff:g>%%</string>
+    <string name="now_bar_full_in">پرشدن کامل در <xliff:g id="duration" example="22 min">%1$s</xliff:g></string>
+    <string name="now_bar_charged">شارژ شد</string>
+    <string name="now_bar_flashlight_on">چراغ قوه روشن است</string>
+    <string name="now_bar_buds">ایرباد</string>
+    <string name="now_bar_buds_case">جعبه <xliff:g id="level" example="61">%1$d</xliff:g></string>
+    <string name="now_bar_play">پخش</string>
+    <string name="now_bar_pause">مکث</string>
+    <string name="now_bar_previous">قبلی</string>
+    <string name="now_bar_next">بعدی</string>
+    <string name="now_bar_hide">تا پایان پنهان شود</string>
+    <string name="now_bar_pin">سنجاق به نمایشگر همیشه روشن</string>
+    <string name="stage_battery_description">باتری <xliff:g id="percent" example="74">%1$d</xliff:g> درصد</string>
+    <string name="stage_alarm_description">زنگ بعدی <xliff:g id="time" example="Tue 6:30">%1$s</xliff:g></string>
+    <string name="flatline_playing">در حال پخش</string>
+    <string name="flatline_call">تماس ورودی</string>
+    <string name="flatline_vitals">شاخص‌های حیاتی</string>
+    <string name="flatline_vitals_preview">۷۴٪ · آلارم ۶:۳۰</string>
+    <string name="flatline_alarm">آلارم <xliff:g id="time" example="6:30">%1$s</xliff:g></string>
+    <string name="now_bar_unpin">برداشتن سنجاق از نمایشگر همیشه روشن</string>
+    <string name="now_bar_open">باز کردن</string>
+    <string name="now_bar_output">خروجی</string>
+    <string name="now_bar_close">بستن</string>
+    <string name="now_bar_minutes_left"><xliff:g id="minutes" example="4">%1$d</xliff:g> دقیقه مانده</string>
+    <string name="now_bar_minutes"><xliff:g id="minutes" example="12">%1$d</xliff:g> دقیقه</string>
+    <string name="now_bar_versus"><xliff:g id="team" example="Lakers">%1$s</xliff:g> در برابر <xliff:g id="team" example="Celtics">%2$s</xliff:g></string>
+    <string name="charge_report_channel">گزارش‌های شارژ</string>
+    <string name="charge_report_title">گزارش شارژ</string>
+    <string name="charge_report_summary">+<xliff:g id="added" example="62">%1$d</xliff:g>%% در <xliff:g id="time" example="31 min">%2$s</xliff:g> · حداکثر <xliff:g id="watts" example="55.0">%3$s</xliff:g> وات · حداکثر <xliff:g id="temp" example="38">%4$s</xliff:g> °C</string>
+    <string name="charge_report_details"><xliff:g id="charger" example="Wired">%1$s</xliff:g> · <xliff:g id="from" example="12">%2$d</xliff:g>%% تا <xliff:g id="to" example="74">%3$d</xliff:g>%% · میانگین <xliff:g id="watts" example="41.3">%4$s</xliff:g> وات</string>
+    <string name="charge_report_wired">سیمی</string>
+    <string name="charge_report_wireless">بی‌سیم</string>
+    <string name="charge_report_dock">داک</string>
+    <string name="usb_mode_picker_title">انتخاب حالت USB</string>
+    <string name="usb_mode_photo_transfer">انتقال عکس و ویدیو</string>
+    <string name="usb_mode_webcam">وب‌کم USB</string>
+    <string name="usb_mode_charging_only">فقط شارژ</string>
+    <string name="usb_charging_status">شارژ USB روشن است</string>
+    <string name="usb_island_title">USB متصل است</string>
+    <string name="usb_island_settings">تنظیمات USB</string>
+    <string name="usb_mode_short_files">فایل‌ها</string>
+    <string name="usb_mode_short_charge">شارژ</string>
+    <string name="keyguard_indication_dash_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • شارژ Dash (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> تا پرشدن)</string>
+    <string name="keyguard_plugged_in_dash_charging"><xliff:g id="percentage">%s</xliff:g> • شارژ Dash</string>
+    <string name="keyguard_indication_warp_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • شارژ Warp (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> تا پرشدن)</string>
+    <string name="keyguard_plugged_in_warp_charging"><xliff:g id="percentage">%s</xliff:g> • شارژ Warp</string>
+    <string name="keyguard_indication_vooc_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • شارژ VOOC (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> تا پرشدن)</string>
+    <string name="keyguard_plugged_in_vooc_charging"><xliff:g id="percentage">%s</xliff:g> • شارژ VOOC</string>
+    <string name="keyguard_indication_turbo_power_time"><xliff:g id="percentage">%2$s</xliff:g> • شارژ توربو (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> تا پرشدن)</string>
+    <string name="keyguard_plugged_in_turbo_charging"><xliff:g id="percentage">%s</xliff:g> • شارژ توربو</string>
+    <string name="charging_vfx_long_press_to_speed">برای افزایش سرعت، نگه دارید</string>
+    <string name="charging_vfx_source_wireless">بی‌سیم</string>
+    <string name="charging_vfx_source_dock">داک</string>
+    <string name="charging_vfx_time_to_full">پرشدن کامل در <xliff:g id="time" example="25 min">%s</xliff:g></string>
+    <string name="qs_media_tile_idle">چیزی در حال پخش نیست</string>
+    <string name="qs_volume_tile_muted">بی‌صدا</string>
+    <string name="qs_custom_volume_half">نیم</string>
+    <string name="qs_custom_volume_slider">لغزنده</string>
+    <string name="qs_custom_volume_fill">پر</string>
+    <string name="qs_custom_volume_stack">پشته</string>
+    <string name="qs_custom_volume_ring">زنگ</string>
+    <string name="qs_custom_volume_call">تماس</string>
+    <string name="qs_custom_volume_show_all">نام و درصد</string>
+    <string name="qs_custom_volume_show_percent">درصد</string>
+    <string name="qs_custom_volume_show_icon">فقط آیکن</string>
+    <string name="qs_custom_volume_tap">روی آیکن ضربه بزنید</string>
+    <string name="qs_custom_volume_mute">بی‌صدا</string>
+    <string name="qs_custom_volume_ticks">نشانگر هنگام کشیدن</string>
+    <string name="qs_custom_accent">لهجه</string>
+    <string name="qs_custom_add_tile">افزودن کاشی</string>
+    <string name="qs_custom_all_added">همه کاشی‌ها روی پنل هستند</string>
+    <string name="qs_custom_all_icons">همه آیکن‌ها</string>
+    <string name="qs_custom_all_long">همه بلند</string>
+    <string name="qs_custom_backing">پس‌زمینه آیکن</string>
+    <string name="qs_custom_blob">حباب</string>
+    <string name="qs_custom_code_applied">زمینه اعمال شد</string>
+    <string name="qs_custom_code_bad">کد زمینه‌ای برای چسباندن نیست</string>
+    <string name="qs_custom_code_copied">کد زمینه کپی شد</string>
+    <string name="qs_custom_color_amber">کهربایی</string>
+    <string name="qs_custom_color_rose">رز</string>
+    <string name="qs_custom_columns">ستون‌ها</string>
+    <string name="qs_custom_copy_code">کپی کد</string>
+    <string name="qs_custom_corners">گوشه‌ها</string>
+    <string name="qs_custom_depth">عمق</string>
+    <string name="qs_custom_depth_flat">تخت</string>
+    <string name="qs_custom_depth_raised">برجسته</string>
+    <string name="qs_custom_drop_remove">برای حذف اینجا رها کنید</string>
+    <string name="qs_custom_fill_clear">پاک کردن</string>
+    <string name="qs_custom_fill_dark">تیره</string>
+    <string name="qs_custom_fill_gradient">گرادیان</string>
+    <string name="qs_custom_fill_icon">فقط آیکن</string>
+    <string name="qs_custom_fill_solid">توپر</string>
+    <string name="qs_custom_fill_surface">سطح</string>
+    <string name="qs_custom_fill_tint">رنگ‌مایه</string>
+    <string name="qs_custom_font_caps">حروف بزرگ</string>
+    <string name="qs_custom_font_mono">تک‌فاصله</string>
+    <string name="qs_custom_font_sans">بدون سریف</string>
+    <string name="qs_custom_glow">درخشش هنگام روشن بودن</string>
+    <string name="qs_custom_hide">پنهان</string>
+    <string name="qs_custom_hint">برای گزینه‌های کاشی ضربه بزنید · برای جابه‌جایی نگه دارید · برای تغییر اندازه گوشه را بکشید</string>
+    <string name="qs_custom_icon_size">اندازه آیکن</string>
+    <string name="qs_custom_label">برچسب</string>
+    <string name="qs_custom_label_inside">داخل</string>
+    <string name="qs_custom_label_under">زیر</string>
+    <string name="qs_custom_look">ظاهر</string>
+    <string name="qs_custom_media_art">تصویر هنری</string>
+    <string name="qs_custom_media_blocks">بلوکی</string>
+    <string name="qs_custom_media_cover">پوشش</string>
+    <string name="qs_custom_media_full">کامل</string>
+    <string name="qs_custom_media_glow">درخشش</string>
+    <string name="qs_custom_media_line">خط</string>
+    <string name="qs_custom_media_look">ظاهر</string>
+    <string name="qs_custom_media_place">محل</string>
+    <string name="qs_custom_media_place_above">بالای کاشی‌ها</string>
+    <string name="qs_custom_media_place_below">زیر کاشی‌ها</string>
+    <string name="qs_custom_media_place_grid">همراه کاشی‌ها</string>
+    <string name="qs_custom_media_play">فقط پخش</string>
+    <string name="qs_custom_media_progress">پیشرفت</string>
+    <string name="qs_custom_media_tall">بلند</string>
+    <string name="qs_custom_media_trio">قبلی، پخش، بعدی</string>
+    <string name="qs_custom_media_wave">موج</string>
+    <string name="qs_custom_media_wide">پهن</string>
+    <string name="qs_custom_mix_footer">دکمه‌های پایین</string>
+    <string name="qs_custom_mix_media">پخش‌کننده رسانه</string>
+    <string name="qs_custom_mix_paint">رنگ کاشی‌ها</string>
+    <string name="qs_custom_mix_shape">شکل کاشی‌ها</string>
+    <string name="qs_custom_mix_slider">لغزنده</string>
+    <string name="qs_custom_mixed">ترکیبی</string>
+    <string name="qs_custom_my_theme_name">زمینه من %1$d</string>
+    <string name="qs_custom_my_themes">زمینه‌های من (برای حذف نگه دارید)</string>
+    <string name="qs_custom_off_fill">کاشی‌های خاموش</string>
+    <string name="qs_custom_on_fill">کاشی‌های روشن</string>
+    <string name="qs_custom_paste_code">چسباندن کد</string>
+    <string name="qs_custom_pill">قرص</string>
+    <string name="qs_custom_reset">بازنشانی این زمینه</string>
+    <string name="qs_custom_reset_tiles">بازنشانی کاشی‌ها</string>
+    <string name="qs_custom_rounded">گرد</string>
+    <string name="qs_custom_rows">ردیف در هر صفحه</string>
+    <string name="qs_custom_same_as_panel">مانند پنل</string>
+    <string name="qs_custom_save">ذخیره به‌عنوان زمینه من</string>
+    <string name="qs_custom_scroll">اسکرول به‌جای صفحه‌ها</string>
+    <string name="qs_custom_second_line">خط دوم</string>
+    <string name="qs_custom_show">نمایش</string>
+    <string name="qs_custom_sizes">اندازه کاشی‌ها</string>
+    <string name="qs_custom_slider_by_player">کنار پخش‌کننده</string>
+    <string name="qs_custom_slider_look">ظاهر</string>
+    <string name="qs_custom_slider_place">محل</string>
+    <string name="qs_custom_slider_top">بالا</string>
+    <string name="qs_custom_slider_under">زیر کاشی‌ها</string>
+    <string name="qs_custom_spacing">فاصله</string>
+    <string name="qs_custom_start_from">شروع از</string>
+    <string name="qs_custom_tab_add">افزودن</string>
+    <string name="qs_custom_tab_mix">ترکیب</string>
+    <string name="qs_custom_tab_slider">لغزنده</string>
+    <string name="qs_custom_tab_tiles">کاشی‌ها</string>
+    <string name="qs_custom_theme_blueprint">طرح فنی</string>
+    <string name="qs_custom_theme_cards">کارت‌ها</string>
+    <string name="qs_custom_theme_circles">دایره‌ها</string>
+    <string name="qs_custom_theme_classic">کلاسیک</string>
+    <string name="qs_custom_theme_compact">فشرده</string>
+    <string name="qs_custom_theme_duo">Duo</string>
+    <string name="qs_custom_theme_glass">شیشه‌ای</string>
+    <string name="qs_custom_theme_neon">نئونی</string>
+    <string name="qs_custom_theme_remix">ریمیکس</string>
+    <string name="qs_custom_theme_shapes">شکل‌ها</string>
+    <string name="qs_custom_theme_soft">نرم</string>
+    <string name="qs_custom_theme_stock">پیش‌فرض</string>
+    <string name="qs_custom_tile_color">رنگ هنگام روشن بودن</string>
+    <string name="qs_custom_tile_height">ارتفاع</string>
+    <string name="qs_custom_tile_height_dp">ارتفاع کاشی</string>
+    <string name="qs_look_label">ظاهر</string>
+    <string name="qs_look_none">برای ظاهر بعدی ضربه بزنید</string>
+    <string name="quick_settings_clear_voice_label">Clear Voice</string>
+    <string name="accessibility_quick_settings_clear_voice_on">Clear Voice روشن شد.</string>
+    <string name="accessibility_quick_settings_clear_voice_off">Clear Voice خاموش شد.</string>
 </resources>

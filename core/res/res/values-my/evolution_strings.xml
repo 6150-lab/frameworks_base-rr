@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="pocket_mode_title">အိတ်ထဲ မုဒ် ဖွင့်ထားသည်</string>
+    <string name="pocket_mode_illustration_description">အိတ်ထဲရှိ ဖုန်း ပုံဥပမာ</string>
+    <string name="pocket_mode_instructions_header">ဖုန်းကို သုံးရန်:</string>
+    <string name="pocket_mode_instruction_step1">1. အပေါ်တွင် ပြထားသော အပြာရောင်နေရာ (အနီးကပ်အာရုံခံကိရိယာ) ကို ပိတ်ဆို့မှုမရှိစေရန်နှင့် ညစ်ပေနေခြင်းမရှိစေရန် သေချာပါစေ။</string>
+    <string name="pocket_mode_instruction_step2">2. အိတ်ထဲ မုဒ်မှ ထွက်ရန် ပါဝါခလုတ်ကို ဖိထားပါ။</string>
+</resources>

@@ -47,4 +47,207 @@
     <string name="qs_custom_tile_icon">"Pictogramă"</string>
     <string name="qs_custom_tile_width">"Lăţime"</string>
     <string name="qs_custom_title">"Personalizează"</string>
+    <string name="rr_power_title">Pornire</string>
+    <string name="rr_power_status">Sus %1$s · baterie %2$s</string>
+    <string name="rr_power_status_uptime">Sus %1$s</string>
+    <string name="rr_power_back">Înapoi la meniul de pornire</string>
+    <string name="rr_shutdown_back_soon">Resurrected Remix revine imediat</string>
+    <string name="global_action_restart_subtitle">Alege cum pornește telefonul din nou</string>
+    <string name="global_action_restart_system_summary">Repornește Android. Ține apăsat pentru modul sigur</string>
+    <string name="global_action_restart_recovery_summary">Instalează actualizări, sideload sau șterge datele</string>
+    <string name="global_action_restart_bootloader_summary">Fastboot, pentru scrierea imaginilor de boot</string>
+    <string name="global_action_restart_fastboot_summary">Fastboot din spațiul utilizatorului, pentru partițiile de sistem</string>
+    <string name="global_action_restart_download_summary">Mod de descărcare, pentru uneltele de flash ale furnizorului</string>
+    <string name="volume_ringer_priority_only">Prioritate</string>
+    <string name="volume_ringer_dnd">DnD</string>
+    <string name="tristate_flashlight_blink">Clipire lanternă</string>
+    <string name="tristate_brightness_bright">Luminozitate maximă</string>
+    <string name="tristate_brightness_dark">Luminozitate minimă</string>
+    <string name="tristate_brightness_auto">Luminozitate automată</string>
+    <string name="tristate_rotation_0">Portret</string>
+    <string name="tristate_rotation_90">Peisaj (90°)</string>
+    <string name="tristate_rotation_270">Peisaj (270°)</string>
+    <string name="tristate_app_launch">Se lansează aplicația</string>
+    <string name="face_unlock_recognizing">Se recunoaște fața...</string>
+    <string name="screen_on_time_label">SOT <xliff:g id="duration" example="5 hr 12 min">%1$s</xliff:g></string>
+    <string name="quick_launch_video">Video</string>
+    <string name="quick_launch_qr">Scanează codul QR</string>
+    <string name="now_bar_charging">Se încarcă · <xliff:g id="level" example="74">%1$d</xliff:g>%%</string>
+    <string name="now_bar_full_in">Încărcat complet în <xliff:g id="duration" example="22 min">%1$s</xliff:g></string>
+    <string name="now_bar_charged">Încărcat</string>
+    <string name="now_bar_flashlight_on">Lanternă pornită</string>
+    <string name="now_bar_buds">Căști</string>
+    <string name="now_bar_buds_case">Carcasă <xliff:g id="level" example="61">%1$d</xliff:g></string>
+    <string name="now_bar_play">Redă</string>
+    <string name="now_bar_pause">Pauză</string>
+    <string name="now_bar_previous">Anterior</string>
+    <string name="now_bar_next">Următorul</string>
+    <string name="now_bar_hide">Ascunde până la sfârșit</string>
+    <string name="now_bar_settings">Setări Now Bar</string>
+    <string name="now_bar_pin">Fixează pe afișajul permanent</string>
+    <string name="stage_battery_description">Baterie <xliff:g id="percent" example="74">%1$d</xliff:g> la sută</string>
+    <string name="stage_alarm_description">Următoarea alarmă <xliff:g id="time" example="Tue 6:30">%1$s</xliff:g></string>
+    <string name="flatline_playing">SE REDĂ ACUM</string>
+    <string name="flatline_call">APEL DE INTRARE</string>
+    <string name="flatline_vitals">Vitale</string>
+    <string name="flatline_vitals_preview">74% · Alarmă 6:30</string>
+    <string name="flatline_alarm">Alarmă <xliff:g id="time" example="6:30">%1$s</xliff:g></string>
+    <string name="now_bar_unpin">Anulează fixarea de pe afișajul permanent</string>
+    <string name="now_bar_open">Deschide</string>
+    <string name="now_bar_output">Ieșire</string>
+    <string name="now_bar_close">Închide</string>
+    <string name="now_bar_minutes_left">Mai sunt <xliff:g id="minutes" example="4">%1$d</xliff:g> min</string>
+    <string name="now_bar_minutes"><xliff:g id="minutes" example="12">%1$d</xliff:g> min</string>
+    <string name="now_bar_versus"><xliff:g id="team" example="Lakers">%1$s</xliff:g> față de <xliff:g id="team" example="Celtics">%2$s</xliff:g></string>
+    <string name="charge_report_channel">Rapoarte de încărcare</string>
+    <string name="charge_report_title">Raport de încărcare</string>
+    <string name="charge_report_summary">+<xliff:g id="added" example="62">%1$d</xliff:g>%% în <xliff:g id="time" example="31 min">%2$s</xliff:g> · vârf <xliff:g id="watts" example="55.0">%3$s</xliff:g> W · max <xliff:g id="temp" example="38">%4$s</xliff:g> °C</string>
+    <string name="charge_report_details"><xliff:g id="charger" example="Wired">%1$s</xliff:g> · <xliff:g id="from" example="12">%2$d</xliff:g>%% până la <xliff:g id="to" example="74">%3$d</xliff:g>%% · medie <xliff:g id="watts" example="41.3">%4$s</xliff:g> W</string>
+    <string name="charge_report_wired">Cu fir</string>
+    <string name="charge_report_wireless">Fără fir</string>
+    <string name="charge_report_dock">Stație</string>
+    <string name="usb_mode_picker_title">Selectează modul USB</string>
+    <string name="usb_mode_photo_transfer">Transfer de fotografii și videoclipuri</string>
+    <string name="usb_mode_webcam">Cameră web USB</string>
+    <string name="usb_mode_charging_only">Doar încărcare</string>
+    <string name="usb_charging_status">Încărcarea prin USB este activată</string>
+    <string name="usb_island_title">USB conectat</string>
+    <string name="usb_island_settings">Setări USB</string>
+    <string name="usb_mode_short_charge">Încărcare</string>
+    <string name="keyguard_indication_dash_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Încărcare Dash (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> până la încărcare completă)</string>
+    <string name="keyguard_plugged_in_dash_charging"><xliff:g id="percentage">%s</xliff:g> • Încărcare Dash</string>
+    <string name="keyguard_indication_warp_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Încărcare Warp (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> până la încărcare completă)</string>
+    <string name="keyguard_plugged_in_warp_charging"><xliff:g id="percentage">%s</xliff:g> • Încărcare Warp</string>
+    <string name="keyguard_indication_vooc_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Încărcare VOOC (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> până la încărcare completă)</string>
+    <string name="keyguard_plugged_in_vooc_charging"><xliff:g id="percentage">%s</xliff:g> • Încărcare VOOC</string>
+    <string name="keyguard_indication_turbo_power_time"><xliff:g id="percentage">%2$s</xliff:g> • Încărcare Turbo (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> până la încărcare completă)</string>
+    <string name="keyguard_plugged_in_turbo_charging"><xliff:g id="percentage">%s</xliff:g> • Încărcare Turbo</string>
+    <string name="charging_vfx_long_press_to_speed">Atinge și ține apăsat pentru a accelera</string>
+    <string name="charging_vfx_source_wireless">Fără fir</string>
+    <string name="charging_vfx_source_dock">Stație</string>
+    <string name="charging_vfx_time_to_full">Încărcat complet în <xliff:g id="time" example="25 min">%s</xliff:g></string>
+    <string name="qs_media_tile_label">Media</string>
+    <string name="qs_media_tile_idle">Nimic nu se redă</string>
+    <string name="qs_volume_tile_muted">Dezactivat</string>
+    <string name="qs_custom_volume_half">Jumătate</string>
+    <string name="qs_custom_volume_slider">Glisor</string>
+    <string name="qs_custom_volume_fill">Umplere</string>
+    <string name="qs_custom_volume_stack">Stivă</string>
+    <string name="qs_custom_volume_ring">Sonerie</string>
+    <string name="qs_custom_volume_call">Apel</string>
+    <string name="qs_custom_volume_show_all">Nume și procent</string>
+    <string name="qs_custom_volume_show_percent">Procent</string>
+    <string name="qs_custom_volume_show_icon">Doar pictogramă</string>
+    <string name="qs_custom_volume_tap">Atinge pictograma</string>
+    <string name="qs_custom_volume_mute">Silențios</string>
+    <string name="qs_custom_volume_ticks">Marcaje la glisare</string>
+    <string name="qs_custom_accent">Accent</string>
+    <string name="qs_custom_add_tile">Adaugă un card</string>
+    <string name="qs_custom_all_added">Fiecare card este pe panou</string>
+    <string name="qs_custom_all_icons">Toate pictogramele</string>
+    <string name="qs_custom_all_long">Toate lungi</string>
+    <string name="qs_custom_backing">Fundal pictogramă</string>
+    <string name="qs_custom_blob">Pată</string>
+    <string name="qs_custom_code_applied">Tema a fost aplicată</string>
+    <string name="qs_custom_code_bad">Niciun cod de temă de lipit</string>
+    <string name="qs_custom_code_copied">Codul temei a fost copiat</string>
+    <string name="qs_custom_color_amber">Chihlimbar</string>
+    <string name="qs_custom_color_rose">Trandafiriu</string>
+    <string name="qs_custom_color_violet">Violet</string>
+    <string name="qs_custom_columns">Coloane</string>
+    <string name="qs_custom_copy_code">Copiază codul</string>
+    <string name="qs_custom_corners">Colțuri</string>
+    <string name="qs_custom_depth">Adâncime</string>
+    <string name="qs_custom_depth_flat">Plat</string>
+    <string name="qs_custom_depth_raised">Ridicat</string>
+    <string name="qs_custom_drop_remove">Trage aici pentru a elimina</string>
+    <string name="qs_custom_fill_clear">Golește</string>
+    <string name="qs_custom_fill_dark">Întunecat</string>
+    <string name="qs_custom_fill_gradient">Gradient</string>
+    <string name="qs_custom_fill_icon">Doar pictogramă</string>
+    <string name="qs_custom_fill_solid">Solid</string>
+    <string name="qs_custom_fill_surface">Suprafață</string>
+    <string name="qs_custom_fill_tint">Nuanță</string>
+    <string name="qs_custom_font">Text</string>
+    <string name="qs_custom_font_caps">Majuscule</string>
+    <string name="qs_custom_font_mono">Mono</string>
+    <string name="qs_custom_font_sans">Sans</string>
+    <string name="qs_custom_glow">Strălucire când este pornit</string>
+    <string name="qs_custom_hide">Ascunde</string>
+    <string name="qs_custom_hint">Atinge un card pentru opțiuni · Ține apăsat pentru a muta · Trage de colț pentru a redimensiona</string>
+    <string name="qs_custom_icon_size">Dimensiune pictogramă</string>
+    <string name="qs_custom_label">Etichetă</string>
+    <string name="qs_custom_label_inside">Înăuntru</string>
+    <string name="qs_custom_label_under">Dedesubt</string>
+    <string name="qs_custom_look">Aspect</string>
+    <string name="qs_custom_media_art">Copertă</string>
+    <string name="qs_custom_media_blocks">Blocuri</string>
+    <string name="qs_custom_media_cover">Copertă</string>
+    <string name="qs_custom_media_full">Complet</string>
+    <string name="qs_custom_media_glow">Strălucire</string>
+    <string name="qs_custom_media_line">Linie</string>
+    <string name="qs_custom_media_look">Aspect</string>
+    <string name="qs_custom_media_place">Poziție</string>
+    <string name="qs_custom_media_place_above">Deasupra cardurilor</string>
+    <string name="qs_custom_media_place_below">Sub carduri</string>
+    <string name="qs_custom_media_place_grid">Odată cu cardurile</string>
+    <string name="qs_custom_media_play">Doar redare</string>
+    <string name="qs_custom_media_progress">Progres</string>
+    <string name="qs_custom_media_tall">Înalt</string>
+    <string name="qs_custom_media_trio">Anterior, redare, următorul</string>
+    <string name="qs_custom_media_wave">Undă</string>
+    <string name="qs_custom_media_wide">Lat</string>
+    <string name="qs_custom_mix_footer">Butoane de subsol</string>
+    <string name="qs_custom_mix_media">Player media</string>
+    <string name="qs_custom_mix_paint">Culori carduri</string>
+    <string name="qs_custom_mix_shape">Forma cardurilor</string>
+    <string name="qs_custom_mix_slider">Glisor</string>
+    <string name="qs_custom_mixed">Amestecat</string>
+    <string name="qs_custom_my_theme_name">Tema mea %1$d</string>
+    <string name="qs_custom_my_themes">Temele mele (ține apăsat pentru a șterge)</string>
+    <string name="qs_custom_off_fill">Carduri dezactivate</string>
+    <string name="qs_custom_on_fill">Carduri activate</string>
+    <string name="qs_custom_paste_code">Lipește codul</string>
+    <string name="qs_custom_pill">Pastilă</string>
+    <string name="qs_custom_reset">Resetează această temă</string>
+    <string name="qs_custom_reset_tiles">Resetează cardurile</string>
+    <string name="qs_custom_rounded">Rotunjit</string>
+    <string name="qs_custom_rows">Rânduri pe pagină</string>
+    <string name="qs_custom_same_as_panel">Ca panoul</string>
+    <string name="qs_custom_save">Salvează ca tema mea</string>
+    <string name="qs_custom_scroll">Derulare în loc de pagini</string>
+    <string name="qs_custom_second_line">A doua linie</string>
+    <string name="qs_custom_show">Arată</string>
+    <string name="qs_custom_sizes">Dimensiuni carduri</string>
+    <string name="qs_custom_slider_by_player">Lângă player</string>
+    <string name="qs_custom_slider_look">Aspect</string>
+    <string name="qs_custom_slider_place">Poziție</string>
+    <string name="qs_custom_slider_top">Sus</string>
+    <string name="qs_custom_slider_under">Sub carduri</string>
+    <string name="qs_custom_spacing">Spațiere</string>
+    <string name="qs_custom_start_from">Pornește de la</string>
+    <string name="qs_custom_tab_add">Adaugă</string>
+    <string name="qs_custom_tab_mix">Amestec</string>
+    <string name="qs_custom_tab_slider">Glisor</string>
+    <string name="qs_custom_tab_tiles">Carduri</string>
+    <string name="qs_custom_theme_blueprint">Blueprint</string>
+    <string name="qs_custom_theme_cards">Carduri</string>
+    <string name="qs_custom_theme_circles">Cercuri</string>
+    <string name="qs_custom_theme_classic">Clasic</string>
+    <string name="qs_custom_theme_compact">Compact</string>
+    <string name="qs_custom_theme_duo">Duo</string>
+    <string name="qs_custom_theme_glass">Sticlă</string>
+    <string name="qs_custom_theme_neon">Neon</string>
+    <string name="qs_custom_theme_remix">Remix</string>
+    <string name="qs_custom_theme_shapes">Forme</string>
+    <string name="qs_custom_theme_soft">Soft</string>
+    <string name="qs_custom_theme_stock">Implicit</string>
+    <string name="qs_custom_tile_color">Culoare când este pornit</string>
+    <string name="qs_custom_tile_height">Înălțime</string>
+    <string name="qs_custom_tile_height_dp">Înălțimea cardului</string>
+    <string name="qs_look_label">Aspect</string>
+    <string name="qs_look_none">Atinge pentru următorul aspect</string>
+    <string name="quick_settings_clear_voice_label">Voce clară</string>
+    <string name="accessibility_quick_settings_clear_voice_on">Voce clară activată.</string>
+    <string name="accessibility_quick_settings_clear_voice_off">Voce clară dezactivată.</string>
 </resources>

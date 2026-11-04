@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="pocket_mode_title">ਜੇਬ ਮੋਡ ਚਾਲੂ ਹੈ</string>
+    <string name="pocket_mode_illustration_description">ਜੇਬ ਵਿੱਚ ਫੋਨ ਦੀ ਤਸਵੀਰ</string>
+    <string name="pocket_mode_instructions_header">ਆਪਣਾ ਫੋਨ ਵਰਤਣ ਲਈ:</string>
+    <string name="pocket_mode_instruction_step1">1. ਪੱਕਾ ਕਰੋ ਕਿ ਉੱਪਰ ਦਿਖਾਇਆ ਨੀਲਾ ਖੇਤਰ (ਨੇੜਤਾ ਸੈਂਸਰ) ਰੁਕਾਵਟ ਰਹਿਤ ਅਤੇ ਮਿੱਟੀ ਜਾਂ ਧੂੜ ਤੋਂ ਮੁਕਤ ਹੈ।</string>
+    <string name="pocket_mode_instruction_step2">2. ਜੇਬ ਮੋਡ ਤੋਂ ਬਾਹਰ ਆਉਣ ਲਈ ਪਾਵਰ ਬਟਨ ਨੂੰ ਦਬਾ ਕੇ ਰੱਖੋ।</string>
+</resources>

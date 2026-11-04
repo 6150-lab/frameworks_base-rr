@@ -57,4 +57,197 @@
     <string name="qs_custom_tile_icon">"Ikona"</string>
     <string name="qs_custom_tile_width">"Šířka"</string>
     <string name="qs_custom_title">"Přizpůsobit"</string>
+    <string name="rr_power_title">Napájení</string>
+    <string name="rr_power_status">Nahoru %1$s · baterie %2$s</string>
+    <string name="rr_power_status_uptime">Nahoru %1$s</string>
+    <string name="rr_power_back">Zpět do nabídky vypínače</string>
+    <string name="rr_shutdown_back_soon">Resurrected Remix se hned vrátí</string>
+    <string name="global_action_restart_subtitle">Vyberte, jak se telefon znovu spustí</string>
+    <string name="global_action_restart_system_summary">Restartovat Android. Dlouhým stisknutím přejdete do nouzového režimu</string>
+    <string name="global_action_restart_recovery_summary">Instalovat aktualizace, sideload nebo smazat data</string>
+    <string name="global_action_restart_bootloader_summary">Fastboot pro nahrávání boot obrazů</string>
+    <string name="global_action_restart_fastboot_summary">Uživatelský fastboot pro systémové oddíly</string>
+    <string name="global_action_restart_download_summary">Režim stahování pro nástroj výrobce pro nahrávání</string>
+    <string name="volume_ringer_priority_only">Priorita</string>
+    <string name="tristate_rotation_0">Na výšku</string>
+    <string name="tristate_app_launch">Spouštění aplikace</string>
+    <string name="screen_on_time_label">SOT <xliff:g id="duration" example="5 hr 12 min">%1$s</xliff:g></string>
+    <string name="quick_launch_video">Video</string>
+    <string name="quick_launch_qr">Skenovat QR kód</string>
+    <string name="now_bar_charging">Nabíjení · <xliff:g id="level" example="74">%1$d</xliff:g>%%</string>
+    <string name="now_bar_full_in">Plně za <xliff:g id="duration" example="22 min">%1$s</xliff:g></string>
+    <string name="now_bar_charged">Nabito</string>
+    <string name="now_bar_flashlight_on">Svítilna zapnuta</string>
+    <string name="now_bar_buds">Sluchátka</string>
+    <string name="now_bar_buds_case">Pouzdro <xliff:g id="level" example="61">%1$d</xliff:g></string>
+    <string name="now_bar_play">Přehrát</string>
+    <string name="now_bar_pause">Pozastavit</string>
+    <string name="now_bar_previous">Předchozí</string>
+    <string name="now_bar_next">Další</string>
+    <string name="now_bar_hide">Skrýt do konce</string>
+    <string name="now_bar_settings">Nastavení Now Bar</string>
+    <string name="now_bar_pin">Připnout na displej vždy zapnutý</string>
+    <string name="stage_battery_description">Baterie <xliff:g id="percent" example="74">%1$d</xliff:g> procent</string>
+    <string name="stage_alarm_description">Další budík <xliff:g id="time" example="Tue 6:30">%1$s</xliff:g></string>
+    <string name="flatline_playing">PRÁVĚ HRAJE</string>
+    <string name="flatline_call">PŘICHOZÍ HOVOR</string>
+    <string name="flatline_vitals">Vitální funkce</string>
+    <string name="flatline_vitals_preview">74 % · Budík 6:30</string>
+    <string name="flatline_alarm">Budík <xliff:g id="time" example="6:30">%1$s</xliff:g></string>
+    <string name="now_bar_unpin">Odepnout z displeje vždy zapnutého</string>
+    <string name="now_bar_open">Otevřít</string>
+    <string name="now_bar_output">Výstup</string>
+    <string name="now_bar_close">Zavřít</string>
+    <string name="now_bar_minutes_left">Zbývá <xliff:g id="minutes" example="4">%1$d</xliff:g> min</string>
+    <string name="now_bar_minutes"><xliff:g id="minutes" example="12">%1$d</xliff:g> min</string>
+    <string name="now_bar_versus"><xliff:g id="team" example="Lakers">%1$s</xliff:g> oproti <xliff:g id="team" example="Celtics">%2$s</xliff:g></string>
+    <string name="charge_report_channel">Přehledy nabíjení</string>
+    <string name="charge_report_title">Přehled nabíjení</string>
+    <string name="charge_report_summary">+<xliff:g id="added" example="62">%1$d</xliff:g>%% za <xliff:g id="time" example="31 min">%2$s</xliff:g> · špička <xliff:g id="watts" example="55.0">%3$s</xliff:g> W · max. <xliff:g id="temp" example="38">%4$s</xliff:g> °C</string>
+    <string name="charge_report_details"><xliff:g id="charger" example="Wired">%1$s</xliff:g> · <xliff:g id="from" example="12">%2$d</xliff:g>%% až <xliff:g id="to" example="74">%3$d</xliff:g>%% · průměr <xliff:g id="watts" example="41.3">%4$s</xliff:g> W</string>
+    <string name="charge_report_wired">Kabelem</string>
+    <string name="charge_report_wireless">Bezdrátově</string>
+    <string name="charge_report_dock">Dok</string>
+    <string name="usb_mode_picker_title">Vyberte režim USB</string>
+    <string name="usb_mode_photo_transfer">Přenos fotek a videí</string>
+    <string name="usb_mode_webcam">USB webkamera</string>
+    <string name="usb_mode_charging_only">Pouze nabíjení</string>
+    <string name="usb_charging_status">Nabíjení přes USB je zapnuté</string>
+    <string name="usb_island_title">USB připojeno</string>
+    <string name="usb_island_settings">Nastavení USB</string>
+    <string name="usb_mode_short_charge">Nabíjení</string>
+    <string name="keyguard_indication_dash_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Dash nabíjení (ještě <xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> do plna)</string>
+    <string name="keyguard_plugged_in_dash_charging"><xliff:g id="percentage">%s</xliff:g> • Dash nabíjení</string>
+    <string name="keyguard_indication_warp_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Warp nabíjení (ještě <xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> do plna)</string>
+    <string name="keyguard_plugged_in_warp_charging"><xliff:g id="percentage">%s</xliff:g> • Warp nabíjení</string>
+    <string name="keyguard_indication_vooc_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • VOOC nabíjení (ještě <xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> do plna)</string>
+    <string name="keyguard_plugged_in_vooc_charging"><xliff:g id="percentage">%s</xliff:g> • VOOC nabíjení</string>
+    <string name="keyguard_indication_turbo_power_time"><xliff:g id="percentage">%2$s</xliff:g> • Turbo nabíjení (ještě <xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> do plna)</string>
+    <string name="keyguard_plugged_in_turbo_charging"><xliff:g id="percentage">%s</xliff:g> • Turbo nabíjení</string>
+    <string name="charging_vfx_long_press_to_speed">Podržte pro zrychlení</string>
+    <string name="charging_vfx_source_wireless">Bezdrátově</string>
+    <string name="charging_vfx_source_dock">Dok</string>
+    <string name="charging_vfx_time_to_full">Plně za <xliff:g id="time" example="25 min">%s</xliff:g></string>
+    <string name="qs_media_tile_idle">Nic nehraje</string>
+    <string name="qs_volume_tile_muted">Ztlumeno</string>
+    <string name="qs_custom_volume_half">Polovina</string>
+    <string name="qs_custom_volume_slider">Posuvník</string>
+    <string name="qs_custom_volume_fill">Výplň</string>
+    <string name="qs_custom_volume_stack">Zásobník</string>
+    <string name="qs_custom_volume_ring">Vyzvánění</string>
+    <string name="qs_custom_volume_call">Hovor</string>
+    <string name="qs_custom_volume_show_all">Název a procenta</string>
+    <string name="qs_custom_volume_show_percent">Procenta</string>
+    <string name="qs_custom_volume_show_icon">Pouze ikona</string>
+    <string name="qs_custom_volume_tap">Klepněte na ikonu</string>
+    <string name="qs_custom_volume_mute">Ztlumit</string>
+    <string name="qs_custom_volume_ticks">Značky při tažení</string>
+    <string name="qs_custom_accent">Akcent</string>
+    <string name="qs_custom_add_tile">Přidat dlaždici</string>
+    <string name="qs_custom_all_added">Všechny dlaždice jsou na panelu</string>
+    <string name="qs_custom_all_icons">Všechny ikony</string>
+    <string name="qs_custom_all_long">Všechny dlouhé</string>
+    <string name="qs_custom_backing">Podklad ikony</string>
+    <string name="qs_custom_blob">Blob</string>
+    <string name="qs_custom_code_applied">Motiv použit</string>
+    <string name="qs_custom_code_bad">Není co vložit, žádný kód motivu</string>
+    <string name="qs_custom_code_copied">Kód motivu zkopírován</string>
+    <string name="qs_custom_color_amber">Jantarová</string>
+    <string name="qs_custom_color_rose">Růžová</string>
+    <string name="qs_custom_columns">Sloupce</string>
+    <string name="qs_custom_copy_code">Kopírovat kód</string>
+    <string name="qs_custom_corners">Rohy</string>
+    <string name="qs_custom_depth">Hloubka</string>
+    <string name="qs_custom_depth_flat">Ploché</string>
+    <string name="qs_custom_depth_raised">Zvýšené</string>
+    <string name="qs_custom_drop_remove">Přetáhněte sem pro odstranění</string>
+    <string name="qs_custom_fill_clear">Vymazat</string>
+    <string name="qs_custom_fill_dark">Tmavé</string>
+    <string name="qs_custom_fill_gradient">Přechod</string>
+    <string name="qs_custom_fill_icon">Pouze ikona</string>
+    <string name="qs_custom_fill_solid">Plné</string>
+    <string name="qs_custom_fill_surface">Povrch</string>
+    <string name="qs_custom_fill_tint">Odstín</string>
+    <string name="qs_custom_font">Text</string>
+    <string name="qs_custom_font_caps">Velká písmena</string>
+    <string name="qs_custom_font_mono">Neproporcionální</string>
+    <string name="qs_custom_font_sans">Bezpatkové</string>
+    <string name="qs_custom_glow">Při zapnutí zář</string>
+    <string name="qs_custom_hide">Skrýt</string>
+    <string name="qs_custom_hint">Klepnutím na dlaždici zobrazíte její možnosti · Podržením ji přesunete · Tažením rohu změníte velikost</string>
+    <string name="qs_custom_icon_size">Velikost ikony</string>
+    <string name="qs_custom_label">Popisek</string>
+    <string name="qs_custom_label_inside">Uvnitř</string>
+    <string name="qs_custom_label_under">Pod</string>
+    <string name="qs_custom_look">Vzhled</string>
+    <string name="qs_custom_media_art">Obal</string>
+    <string name="qs_custom_media_blocks">Bloky</string>
+    <string name="qs_custom_media_cover">Obal</string>
+    <string name="qs_custom_media_full">Celé</string>
+    <string name="qs_custom_media_glow">Záře</string>
+    <string name="qs_custom_media_line">Čára</string>
+    <string name="qs_custom_media_look">Vzhled</string>
+    <string name="qs_custom_media_place">Umístění</string>
+    <string name="qs_custom_media_place_above">Nad dlaždicemi</string>
+    <string name="qs_custom_media_place_below">Pod dlaždicemi</string>
+    <string name="qs_custom_media_place_grid">Vedle dlaždic</string>
+    <string name="qs_custom_media_play">Pouze přehrávání</string>
+    <string name="qs_custom_media_progress">Průběh</string>
+    <string name="qs_custom_media_tall">Vysoké</string>
+    <string name="qs_custom_media_trio">Předchozí, přehrát, další</string>
+    <string name="qs_custom_media_wave">Vlna</string>
+    <string name="qs_custom_media_wide">Široké</string>
+    <string name="qs_custom_mix_footer">Tlačítka v zápatí</string>
+    <string name="qs_custom_mix_media">Přehrávač médií</string>
+    <string name="qs_custom_mix_paint">Barvy dlaždic</string>
+    <string name="qs_custom_mix_shape">Tvar dlaždic</string>
+    <string name="qs_custom_mix_slider">Posuvník</string>
+    <string name="qs_custom_mixed">Smíšené</string>
+    <string name="qs_custom_my_theme_name">Můj motiv %1$d</string>
+    <string name="qs_custom_my_themes">Moje motivy (podržením smažete)</string>
+    <string name="qs_custom_off_fill">Vypnuté dlaždice</string>
+    <string name="qs_custom_on_fill">Zapnuté dlaždice</string>
+    <string name="qs_custom_paste_code">Vložit kód</string>
+    <string name="qs_custom_pill">Pilulka</string>
+    <string name="qs_custom_reset">Obnovit tento motiv</string>
+    <string name="qs_custom_reset_tiles">Obnovit dlaždice</string>
+    <string name="qs_custom_rounded">Zaoblené</string>
+    <string name="qs_custom_rows">Řádků na stránku</string>
+    <string name="qs_custom_same_as_panel">Stejné jako panel</string>
+    <string name="qs_custom_save">Uložit jako můj motiv</string>
+    <string name="qs_custom_scroll">Posouvat místo stránek</string>
+    <string name="qs_custom_second_line">Druhý řádek</string>
+    <string name="qs_custom_show">Zobrazit</string>
+    <string name="qs_custom_sizes">Velikosti dlaždic</string>
+    <string name="qs_custom_slider_by_player">U přehrávače</string>
+    <string name="qs_custom_slider_look">Vzhled</string>
+    <string name="qs_custom_slider_place">Umístění</string>
+    <string name="qs_custom_slider_top">Nahoře</string>
+    <string name="qs_custom_slider_under">Pod dlaždicemi</string>
+    <string name="qs_custom_spacing">Mezery</string>
+    <string name="qs_custom_start_from">Začít od</string>
+    <string name="qs_custom_tab_add">Přidat</string>
+    <string name="qs_custom_tab_mix">Směs</string>
+    <string name="qs_custom_tab_slider">Posuvník</string>
+    <string name="qs_custom_tab_tiles">Dlaždice</string>
+    <string name="qs_custom_theme_blueprint">Blueprint</string>
+    <string name="qs_custom_theme_cards">Karty</string>
+    <string name="qs_custom_theme_circles">Kruhy</string>
+    <string name="qs_custom_theme_classic">Klasický</string>
+    <string name="qs_custom_theme_compact">Kompaktní</string>
+    <string name="qs_custom_theme_duo">Duo</string>
+    <string name="qs_custom_theme_glass">Sklo</string>
+    <string name="qs_custom_theme_neon">Neon</string>
+    <string name="qs_custom_theme_remix">Remix</string>
+    <string name="qs_custom_theme_shapes">Tvary</string>
+    <string name="qs_custom_theme_soft">Měkký</string>
+    <string name="qs_custom_theme_stock">Výchozí</string>
+    <string name="qs_custom_tile_color">Barva při zapnutí</string>
+    <string name="qs_custom_tile_height">Výška</string>
+    <string name="qs_custom_tile_height_dp">Výška dlaždice</string>
+    <string name="qs_look_label">Vzhled</string>
+    <string name="qs_look_none">Klepněte pro další Vzhled</string>
+    <string name="quick_settings_clear_voice_label">Čistý hlas</string>
+    <string name="accessibility_quick_settings_clear_voice_on">Čistý hlas zapnut.</string>
+    <string name="accessibility_quick_settings_clear_voice_off">Čistý hlas vypnut.</string>
 </resources>

@@ -47,4 +47,207 @@
     <string name="qs_custom_tile_icon">"Ikon"</string>
     <string name="qs_custom_tile_width">"Bredde"</string>
     <string name="qs_custom_title">"Tilpass"</string>
+    <string name="rr_power_title">Av/på</string>
+    <string name="rr_power_status">Opp %1$s · %2$s batteri</string>
+    <string name="rr_power_status_uptime">Opp %1$s</string>
+    <string name="rr_power_back">Tilbake til av/på-menyen</string>
+    <string name="rr_shutdown_back_soon">Resurrected Remix er straks tilbake</string>
+    <string name="global_action_restart_subtitle">Velg hvordan telefonen starter på nytt</string>
+    <string name="global_action_restart_system_summary">Start Android på nytt. Hold inne for sikkermodus</string>
+    <string name="global_action_restart_recovery_summary">Installer oppdateringer, sideload eller slett data</string>
+    <string name="global_action_restart_bootloader_summary">Fastboot, for flashing av oppstartsbilder</string>
+    <string name="global_action_restart_fastboot_summary">Fastboot i brukerrom, for systempartisjoner</string>
+    <string name="global_action_restart_download_summary">Nedlastingsmodus, for leverandørens flash-verktøy</string>
+    <string name="volume_ringer_priority_only">Prioritet</string>
+    <string name="volume_ringer_dnd">DnD</string>
+    <string name="tristate_flashlight_blink">Fakkel blinker</string>
+    <string name="tristate_brightness_bright">Maks lysstyrke</string>
+    <string name="tristate_brightness_dark">Min lysstyrke</string>
+    <string name="tristate_brightness_auto">Automatisk lysstyrke</string>
+    <string name="tristate_rotation_0">Stående</string>
+    <string name="tristate_rotation_90">Liggende (90°)</string>
+    <string name="tristate_rotation_270">Liggende (270°)</string>
+    <string name="tristate_app_launch">Starter app</string>
+    <string name="face_unlock_recognizing">Gjenkjenner ansikt …</string>
+    <string name="screen_on_time_label">SOT <xliff:g id="duration" example="5 hr 12 min">%1$s</xliff:g></string>
+    <string name="quick_launch_video">Video</string>
+    <string name="quick_launch_qr">Skann QR</string>
+    <string name="now_bar_charging">Lader · <xliff:g id="level" example="74">%1$d</xliff:g>%%</string>
+    <string name="now_bar_full_in">Full om <xliff:g id="duration" example="22 min">%1$s</xliff:g></string>
+    <string name="now_bar_charged">Ladet</string>
+    <string name="now_bar_flashlight_on">Lommelykt på</string>
+    <string name="now_bar_buds">Øretelefoner</string>
+    <string name="now_bar_buds_case">Etui <xliff:g id="level" example="61">%1$d</xliff:g></string>
+    <string name="now_bar_play">Spill av</string>
+    <string name="now_bar_pause">Pause</string>
+    <string name="now_bar_previous">Forrige</string>
+    <string name="now_bar_next">Neste</string>
+    <string name="now_bar_hide">Skjul til den er ferdig</string>
+    <string name="now_bar_settings">Innstillinger for Now Bar</string>
+    <string name="now_bar_pin">Fest på alltid-på-skjermen</string>
+    <string name="stage_battery_description">Batteri <xliff:g id="percent" example="74">%1$d</xliff:g> prosent</string>
+    <string name="stage_alarm_description">Neste alarm <xliff:g id="time" example="Tue 6:30">%1$s</xliff:g></string>
+    <string name="flatline_playing">SPILLER NÅ</string>
+    <string name="flatline_call">INNKOMMENDE ANROP</string>
+    <string name="flatline_vitals">Vitale verdier</string>
+    <string name="flatline_vitals_preview">74 % · Alarm 6:30</string>
+    <string name="flatline_alarm">Alarm <xliff:g id="time" example="6:30">%1$s</xliff:g></string>
+    <string name="now_bar_unpin">Løsne fra alltid-på-skjermen</string>
+    <string name="now_bar_open">Åpne</string>
+    <string name="now_bar_output">Utgang</string>
+    <string name="now_bar_close">Lukk</string>
+    <string name="now_bar_minutes_left"><xliff:g id="minutes" example="4">%1$d</xliff:g> min igjen</string>
+    <string name="now_bar_minutes"><xliff:g id="minutes" example="12">%1$d</xliff:g> min</string>
+    <string name="now_bar_versus"><xliff:g id="team" example="Lakers">%1$s</xliff:g> mot <xliff:g id="team" example="Celtics">%2$s</xliff:g></string>
+    <string name="charge_report_channel">Laderapporter</string>
+    <string name="charge_report_title">Laderapport</string>
+    <string name="charge_report_summary">+<xliff:g id="added" example="62">%1$d</xliff:g>%% på <xliff:g id="time" example="31 min">%2$s</xliff:g> · topp <xliff:g id="watts" example="55.0">%3$s</xliff:g> W · maks <xliff:g id="temp" example="38">%4$s</xliff:g> °C</string>
+    <string name="charge_report_details"><xliff:g id="charger" example="Wired">%1$s</xliff:g> · <xliff:g id="from" example="12">%2$d</xliff:g>%% til <xliff:g id="to" example="74">%3$d</xliff:g>%% · gjennomsnitt <xliff:g id="watts" example="41.3">%4$s</xliff:g> W</string>
+    <string name="charge_report_wired">Kablet</string>
+    <string name="charge_report_wireless">Trådløs</string>
+    <string name="charge_report_dock">Dokk</string>
+    <string name="usb_mode_picker_title">Velg USB-modus</string>
+    <string name="usb_mode_photo_transfer">Overføring av bilder og video</string>
+    <string name="usb_mode_webcam">USB-webkamera</string>
+    <string name="usb_mode_charging_only">Kun lading</string>
+    <string name="usb_charging_status">USB-lading er på</string>
+    <string name="usb_island_title">USB koblet til</string>
+    <string name="usb_island_settings">USB-innstillinger</string>
+    <string name="usb_mode_short_charge">Lading</string>
+    <string name="keyguard_indication_dash_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Dash-lading (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> til full)</string>
+    <string name="keyguard_plugged_in_dash_charging"><xliff:g id="percentage">%s</xliff:g> • Dash-lading</string>
+    <string name="keyguard_indication_warp_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Warp-lading (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> til full)</string>
+    <string name="keyguard_plugged_in_warp_charging"><xliff:g id="percentage">%s</xliff:g> • Warp-lading</string>
+    <string name="keyguard_indication_vooc_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • VOOC-lading (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> til full)</string>
+    <string name="keyguard_plugged_in_vooc_charging"><xliff:g id="percentage">%s</xliff:g> • VOOC-lading</string>
+    <string name="keyguard_indication_turbo_power_time"><xliff:g id="percentage">%2$s</xliff:g> • Turbolading (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> til full)</string>
+    <string name="keyguard_plugged_in_turbo_charging"><xliff:g id="percentage">%s</xliff:g> • Turbolading</string>
+    <string name="charging_vfx_long_press_to_speed">Hold inne for å øke hastigheten</string>
+    <string name="charging_vfx_source_wireless">Trådløs</string>
+    <string name="charging_vfx_source_dock">Dokk</string>
+    <string name="charging_vfx_time_to_full">Full om <xliff:g id="time" example="25 min">%s</xliff:g></string>
+    <string name="qs_media_tile_idle">Ingenting spilles av</string>
+    <string name="qs_volume_tile_muted">Dempet</string>
+    <string name="qs_custom_volume_half">Halv</string>
+    <string name="qs_custom_volume_slider">Glidebryter</string>
+    <string name="qs_custom_volume_fill">Fylt</string>
+    <string name="qs_custom_volume_stack">Stabel</string>
+    <string name="qs_custom_volume_ring">Ring</string>
+    <string name="qs_custom_volume_alarm">Alarm</string>
+    <string name="qs_custom_volume_call">Anrop</string>
+    <string name="qs_custom_volume_show_all">Navn og prosent</string>
+    <string name="qs_custom_volume_show_percent">Prosent</string>
+    <string name="qs_custom_volume_show_icon">Kun ikon</string>
+    <string name="qs_custom_volume_tap">Trykk på ikonet</string>
+    <string name="qs_custom_volume_mute">Demp</string>
+    <string name="qs_custom_volume_panel">Volumpanel</string>
+    <string name="qs_custom_volume_ticks">Merker under dragning</string>
+    <string name="qs_custom_accent">Aksent</string>
+    <string name="qs_custom_add_tile">Legg til en brikke</string>
+    <string name="qs_custom_all_added">Alle brikker er på panelet</string>
+    <string name="qs_custom_all_icons">Alle ikoner</string>
+    <string name="qs_custom_all_long">Alle lange</string>
+    <string name="qs_custom_auto">Auto</string>
+    <string name="qs_custom_backing">Ikonbakgrunn</string>
+    <string name="qs_custom_blob">Klatt</string>
+    <string name="qs_custom_code_applied">Tema brukt</string>
+    <string name="qs_custom_code_bad">Ingen temakode å lime inn</string>
+    <string name="qs_custom_code_copied">Temakode kopiert</string>
+    <string name="qs_custom_color_amber">Ambra</string>
+    <string name="qs_custom_color_rose">Rosa</string>
+    <string name="qs_custom_columns">Kolonner</string>
+    <string name="qs_custom_copy_code">Kopier kode</string>
+    <string name="qs_custom_corners">Hjørner</string>
+    <string name="qs_custom_depth">Dybde</string>
+    <string name="qs_custom_depth_flat">Flat</string>
+    <string name="qs_custom_depth_raised">Hevet</string>
+    <string name="qs_custom_drop_remove">Slipp her for å fjerne</string>
+    <string name="qs_custom_fill_clear">Tøm</string>
+    <string name="qs_custom_fill_dark">Mørk</string>
+    <string name="qs_custom_fill_gradient">Gradient</string>
+    <string name="qs_custom_fill_icon">Kun ikon</string>
+    <string name="qs_custom_fill_solid">Ensfarget</string>
+    <string name="qs_custom_fill_surface">Overflate</string>
+    <string name="qs_custom_fill_tint">Fargetone</string>
+    <string name="qs_custom_font_caps">Versaler</string>
+    <string name="qs_custom_font_mono">Mono</string>
+    <string name="qs_custom_font_sans">Sans</string>
+    <string name="qs_custom_glow">Glød når på</string>
+    <string name="qs_custom_hide">Skjul</string>
+    <string name="qs_custom_hint">Trykk på en brikke for alternativer · Hold for å flytte · Dra hjørnet for å endre størrelse</string>
+    <string name="qs_custom_icon_size">Ikonstørrelse</string>
+    <string name="qs_custom_label">Etikett</string>
+    <string name="qs_custom_label_inside">Inni</string>
+    <string name="qs_custom_label_under">Under</string>
+    <string name="qs_custom_look">Utseende</string>
+    <string name="qs_custom_media_art">Omslag</string>
+    <string name="qs_custom_media_blocks">Blokker</string>
+    <string name="qs_custom_media_cover">Omslag</string>
+    <string name="qs_custom_media_full">Full</string>
+    <string name="qs_custom_media_glow">Glød</string>
+    <string name="qs_custom_media_line">Linje</string>
+    <string name="qs_custom_media_look">Utseende</string>
+    <string name="qs_custom_media_place">Hvor</string>
+    <string name="qs_custom_media_place_above">Over brikkene</string>
+    <string name="qs_custom_media_place_below">Under brikkene</string>
+    <string name="qs_custom_media_place_grid">Sammen med brikkene</string>
+    <string name="qs_custom_media_play">Kun avspilling</string>
+    <string name="qs_custom_media_progress">Fremdrift</string>
+    <string name="qs_custom_media_tall">Høy</string>
+    <string name="qs_custom_media_trio">Forrige, spill, neste</string>
+    <string name="qs_custom_media_wave">Bølge</string>
+    <string name="qs_custom_media_wide">Bred</string>
+    <string name="qs_custom_mix_footer">Knapper i bunnen</string>
+    <string name="qs_custom_mix_media">Mediespiller</string>
+    <string name="qs_custom_mix_paint">Brikkefarger</string>
+    <string name="qs_custom_mix_shape">Brikkeform</string>
+    <string name="qs_custom_mix_slider">Glidebryter</string>
+    <string name="qs_custom_mixed">Blandet</string>
+    <string name="qs_custom_my_theme_name">Mitt tema %1$d</string>
+    <string name="qs_custom_my_themes">Mine temaer (hold for å slette)</string>
+    <string name="qs_custom_off_fill">Brikker som er av</string>
+    <string name="qs_custom_on_fill">Brikker som er på</string>
+    <string name="qs_custom_paste_code">Lim inn kode</string>
+    <string name="qs_custom_pill">Pille</string>
+    <string name="qs_custom_reset">Tilbakestill dette temaet</string>
+    <string name="qs_custom_reset_tiles">Tilbakestill brikker</string>
+    <string name="qs_custom_rounded">Avrundet</string>
+    <string name="qs_custom_rows">Rader per side</string>
+    <string name="qs_custom_same_as_panel">Samme som panel</string>
+    <string name="qs_custom_save">Lagre som mitt tema</string>
+    <string name="qs_custom_scroll">Bla i stedet for sider</string>
+    <string name="qs_custom_second_line">Andre linje</string>
+    <string name="qs_custom_show">Vis</string>
+    <string name="qs_custom_sizes">Brikkestørrelser</string>
+    <string name="qs_custom_slider_by_player">Ved spilleren</string>
+    <string name="qs_custom_slider_look">Utseende</string>
+    <string name="qs_custom_slider_place">Hvor</string>
+    <string name="qs_custom_slider_top">Øverst</string>
+    <string name="qs_custom_slider_under">Under brikkene</string>
+    <string name="qs_custom_spacing">Mellomrom</string>
+    <string name="qs_custom_start_from">Start fra</string>
+    <string name="qs_custom_tab_add">Legg til</string>
+    <string name="qs_custom_tab_mix">Blanding</string>
+    <string name="qs_custom_tab_slider">Glidebryter</string>
+    <string name="qs_custom_tab_tiles">Brikker</string>
+    <string name="qs_custom_theme_blueprint">Blueprint</string>
+    <string name="qs_custom_theme_cards">Kort</string>
+    <string name="qs_custom_theme_circles">Sirkler</string>
+    <string name="qs_custom_theme_classic">Klassisk</string>
+    <string name="qs_custom_theme_compact">Kompakt</string>
+    <string name="qs_custom_theme_duo">Duo</string>
+    <string name="qs_custom_theme_glass">Glass</string>
+    <string name="qs_custom_theme_neon">Neon</string>
+    <string name="qs_custom_theme_remix">Remiks</string>
+    <string name="qs_custom_theme_shapes">Former</string>
+    <string name="qs_custom_theme_soft">Myk</string>
+    <string name="qs_custom_theme_stock">Standard</string>
+    <string name="qs_custom_tile_color">Farge når på</string>
+    <string name="qs_custom_tile_height">Høyde</string>
+    <string name="qs_custom_tile_height_dp">Brikkehøyde</string>
+    <string name="qs_look_label">Utseende</string>
+    <string name="qs_look_none">Trykk for neste utseende</string>
+    <string name="quick_settings_clear_voice_label">Tydelig tale</string>
+    <string name="accessibility_quick_settings_clear_voice_on">Tydelig tale på.</string>
+    <string name="accessibility_quick_settings_clear_voice_off">Tydelig tale av.</string>
 </resources>

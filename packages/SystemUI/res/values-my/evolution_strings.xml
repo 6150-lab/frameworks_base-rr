@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="weather_condition_clouds">"မိုးတိမ်ထူထပ်"</string>
+    <string name="weather_condition_rain">မိုးရွာနေသည်</string>
+    <string name="weather_condition_clear">ကြည်လင်သော ကောင်းကင်</string>
+    <string name="weather_condition_storm">မုန်တိုင်း</string>
+    <string name="weather_condition_snow">နှင်းကျနေသည်</string>
+    <string name="weather_condition_wind">လေတိုက်နေသည်</string>
+    <string name="weather_condition_mist">မြူထူနေသည်</string>
 </resources>

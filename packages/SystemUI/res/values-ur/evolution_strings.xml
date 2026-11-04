@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="weather_condition_clouds">"ابر آلود"</string>
+    <string name="weather_condition_rain">بارش</string>
+    <string name="weather_condition_clear">صاف آسمان</string>
+    <string name="weather_condition_storm">طوفانی</string>
+    <string name="weather_condition_snow">برفباری</string>
+    <string name="weather_condition_wind">ہوا</string>
+    <string name="weather_condition_mist">دھندلا</string>
 </resources>

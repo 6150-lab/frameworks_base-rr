@@ -36,4 +36,218 @@
     <string name="qs_custom_theme">"Tema"</string>
     <string name="qs_custom_tile_width">"Lapad"</string>
     <string name="qs_custom_title">"I-customize"</string>
+    <string name="rr_power_title">Power</string>
+    <string name="rr_power_status">Gising sa %1$s · %2$s na baterya</string>
+    <string name="rr_power_status_uptime">Gising sa %1$s</string>
+    <string name="rr_power_back">Bumalik sa power menu</string>
+    <string name="rr_shutdown_back_soon">Babalik agad ang Resurrected Remix</string>
+    <string name="global_action_restart_subtitle">Piliin kung paano mag-startup ulit ang telepono</string>
+    <string name="global_action_restart_system_summary">I-restart ang Android. Pindutin nang matagal para sa safe mode</string>
+    <string name="global_action_restart_recovery_summary">I-install ang mga update, sideload, o burahin ang data</string>
+    <string name="global_action_restart_bootloader_summary">Fastboot, para sa pag-flash ng boot image</string>
+    <string name="global_action_restart_fastboot_summary">Userspace fastboot, para sa system partition</string>
+    <string name="global_action_restart_download_summary">Download mode, para sa vendor flash tool</string>
+    <string name="volume_ringer_priority_only">Priority</string>
+    <string name="volume_ringer_dnd">DnD</string>
+    <string name="tristate_flashlight_blink">Kumikislap na torch</string>
+    <string name="tristate_brightness_bright">Max na liwanag</string>
+    <string name="tristate_brightness_dark">Min na liwanag</string>
+    <string name="tristate_brightness_auto">Auto na liwanag</string>
+    <string name="tristate_rotation_0">Portrait</string>
+    <string name="tristate_rotation_90">Landscape (90°)</string>
+    <string name="tristate_rotation_270">Landscape (270°)</string>
+    <string name="tristate_app_launch">Binubuksan ang app</string>
+    <string name="face_unlock_recognizing">Kinikilala ang mukha...</string>
+    <string name="screen_on_time_label">SOT <xliff:g id="duration" example="5 hr 12 min">%1$s</xliff:g></string>
+    <string name="quick_launch_camera">Camera</string>
+    <string name="quick_launch_video">Video</string>
+    <string name="quick_launch_flashlight">Flashlight</string>
+    <string name="quick_launch_qr">I-scan ang QR</string>
+    <string name="now_bar_charging">Nagchacharge · <xliff:g id="level" example="74">%1$d</xliff:g>%%</string>
+    <string name="now_bar_full_in">Puno sa loob ng <xliff:g id="duration" example="22 min">%1$s</xliff:g></string>
+    <string name="now_bar_charged">Fully charged</string>
+    <string name="now_bar_flashlight_on">Naka-on ang flashlight</string>
+    <string name="now_bar_buds">Earbuds</string>
+    <string name="now_bar_buds_case">Case <xliff:g id="level" example="61">%1$d</xliff:g></string>
+    <string name="now_bar_play">I-play</string>
+    <string name="now_bar_pause">I-pause</string>
+    <string name="now_bar_previous">Nakaraan</string>
+    <string name="now_bar_next">Susunod</string>
+    <string name="now_bar_hide">Itago hanggang matapos</string>
+    <string name="now_bar_settings">Mga setting ng Now Bar</string>
+    <string name="now_bar_pin">I-pin sa always-on display</string>
+    <string name="stage_battery_description">Baterya <xliff:g id="percent" example="74">%1$d</xliff:g> porsyento</string>
+    <string name="stage_alarm_description">Susunod na alarm <xliff:g id="time" example="Tue 6:30">%1$s</xliff:g></string>
+    <string name="flatline_playing">NAGPE-PLAY</string>
+    <string name="flatline_call">PAPASOK NA TAWAG</string>
+    <string name="flatline_vitals">Vitals</string>
+    <string name="flatline_vitals_preview">74% · Alarm 6:30</string>
+    <string name="flatline_alarm">Alarm <xliff:g id="time" example="6:30">%1$s</xliff:g></string>
+    <string name="now_bar_unpin">Alisin sa always-on display</string>
+    <string name="now_bar_open">Buksan</string>
+    <string name="now_bar_output">Output</string>
+    <string name="now_bar_close">Isara</string>
+    <string name="now_bar_minutes_left"><xliff:g id="minutes" example="4">%1$d</xliff:g> min na natitira</string>
+    <string name="now_bar_minutes"><xliff:g id="minutes" example="12">%1$d</xliff:g> min</string>
+    <string name="now_bar_versus"><xliff:g id="team" example="Lakers">%1$s</xliff:g> vs <xliff:g id="team" example="Celtics">%2$s</xliff:g></string>
+    <string name="charge_report_channel">Mga charge report</string>
+    <string name="charge_report_title">Charge report</string>
+    <string name="charge_report_summary">+<xliff:g id="added" example="62">%1$d</xliff:g>%% sa <xliff:g id="time" example="31 min">%2$s</xliff:g> · pinakamataas <xliff:g id="watts" example="55.0">%3$s</xliff:g> W · pinakamataas <xliff:g id="temp" example="38">%4$s</xliff:g> °C</string>
+    <string name="charge_report_details"><xliff:g id="charger" example="Wired">%1$s</xliff:g> · <xliff:g id="from" example="12">%2$d</xliff:g>%% hanggang <xliff:g id="to" example="74">%3$d</xliff:g>%% · average <xliff:g id="watts" example="41.3">%4$s</xliff:g> W</string>
+    <string name="charge_report_wired">Wired</string>
+    <string name="charge_report_wireless">Wireless</string>
+    <string name="charge_report_dock">Dock</string>
+    <string name="usb_mode_picker_title">Piliin ang USB mode</string>
+    <string name="usb_mode_photo_transfer">Paglipat ng larawan at video</string>
+    <string name="usb_mode_webcam">USB Webcam</string>
+    <string name="usb_mode_charging_only">Pag-charge lang</string>
+    <string name="usb_charging_status">Naka-on ang USB charging</string>
+    <string name="usb_island_title">Nakakonekta ang USB</string>
+    <string name="usb_island_settings">Mga setting ng USB</string>
+    <string name="usb_mode_short_charge">Charge</string>
+    <string name="keyguard_indication_dash_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Dash Charging (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> hanggang mapuno)</string>
+    <string name="keyguard_plugged_in_dash_charging"><xliff:g id="percentage">%s</xliff:g> • Dash Charging</string>
+    <string name="keyguard_indication_warp_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Warp Charging (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> hanggang mapuno)</string>
+    <string name="keyguard_plugged_in_warp_charging"><xliff:g id="percentage">%s</xliff:g> • Warp Charging</string>
+    <string name="keyguard_indication_vooc_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • VOOC Charging (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> hanggang mapuno)</string>
+    <string name="keyguard_plugged_in_vooc_charging"><xliff:g id="percentage">%s</xliff:g> • VOOC Charging</string>
+    <string name="keyguard_indication_turbo_power_time"><xliff:g id="percentage">%2$s</xliff:g> • Turbo Charging (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> hanggang mapuno)</string>
+    <string name="keyguard_plugged_in_turbo_charging"><xliff:g id="percentage">%s</xliff:g> • Turbo Charging</string>
+    <string name="charging_vfx_long_press_to_speed">Pindutin nang matagal para mas bilisan</string>
+    <string name="charging_vfx_night_mode">Night mode</string>
+    <string name="charging_vfx_source_wireless">Wireless</string>
+    <string name="charging_vfx_source_dock">Dock</string>
+    <string name="charging_vfx_time_to_full">Puno sa loob ng <xliff:g id="time" example="25 min">%s</xliff:g></string>
+    <string name="qs_media_tile_label">Media</string>
+    <string name="qs_media_tile_idle">Walang tumutugtog</string>
+    <string name="qs_volume_tile_label">Volume</string>
+    <string name="qs_volume_tile_muted">Naka-mute</string>
+    <string name="qs_custom_volume_half">Kalahati</string>
+    <string name="qs_custom_volume_slider">Slider</string>
+    <string name="qs_custom_volume_fill">Puno</string>
+    <string name="qs_custom_volume_stack">Stack</string>
+    <string name="qs_custom_volume_ring">Ring</string>
+    <string name="qs_custom_volume_alarm">Alarm</string>
+    <string name="qs_custom_volume_call">Tawag</string>
+    <string name="qs_custom_volume_show_all">Pangalan at porsyento</string>
+    <string name="qs_custom_volume_show_percent">Porsyento</string>
+    <string name="qs_custom_volume_show_icon">Icon lang</string>
+    <string name="qs_custom_volume_tap">I-tap ang icon</string>
+    <string name="qs_custom_volume_mute">Mute</string>
+    <string name="qs_custom_volume_panel">Volume panel</string>
+    <string name="qs_custom_volume_ticks">May tick habang dina-drag</string>
+    <string name="qs_custom_accent">Accent</string>
+    <string name="qs_custom_add_tile">Magdagdag ng tile</string>
+    <string name="qs_custom_all_added">Nasa panel na ang lahat ng tile</string>
+    <string name="qs_custom_all_icons">Lahat ng icon</string>
+    <string name="qs_custom_all_long">Lahat ng mahaba</string>
+    <string name="qs_custom_auto">Auto</string>
+    <string name="qs_custom_backing">Background ng icon</string>
+    <string name="qs_custom_blob">Blob</string>
+    <string name="qs_custom_circle">Bilog</string>
+    <string name="qs_custom_code_applied">Nailapat na ang tema</string>
+    <string name="qs_custom_code_bad">Walang theme code na ipapaste</string>
+    <string name="qs_custom_code_copied">Nakopya na ang theme code</string>
+    <string name="qs_custom_color_amber">Amber</string>
+    <string name="qs_custom_color_rose">Rose</string>
+    <string name="qs_custom_color_teal">Teal</string>
+    <string name="qs_custom_color_violet">Violet</string>
+    <string name="qs_custom_columns">Mga column</string>
+    <string name="qs_custom_copy_code">Kopyahin ang code</string>
+    <string name="qs_custom_corners">Mga sulok</string>
+    <string name="qs_custom_default">Default</string>
+    <string name="qs_custom_depth">Lalim</string>
+    <string name="qs_custom_depth_flat">Patag</string>
+    <string name="qs_custom_depth_raised">Nakaangat</string>
+    <string name="qs_custom_drop_remove">I-drop dito para alisin</string>
+    <string name="qs_custom_fill_clear">Burahin</string>
+    <string name="qs_custom_fill_dark">Madilim</string>
+    <string name="qs_custom_fill_gradient">Gradient</string>
+    <string name="qs_custom_fill_icon">Icon lang</string>
+    <string name="qs_custom_fill_outline">Outline</string>
+    <string name="qs_custom_fill_solid">Solid</string>
+    <string name="qs_custom_fill_surface">Surface</string>
+    <string name="qs_custom_fill_tint">Tint</string>
+    <string name="qs_custom_font_caps">Caps</string>
+    <string name="qs_custom_font_mono">Mono</string>
+    <string name="qs_custom_font_sans">Sans</string>
+    <string name="qs_custom_glow">Kumikinang kapag naka-on</string>
+    <string name="qs_custom_hide">Itago</string>
+    <string name="qs_custom_hint">I-tap ang tile para sa mga opsyon nito · Pindutin nang matagal para ilipat · I-drag ang sulok para baguhin ang laki</string>
+    <string name="qs_custom_icon_size">Laki ng icon</string>
+    <string name="qs_custom_label">Label</string>
+    <string name="qs_custom_label_inside">Sa loob</string>
+    <string name="qs_custom_label_under">Sa ilalim</string>
+    <string name="qs_custom_look">Look</string>
+    <string name="qs_custom_media_art">Artwork</string>
+    <string name="qs_custom_media_blocks">Mga bloke</string>
+    <string name="qs_custom_media_cover">Takip</string>
+    <string name="qs_custom_media_full">Buo</string>
+    <string name="qs_custom_media_glow">Glow</string>
+    <string name="qs_custom_media_line">Linya</string>
+    <string name="qs_custom_media_look">Look</string>
+    <string name="qs_custom_media_place">Saan</string>
+    <string name="qs_custom_media_place_above">Sa itaas ng mga tile</string>
+    <string name="qs_custom_media_place_below">Sa ibaba ng mga tile</string>
+    <string name="qs_custom_media_place_grid">Kasama ng mga tile</string>
+    <string name="qs_custom_media_play">Pag-play lang</string>
+    <string name="qs_custom_media_progress">Progreso</string>
+    <string name="qs_custom_media_tall">Mataas</string>
+    <string name="qs_custom_media_trio">Nakaraan, i-play, susunod</string>
+    <string name="qs_custom_media_wave">Alon</string>
+    <string name="qs_custom_media_wide">Malapad</string>
+    <string name="qs_custom_mix_footer">Mga button sa footer</string>
+    <string name="qs_custom_mix_media">Media player</string>
+    <string name="qs_custom_mix_paint">Mga kulay ng tile</string>
+    <string name="qs_custom_mix_shape">Hugis ng tile</string>
+    <string name="qs_custom_mix_slider">Slider</string>
+    <string name="qs_custom_mixed">Halo</string>
+    <string name="qs_custom_my_theme_name">Tema ko %1$d</string>
+    <string name="qs_custom_my_themes">Mga tema ko (pindutin nang matagal para burahin)</string>
+    <string name="qs_custom_off_fill">Mga naka-off na tile</string>
+    <string name="qs_custom_on_fill">Mga naka-on na tile</string>
+    <string name="qs_custom_paste_code">I-paste ang code</string>
+    <string name="qs_custom_pill">Pill</string>
+    <string name="qs_custom_reset">I-reset ang temang ito</string>
+    <string name="qs_custom_reset_tiles">I-reset ang mga tile</string>
+    <string name="qs_custom_rounded">Bilugan</string>
+    <string name="qs_custom_rows">Mga row sa bawat pahina</string>
+    <string name="qs_custom_same_as_panel">Kapareho ng panel</string>
+    <string name="qs_custom_save">I-save bilang tema ko</string>
+    <string name="qs_custom_scroll">Mag-scroll sa halip na pages</string>
+    <string name="qs_custom_second_line">Pangalawang linya</string>
+    <string name="qs_custom_show">Ipakita</string>
+    <string name="qs_custom_sizes">Laki ng mga tile</string>
+    <string name="qs_custom_slider_by_player">Sa tabi ng player</string>
+    <string name="qs_custom_slider_look">Look</string>
+    <string name="qs_custom_slider_place">Saan</string>
+    <string name="qs_custom_slider_top">Sa itaas</string>
+    <string name="qs_custom_slider_under">Sa ilalim ng mga tile</string>
+    <string name="qs_custom_spacing">Espasyo</string>
+    <string name="qs_custom_start_from">Magsimula sa</string>
+    <string name="qs_custom_tab_add">Idagdag</string>
+    <string name="qs_custom_tab_mix">Halo</string>
+    <string name="qs_custom_tab_slider">Slider</string>
+    <string name="qs_custom_tab_tiles">Mga tile</string>
+    <string name="qs_custom_theme_blueprint">Blueprint</string>
+    <string name="qs_custom_theme_cards">Mga card</string>
+    <string name="qs_custom_theme_circles">Mga bilog</string>
+    <string name="qs_custom_theme_classic">Klasiko</string>
+    <string name="qs_custom_theme_compact">Compact</string>
+    <string name="qs_custom_theme_duo">Duo</string>
+    <string name="qs_custom_theme_glass">Glass</string>
+    <string name="qs_custom_theme_neon">Neon</string>
+    <string name="qs_custom_theme_remix">Remix</string>
+    <string name="qs_custom_theme_shapes">Mga hugis</string>
+    <string name="qs_custom_theme_soft">Malambot</string>
+    <string name="qs_custom_theme_stock">Stock</string>
+    <string name="qs_custom_tile_color">Kulay kapag naka-on</string>
+    <string name="qs_custom_tile_height">Taas</string>
+    <string name="qs_custom_tile_height_dp">Taas ng tile</string>
+    <string name="qs_custom_tile_icon">Icon</string>
+    <string name="qs_look_label">Look</string>
+    <string name="qs_look_none">I-tap para sa susunod na Look</string>
+    <string name="quick_settings_clear_voice_label">Clear Voice</string>
+    <string name="accessibility_quick_settings_clear_voice_on">Naka-on ang Clear Voice.</string>
+    <string name="accessibility_quick_settings_clear_voice_off">Naka-off ang Clear Voice.</string>
 </resources>

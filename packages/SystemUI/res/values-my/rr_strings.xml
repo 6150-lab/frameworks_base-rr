@@ -49,4 +49,205 @@
     <string name="qs_custom_tile_icon">"သင်္ကေတ"</string>
     <string name="qs_custom_tile_width">"အနံ"</string>
     <string name="qs_custom_title">"စိတ်ကြိုက်လုပ်ရန်"</string>
+    <string name="rr_power_title">ပါဝါ</string>
+    <string name="rr_power_status">အပေါ် %1$s · ဘက်ထရီ %2$s</string>
+    <string name="rr_power_status_uptime">အပေါ် %1$s</string>
+    <string name="rr_power_back">ပါဝါမီနူးသို့ ပြန်သွားရန်</string>
+    <string name="rr_shutdown_back_soon">Resurrected Remix မကြာမီ ပြန်လာပါမည်</string>
+    <string name="global_action_restart_subtitle">ဖုန်းပြန်စတင်ပုံကို ရွေးပါ</string>
+    <string name="global_action_restart_system_summary">Android ကို ပြန်စတင်ပါ။ ဖိထားပြီး Safe mode သို့ ဝင်ပါ</string>
+    <string name="global_action_restart_recovery_summary">အပ်ဒိတ်များ ထည့်သွင်းရန်၊ sideload သို့မဟုတ် ဒေတာဖျက်ရန်</string>
+    <string name="global_action_restart_bootloader_summary">Fastboot၊ boot ပုံများ flash လုပ်ရန်</string>
+    <string name="global_action_restart_fastboot_summary">Userspace fastboot၊ system partition များအတွက်</string>
+    <string name="global_action_restart_download_summary">Download mode၊ vendor flash tool အတွက်</string>
+    <string name="volume_ringer_priority_only">ဦးစားပေး</string>
+    <string name="volume_ringer_dnd">မနှောင့်ယှက်ရ</string>
+    <string name="tristate_flashlight_blink">ဖလက်ရှ်မီး မှိတ်တုတ်</string>
+    <string name="tristate_brightness_bright">အမြင့်ဆုံး အလင်းအား</string>
+    <string name="tristate_brightness_dark">အနိမ့်ဆုံး အလင်းအား</string>
+    <string name="tristate_brightness_auto">အလိုအလျောက် အလင်းအား</string>
+    <string name="tristate_rotation_0">ဒေါင်လိုက်</string>
+    <string name="tristate_rotation_90">အလျားလိုက် (90°)</string>
+    <string name="tristate_rotation_270">အလျားလိုက် (270°)</string>
+    <string name="tristate_app_launch">အက်ပ်ဖွင့်နေသည်</string>
+    <string name="face_unlock_recognizing">မျက်နှာ အသိအမှတ်ပြုနေသည်...</string>
+    <string name="screen_on_time_label">ဖန်သားပြင်ဖွင့်ထားချိန် <xliff:g id="duration" example="5 hr 12 min">%1$s</xliff:g></string>
+    <string name="quick_launch_video">ဗီဒီယို</string>
+    <string name="quick_launch_qr">QR စကင်ဖတ်ရန်</string>
+    <string name="now_bar_charging">အားသွင်းနေသည် · <xliff:g id="level" example="74">%1$d</xliff:g>%%</string>
+    <string name="now_bar_full_in"><xliff:g id="duration" example="22 min">%1$s</xliff:g> အတွင်း အပြည့်</string>
+    <string name="now_bar_charged">အားပြည့်ပြီး</string>
+    <string name="now_bar_flashlight_on">ဖလက်ရှ်မီး ဖွင့်ထား</string>
+    <string name="now_bar_buds">နားကြပ်များ</string>
+    <string name="now_bar_buds_case">အိတ် <xliff:g id="level" example="61">%1$d</xliff:g></string>
+    <string name="now_bar_play">ဖွင့်ရန်</string>
+    <string name="now_bar_pause">ခေတ္တရပ်ရန်</string>
+    <string name="now_bar_previous">ယခင်</string>
+    <string name="now_bar_next">နောက်တစ်ခု</string>
+    <string name="now_bar_hide">ပြီးသည်အထိ ဖျောက်ထား</string>
+    <string name="now_bar_settings">Now Bar ဆက်တင်များ</string>
+    <string name="now_bar_pin">အမြဲဖွင့်ထားသော ဖန်သားပြင်တွင် ပင်တွဲရန်</string>
+    <string name="stage_battery_description">ဘက်ထရီ <xliff:g id="percent" example="74">%1$d</xliff:g> ရာခိုင်နှုန်း</string>
+    <string name="stage_alarm_description">နောက်နှိုးစက် <xliff:g id="time" example="Tue 6:30">%1$s</xliff:g></string>
+    <string name="flatline_playing">ယခုဖွင့်နေသည်</string>
+    <string name="flatline_call">အဝင်ခေါ်ဆို</string>
+    <string name="flatline_vitals">အဓိကအချက်အလက်များ</string>
+    <string name="flatline_vitals_preview">74% · နှိုးစက် 6:30</string>
+    <string name="flatline_alarm">နှိုးစက် <xliff:g id="time" example="6:30">%1$s</xliff:g></string>
+    <string name="now_bar_unpin">အမြဲဖွင့်ထားသော ဖန်သားပြင်မှ ပင်ဖြုတ်ရန်</string>
+    <string name="now_bar_open">ဖွင့်ရန်</string>
+    <string name="now_bar_output">အထွက်</string>
+    <string name="now_bar_close">ပိတ်ရန်</string>
+    <string name="now_bar_minutes_left">မိနစ် <xliff:g id="minutes" example="4">%1$d</xliff:g> ကျန်</string>
+    <string name="now_bar_minutes">မိနစ် <xliff:g id="minutes" example="12">%1$d</xliff:g></string>
+    <string name="now_bar_versus"><xliff:g id="team" example="Lakers">%1$s</xliff:g> နှင့် <xliff:g id="team" example="Celtics">%2$s</xliff:g></string>
+    <string name="charge_report_channel">အားသွင်းအစီရင်ခံစာများ</string>
+    <string name="charge_report_title">အားသွင်းအစီရင်ခံစာ</string>
+    <string name="charge_report_summary"><xliff:g id="time" example="31 min">%2$s</xliff:g> အတွင်း +<xliff:g id="added" example="62">%1$d</xliff:g>%% · အထွတ်အထိပ် <xliff:g id="watts" example="55.0">%3$s</xliff:g> W · အများဆုံး <xliff:g id="temp" example="38">%4$s</xliff:g> °C</string>
+    <string name="charge_report_details"><xliff:g id="charger" example="Wired">%1$s</xliff:g> · <xliff:g id="from" example="12">%2$d</xliff:g>%% မှ <xliff:g id="to" example="74">%3$d</xliff:g>%% · ပျမ်းမျှ <xliff:g id="watts" example="41.3">%4$s</xliff:g> W</string>
+    <string name="charge_report_wired">ကြိုး</string>
+    <string name="charge_report_wireless">ကြိုးမဲ့</string>
+    <string name="charge_report_dock">ဒေါ့ခ်</string>
+    <string name="usb_mode_picker_title">USB မုဒ်ရွေးရန်</string>
+    <string name="usb_mode_photo_transfer">ဓာတ်ပုံ &amp; ဗီဒီယို လွှဲပြောင်းခြင်း</string>
+    <string name="usb_mode_webcam">USB ဝဘ်ကင်မရာ</string>
+    <string name="usb_mode_charging_only">အားသွင်းရုံသာ</string>
+    <string name="usb_charging_status">USB အားသွင်းခြင်း ဖွင့်ထား</string>
+    <string name="usb_island_title">USB ချိတ်ဆက်ထား</string>
+    <string name="usb_island_settings">USB ဆက်တင်များ</string>
+    <string name="usb_mode_short_charge">အားသွင်း</string>
+    <string name="keyguard_indication_dash_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Dash အားသွင်းခြင်း (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> အတွင်း အပြည့်)</string>
+    <string name="keyguard_plugged_in_dash_charging"><xliff:g id="percentage">%s</xliff:g> • Dash အားသွင်းခြင်း</string>
+    <string name="keyguard_indication_warp_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Warp အားသွင်းခြင်း (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> အတွင်း အပြည့်)</string>
+    <string name="keyguard_plugged_in_warp_charging"><xliff:g id="percentage">%s</xliff:g> • Warp အားသွင်းခြင်း</string>
+    <string name="keyguard_indication_vooc_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • VOOC အားသွင်းခြင်း (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> အတွင်း အပြည့်)</string>
+    <string name="keyguard_plugged_in_vooc_charging"><xliff:g id="percentage">%s</xliff:g> • VOOC အားသွင်းခြင်း</string>
+    <string name="keyguard_indication_turbo_power_time"><xliff:g id="percentage">%2$s</xliff:g> • Turbo အားသွင်းခြင်း (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> အတွင်း အပြည့်)</string>
+    <string name="keyguard_plugged_in_turbo_charging"><xliff:g id="percentage">%s</xliff:g> • Turbo အားသွင်းခြင်း</string>
+    <string name="charging_vfx_long_press_to_speed">အမြန်နှုန်းမြှင့်ရန် ဖိထားပါ</string>
+    <string name="charging_vfx_source_wireless">ကြိုးမဲ့</string>
+    <string name="charging_vfx_source_dock">ဒေါ့ခ်</string>
+    <string name="charging_vfx_time_to_full"><xliff:g id="time" example="25 min">%s</xliff:g> အတွင်း အပြည့်</string>
+    <string name="qs_media_tile_idle">ဘာမှမဖွင့်ထား</string>
+    <string name="qs_volume_tile_muted">အသံပိတ်ထား</string>
+    <string name="qs_custom_volume_half">တဝက်</string>
+    <string name="qs_custom_volume_slider">စလိုက်ဒါ</string>
+    <string name="qs_custom_volume_fill">ဖြည့်</string>
+    <string name="qs_custom_volume_stack">ထပ်စီ</string>
+    <string name="qs_custom_volume_ring">ဖုန်းမြည်သံ</string>
+    <string name="qs_custom_volume_call">ခေါ်ဆို</string>
+    <string name="qs_custom_volume_show_all">အမည်နှင့် ရာခိုင်နှုန်း</string>
+    <string name="qs_custom_volume_show_percent">ရာခိုင်နှုန်း</string>
+    <string name="qs_custom_volume_show_icon">အိုင်ကွန်သာ</string>
+    <string name="qs_custom_volume_tap">အိုင်ကွန်ကို နှိပ်ရန်</string>
+    <string name="qs_custom_volume_mute">အသံပိတ်</string>
+    <string name="qs_custom_volume_panel">အသံအဆင့်ပြား</string>
+    <string name="qs_custom_volume_ticks">ဆွဲနေစဉ် အမှတ်အသားများ</string>
+    <string name="qs_custom_accent">အဓိကအရောင်</string>
+    <string name="qs_custom_add_tile">အကွက်ထည့်ရန်</string>
+    <string name="qs_custom_all_added">အကွက်အားလုံး ပြားပေါ်တွင် ရှိပြီး</string>
+    <string name="qs_custom_all_icons">အိုင်ကွန်အားလုံး</string>
+    <string name="qs_custom_all_long">အားလုံး ရှည်</string>
+    <string name="qs_custom_backing">အိုင်ကွန်နောက်ခံ</string>
+    <string name="qs_custom_blob">ဖောင်းပွ</string>
+    <string name="qs_custom_code_applied">အပြင်အဆင် သုံးပြီး</string>
+    <string name="qs_custom_code_bad">ကူးထည့်ရန် အပြင်အဆင်ကုဒ် မရှိ</string>
+    <string name="qs_custom_code_copied">အပြင်အဆင်ကုဒ် ကူးပြီး</string>
+    <string name="qs_custom_color_amber">အမ်ဘာ</string>
+    <string name="qs_custom_color_rose">နှင်းဆီ</string>
+    <string name="qs_custom_columns">ကော်လံများ</string>
+    <string name="qs_custom_copy_code">ကုဒ်ကူးရန်</string>
+    <string name="qs_custom_corners">ထောင့်များ</string>
+    <string name="qs_custom_depth">အနက်အတိမ်</string>
+    <string name="qs_custom_depth_flat">ပြား</string>
+    <string name="qs_custom_depth_raised">မြင့်တက်</string>
+    <string name="qs_custom_drop_remove">ဖယ်ရှားရန် ဤနေရာသို့ ချပါ</string>
+    <string name="qs_custom_fill_clear">ရှင်းရန်</string>
+    <string name="qs_custom_fill_dark">မှောင်</string>
+    <string name="qs_custom_fill_gradient">ဂရေဒီယင့်</string>
+    <string name="qs_custom_fill_icon">အိုင်ကွန်သာ</string>
+    <string name="qs_custom_fill_solid">တစ်ရောင်တည်း</string>
+    <string name="qs_custom_fill_surface">မျက်နှာပြင်</string>
+    <string name="qs_custom_fill_tint">အရောင်ဆိုင်း</string>
+    <string name="qs_custom_font_caps">စာလုံးအကြီး</string>
+    <string name="qs_custom_font_mono">Mono</string>
+    <string name="qs_custom_font_sans">Sans</string>
+    <string name="qs_custom_glow">ဖွင့်ထားစဉ် တောက်ပ</string>
+    <string name="qs_custom_hide">ဖျောက်ရန်</string>
+    <string name="qs_custom_hint">အကွက်ကို နှိပ်၍ ရွေးစရာများ · ဖိ၍ရွှေ့ · ထောင့်ကို ဆွဲ၍ အရွယ်ပြောင်း</string>
+    <string name="qs_custom_icon_size">အိုင်ကွန်အရွယ်အစား</string>
+    <string name="qs_custom_label">အမည်</string>
+    <string name="qs_custom_label_inside">အတွင်း</string>
+    <string name="qs_custom_label_under">အောက်</string>
+    <string name="qs_custom_look">ပုံစံ</string>
+    <string name="qs_custom_media_art">အနုပညာပုံ</string>
+    <string name="qs_custom_media_blocks">ရုပ်သွင်ပိတ်ပုံများ</string>
+    <string name="qs_custom_media_cover">ဖုံး</string>
+    <string name="qs_custom_media_full">အပြည့်</string>
+    <string name="qs_custom_media_glow">တောက်ပ</string>
+    <string name="qs_custom_media_line">မျဉ်း</string>
+    <string name="qs_custom_media_look">ပုံစံ</string>
+    <string name="qs_custom_media_place">နေရာ</string>
+    <string name="qs_custom_media_place_above">အကွက်များ အပေါ်တွင်</string>
+    <string name="qs_custom_media_place_below">အကွက်များ အောက်တွင်</string>
+    <string name="qs_custom_media_place_grid">အကွက်များနှင့်အတူ</string>
+    <string name="qs_custom_media_play">ဖွင့်ခြင်းသာ</string>
+    <string name="qs_custom_media_progress">တိုးတက်မှု</string>
+    <string name="qs_custom_media_tall">အမြင့်</string>
+    <string name="qs_custom_media_trio">ယခင်၊ ဖွင့်၊ နောက်</string>
+    <string name="qs_custom_media_wave">လှိုင်း</string>
+    <string name="qs_custom_media_wide">အကျယ်</string>
+    <string name="qs_custom_mix_footer">အောက်ခြေခလုတ်များ</string>
+    <string name="qs_custom_mix_media">မီဒီယာ ဖွင့်စက်</string>
+    <string name="qs_custom_mix_paint">အကွက်အရောင်များ</string>
+    <string name="qs_custom_mix_shape">အကွက်ပုံသဏ္ဍာန်</string>
+    <string name="qs_custom_mix_slider">စလိုက်ဒါ</string>
+    <string name="qs_custom_mixed">ရောထား</string>
+    <string name="qs_custom_my_theme_name">ကျွန်ုပ်၏အပြင်အဆင် %1$d</string>
+    <string name="qs_custom_my_themes">ကျွန်ုပ်၏အပြင်အဆင်များ (ဖိ၍ဖျက်ရန်)</string>
+    <string name="qs_custom_off_fill">ပိတ်ထားသော အကွက်များ</string>
+    <string name="qs_custom_on_fill">ဖွင့်ထားသော အကွက်များ</string>
+    <string name="qs_custom_paste_code">ကုဒ်ကပ်ရန်</string>
+    <string name="qs_custom_pill">ပင်နံပါတ်</string>
+    <string name="qs_custom_reset">ဤအပြင်အဆင်ကို ပြန်စ</string>
+    <string name="qs_custom_reset_tiles">အကွက်များ ပြန်စ</string>
+    <string name="qs_custom_rounded">ထောင့်ဝိုင်း</string>
+    <string name="qs_custom_rows">စာမျက်နှာတစ်ခုလျှင် အတန်းများ</string>
+    <string name="qs_custom_same_as_panel">ပြားနှင့် တူသည်</string>
+    <string name="qs_custom_save">ကျွန်ုပ်၏အပြင်အဆင်အဖြစ် သိမ်း</string>
+    <string name="qs_custom_scroll">စာမျက်နှာများအစား ဆလိုက်လုပ်</string>
+    <string name="qs_custom_second_line">ဒုတိယစာကြောင်း</string>
+    <string name="qs_custom_show">ပြ</string>
+    <string name="qs_custom_sizes">အကွက်အရွယ်အစားများ</string>
+    <string name="qs_custom_slider_by_player">ဖွင့်စက်ဘေး</string>
+    <string name="qs_custom_slider_look">ပုံစံ</string>
+    <string name="qs_custom_slider_place">နေရာ</string>
+    <string name="qs_custom_slider_top">အပေါ်</string>
+    <string name="qs_custom_slider_under">အကွက်များအောက်</string>
+    <string name="qs_custom_spacing">အကွာအဝေး</string>
+    <string name="qs_custom_start_from">ဤမှ စတင်</string>
+    <string name="qs_custom_tab_add">ထည့်</string>
+    <string name="qs_custom_tab_mix">ရောစပ်</string>
+    <string name="qs_custom_tab_slider">စလိုက်ဒါ</string>
+    <string name="qs_custom_tab_tiles">အကွက်များ</string>
+    <string name="qs_custom_theme_blueprint">Blueprint</string>
+    <string name="qs_custom_theme_cards">ကတ်များ</string>
+    <string name="qs_custom_theme_circles">စက်ဝိုင်းများ</string>
+    <string name="qs_custom_theme_classic">ဂန္တဝင်</string>
+    <string name="qs_custom_theme_compact">ကျစ်လစ်သော</string>
+    <string name="qs_custom_theme_duo">Duo</string>
+    <string name="qs_custom_theme_glass">မှန်</string>
+    <string name="qs_custom_theme_neon">နီယွန်</string>
+    <string name="qs_custom_theme_remix">Remix</string>
+    <string name="qs_custom_theme_shapes">ပုံသဏ္ဍာန်များ</string>
+    <string name="qs_custom_theme_soft">Soft</string>
+    <string name="qs_custom_theme_stock">မူရင်း</string>
+    <string name="qs_custom_tile_color">ဖွင့်ထားစဉ် အရောင်</string>
+    <string name="qs_custom_tile_height">အမြင့်</string>
+    <string name="qs_custom_tile_height_dp">အကွက်အမြင့်</string>
+    <string name="qs_look_label">ပုံစံ</string>
+    <string name="qs_look_none">နောက်ပုံစံကို နှိပ်ရန်</string>
+    <string name="quick_settings_clear_voice_label">ရှင်းလင်းသော အသံ</string>
+    <string name="accessibility_quick_settings_clear_voice_on">ရှင်းလင်းသော အသံ ဖွင့်ထားသည်။</string>
+    <string name="accessibility_quick_settings_clear_voice_off">ရှင်းလင်းသော အသံ ပိတ်ထားသည်။</string>
 </resources>

@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="weather_condition_clouds">"ಮೋಡ ಕವಿದ"</string>
+    <string name="weather_condition_rain">ಮಳೆ</string>
+    <string name="weather_condition_clear">ಸ್ಪಷ್ಟ ಆಕಾಶ</string>
+    <string name="weather_condition_storm">ಬಿರುಗಾಳಿ</string>
+    <string name="weather_condition_snow">ಹಿಮ</string>
+    <string name="weather_condition_wind">ಗಾಳಿ</string>
+    <string name="weather_condition_mist">ಮಂಜು</string>
 </resources>

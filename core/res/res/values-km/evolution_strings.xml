@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="pocket_mode_title">របៀបក្នុងហោប៉ៅកំពុងដំណើរការ</string>
+    <string name="pocket_mode_illustration_description">រូបភាពទូរស័ព្ទនៅក្នុងហោប៉ៅ</string>
+    <string name="pocket_mode_instructions_header">ដើម្បីប្រើទូរស័ព្ទរបស់អ្នក៖</string>
+    <string name="pocket_mode_instruction_step1">១. សូមធានាថាតំបន់ពណ៌ខៀវ (សេនស័រចម្ងាយ) ដែលបង្ហាញខាងលើមិនមានអ្វីបិទបាំង និងគ្មានធូលី ឬធូលីដីទេ។</string>
+    <string name="pocket_mode_instruction_step2">២. ចុច និងសង្កត់ប៊ូតុងថាមពលដើម្បីចេញពីរបៀបក្នុងហោប៉ៅ។</string>
+</resources>

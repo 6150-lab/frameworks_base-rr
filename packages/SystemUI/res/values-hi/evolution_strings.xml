@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="weather_condition_clouds">"बदली"</string>
+    <string name="weather_condition_rain">बारिश</string>
+    <string name="weather_condition_clear">साफ़ आसमान</string>
+    <string name="weather_condition_storm">तूफ़ानी</string>
+    <string name="weather_condition_snow">बर्फ़बारी</string>
+    <string name="weather_condition_wind">हवा</string>
+    <string name="weather_condition_mist">कोहरा</string>
 </resources>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="pocket_mode_title">සාක්කු මාදිලිය සක්‍රියයි</string>
+    <string name="pocket_mode_illustration_description">සාක්කුවේ ඇති දුරකථනයේ රූපසටහන</string>
+    <string name="pocket_mode_instructions_header">ඔබේ දුරකථනය භාවිතා කිරීමට:</string>
+    <string name="pocket_mode_instruction_step1">1. ඉහත පෙන්වා ඇති නිල් ප්‍රදේශය (සමීපතා සංවේදකය) බාධාවකින් තොරව හා දූවිලි රහිතව ඇති බව සහතික කරන්න.</string>
+    <string name="pocket_mode_instruction_step2">2. සාක්කු මාදිලියෙන් ඉවත් වීමට බල බොත්තම අඩසේ ඔබාගෙන සිටින්න.</string>
+</resources>

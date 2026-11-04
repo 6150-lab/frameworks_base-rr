@@ -49,4 +49,205 @@
     <string name="qs_custom_tile_icon">"រូប​តំណាង"</string>
     <string name="qs_custom_tile_width">"ទទឹង"</string>
     <string name="qs_custom_title">"ប្ដូរតាមបំណង"</string>
+    <string name="rr_power_title">ថាមពល</string>
+    <string name="rr_power_status">ដំណើរការ %1$s · ថ្ម %2$s</string>
+    <string name="rr_power_status_uptime">ដំណើរការ %1$s</string>
+    <string name="rr_power_back">ត្រឡប់ទៅម៉ឺនុយថាមពល</string>
+    <string name="rr_shutdown_back_soon">Resurrected Remix នឹងត្រឡប់មកវិញភ្លាម</string>
+    <string name="global_action_restart_subtitle">ជ្រើសរបៀបដែលទូរស័ព្ទចាប់ដំណើរការឡើងវិញ</string>
+    <string name="global_action_restart_system_summary">ចាប់ផ្តើម Android ឡើងវិញ។ សង្កត់ឲ្យយូរសម្រាប់មុខងារសុវត្ថិភាព</string>
+    <string name="global_action_restart_recovery_summary">ដំឡើងការអាប់ដេត ដំឡើងពីខាងក្រៅ ឬលុបទិន្នន័យ</string>
+    <string name="global_action_restart_bootloader_summary">Fastboot សម្រាប់ដំឡើងរូបភាព boot</string>
+    <string name="global_action_restart_fastboot_summary">Fastboot កម្រិតអ្នកប្រើ សម្រាប់ផ្នែកប្រព័ន្ធ</string>
+    <string name="global_action_restart_download_summary">មុខងារទាញយក សម្រាប់ឧបករណ៍ដំឡើងរបស់ក្រុមហ៊ុនផលិត</string>
+    <string name="volume_ringer_priority_only">ការបញ្ចូលអាទិភាព</string>
+    <string name="volume_ringer_dnd">DnD</string>
+    <string name="tristate_flashlight_blink">ការលោតពិលភ្លើង</string>
+    <string name="tristate_brightness_bright">ពន្លឺអតិបរមា</string>
+    <string name="tristate_brightness_dark">ពន្លឺអប្បបរមា</string>
+    <string name="tristate_brightness_auto">ពន្លឺស្វ័យប្រវត្តិ</string>
+    <string name="tristate_rotation_0">បញ្ឈរ</string>
+    <string name="tristate_rotation_90">ផ្ដេក (90°)</string>
+    <string name="tristate_rotation_270">ផ្ដេក (270°)</string>
+    <string name="tristate_app_launch">កំពុងបើកកម្មវិធី</string>
+    <string name="face_unlock_recognizing">កំពុងស្គាល់មុខ...</string>
+    <string name="screen_on_time_label">SOT <xliff:g id="duration" example="5 hr 12 min">%1$s</xliff:g></string>
+    <string name="quick_launch_video">វីដេអូ</string>
+    <string name="quick_launch_qr">ស្កេនQR</string>
+    <string name="now_bar_charging">កំពុងសាក · <xliff:g id="level" example="74">%1$d</xliff:g>%%</string>
+    <string name="now_bar_full_in">ពេញក្នុង <xliff:g id="duration" example="22 min">%1$s</xliff:g></string>
+    <string name="now_bar_charged">បានសាក</string>
+    <string name="now_bar_flashlight_on">ពិលបើក</string>
+    <string name="now_bar_buds">កាស</string>
+    <string name="now_bar_buds_case">ករណី <xliff:g id="level" example="61">%1$d</xliff:g></string>
+    <string name="now_bar_play">ចាក់</string>
+    <string name="now_bar_pause">ផ្អាក</string>
+    <string name="now_bar_previous">មុន</string>
+    <string name="now_bar_next">បន្ទាប់</string>
+    <string name="now_bar_hide">លាក់រហូតដល់បញ្ចប់</string>
+    <string name="now_bar_settings">ការកំណត់ Now Bar</string>
+    <string name="now_bar_pin">ខ្ទាស់នៅលើអេក្រង់បង្ហាញជានិច្ច</string>
+    <string name="stage_battery_description">ថ្ម <xliff:g id="percent" example="74">%1$d</xliff:g> ភាគរយ</string>
+    <string name="stage_alarm_description">ម៉ោងរោទ៍បន្ទាប់ <xliff:g id="time" example="Tue 6:30">%1$s</xliff:g></string>
+    <string name="flatline_playing">កំពុងចាក់</string>
+    <string name="flatline_call">ការហៅចូល</string>
+    <string name="flatline_vitals">សញ្ញាជីវិត</string>
+    <string name="flatline_vitals_preview">74% · ម៉ោងរោទ៍ 6:30</string>
+    <string name="flatline_alarm">ម៉ោងរោទ៍ <xliff:g id="time" example="6:30">%1$s</xliff:g></string>
+    <string name="now_bar_unpin">ដកការខ្ទាស់ចេញពីអេក្រង់បង្ហាញជានិច្ច</string>
+    <string name="now_bar_open">បើក</string>
+    <string name="now_bar_output">លទ្ធផល</string>
+    <string name="now_bar_close">បិទ</string>
+    <string name="now_bar_minutes_left">នៅសល់ <xliff:g id="minutes" example="4">%1$d</xliff:g> នាទី</string>
+    <string name="now_bar_minutes"><xliff:g id="minutes" example="12">%1$d</xliff:g> នាទី</string>
+    <string name="now_bar_versus"><xliff:g id="team" example="Lakers">%1$s</xliff:g> ទល់នឹង <xliff:g id="team" example="Celtics">%2$s</xliff:g></string>
+    <string name="charge_report_channel">របាយការណ៍ការសាក</string>
+    <string name="charge_report_title">របាយការណ៍ការសាក</string>
+    <string name="charge_report_summary">+<xliff:g id="added" example="62">%1$d</xliff:g>%% ក្នុង <xliff:g id="time" example="31 min">%2$s</xliff:g> · កំពូល <xliff:g id="watts" example="55.0">%3$s</xliff:g> W · អតិបរមា <xliff:g id="temp" example="38">%4$s</xliff:g> °C</string>
+    <string name="charge_report_details"><xliff:g id="charger" example="Wired">%1$s</xliff:g> · <xliff:g id="from" example="12">%2$d</xliff:g>%% ដល់ <xliff:g id="to" example="74">%3$d</xliff:g>%% · មធ្យម <xliff:g id="watts" example="41.3">%4$s</xliff:g> W</string>
+    <string name="charge_report_wired">មានខ្សែ</string>
+    <string name="charge_report_wireless">ឥតខ្សែ</string>
+    <string name="charge_report_dock">ដុក</string>
+    <string name="usb_mode_picker_title">ជ្រើសរើសរបៀប USB</string>
+    <string name="usb_mode_photo_transfer">ផ្ទេររូបថត និងវីដេអូ</string>
+    <string name="usb_mode_webcam">កាមេរ៉ាបណ្ដាញ USB</string>
+    <string name="usb_mode_charging_only">សាកតែប៉ុណ្ណោះ</string>
+    <string name="usb_charging_status">ការសាក USB បើក</string>
+    <string name="usb_island_title">បានភ្ជាប់ USB</string>
+    <string name="usb_island_settings">ការកំណត់ USB</string>
+    <string name="usb_mode_short_charge">សាក</string>
+    <string name="keyguard_indication_dash_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • កំពុងសាក Dash (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> ដល់ពេញ)</string>
+    <string name="keyguard_plugged_in_dash_charging"><xliff:g id="percentage">%s</xliff:g> • កំពុងសាក Dash</string>
+    <string name="keyguard_indication_warp_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • កំពុងសាក Warp (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> ដល់ពេញ)</string>
+    <string name="keyguard_plugged_in_warp_charging"><xliff:g id="percentage">%s</xliff:g> • កំពុងសាក Warp</string>
+    <string name="keyguard_indication_vooc_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • កំពុងសាក VOOC (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> ដល់ពេញ)</string>
+    <string name="keyguard_plugged_in_vooc_charging"><xliff:g id="percentage">%s</xliff:g> • កំពុងសាក VOOC</string>
+    <string name="keyguard_indication_turbo_power_time"><xliff:g id="percentage">%2$s</xliff:g> • កំពុងសាក Turbo (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> ដល់ពេញ)</string>
+    <string name="keyguard_plugged_in_turbo_charging"><xliff:g id="percentage">%s</xliff:g> • កំពុងសាក Turbo</string>
+    <string name="charging_vfx_long_press_to_speed">ចុចឱ្យជាប់ដើម្បីបង្កើនល្បឿន</string>
+    <string name="charging_vfx_source_wireless">ឥតខ្សែ</string>
+    <string name="charging_vfx_source_dock">ដុក</string>
+    <string name="charging_vfx_time_to_full">ពេញក្នុង <xliff:g id="time" example="25 min">%s</xliff:g></string>
+    <string name="qs_media_tile_idle">មិនមានអ្វីកំពុងចាក់ទេ</string>
+    <string name="qs_volume_tile_muted">បិទសំឡេង</string>
+    <string name="qs_custom_volume_half">ពាក់កណ្ដាល</string>
+    <string name="qs_custom_volume_slider">ស្លាយ</string>
+    <string name="qs_custom_volume_fill">ពេញ</string>
+    <string name="qs_custom_volume_stack">ជង់</string>
+    <string name="qs_custom_volume_ring">រង្វង់</string>
+    <string name="qs_custom_volume_call">ហៅ</string>
+    <string name="qs_custom_volume_show_all">ឈ្មោះ និងភាគរយ</string>
+    <string name="qs_custom_volume_show_percent">ភាគរយ</string>
+    <string name="qs_custom_volume_show_icon">តែរូបតំណាង</string>
+    <string name="qs_custom_volume_tap">ចុចរូបតំណាង</string>
+    <string name="qs_custom_volume_mute">បិទសំឡេង</string>
+    <string name="qs_custom_volume_panel">បន្ទះកម្រិតសំឡេង</string>
+    <string name="qs_custom_volume_ticks">សញ្ញាចុចពេលអូស</string>
+    <string name="qs_custom_accent">ពណ៌សំខាន់</string>
+    <string name="qs_custom_add_tile">បន្ថែមប្រអប់</string>
+    <string name="qs_custom_all_added">ប្រអប់ទាំងអស់នៅលើបន្ទះ</string>
+    <string name="qs_custom_all_icons">រូបតំណាងទាំងអស់</string>
+    <string name="qs_custom_all_long">វែងទាំងអស់</string>
+    <string name="qs_custom_backing">ផ្ទៃខាងក្រោយរូបតំណាង</string>
+    <string name="qs_custom_blob">ពពុះ</string>
+    <string name="qs_custom_code_applied">បានអនុវត្តទម្រង់រចនា</string>
+    <string name="qs_custom_code_bad">គ្មានកូដទម្រង់រចនាដើម្បីបិទភ្ជាប់</string>
+    <string name="qs_custom_code_copied">បានចម្លងកូដទម្រង់រចនា</string>
+    <string name="qs_custom_color_amber">ពណ៌អំព័រ</string>
+    <string name="qs_custom_color_rose">កុលាប</string>
+    <string name="qs_custom_columns">ជួរឈរ</string>
+    <string name="qs_custom_copy_code">ចម្លងកូដ</string>
+    <string name="qs_custom_corners">ជ្រុង</string>
+    <string name="qs_custom_depth">ជម្រៅ</string>
+    <string name="qs_custom_depth_flat">រាបស្មើ</string>
+    <string name="qs_custom_depth_raised">លើកឡើង</string>
+    <string name="qs_custom_drop_remove">ទម្លាក់ទីនេះដើម្បីដកចេញ</string>
+    <string name="qs_custom_fill_clear">សម្អាត</string>
+    <string name="qs_custom_fill_dark">ងងឹត</string>
+    <string name="qs_custom_fill_gradient">ពណ៌ចុះឡើង</string>
+    <string name="qs_custom_fill_icon">តែរូបតំណាង</string>
+    <string name="qs_custom_fill_solid">ពណ៌តែមួយ</string>
+    <string name="qs_custom_fill_surface">ផ្ទៃ</string>
+    <string name="qs_custom_fill_tint">ពណ៌ច្របល់</string>
+    <string name="qs_custom_font_caps">អក្សរធំ</string>
+    <string name="qs_custom_font_mono">Mono</string>
+    <string name="qs_custom_font_sans">Sans</string>
+    <string name="qs_custom_glow">ផ្លុំពន្លឺពេលបើក</string>
+    <string name="qs_custom_hide">លាក់</string>
+    <string name="qs_custom_hint">ចុចប្រអប់ដើម្បីមើលជម្រើស · សង្កត់ដើម្បីផ្លាស់ទី · អូសជ្រុងដើម្បីប្ដូរទំហំ</string>
+    <string name="qs_custom_icon_size">ទំហំរូបតំណាង</string>
+    <string name="qs_custom_label">ស្លាក</string>
+    <string name="qs_custom_label_inside">ខាងក្នុង</string>
+    <string name="qs_custom_label_under">ខាងក្រោម</string>
+    <string name="qs_custom_look">រូបរាង</string>
+    <string name="qs_custom_media_art">ស្នាដៃ</string>
+    <string name="qs_custom_media_blocks">ប្លុក</string>
+    <string name="qs_custom_media_cover">គ្រប</string>
+    <string name="qs_custom_media_full">ពេញ</string>
+    <string name="qs_custom_media_glow">ពន្លឺរលោង</string>
+    <string name="qs_custom_media_line">បន្ទាត់</string>
+    <string name="qs_custom_media_look">រូបរាង</string>
+    <string name="qs_custom_media_place">ទីតាំង</string>
+    <string name="qs_custom_media_place_above">នៅលើប្រអប់</string>
+    <string name="qs_custom_media_place_below">នៅក្រោមប្រអប់</string>
+    <string name="qs_custom_media_place_grid">ជាមួយប្រអប់</string>
+    <string name="qs_custom_media_play">ចាក់តែប៉ុណ្ណោះ</string>
+    <string name="qs_custom_media_progress">វឌ្ឍនភាព</string>
+    <string name="qs_custom_media_tall">ខ្ពស់</string>
+    <string name="qs_custom_media_trio">មុន ចាក់ បន្ទាប់</string>
+    <string name="qs_custom_media_wave">រលក</string>
+    <string name="qs_custom_media_wide">ទូលាយ</string>
+    <string name="qs_custom_mix_footer">ប៊ូតុងខាងក្រោម</string>
+    <string name="qs_custom_mix_media">កម្មវិធីចាក់មេឌៀ</string>
+    <string name="qs_custom_mix_paint">ពណ៌ប្រអប់</string>
+    <string name="qs_custom_mix_shape">រាងប្រអប់</string>
+    <string name="qs_custom_mix_slider">ស្លាយ</string>
+    <string name="qs_custom_mixed">ចម្រុះ</string>
+    <string name="qs_custom_my_theme_name">ទម្រង់រចនារបស់ខ្ញុំ %1$d</string>
+    <string name="qs_custom_my_themes">ទម្រង់រចនារបស់ខ្ញុំ (សង្កត់ដើម្បីលុប)</string>
+    <string name="qs_custom_off_fill">ប្រអប់បិទ</string>
+    <string name="qs_custom_on_fill">ប្រអប់បើក</string>
+    <string name="qs_custom_paste_code">បិទភ្ជាប់កូដ</string>
+    <string name="qs_custom_pill">ផ្ទាំង</string>
+    <string name="qs_custom_reset">កំណត់ទម្រង់រចនានេះឡើងវិញ</string>
+    <string name="qs_custom_reset_tiles">កំណត់ប្រអប់ឡើងវិញ</string>
+    <string name="qs_custom_rounded">មូល</string>
+    <string name="qs_custom_rows">ជួរក្នុងមួយទំព័រ</string>
+    <string name="qs_custom_same_as_panel">ដូចបន្ទះ</string>
+    <string name="qs_custom_save">រក្សាទុកជាទម្រង់របស់ខ្ញុំ</string>
+    <string name="qs_custom_scroll">រំកិលជំនួសទំព័រ</string>
+    <string name="qs_custom_second_line">បន្ទាត់ទីពីរ</string>
+    <string name="qs_custom_show">បង្ហាញ</string>
+    <string name="qs_custom_sizes">ទំហំប្រអប់</string>
+    <string name="qs_custom_slider_by_player">ក្បែរកម្មវិធីចាក់</string>
+    <string name="qs_custom_slider_look">រូបរាង</string>
+    <string name="qs_custom_slider_place">ទីតាំង</string>
+    <string name="qs_custom_slider_top">ខាងលើ</string>
+    <string name="qs_custom_slider_under">ក្រោមប្រអប់</string>
+    <string name="qs_custom_spacing">ចន្លោះ</string>
+    <string name="qs_custom_start_from">ចាប់ផ្តើមពី</string>
+    <string name="qs_custom_tab_add">បន្ថែម</string>
+    <string name="qs_custom_tab_mix">ចម្រុះ</string>
+    <string name="qs_custom_tab_slider">ស្លាយ</string>
+    <string name="qs_custom_tab_tiles">ប្រអប់</string>
+    <string name="qs_custom_theme_blueprint">Blueprint</string>
+    <string name="qs_custom_theme_cards">កាត</string>
+    <string name="qs_custom_theme_circles">រង្វង់</string>
+    <string name="qs_custom_theme_classic">បុរាណ</string>
+    <string name="qs_custom_theme_compact">ខ្នាតតូច</string>
+    <string name="qs_custom_theme_duo">Duo</string>
+    <string name="qs_custom_theme_glass">កញ្ចក់</string>
+    <string name="qs_custom_theme_neon">នេអុង</string>
+    <string name="qs_custom_theme_remix">Remix</string>
+    <string name="qs_custom_theme_shapes">រូបរាង</string>
+    <string name="qs_custom_theme_soft">ទន់</string>
+    <string name="qs_custom_theme_stock">ស្តង់ដារ</string>
+    <string name="qs_custom_tile_color">ពណ៌ពេលបើក</string>
+    <string name="qs_custom_tile_height">កម្ពស់</string>
+    <string name="qs_custom_tile_height_dp">កម្ពស់ប្រអប់</string>
+    <string name="qs_look_label">រូបរាង</string>
+    <string name="qs_look_none">ចុចដើម្បីទៅរូបរាងបន្ទាប់</string>
+    <string name="quick_settings_clear_voice_label">សំឡេងច្បាស់</string>
+    <string name="accessibility_quick_settings_clear_voice_on">សំឡេងច្បាស់បានបើក។</string>
+    <string name="accessibility_quick_settings_clear_voice_off">សំឡេងច្បាស់បានបិទ។</string>
 </resources>

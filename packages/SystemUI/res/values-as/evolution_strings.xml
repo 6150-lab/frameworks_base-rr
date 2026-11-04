@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="weather_condition_clouds">মেঘলা</string>
+    <string name="weather_condition_rain">বৰষুণ</string>
+    <string name="weather_condition_clear">পৰিষ্কাৰ আকাশ</string>
+    <string name="weather_condition_storm">ধুমুহা</string>
+    <string name="weather_condition_snow">বৰফ</string>
+    <string name="weather_condition_wind">বতাহ</string>
+    <string name="weather_condition_mist">কুঁৱলী</string>
+</resources>

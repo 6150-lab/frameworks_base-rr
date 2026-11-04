@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="weather_condition_clouds">"מעונן"</string>
+    <string name="weather_condition_rain">גשום</string>
+    <string name="weather_condition_clear">שמיים בהירים</string>
+    <string name="weather_condition_storm">סערה</string>
+    <string name="weather_condition_snow">מושלג</string>
+    <string name="weather_condition_wind">רוח</string>
+    <string name="weather_condition_mist">Misty</string>
 </resources>

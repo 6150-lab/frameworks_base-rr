@@ -49,4 +49,205 @@
     <string name="qs_custom_tile_icon">"Сүрөтчө"</string>
     <string name="qs_custom_tile_width">"Туурасы"</string>
     <string name="qs_custom_title">"Ыңгайлаштыруу"</string>
+    <string name="rr_power_title">Кубат</string>
+    <string name="rr_power_status">%1$s иштеди · %2$s батарея</string>
+    <string name="rr_power_status_uptime">%1$s иштеди</string>
+    <string name="rr_power_back">Кубат менюсуна кайтуу</string>
+    <string name="rr_shutdown_back_soon">Resurrected Remix азыр кайтат</string>
+    <string name="global_action_restart_subtitle">Телефон кайра кантип иштеп баштоорун тандаңыз</string>
+    <string name="global_action_restart_system_summary">Android кайра иштетүү. Коопсуз режим үчүн узак басыңыз</string>
+    <string name="global_action_restart_recovery_summary">Жаңыртууларды орнотуу, sideload же маалыматты тазалоо</string>
+    <string name="global_action_restart_bootloader_summary">Fastboot, жүктөө сүрөттөрүн жазуу үчүн</string>
+    <string name="global_action_restart_fastboot_summary">Userspace fastboot, системалык бөлүмдөр үчүн</string>
+    <string name="global_action_restart_download_summary">Жүктөө режими, сатуучунун флеш куралы үчүн</string>
+    <string name="volume_ringer_priority_only">Басымдык</string>
+    <string name="volume_ringer_dnd">ТБР</string>
+    <string name="tristate_flashlight_blink">Фонарь жыпылдатуу</string>
+    <string name="tristate_brightness_bright">Макс. жарык</string>
+    <string name="tristate_brightness_dark">Мин. жарык</string>
+    <string name="tristate_brightness_auto">Авто жарык</string>
+    <string name="tristate_rotation_0">Портрет</string>
+    <string name="tristate_rotation_90">Альбом (90°)</string>
+    <string name="tristate_rotation_270">Альбом (270°)</string>
+    <string name="tristate_app_launch">Колдонмо ачылууда</string>
+    <string name="face_unlock_recognizing">Жүз таанылууда...</string>
+    <string name="screen_on_time_label">SOT <xliff:g id="duration" example="5 hr 12 min">%1$s</xliff:g></string>
+    <string name="quick_launch_video">Видео</string>
+    <string name="quick_launch_qr">QR сканерлөө</string>
+    <string name="now_bar_charging">Зарядка · <xliff:g id="level" example="74">%1$d</xliff:g>%%</string>
+    <string name="now_bar_full_in"><xliff:g id="duration" example="22 min">%1$s</xliff:g> ичинде толот</string>
+    <string name="now_bar_charged">Кубатталды</string>
+    <string name="now_bar_flashlight_on">Кол чырак күйүк</string>
+    <string name="now_bar_buds">Кулакчындар</string>
+    <string name="now_bar_buds_case">Кутуча <xliff:g id="level" example="61">%1$d</xliff:g></string>
+    <string name="now_bar_play">Ойнотуу</string>
+    <string name="now_bar_pause">Тындыруу</string>
+    <string name="now_bar_previous">Мурунку</string>
+    <string name="now_bar_next">Кийинки</string>
+    <string name="now_bar_hide">Аяктаганга чейин жашыруу</string>
+    <string name="now_bar_settings">Now Bar жөндөөлөрү</string>
+    <string name="now_bar_pin">Эки жактуу экранда бекитүү</string>
+    <string name="stage_battery_description">Батарея <xliff:g id="percent" example="74">%1$d</xliff:g> пайыз</string>
+    <string name="stage_alarm_description">Кийинки ойготкуч <xliff:g id="time" example="Tue 6:30">%1$s</xliff:g></string>
+    <string name="flatline_playing">ОЙНОЛУП ЖАТАТ</string>
+    <string name="flatline_call">КЕЛГЕН ЧАЛУУ</string>
+    <string name="flatline_vitals">Көрсөткүчтөр</string>
+    <string name="flatline_vitals_preview">74% · Ойготкуч 6:30</string>
+    <string name="flatline_alarm">Ойготкуч <xliff:g id="time" example="6:30">%1$s</xliff:g></string>
+    <string name="now_bar_unpin">Эки жактуу экрандан бошотуу</string>
+    <string name="now_bar_open">Ачуу</string>
+    <string name="now_bar_output">Чыгуу</string>
+    <string name="now_bar_close">Жабуу</string>
+    <string name="now_bar_minutes_left"><xliff:g id="minutes" example="4">%1$d</xliff:g> мүн калды</string>
+    <string name="now_bar_minutes"><xliff:g id="minutes" example="12">%1$d</xliff:g> мүн</string>
+    <string name="now_bar_versus"><xliff:g id="team" example="Lakers">%1$s</xliff:g> салыштыруу <xliff:g id="team" example="Celtics">%2$s</xliff:g> менен</string>
+    <string name="charge_report_channel">Кубаттоо отчёттору</string>
+    <string name="charge_report_title">Кубаттоо отчёту</string>
+    <string name="charge_report_summary"><xliff:g id="time" example="31 min">%2$s</xliff:g> ичинде +<xliff:g id="added" example="62">%1$d</xliff:g>%% · чокку <xliff:g id="watts" example="55.0">%3$s</xliff:g> Вт · макс. <xliff:g id="temp" example="38">%4$s</xliff:g> °C</string>
+    <string name="charge_report_details"><xliff:g id="charger" example="Wired">%1$s</xliff:g> · <xliff:g id="from" example="12">%2$d</xliff:g>%% дан <xliff:g id="to" example="74">%3$d</xliff:g>%% ке чейин · орточо <xliff:g id="watts" example="41.3">%4$s</xliff:g> Вт</string>
+    <string name="charge_report_wired">Зым менен</string>
+    <string name="charge_report_wireless">Зымсыз</string>
+    <string name="charge_report_dock">Док</string>
+    <string name="usb_mode_picker_title">USB режимин тандоо</string>
+    <string name="usb_mode_photo_transfer">Сүрөт жана видео өткөрүү</string>
+    <string name="usb_mode_webcam">USB веб-камера</string>
+    <string name="usb_mode_charging_only">Кубаттоо гана</string>
+    <string name="usb_charging_status">USB менен кубаттоо күйүк</string>
+    <string name="usb_island_title">USB туташты</string>
+    <string name="usb_island_settings">USB жөндөөлөрү</string>
+    <string name="usb_mode_short_charge">Кубаттоо</string>
+    <string name="keyguard_indication_dash_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Dash кубаттоо (толгонго чейин <xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g>)</string>
+    <string name="keyguard_plugged_in_dash_charging"><xliff:g id="percentage">%s</xliff:g> • Dash кубаттоо</string>
+    <string name="keyguard_indication_warp_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Warp кубаттоо (толгонго чейин <xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g>)</string>
+    <string name="keyguard_plugged_in_warp_charging"><xliff:g id="percentage">%s</xliff:g> • Warp кубаттоо</string>
+    <string name="keyguard_indication_vooc_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • VOOC кубаттоо (толгонго чейин <xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g>)</string>
+    <string name="keyguard_plugged_in_vooc_charging"><xliff:g id="percentage">%s</xliff:g> • VOOC кубаттоо</string>
+    <string name="keyguard_indication_turbo_power_time"><xliff:g id="percentage">%2$s</xliff:g> • Turbo кубаттоо (толгонго чейин <xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g>)</string>
+    <string name="keyguard_plugged_in_turbo_charging"><xliff:g id="percentage">%s</xliff:g> • Turbo кубаттоо</string>
+    <string name="charging_vfx_long_press_to_speed">Ылдамдатуу үчүн басып туруңуз</string>
+    <string name="charging_vfx_source_wireless">Зымсыз</string>
+    <string name="charging_vfx_source_dock">Док</string>
+    <string name="charging_vfx_time_to_full"><xliff:g id="time" example="25 min">%s</xliff:g> ичинде толот</string>
+    <string name="qs_media_tile_idle">Эч нерсе ойнотулбай жатат</string>
+    <string name="qs_volume_tile_muted">Үнсүз</string>
+    <string name="qs_custom_volume_half">Жарым</string>
+    <string name="qs_custom_volume_slider">Сыдырма</string>
+    <string name="qs_custom_volume_fill">Толтуруу</string>
+    <string name="qs_custom_volume_stack">Үйүлгөн</string>
+    <string name="qs_custom_volume_ring">Шыңгыroo</string>
+    <string name="qs_custom_volume_call">Чалуу</string>
+    <string name="qs_custom_volume_show_all">Аты жана пайыз</string>
+    <string name="qs_custom_volume_show_percent">Пайыз</string>
+    <string name="qs_custom_volume_show_icon">Белгичө гана</string>
+    <string name="qs_custom_volume_tap">Белгичени басыңыз</string>
+    <string name="qs_custom_volume_mute">Үнсүз</string>
+    <string name="qs_custom_volume_panel">Үн панели</string>
+    <string name="qs_custom_volume_ticks">Сүйрөөдө белгилер</string>
+    <string name="qs_custom_accent">Акцент</string>
+    <string name="qs_custom_add_tile">Карта кошуу</string>
+    <string name="qs_custom_all_added">Бардык карта панелде</string>
+    <string name="qs_custom_all_icons">Бардык белгичелер</string>
+    <string name="qs_custom_all_long">Бардык узун</string>
+    <string name="qs_custom_backing">Белгиче фону</string>
+    <string name="qs_custom_blob">Томпок</string>
+    <string name="qs_custom_code_applied">Тема колдонулду</string>
+    <string name="qs_custom_code_bad">Чаптоо үчүн тема коду жок</string>
+    <string name="qs_custom_code_copied">Тема коду көчүрүлдү</string>
+    <string name="qs_custom_color_amber">Кызгылт сары</string>
+    <string name="qs_custom_color_rose">Роза</string>
+    <string name="qs_custom_columns">Мамычалар</string>
+    <string name="qs_custom_copy_code">Кодду көчүрүү</string>
+    <string name="qs_custom_corners">Бурчтар</string>
+    <string name="qs_custom_depth">Тереңдик</string>
+    <string name="qs_custom_depth_flat">Жалпак</string>
+    <string name="qs_custom_depth_raised">Көтөрүлгөн</string>
+    <string name="qs_custom_drop_remove">Өчүрүү үчүн бул жерге таштаңыз</string>
+    <string name="qs_custom_fill_clear">Тазалоо</string>
+    <string name="qs_custom_fill_dark">Караңгы</string>
+    <string name="qs_custom_fill_gradient">Градиент</string>
+    <string name="qs_custom_fill_icon">Белгичө гана</string>
+    <string name="qs_custom_fill_solid">Бир түстүү</string>
+    <string name="qs_custom_fill_surface">Беттик</string>
+    <string name="qs_custom_fill_tint">Боёк</string>
+    <string name="qs_custom_font_caps">Баш тамгалар</string>
+    <string name="qs_custom_font_mono">Mono</string>
+    <string name="qs_custom_font_sans">Sans</string>
+    <string name="qs_custom_glow">Күйгөндө жаркыроо</string>
+    <string name="qs_custom_hide">Жашыруу</string>
+    <string name="qs_custom_hint">Картанын параметрлери үчүн басыңыз · Жылдыруу үчүн кармаңыз · Өлчөмүн өзгөртүү үчүн бурчун сүйрөңүз</string>
+    <string name="qs_custom_icon_size">Белгиче өлчөмү</string>
+    <string name="qs_custom_label">Жазуу</string>
+    <string name="qs_custom_label_inside">Ичинде</string>
+    <string name="qs_custom_label_under">Астында</string>
+    <string name="qs_custom_look">Көрүнүш</string>
+    <string name="qs_custom_media_art">Сүрөт</string>
+    <string name="qs_custom_media_blocks">Блоктор</string>
+    <string name="qs_custom_media_cover">Каптоо</string>
+    <string name="qs_custom_media_full">Толук</string>
+    <string name="qs_custom_media_glow">Жаркыроо</string>
+    <string name="qs_custom_media_line">Сызык</string>
+    <string name="qs_custom_media_look">Көрүнүш</string>
+    <string name="qs_custom_media_place">Кайда</string>
+    <string name="qs_custom_media_place_above">Карталардан жогору</string>
+    <string name="qs_custom_media_place_below">Карталардан төмөн</string>
+    <string name="qs_custom_media_place_grid">Карталар менен бирге</string>
+    <string name="qs_custom_media_play">Ойнотуу гана</string>
+    <string name="qs_custom_media_progress">Прогресс</string>
+    <string name="qs_custom_media_tall">Узун</string>
+    <string name="qs_custom_media_trio">Мурунку, ойнотуу, кийинки</string>
+    <string name="qs_custom_media_wave">Толкун</string>
+    <string name="qs_custom_media_wide">Кең</string>
+    <string name="qs_custom_mix_footer">Төмөнкү баскычтар</string>
+    <string name="qs_custom_mix_media">Медиа ойноткуч</string>
+    <string name="qs_custom_mix_paint">Карта түстөрү</string>
+    <string name="qs_custom_mix_shape">Карта формасы</string>
+    <string name="qs_custom_mix_slider">Сыдырма</string>
+    <string name="qs_custom_mixed">Аралаш</string>
+    <string name="qs_custom_my_theme_name">Менин темам %1$d</string>
+    <string name="qs_custom_my_themes">Менин темаларым (өчүрүү үчүн кармаңыз)</string>
+    <string name="qs_custom_off_fill">Өчүк карталар</string>
+    <string name="qs_custom_on_fill">Күйгөн карталар</string>
+    <string name="qs_custom_paste_code">Кодду чаптоо</string>
+    <string name="qs_custom_pill">Таблетка</string>
+    <string name="qs_custom_reset">Бул теманы баштапкыга кайтаруу</string>
+    <string name="qs_custom_reset_tiles">Карталарды баштапкыга кайтаруу</string>
+    <string name="qs_custom_rounded">Тегерек</string>
+    <string name="qs_custom_rows">Баракчадагы катарлар</string>
+    <string name="qs_custom_same_as_panel">Панел менен бирдей</string>
+    <string name="qs_custom_save">Менин темам катары сактоо</string>
+    <string name="qs_custom_scroll">Баракчалардын ордуна сыдыруу</string>
+    <string name="qs_custom_second_line">Экинчи катар</string>
+    <string name="qs_custom_show">Көрсөтүү</string>
+    <string name="qs_custom_sizes">Карта өлчөмдөрү</string>
+    <string name="qs_custom_slider_by_player">Ойнаткыч боюнча</string>
+    <string name="qs_custom_slider_look">Көрүнүш</string>
+    <string name="qs_custom_slider_place">Кайда</string>
+    <string name="qs_custom_slider_top">Жогорку</string>
+    <string name="qs_custom_slider_under">Карталардын астында</string>
+    <string name="qs_custom_spacing">Аралык</string>
+    <string name="qs_custom_start_from">Баштоо булагы</string>
+    <string name="qs_custom_tab_add">Кошуу</string>
+    <string name="qs_custom_tab_mix">Аралаш</string>
+    <string name="qs_custom_tab_slider">Сыдырма</string>
+    <string name="qs_custom_tab_tiles">Карталар</string>
+    <string name="qs_custom_theme_blueprint">Blueprint</string>
+    <string name="qs_custom_theme_cards">Карточкалар</string>
+    <string name="qs_custom_theme_circles">Айланалар</string>
+    <string name="qs_custom_theme_classic">Классикалык</string>
+    <string name="qs_custom_theme_compact">Ихчам</string>
+    <string name="qs_custom_theme_duo">Duo</string>
+    <string name="qs_custom_theme_glass">Айнек</string>
+    <string name="qs_custom_theme_neon">Неон</string>
+    <string name="qs_custom_theme_remix">Remix</string>
+    <string name="qs_custom_theme_shapes">Фигуралар</string>
+    <string name="qs_custom_theme_soft">Жумшак</string>
+    <string name="qs_custom_theme_stock">Стандарттык</string>
+    <string name="qs_custom_tile_color">Күйгөндөгү түс</string>
+    <string name="qs_custom_tile_height">Бийиктиги</string>
+    <string name="qs_custom_tile_height_dp">Карта бийиктиги</string>
+    <string name="qs_look_label">Көрүнүш</string>
+    <string name="qs_look_none">Кийинки көрүнүш үчүн басыңыз</string>
+    <string name="quick_settings_clear_voice_label">Clear Voice</string>
+    <string name="accessibility_quick_settings_clear_voice_on">Clear Voice күйүк.</string>
+    <string name="accessibility_quick_settings_clear_voice_off">Clear Voice өчүк.</string>
 </resources>

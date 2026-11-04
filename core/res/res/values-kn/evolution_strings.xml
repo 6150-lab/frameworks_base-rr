@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="pocket_mode_title">ಪಾಕೆಟ್ ಮೋಡ್ ಸಕ್ರಿಯವಾಗಿದೆ</string>
+    <string name="pocket_mode_illustration_description">ಪಾಕೆಟ್‌ನಲ್ಲಿರುವ ಫೋನ್‌ನ ಚಿತ್ರ</string>
+    <string name="pocket_mode_instructions_header">ನಿಮ್ಮ ಫೋನ್ ಬಳಸಲು:</string>
+    <string name="pocket_mode_instruction_step1">1. ಮೇಲೆ ತೋರಿಸಿರುವ ನೀಲಿ ಪ್ರದೇಶ (ಸಾಮೀಪ್ಯ ಸೆನ್ಸರ್) ಅಡೆತಡೆಯಿಲ್ಲದೆ ಮತ್ತು ಧೂಳು ಅಥವಾ ಕೊಳೆಯಿಲ್ಲದೆ ಇರುವಂತೆ ನೋಡಿಕೊಳ್ಳಿ.</string>
+    <string name="pocket_mode_instruction_step2">2. ಪಾಕೆಟ್ ಮೋಡ್‌ನಿಂದ ಹೊರಬರಲು ಪವರ್ ಬಟನ್ ಅನ್ನು ಒತ್ತಿ ಹಿಡಿಯಿರಿ.</string>
+</resources>

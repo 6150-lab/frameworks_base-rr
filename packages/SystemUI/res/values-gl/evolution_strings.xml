@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="weather_condition_clouds">"Nubrado"</string>
+    <string name="weather_condition_rain">Chuvioso</string>
+    <string name="weather_condition_clear">Ceo despexado</string>
+    <string name="weather_condition_storm">Tormentoso</string>
+    <string name="weather_condition_snow">Nevando</string>
+    <string name="weather_condition_wind">Ventoso</string>
+    <string name="weather_condition_mist">Neboento</string>
 </resources>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="pocket_mode_title">Zaktmodus is actief</string>
+    <string name="pocket_mode_illustration_description">Illustratie van telefoon in zak</string>
+    <string name="pocket_mode_instructions_header">Om je telefoon te gebruiken:</string>
+    <string name="pocket_mode_instruction_step1">1. Zorg dat het blauwe gebied (nabijheidssensor) hierboven vrij is van obstakels, vuil en stof.</string>
+    <string name="pocket_mode_instruction_step2">2. Houd de aan/uit-knop ingedrukt om de zaktmodus te verlaten.</string>
+</resources>

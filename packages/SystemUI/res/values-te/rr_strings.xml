@@ -48,4 +48,206 @@
     <string name="qs_custom_tile_icon">"చిహ్నం"</string>
     <string name="qs_custom_tile_width">"వెడల్పు"</string>
     <string name="qs_custom_title">"అనుకూలంగా మార్చండి"</string>
+    <string name="rr_power_title">పవర్‌</string>
+    <string name="rr_power_status">%1$s పైకి · %2$s బ్యాటరీ</string>
+    <string name="rr_power_status_uptime">%1$s పైకి</string>
+    <string name="rr_power_back">పవర్ మెనూకు తిరిగి వెళ్లండి</string>
+    <string name="rr_shutdown_back_soon">Resurrected Remix త్వరలో తిరిగి వస్తుంది</string>
+    <string name="global_action_restart_subtitle">ఫోన్ మళ్లీ ఎలా స్టార్ట్ అవ్వాలో ఎంచుకోండి</string>
+    <string name="global_action_restart_system_summary">Android ను రీస్టార్ట్ చేయండి. సేఫ్ మోడ్ కోసం ఎక్కువసేపు నొక్కండి</string>
+    <string name="global_action_restart_recovery_summary">అప్‌డేట్‌లను ఇన్‌స్టాల్ చేయండి, సైడ్‌లోడ్ చేయండి లేదా డేటాను తుడిచివేయండి</string>
+    <string name="global_action_restart_bootloader_summary">Fastboot, బూట్ ఇమేజ్‌లను ఫ్లాష్ చేయడానికి</string>
+    <string name="global_action_restart_fastboot_summary">సిస్టమ్ పార్టిషన్‌ల కోసం Userspace fastboot</string>
+    <string name="global_action_restart_download_summary">వెండర్ ఫ్లాష్ టూల్ కోసం Download mode</string>
+    <string name="volume_ringer_priority_only">ప్రాధాన్యత</string>
+    <string name="volume_ringer_dnd">DnD</string>
+    <string name="tristate_flashlight_blink">టార్చ్ బ్లింక్</string>
+    <string name="tristate_brightness_bright">గరిష్ఠ ప్రకాశం</string>
+    <string name="tristate_brightness_dark">కనిష్ఠ ప్రకాశం</string>
+    <string name="tristate_brightness_auto">ఆటో-ప్రకాశం</string>
+    <string name="tristate_rotation_0">పోర్ట్రెయిట్</string>
+    <string name="tristate_rotation_90">ల్యాండ్‌స్కేప్ (90°)</string>
+    <string name="tristate_rotation_270">ల్యాండ్‌స్కేప్ (270°)</string>
+    <string name="tristate_app_launch">యాప్‌ను ప్రారంభిస్తోంది</string>
+    <string name="face_unlock_recognizing">ముఖాన్ని గుర్తిస్తోంది...</string>
+    <string name="screen_on_time_label">SOT <xliff:g id="duration" example="5 hr 12 min">%1$s</xliff:g></string>
+    <string name="quick_launch_video">వీడియో</string>
+    <string name="quick_launch_qr">QR స్కాన్ చేయండి</string>
+    <string name="now_bar_charging">ఛార్జింగ్ · <xliff:g id="level" example="74">%1$d</xliff:g>%%</string>
+    <string name="now_bar_full_in"><xliff:g id="duration" example="22 min">%1$s</xliff:g>లో పూర్తవుతుంది</string>
+    <string name="now_bar_charged">ఛార్జ్ అయింది</string>
+    <string name="now_bar_flashlight_on">ఫ్లాష్‌లైట్ ఆన్‌లో ఉంది</string>
+    <string name="now_bar_buds">ఇయర్‌బడ్స్</string>
+    <string name="now_bar_buds_case">కేస్ <xliff:g id="level" example="61">%1$d</xliff:g></string>
+    <string name="now_bar_play">ప్లే</string>
+    <string name="now_bar_pause">పాజ్</string>
+    <string name="now_bar_previous">మునుపటిది</string>
+    <string name="now_bar_next">తదుపరిది</string>
+    <string name="now_bar_hide">ముగిసే వరకు దాచు</string>
+    <string name="now_bar_settings">Now Bar సెట్టింగ్‌లు</string>
+    <string name="now_bar_pin">ఆల్వేస్-ఆన్ డిస్‌ప్లేకు పిన్ చేయండి</string>
+    <string name="stage_battery_description">బ్యాటరీ <xliff:g id="percent" example="74">%1$d</xliff:g> శాతం</string>
+    <string name="stage_alarm_description">తదుపరి అలారం <xliff:g id="time" example="Tue 6:30">%1$s</xliff:g></string>
+    <string name="flatline_playing">ప్రస్తుతం ప్లే అవుతోంది</string>
+    <string name="flatline_call">ఇన్‌కమింగ్ కాల్</string>
+    <string name="flatline_vitals">వైటల్స్</string>
+    <string name="flatline_vitals_preview">74% · అలారం 6:30</string>
+    <string name="flatline_alarm">అలారం <xliff:g id="time" example="6:30">%1$s</xliff:g></string>
+    <string name="now_bar_unpin">ఆల్వేస్-ఆన్ డిస్‌ప్లే నుండి అన్‌పిన్ చేయండి</string>
+    <string name="now_bar_open">తెరువు</string>
+    <string name="now_bar_output">అవుట్‌పుట్</string>
+    <string name="now_bar_close">మూసివేయి</string>
+    <string name="now_bar_minutes_left"><xliff:g id="minutes" example="4">%1$d</xliff:g> నిమి మిగిలి ఉంది</string>
+    <string name="now_bar_minutes"><xliff:g id="minutes" example="12">%1$d</xliff:g> నిమి</string>
+    <string name="now_bar_versus"><xliff:g id="team" example="Lakers">%1$s</xliff:g> vs <xliff:g id="team" example="Celtics">%2$s</xliff:g></string>
+    <string name="charge_report_channel">ఛార్జ్ నివేదికలు</string>
+    <string name="charge_report_title">ఛార్జ్ నివేదిక</string>
+    <string name="charge_report_summary"><xliff:g id="time" example="31 min">%2$s</xliff:g>లో +<xliff:g id="added" example="62">%1$d</xliff:g>%% · గరిష్ఠ <xliff:g id="watts" example="55.0">%3$s</xliff:g> W · గరిష్ఠ <xliff:g id="temp" example="38">%4$s</xliff:g> °C</string>
+    <string name="charge_report_details"><xliff:g id="charger" example="Wired">%1$s</xliff:g> · <xliff:g id="from" example="12">%2$d</xliff:g>%% నుండి <xliff:g id="to" example="74">%3$d</xliff:g>%% వరకు · సగటు <xliff:g id="watts" example="41.3">%4$s</xliff:g> W</string>
+    <string name="charge_report_wired">వైర్డ్</string>
+    <string name="charge_report_wireless">వైర్‌లెస్</string>
+    <string name="charge_report_dock">డాక్</string>
+    <string name="usb_mode_picker_title">USB మోడ్‌ను ఎంచుకోండి</string>
+    <string name="usb_mode_photo_transfer">ఫోటో &amp; వీడియో బదిలీ</string>
+    <string name="usb_mode_webcam">USB వెబ్‌క్యామ్</string>
+    <string name="usb_mode_charging_only">ఛార్జింగ్ మాత్రమే</string>
+    <string name="usb_charging_status">USB ఛార్జింగ్ ఆన్‌లో ఉంది</string>
+    <string name="usb_island_title">USB కనెక్ట్ అయింది</string>
+    <string name="usb_island_settings">USB సెట్టింగ్‌లు</string>
+    <string name="usb_mode_short_charge">ఛార్జ్</string>
+    <string name="keyguard_indication_dash_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Dash ఛార్జింగ్ (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> పూర్తయ్యే వరకు)</string>
+    <string name="keyguard_plugged_in_dash_charging"><xliff:g id="percentage">%s</xliff:g> • Dash ఛార్జింగ్</string>
+    <string name="keyguard_indication_warp_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Warp ఛార్జింగ్ (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> పూర్తయ్యే వరకు)</string>
+    <string name="keyguard_plugged_in_warp_charging"><xliff:g id="percentage">%s</xliff:g> • Warp ఛార్జింగ్</string>
+    <string name="keyguard_indication_vooc_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • VOOC ఛార్జింగ్ (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> పూర్తయ్యే వరకు)</string>
+    <string name="keyguard_plugged_in_vooc_charging"><xliff:g id="percentage">%s</xliff:g> • VOOC ఛార్జింగ్</string>
+    <string name="keyguard_indication_turbo_power_time"><xliff:g id="percentage">%2$s</xliff:g> • Turbo ఛార్జింగ్ (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> పూర్తయ్యే వరకు)</string>
+    <string name="keyguard_plugged_in_turbo_charging"><xliff:g id="percentage">%s</xliff:g> • Turbo ఛార్జింగ్</string>
+    <string name="charging_vfx_long_press_to_speed">వేగం పెంచడానికి తాకి పట్టుకోండి</string>
+    <string name="charging_vfx_source_wireless">వైర్‌లెస్</string>
+    <string name="charging_vfx_source_dock">డాక్</string>
+    <string name="charging_vfx_time_to_full"><xliff:g id="time" example="25 min">%s</xliff:g>లో పూర్తవుతుంది</string>
+    <string name="qs_media_tile_idle">ఏదీ ప్లే కావడం లేదు</string>
+    <string name="qs_volume_tile_muted">మ్యూట్ చేయబడింది</string>
+    <string name="qs_custom_volume_half">సగం</string>
+    <string name="qs_custom_volume_slider">స్లైడర్</string>
+    <string name="qs_custom_volume_fill">ఫిల్</string>
+    <string name="qs_custom_volume_stack">స్టాక్</string>
+    <string name="qs_custom_volume_ring">రింగ్</string>
+    <string name="qs_custom_volume_call">కాల్</string>
+    <string name="qs_custom_volume_show_all">పేరు మరియు శాతం</string>
+    <string name="qs_custom_volume_show_percent">శాతం</string>
+    <string name="qs_custom_volume_show_icon">ఐకాన్ మాత్రమే</string>
+    <string name="qs_custom_volume_tap">ఐకాన్‌ను తాకండి</string>
+    <string name="qs_custom_volume_mute">మ్యూట్</string>
+    <string name="qs_custom_volume_panel">వాల్యూమ్ ప్యానెల్</string>
+    <string name="qs_custom_volume_ticks">లాగేటప్పుడు టిక్‌లు</string>
+    <string name="qs_custom_accent">యాక్సెంట్</string>
+    <string name="qs_custom_add_tile">టైల్‌ను జోడించండి</string>
+    <string name="qs_custom_all_added">ప్రతి టైల్ ప్యానెల్‌పై ఉంది</string>
+    <string name="qs_custom_all_icons">అన్ని ఐకాన్‌లు</string>
+    <string name="qs_custom_all_long">అన్నీ పొడవుగా</string>
+    <string name="qs_custom_backing">ఐకాన్ నేపథ్యం</string>
+    <string name="qs_custom_blob">బ్లాబ్</string>
+    <string name="qs_custom_code_applied">థీమ్ వర్తింపజేయబడింది</string>
+    <string name="qs_custom_code_bad">అతికించడానికి థీమ్ కోడ్ లేదు</string>
+    <string name="qs_custom_code_copied">థీమ్ కోడ్ కాపీ చేయబడింది</string>
+    <string name="qs_custom_color_amber">అంబర్</string>
+    <string name="qs_custom_color_rose">రోజ్</string>
+    <string name="qs_custom_columns">కాలమ్‌లు</string>
+    <string name="qs_custom_copy_code">కోడ్‌ను కాపీ చేయండి</string>
+    <string name="qs_custom_corners">మూలలు</string>
+    <string name="qs_custom_depth">లోతు</string>
+    <string name="qs_custom_depth_flat">ఫ్లాట్</string>
+    <string name="qs_custom_depth_raised">రైజ్డ్</string>
+    <string name="qs_custom_drop_remove">తొలగించడానికి ఇక్కడ వదలండి</string>
+    <string name="qs_custom_fill_clear">క్లియర్</string>
+    <string name="qs_custom_fill_dark">డార్క్</string>
+    <string name="qs_custom_fill_gradient">గ్రేడియంట్</string>
+    <string name="qs_custom_fill_icon">ఐకాన్ మాత్రమే</string>
+    <string name="qs_custom_fill_outline">అవుట్‌లైన్</string>
+    <string name="qs_custom_fill_solid">సాలిడ్</string>
+    <string name="qs_custom_fill_surface">సర్ఫేస్</string>
+    <string name="qs_custom_fill_tint">టింట్</string>
+    <string name="qs_custom_font_caps">క్యాప్స్</string>
+    <string name="qs_custom_font_mono">Mono</string>
+    <string name="qs_custom_font_sans">Sans</string>
+    <string name="qs_custom_glow">ఆన్‌లో ఉన్నప్పుడు మెరుపు</string>
+    <string name="qs_custom_hide">దాచు</string>
+    <string name="qs_custom_hint">ఎంపికల కోసం టైల్‌ను తాకండి · కదపడానికి పట్టుకోండి · పరిమాణం మార్చడానికి మూలను లాగండి</string>
+    <string name="qs_custom_icon_size">ఐకాన్ పరిమాణం</string>
+    <string name="qs_custom_label">లేబుల్</string>
+    <string name="qs_custom_label_inside">లోపల</string>
+    <string name="qs_custom_label_under">కింద</string>
+    <string name="qs_custom_look">లుక్</string>
+    <string name="qs_custom_media_art">ఆర్ట్‌వర్క్</string>
+    <string name="qs_custom_media_blocks">బ్లాక్‌లు</string>
+    <string name="qs_custom_media_cover">కవర్</string>
+    <string name="qs_custom_media_full">ఫుల్</string>
+    <string name="qs_custom_media_glow">గ్లో</string>
+    <string name="qs_custom_media_line">లైన్</string>
+    <string name="qs_custom_media_look">లుక్</string>
+    <string name="qs_custom_media_place">ఎక్కడ</string>
+    <string name="qs_custom_media_place_above">టైల్‌ల పైన</string>
+    <string name="qs_custom_media_place_below">టైల్‌ల కింద</string>
+    <string name="qs_custom_media_place_grid">టైల్‌లతో పాటు</string>
+    <string name="qs_custom_media_play">ప్లే మాత్రమే</string>
+    <string name="qs_custom_media_progress">ప్రోగ్రెస్</string>
+    <string name="qs_custom_media_tall">టాల్</string>
+    <string name="qs_custom_media_trio">మునుపటిది, ప్లే, తదుపరిది</string>
+    <string name="qs_custom_media_wave">వేవ్</string>
+    <string name="qs_custom_media_wide">వైడ్</string>
+    <string name="qs_custom_mix_footer">ఫుటర్ బటన్‌లు</string>
+    <string name="qs_custom_mix_media">మీడియా ప్లేయర్</string>
+    <string name="qs_custom_mix_paint">టైల్ రంగులు</string>
+    <string name="qs_custom_mix_shape">టైల్ ఆకారం</string>
+    <string name="qs_custom_mix_slider">స్లైడర్</string>
+    <string name="qs_custom_mixed">మిక్స్డ్</string>
+    <string name="qs_custom_my_theme_name">నా థీమ్ %1$d</string>
+    <string name="qs_custom_my_themes">నా థీమ్‌లు (తొలగించడానికి పట్టుకోండి)</string>
+    <string name="qs_custom_off_fill">ఆఫ్ టైల్‌లు</string>
+    <string name="qs_custom_on_fill">ఆన్ టైల్‌లు</string>
+    <string name="qs_custom_paste_code">కోడ్‌ను అతికించండి</string>
+    <string name="qs_custom_pill">పిల్</string>
+    <string name="qs_custom_reset">ఈ థీమ్‌ను రీసెట్ చేయండి</string>
+    <string name="qs_custom_reset_tiles">టైల్‌లను రీసెట్ చేయండి</string>
+    <string name="qs_custom_rounded">రౌండెడ్</string>
+    <string name="qs_custom_rows">ఒక పేజీలో వరుసలు</string>
+    <string name="qs_custom_same_as_panel">ప్యానెల్ లాగానే</string>
+    <string name="qs_custom_save">నా థీమ్‌గా సేవ్ చేయండి</string>
+    <string name="qs_custom_scroll">పేజీలకు బదులుగా స్క్రోల్ చేయండి</string>
+    <string name="qs_custom_second_line">రెండవ వరుస</string>
+    <string name="qs_custom_show">చూపించు</string>
+    <string name="qs_custom_sizes">టైల్ పరిమాణాలు</string>
+    <string name="qs_custom_slider_by_player">ప్లేయర్ దగ్గర</string>
+    <string name="qs_custom_slider_look">లుక్</string>
+    <string name="qs_custom_slider_place">ఎక్కడ</string>
+    <string name="qs_custom_slider_top">పైన</string>
+    <string name="qs_custom_slider_under">టైల్‌ల కింద</string>
+    <string name="qs_custom_spacing">అంతరం</string>
+    <string name="qs_custom_start_from">దీనితో ప్రారంభించండి</string>
+    <string name="qs_custom_tab_add">జోడించు</string>
+    <string name="qs_custom_tab_mix">మిక్స్</string>
+    <string name="qs_custom_tab_slider">స్లైడర్</string>
+    <string name="qs_custom_tab_tiles">టైల్‌లు</string>
+    <string name="qs_custom_theme_blueprint">బ్లూప్రింట్‌</string>
+    <string name="qs_custom_theme_cards">కార్డ్స్‌</string>
+    <string name="qs_custom_theme_circles">సర్కిల్స్‌</string>
+    <string name="qs_custom_theme_classic">క్లాసిక్‌</string>
+    <string name="qs_custom_theme_compact">కాంపాక్ట్‌</string>
+    <string name="qs_custom_theme_duo">డ్యుయో</string>
+    <string name="qs_custom_theme_glass">గ్లాస్‌</string>
+    <string name="qs_custom_theme_neon">నియాన్‌</string>
+    <string name="qs_custom_theme_remix">Remix</string>
+    <string name="qs_custom_theme_shapes">షేప్స్‌</string>
+    <string name="qs_custom_theme_soft">సాఫ్ట్‌</string>
+    <string name="qs_custom_theme_stock">స్టాక్</string>
+    <string name="qs_custom_tile_color">ఆన్‌లో ఉన్నప్పుడు రంగు</string>
+    <string name="qs_custom_tile_height">ఎత్తు</string>
+    <string name="qs_custom_tile_height_dp">టైల్ ఎత్తు</string>
+    <string name="qs_look_label">లుక్</string>
+    <string name="qs_look_none">తదుపరి లుక్ కోసం తాకండి</string>
+    <string name="quick_settings_clear_voice_label">క్లియర్ వాయిస్</string>
+    <string name="accessibility_quick_settings_clear_voice_on">క్లియర్ వాయిస్ ఆన్.</string>
+    <string name="accessibility_quick_settings_clear_voice_off">క్లియర్ వాయిస్ ఆఫ్.</string>
 </resources>

@@ -48,4 +48,206 @@
     <string name="qs_custom_tile_icon">"Ikona"</string>
     <string name="qs_custom_tile_width">"Gjerësia"</string>
     <string name="qs_custom_title">"Personalizo"</string>
+    <string name="rr_power_title">Energjia</string>
+    <string name="rr_power_status">Lart %1$s · bateri %2$s</string>
+    <string name="rr_power_status_uptime">Lart %1$s</string>
+    <string name="rr_power_back">Kthehu te menyja e energjisë</string>
+    <string name="rr_shutdown_back_soon">Resurrected Remix do të kthehet menjëherë</string>
+    <string name="global_action_restart_subtitle">Zgjidhni si të niset përsëri telefoni</string>
+    <string name="global_action_restart_system_summary">Rinis Android. Mbaje shtypur për modalitetin e sigurt</string>
+    <string name="global_action_restart_recovery_summary">Instalo përditësimet, ngarko me sideload ose fshi të dhënat</string>
+    <string name="global_action_restart_bootloader_summary">Fastboot, për flashimin e imazheve të nisjes</string>
+    <string name="global_action_restart_fastboot_summary">Fastboot në hapësirën e përdoruesit, për particionet e sistemit</string>
+    <string name="global_action_restart_download_summary">Modaliteti i shkarkimit, për mjetin e flashimit të furnitorit</string>
+    <string name="volume_ringer_priority_only">Prioriteti</string>
+    <string name="volume_ringer_dnd">Mos shqetëso</string>
+    <string name="tristate_flashlight_blink">Ndriço shkurt elektrikun e dorës</string>
+    <string name="tristate_brightness_bright">Ndriçimi maksimal</string>
+    <string name="tristate_brightness_dark">Ndriçimi minimal</string>
+    <string name="tristate_brightness_auto">Ndriçimi automatik</string>
+    <string name="tristate_rotation_0">Portret</string>
+    <string name="tristate_rotation_90">Horizontal (90°)</string>
+    <string name="tristate_rotation_270">Horizontal (270°)</string>
+    <string name="tristate_app_launch">Duke hapur aplikacionin</string>
+    <string name="face_unlock_recognizing">Duke njohur fytyrën...</string>
+    <string name="screen_on_time_label">SOT <xliff:g id="duration" example="5 hr 12 min">%1$s</xliff:g></string>
+    <string name="quick_launch_video">Video</string>
+    <string name="quick_launch_qr">Skano QR</string>
+    <string name="now_bar_charging">Duke u ngarkuar · <xliff:g id="level" example="74">%1$d</xliff:g>%%</string>
+    <string name="now_bar_full_in">Plotësohet për <xliff:g id="duration" example="22 min">%1$s</xliff:g></string>
+    <string name="now_bar_charged">I ngarkuar</string>
+    <string name="now_bar_flashlight_on">Elektriku i dorës i ndezur</string>
+    <string name="now_bar_buds">Kufjet</string>
+    <string name="now_bar_buds_case">Kutia <xliff:g id="level" example="61">%1$d</xliff:g></string>
+    <string name="now_bar_play">Luaj</string>
+    <string name="now_bar_pause">Pauzë</string>
+    <string name="now_bar_previous">E mëparshmja</string>
+    <string name="now_bar_next">Tjetra</string>
+    <string name="now_bar_hide">Fshihe deri në përfundim</string>
+    <string name="now_bar_settings">Cilësimet e Now Bar</string>
+    <string name="now_bar_pin">Fikse në ekranin gjithmonë aktiv</string>
+    <string name="stage_battery_description">Bateria <xliff:g id="percent" example="74">%1$d</xliff:g> për qind</string>
+    <string name="stage_alarm_description">Alarmi tjetër <xliff:g id="time" example="Tue 6:30">%1$s</xliff:g></string>
+    <string name="flatline_playing">NË LUAJTJE</string>
+    <string name="flatline_call">THIRRJE HYRËSE</string>
+    <string name="flatline_vitals">Shenjat jetësore</string>
+    <string name="flatline_vitals_preview">74% · Alarmi 6:30</string>
+    <string name="flatline_alarm">Alarmi <xliff:g id="time" example="6:30">%1$s</xliff:g></string>
+    <string name="now_bar_unpin">Hiqe nga ekrani gjithmonë aktiv</string>
+    <string name="now_bar_open">Hap</string>
+    <string name="now_bar_output">Dalja</string>
+    <string name="now_bar_close">Mbyll</string>
+    <string name="now_bar_minutes_left">Mbeten <xliff:g id="minutes" example="4">%1$d</xliff:g> min</string>
+    <string name="now_bar_minutes"><xliff:g id="minutes" example="12">%1$d</xliff:g> min</string>
+    <string name="now_bar_versus"><xliff:g id="team" example="Lakers">%1$s</xliff:g> kundrejt <xliff:g id="team" example="Celtics">%2$s</xliff:g></string>
+    <string name="charge_report_channel">Raportet e ngarkimit</string>
+    <string name="charge_report_title">Raporti i ngarkimit</string>
+    <string name="charge_report_summary">+<xliff:g id="added" example="62">%1$d</xliff:g>%% në <xliff:g id="time" example="31 min">%2$s</xliff:g> · maksimumi <xliff:g id="watts" example="55.0">%3$s</xliff:g> W · maksimumi <xliff:g id="temp" example="38">%4$s</xliff:g> °C</string>
+    <string name="charge_report_details"><xliff:g id="charger" example="Wired">%1$s</xliff:g> · <xliff:g id="from" example="12">%2$d</xliff:g>%% deri në <xliff:g id="to" example="74">%3$d</xliff:g>%% · mesatarja <xliff:g id="watts" example="41.3">%4$s</xliff:g> W</string>
+    <string name="charge_report_wired">Me kabllo</string>
+    <string name="charge_report_wireless">Pa kabllo</string>
+    <string name="charge_report_dock">Stacioni</string>
+    <string name="usb_mode_picker_title">Zgjidh modalitetin USB</string>
+    <string name="usb_mode_photo_transfer">Transferimi i fotove dhe videove</string>
+    <string name="usb_mode_webcam">Kamera USB</string>
+    <string name="usb_mode_charging_only">Vetëm ngarkimi</string>
+    <string name="usb_charging_status">Ngarkimi USB është aktiv</string>
+    <string name="usb_island_title">USB i lidhur</string>
+    <string name="usb_island_settings">Cilësimet USB</string>
+    <string name="usb_mode_short_charge">Ngarkimi</string>
+    <string name="keyguard_indication_dash_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Ngarkim Dash (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> deri në plotësim)</string>
+    <string name="keyguard_plugged_in_dash_charging"><xliff:g id="percentage">%s</xliff:g> • Ngarkim Dash</string>
+    <string name="keyguard_indication_warp_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Ngarkim Warp (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> deri në plotësim)</string>
+    <string name="keyguard_plugged_in_warp_charging"><xliff:g id="percentage">%s</xliff:g> • Ngarkim Warp</string>
+    <string name="keyguard_indication_vooc_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Ngarkim VOOC (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> deri në plotësim)</string>
+    <string name="keyguard_plugged_in_vooc_charging"><xliff:g id="percentage">%s</xliff:g> • Ngarkim VOOC</string>
+    <string name="keyguard_indication_turbo_power_time"><xliff:g id="percentage">%2$s</xliff:g> • Ngarkim Turbo (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> deri në plotësim)</string>
+    <string name="keyguard_plugged_in_turbo_charging"><xliff:g id="percentage">%s</xliff:g> • Ngarkim Turbo</string>
+    <string name="charging_vfx_long_press_to_speed">Prek dhe mbaj për të përshpejtuar</string>
+    <string name="charging_vfx_source_wireless">Pa kabllo</string>
+    <string name="charging_vfx_source_dock">Stacioni</string>
+    <string name="charging_vfx_time_to_full">Plotësohet për <xliff:g id="time" example="25 min">%s</xliff:g></string>
+    <string name="qs_media_tile_label">Media</string>
+    <string name="qs_media_tile_idle">Asgjë nuk po luhet</string>
+    <string name="qs_volume_tile_muted">Pa zë</string>
+    <string name="qs_custom_volume_half">Gjysma</string>
+    <string name="qs_custom_volume_slider">Rrëshqitësi</string>
+    <string name="qs_custom_volume_fill">Mbushja</string>
+    <string name="qs_custom_volume_stack">Grumbulli</string>
+    <string name="qs_custom_volume_ring">Zilja</string>
+    <string name="qs_custom_volume_call">Thirrja</string>
+    <string name="qs_custom_volume_show_all">Emri dhe përqindja</string>
+    <string name="qs_custom_volume_show_percent">Përqindja</string>
+    <string name="qs_custom_volume_show_icon">Vetëm ikona</string>
+    <string name="qs_custom_volume_tap">Prek ikonën</string>
+    <string name="qs_custom_volume_mute">Hesht</string>
+    <string name="qs_custom_volume_panel">Paneli i volumit</string>
+    <string name="qs_custom_volume_ticks">Shenja gjatë zvarritjes</string>
+    <string name="qs_custom_accent">Theksi</string>
+    <string name="qs_custom_add_tile">Shto një pllakëzë</string>
+    <string name="qs_custom_all_added">Çdo pllakëzë është në panel</string>
+    <string name="qs_custom_all_icons">Të gjitha ikonat</string>
+    <string name="qs_custom_all_long">Të gjitha të gjata</string>
+    <string name="qs_custom_backing">Prapavija e ikonës</string>
+    <string name="qs_custom_blob">Pikë</string>
+    <string name="qs_custom_code_applied">Tema u aplikua</string>
+    <string name="qs_custom_code_bad">Nuk ka kod temë për ta ngjitur</string>
+    <string name="qs_custom_code_copied">Kodi i temës u kopjua</string>
+    <string name="qs_custom_color_amber">Qehibar</string>
+    <string name="qs_custom_color_rose">Trëndafil</string>
+    <string name="qs_custom_columns">Kolonat</string>
+    <string name="qs_custom_copy_code">Kopjo kodin</string>
+    <string name="qs_custom_corners">Qoshet</string>
+    <string name="qs_custom_depth">Thellësia</string>
+    <string name="qs_custom_depth_flat">E sheshtë</string>
+    <string name="qs_custom_depth_raised">E ngritur</string>
+    <string name="qs_custom_drop_remove">Lësho këtu për ta hequr</string>
+    <string name="qs_custom_fill_clear">Pastro</string>
+    <string name="qs_custom_fill_dark">E errët</string>
+    <string name="qs_custom_fill_gradient">Gradient</string>
+    <string name="qs_custom_fill_icon">Vetëm ikona</string>
+    <string name="qs_custom_fill_solid">Solid</string>
+    <string name="qs_custom_fill_surface">Sipërfaqja</string>
+    <string name="qs_custom_fill_tint">Nuancë</string>
+    <string name="qs_custom_font_caps">Shkronja të mëdha</string>
+    <string name="qs_custom_font_mono">Mono</string>
+    <string name="qs_custom_font_sans">Sans</string>
+    <string name="qs_custom_glow">Shkëlqim kur është aktiv</string>
+    <string name="qs_custom_hide">Fshih</string>
+    <string name="qs_custom_hint">Prek një pllakëzë për opsionet e saj · Mbaj për ta zhvendosur · Zvarrit cepin për ta ndryshuar madhësinë</string>
+    <string name="qs_custom_icon_size">Madhësia e ikonës</string>
+    <string name="qs_custom_label">Etiketa</string>
+    <string name="qs_custom_label_inside">Brenda</string>
+    <string name="qs_custom_label_under">Poshtë</string>
+    <string name="qs_custom_look">Pamja</string>
+    <string name="qs_custom_media_art">Arti</string>
+    <string name="qs_custom_media_blocks">Blloqe</string>
+    <string name="qs_custom_media_cover">Mbulesa</string>
+    <string name="qs_custom_media_full">E plotë</string>
+    <string name="qs_custom_media_glow">Shkëlqimi</string>
+    <string name="qs_custom_media_line">Vija</string>
+    <string name="qs_custom_media_look">Pamja</string>
+    <string name="qs_custom_media_place">Vendi</string>
+    <string name="qs_custom_media_place_above">Mbi pllakëzat</string>
+    <string name="qs_custom_media_place_below">Poshtë pllakëzave</string>
+    <string name="qs_custom_media_place_grid">Me pllakëzat</string>
+    <string name="qs_custom_media_play">Vetëm luajtja</string>
+    <string name="qs_custom_media_progress">Progresi</string>
+    <string name="qs_custom_media_tall">E lartë</string>
+    <string name="qs_custom_media_trio">E mëparshmja, luaj, tjetra</string>
+    <string name="qs_custom_media_wave">Valë</string>
+    <string name="qs_custom_media_wide">E gjerë</string>
+    <string name="qs_custom_mix_footer">Butonat e fundit</string>
+    <string name="qs_custom_mix_media">Luajtësi i medias</string>
+    <string name="qs_custom_mix_paint">Ngjyrat e pllakëzave</string>
+    <string name="qs_custom_mix_shape">Forma e pllakëzave</string>
+    <string name="qs_custom_mix_slider">Rrëshqitësi</string>
+    <string name="qs_custom_mixed">Të përziera</string>
+    <string name="qs_custom_my_theme_name">Tema ime %1$d</string>
+    <string name="qs_custom_my_themes">Temat e mia (mbaj për të fshirë)</string>
+    <string name="qs_custom_off_fill">Pllakëzat jo aktive</string>
+    <string name="qs_custom_on_fill">Pllakëzat aktive</string>
+    <string name="qs_custom_paste_code">Ngjit kodin</string>
+    <string name="qs_custom_pill">Pilula</string>
+    <string name="qs_custom_reset">Rivendos këtë temë</string>
+    <string name="qs_custom_reset_tiles">Rivendos pllakëzat</string>
+    <string name="qs_custom_rounded">Të rrumbullakosura</string>
+    <string name="qs_custom_rows">Rreshta në një faqe</string>
+    <string name="qs_custom_same_as_panel">Njësoj si paneli</string>
+    <string name="qs_custom_save">Ruaje si temën time</string>
+    <string name="qs_custom_scroll">Lëviz në vend të faqeve</string>
+    <string name="qs_custom_second_line">Rreshti i dytë</string>
+    <string name="qs_custom_show">Shfaq</string>
+    <string name="qs_custom_sizes">Madhësitë e pllakëzave</string>
+    <string name="qs_custom_slider_by_player">Pranë luajtësit</string>
+    <string name="qs_custom_slider_look">Pamja</string>
+    <string name="qs_custom_slider_place">Vendi</string>
+    <string name="qs_custom_slider_top">Lart</string>
+    <string name="qs_custom_slider_under">Nën pllakëzat</string>
+    <string name="qs_custom_spacing">Hapësira</string>
+    <string name="qs_custom_start_from">Fillo nga</string>
+    <string name="qs_custom_tab_add">Shto</string>
+    <string name="qs_custom_tab_mix">Përzierje</string>
+    <string name="qs_custom_tab_slider">Rrëshqitësi</string>
+    <string name="qs_custom_tab_tiles">Pllakëzat</string>
+    <string name="qs_custom_theme_blueprint">Blueprint</string>
+    <string name="qs_custom_theme_cards">Karta</string>
+    <string name="qs_custom_theme_circles">Rrethe</string>
+    <string name="qs_custom_theme_classic">Klasike</string>
+    <string name="qs_custom_theme_compact">Kompakt</string>
+    <string name="qs_custom_theme_duo">Duo</string>
+    <string name="qs_custom_theme_glass">Xham</string>
+    <string name="qs_custom_theme_neon">Neon</string>
+    <string name="qs_custom_theme_remix">Remix</string>
+    <string name="qs_custom_theme_shapes">Forma</string>
+    <string name="qs_custom_theme_soft">Soft</string>
+    <string name="qs_custom_theme_stock">Standarde</string>
+    <string name="qs_custom_tile_color">Ngjyra kur është aktiv</string>
+    <string name="qs_custom_tile_height">Lartësia</string>
+    <string name="qs_custom_tile_height_dp">Lartësia e pllakëzës</string>
+    <string name="qs_look_label">Pamja</string>
+    <string name="qs_look_none">Prek për pamjen tjetër</string>
+    <string name="quick_settings_clear_voice_label">Zë i pastër</string>
+    <string name="accessibility_quick_settings_clear_voice_on">Zëri i pastër është aktiv.</string>
+    <string name="accessibility_quick_settings_clear_voice_off">Zëri i pastër është joaktiv.</string>
 </resources>

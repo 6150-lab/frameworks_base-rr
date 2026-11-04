@@ -247,4 +247,7 @@
     <string name="qs_custom_tile_height_dp">Hauteur des vignettes</string>
     <string name="qs_look_label">Aspect</string>
     <string name="qs_look_none">Appuyez pour le Look suivant</string>
+    <string name="quick_settings_clear_voice_label">Voix claire</string>
+    <string name="accessibility_quick_settings_clear_voice_on">Voix claire activée.</string>
+    <string name="accessibility_quick_settings_clear_voice_off">Voix claire désactivée.</string>
 </resources>

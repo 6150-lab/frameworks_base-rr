@@ -48,4 +48,206 @@
     <string name="qs_custom_tile_icon">"Ikon"</string>
     <string name="qs_custom_tile_width">"Bredd"</string>
     <string name="qs_custom_title">"Anpassa"</string>
+    <string name="rr_power_title">Ström</string>
+    <string name="rr_power_status">Upp %1$s · %2$s batteri</string>
+    <string name="rr_power_status_uptime">Upp %1$s</string>
+    <string name="rr_power_back">Tillbaka till startmenyn</string>
+    <string name="rr_shutdown_back_soon">Resurrected Remix är snart tillbaka</string>
+    <string name="global_action_restart_subtitle">Välj hur telefonen startar om</string>
+    <string name="global_action_restart_system_summary">Starta om Android. Håll in för felsäkert läge</string>
+    <string name="global_action_restart_recovery_summary">Installera uppdateringar, sideload eller radera data</string>
+    <string name="global_action_restart_bootloader_summary">Fastboot, för flashning av startavbildningar</string>
+    <string name="global_action_restart_fastboot_summary">Fastboot i användarutrymme, för systempartitioner</string>
+    <string name="global_action_restart_download_summary">Nedladdningsläge, för leverantörens flashverktyg</string>
+    <string name="volume_ringer_priority_only">Prioritet</string>
+    <string name="volume_ringer_dnd">DnD</string>
+    <string name="tristate_flashlight_blink">Ficklampsblink</string>
+    <string name="tristate_brightness_bright">Maxljusstyrka</string>
+    <string name="tristate_brightness_dark">Minljusstyrka</string>
+    <string name="tristate_brightness_auto">Automatisk ljusstyrka</string>
+    <string name="tristate_rotation_0">Porträtt</string>
+    <string name="tristate_rotation_90">Liggande (90°)</string>
+    <string name="tristate_rotation_270">Liggande (270°)</string>
+    <string name="tristate_app_launch">Startar app</string>
+    <string name="face_unlock_recognizing">Känner igen ansikte...</string>
+    <string name="screen_on_time_label">SOT <xliff:g id="duration" example="5 hr 12 min">%1$s</xliff:g></string>
+    <string name="quick_launch_video">Video</string>
+    <string name="quick_launch_qr">Skanna QR</string>
+    <string name="now_bar_charging">Laddar · <xliff:g id="level" example="74">%1$d</xliff:g>%%</string>
+    <string name="now_bar_full_in">Full om <xliff:g id="duration" example="22 min">%1$s</xliff:g></string>
+    <string name="now_bar_charged">Laddad</string>
+    <string name="now_bar_flashlight_on">Ficklampan på</string>
+    <string name="now_bar_buds">Hörlurar</string>
+    <string name="now_bar_buds_case">Fodral <xliff:g id="level" example="61">%1$d</xliff:g></string>
+    <string name="now_bar_play">Spela</string>
+    <string name="now_bar_pause">Pausa</string>
+    <string name="now_bar_previous">Föregående</string>
+    <string name="now_bar_next">Nästa</string>
+    <string name="now_bar_hide">Dölj tills den är slut</string>
+    <string name="now_bar_settings">Inställningar för Now Bar</string>
+    <string name="now_bar_pin">Fäst på alltid-på-skärmen</string>
+    <string name="stage_battery_description">Batteri <xliff:g id="percent" example="74">%1$d</xliff:g> procent</string>
+    <string name="stage_alarm_description">Nästa alarm <xliff:g id="time" example="Tue 6:30">%1$s</xliff:g></string>
+    <string name="flatline_playing">SPELAS NU</string>
+    <string name="flatline_call">INKOMMANDE SAMTAL</string>
+    <string name="flatline_vitals">Vitala värden</string>
+    <string name="flatline_vitals_preview">74 % · Alarm 6:30</string>
+    <string name="flatline_alarm">Alarm <xliff:g id="time" example="6:30">%1$s</xliff:g></string>
+    <string name="now_bar_unpin">Lösgör från alltid-på-skärmen</string>
+    <string name="now_bar_open">Öppna</string>
+    <string name="now_bar_output">Utgång</string>
+    <string name="now_bar_close">Stäng</string>
+    <string name="now_bar_minutes_left"><xliff:g id="minutes" example="4">%1$d</xliff:g> min kvar</string>
+    <string name="now_bar_minutes"><xliff:g id="minutes" example="12">%1$d</xliff:g> min</string>
+    <string name="now_bar_versus"><xliff:g id="team" example="Lakers">%1$s</xliff:g> mot <xliff:g id="team" example="Celtics">%2$s</xliff:g></string>
+    <string name="charge_report_channel">Laddningsrapporter</string>
+    <string name="charge_report_title">Laddningsrapport</string>
+    <string name="charge_report_summary">+<xliff:g id="added" example="62">%1$d</xliff:g> %% på <xliff:g id="time" example="31 min">%2$s</xliff:g> · topp <xliff:g id="watts" example="55.0">%3$s</xliff:g> W · max <xliff:g id="temp" example="38">%4$s</xliff:g> °C</string>
+    <string name="charge_report_details"><xliff:g id="charger" example="Wired">%1$s</xliff:g> · <xliff:g id="from" example="12">%2$d</xliff:g> %% till <xliff:g id="to" example="74">%3$d</xliff:g> %% · medel <xliff:g id="watts" example="41.3">%4$s</xliff:g> W</string>
+    <string name="charge_report_wired">Kabel</string>
+    <string name="charge_report_wireless">Trådlös</string>
+    <string name="charge_report_dock">Dockning</string>
+    <string name="usb_mode_picker_title">Välj USB-läge</string>
+    <string name="usb_mode_photo_transfer">Överföring av foton och video</string>
+    <string name="usb_mode_webcam">USB-webbkamera</string>
+    <string name="usb_mode_charging_only">Endast laddning</string>
+    <string name="usb_charging_status">USB-laddning är på</string>
+    <string name="usb_island_title">USB ansluten</string>
+    <string name="usb_island_settings">USB-inställningar</string>
+    <string name="usb_mode_short_charge">Laddning</string>
+    <string name="keyguard_indication_dash_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Dash-laddning (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> tills full)</string>
+    <string name="keyguard_plugged_in_dash_charging"><xliff:g id="percentage">%s</xliff:g> • Dash-laddning</string>
+    <string name="keyguard_indication_warp_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Warp-laddning (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> tills full)</string>
+    <string name="keyguard_plugged_in_warp_charging"><xliff:g id="percentage">%s</xliff:g> • Warp-laddning</string>
+    <string name="keyguard_indication_vooc_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • VOOC-laddning (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> tills full)</string>
+    <string name="keyguard_plugged_in_vooc_charging"><xliff:g id="percentage">%s</xliff:g> • VOOC-laddning</string>
+    <string name="keyguard_indication_turbo_power_time"><xliff:g id="percentage">%2$s</xliff:g> • Turbo-laddning (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> tills full)</string>
+    <string name="keyguard_plugged_in_turbo_charging"><xliff:g id="percentage">%s</xliff:g> • Turbo-laddning</string>
+    <string name="charging_vfx_long_press_to_speed">Håll inne för att öka hastigheten</string>
+    <string name="charging_vfx_source_wireless">Trådlös</string>
+    <string name="charging_vfx_source_dock">Dockning</string>
+    <string name="charging_vfx_time_to_full">Full om <xliff:g id="time" example="25 min">%s</xliff:g></string>
+    <string name="qs_media_tile_label">Media</string>
+    <string name="qs_media_tile_idle">Inget spelas</string>
+    <string name="qs_volume_tile_muted">Ljudlös</string>
+    <string name="qs_custom_volume_half">Halv</string>
+    <string name="qs_custom_volume_slider">Reglage</string>
+    <string name="qs_custom_volume_fill">Fyllning</string>
+    <string name="qs_custom_volume_stack">Staplad</string>
+    <string name="qs_custom_volume_ring">Ring</string>
+    <string name="qs_custom_volume_alarm">Alarm</string>
+    <string name="qs_custom_volume_call">Samtal</string>
+    <string name="qs_custom_volume_show_all">Namn och procent</string>
+    <string name="qs_custom_volume_show_percent">Procent</string>
+    <string name="qs_custom_volume_show_icon">Endast ikon</string>
+    <string name="qs_custom_volume_tap">Tryck på ikonen</string>
+    <string name="qs_custom_volume_mute">Ljud av</string>
+    <string name="qs_custom_volume_ticks">Markeringar vid dragning</string>
+    <string name="qs_custom_accent">Accent</string>
+    <string name="qs_custom_add_tile">Lägg till en ruta</string>
+    <string name="qs_custom_all_added">Alla rutor finns på panelen</string>
+    <string name="qs_custom_all_icons">Alla ikoner</string>
+    <string name="qs_custom_all_long">Alla långa</string>
+    <string name="qs_custom_auto">Auto</string>
+    <string name="qs_custom_backing">Ikonbakgrund</string>
+    <string name="qs_custom_blob">Klump</string>
+    <string name="qs_custom_code_applied">Tema tillämpat</string>
+    <string name="qs_custom_code_bad">Ingen temakod att klistra in</string>
+    <string name="qs_custom_code_copied">Temakod kopierad</string>
+    <string name="qs_custom_color_amber">Bärnsten</string>
+    <string name="qs_custom_color_rose">Ros</string>
+    <string name="qs_custom_columns">Kolumner</string>
+    <string name="qs_custom_copy_code">Kopiera kod</string>
+    <string name="qs_custom_corners">Hörn</string>
+    <string name="qs_custom_depth">Djup</string>
+    <string name="qs_custom_depth_flat">Platt</string>
+    <string name="qs_custom_depth_raised">Upphöjd</string>
+    <string name="qs_custom_drop_remove">Släpp här för att ta bort</string>
+    <string name="qs_custom_fill_clear">Rensa</string>
+    <string name="qs_custom_fill_dark">Mörk</string>
+    <string name="qs_custom_fill_gradient">Gradient</string>
+    <string name="qs_custom_fill_icon">Endast ikon</string>
+    <string name="qs_custom_fill_solid">Enfärgad</string>
+    <string name="qs_custom_fill_surface">Yta</string>
+    <string name="qs_custom_fill_tint">Ton</string>
+    <string name="qs_custom_font">Text</string>
+    <string name="qs_custom_font_caps">Versaler</string>
+    <string name="qs_custom_font_mono">Mono</string>
+    <string name="qs_custom_font_sans">Sans</string>
+    <string name="qs_custom_glow">Lyser när på</string>
+    <string name="qs_custom_hide">Dölj</string>
+    <string name="qs_custom_hint">Tryck på en ruta för alternativ · Håll inne för att flytta · Dra i hörnet för att ändra storlek</string>
+    <string name="qs_custom_label">Etikett</string>
+    <string name="qs_custom_label_inside">Inuti</string>
+    <string name="qs_custom_label_under">Under</string>
+    <string name="qs_custom_look">Läge</string>
+    <string name="qs_custom_media_art">Omslag</string>
+    <string name="qs_custom_media_blocks">Block</string>
+    <string name="qs_custom_media_cover">Omslag</string>
+    <string name="qs_custom_media_full">Full</string>
+    <string name="qs_custom_media_glow">Glöd</string>
+    <string name="qs_custom_media_line">Linje</string>
+    <string name="qs_custom_media_look">Läge</string>
+    <string name="qs_custom_media_place">Placering</string>
+    <string name="qs_custom_media_place_above">Ovanför rutorna</string>
+    <string name="qs_custom_media_place_below">Under rutorna</string>
+    <string name="qs_custom_media_place_grid">Bredvid rutorna</string>
+    <string name="qs_custom_media_play">Endast uppspelning</string>
+    <string name="qs_custom_media_progress">Framsteg</string>
+    <string name="qs_custom_media_tall">Hög</string>
+    <string name="qs_custom_media_trio">Föregående, spela, nästa</string>
+    <string name="qs_custom_media_wave">Våg</string>
+    <string name="qs_custom_media_wide">Bred</string>
+    <string name="qs_custom_mix_footer">Knappar nedtill</string>
+    <string name="qs_custom_mix_media">Mediaspelare</string>
+    <string name="qs_custom_mix_paint">Rutfärger</string>
+    <string name="qs_custom_mix_slider">Reglage</string>
+    <string name="qs_custom_mixed">Blandad</string>
+    <string name="qs_custom_my_theme_name">Mitt tema %1$d</string>
+    <string name="qs_custom_my_themes">Mina teman (håll inne för att radera)</string>
+    <string name="qs_custom_off_fill">Av-rutor</string>
+    <string name="qs_custom_on_fill">På-rutor</string>
+    <string name="qs_custom_paste_code">Klistra in kod</string>
+    <string name="qs_custom_pill">Pill</string>
+    <string name="qs_custom_reset">Återställ detta tema</string>
+    <string name="qs_custom_reset_tiles">Återställ rutor</string>
+    <string name="qs_custom_rounded">Rundad</string>
+    <string name="qs_custom_rows">Rader per sida</string>
+    <string name="qs_custom_same_as_panel">Samma som panelen</string>
+    <string name="qs_custom_save">Spara som mitt tema</string>
+    <string name="qs_custom_scroll">Scrolla istället för sidor</string>
+    <string name="qs_custom_second_line">Andra raden</string>
+    <string name="qs_custom_show">Visa</string>
+    <string name="qs_custom_sizes">Rutstorlekar</string>
+    <string name="qs_custom_slider_by_player">Vid spelaren</string>
+    <string name="qs_custom_slider_look">Läge</string>
+    <string name="qs_custom_slider_place">Placering</string>
+    <string name="qs_custom_slider_top">Överst</string>
+    <string name="qs_custom_slider_under">Under rutor</string>
+    <string name="qs_custom_spacing">Mellanrum</string>
+    <string name="qs_custom_start_from">Börja från</string>
+    <string name="qs_custom_tab_add">Lägg till</string>
+    <string name="qs_custom_tab_mix">Blanda</string>
+    <string name="qs_custom_tab_slider">Reglage</string>
+    <string name="qs_custom_tab_tiles">Rutor</string>
+    <string name="qs_custom_theme_blueprint">Blueprint</string>
+    <string name="qs_custom_theme_cards">Kort</string>
+    <string name="qs_custom_theme_circles">Cirklar</string>
+    <string name="qs_custom_theme_classic">Klassisk</string>
+    <string name="qs_custom_theme_compact">Kompakt</string>
+    <string name="qs_custom_theme_duo">Duo</string>
+    <string name="qs_custom_theme_glass">Glas</string>
+    <string name="qs_custom_theme_neon">Neon</string>
+    <string name="qs_custom_theme_remix">Remix</string>
+    <string name="qs_custom_theme_shapes">Former</string>
+    <string name="qs_custom_theme_soft">Mjuk</string>
+    <string name="qs_custom_theme_stock">Standard</string>
+    <string name="qs_custom_tile_color">Färg när på</string>
+    <string name="qs_custom_tile_height">Höjd</string>
+    <string name="qs_custom_tile_height_dp">Rutans höjd</string>
+    <string name="qs_look_label">Läge</string>
+    <string name="qs_look_none">Tryck för nästa läge</string>
+    <string name="quick_settings_clear_voice_label">Röstrensning</string>
+    <string name="accessibility_quick_settings_clear_voice_on">Röstrensning på.</string>
+    <string name="accessibility_quick_settings_clear_voice_off">Röstrensning av.</string>
 </resources>
