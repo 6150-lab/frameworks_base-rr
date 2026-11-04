@@ -12,6 +12,7 @@ public class NothingAnalogClockView extends View {
 
     private Paint mPaint;
     private float centerX, centerY, width, height;
+    private boolean mDozing;
 
     public NothingAnalogClockView(Context context) {
         super(context);
@@ -32,9 +33,13 @@ public class NothingAnalogClockView extends View {
         mPaint = new Paint();
         mPaint.setAntiAlias(true); // Smooth edges for drawing
         mPaint.setStrokeCap(Paint.Cap.ROUND); // Rounded ends for clock hands
+    }
 
-        // Refresh the clock every second
-        postInvalidateOnAnimation();
+    /** On the always-on display the second hand stays off and the face moves once a minute. */
+    public void setDozing(boolean dozing) {
+        if (mDozing == dozing) return;
+        mDozing = dozing;
+        invalidate();
     }
 
     @Override
@@ -68,10 +73,11 @@ public class NothingAnalogClockView extends View {
         drawMinuteHand(canvas, minute);
 
         // Draw second hand
-        drawSecondHand(canvas, second);
+        if (!mDozing) drawSecondHand(canvas, second);
 
-        // Trigger continuous updates
-        postInvalidateDelayed(16); // Smooth 60 FPS animation
+        // The next frame when a hand moves: on the second, or on the minute while dozing.
+        final long step = mDozing ? 60_000L : 1000L;
+        postInvalidateDelayed(step - System.currentTimeMillis() % step);
     }
 
     private void drawRectangularTicks(Canvas canvas) {

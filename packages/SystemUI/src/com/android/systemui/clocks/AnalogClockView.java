@@ -33,13 +33,18 @@ public class AnalogClockView extends View {
     private void init() {
         mPaint = new Paint();
         mPaint.setAntiAlias(true);  // Smooth edges
+        // No second hand: the face moves once a minute, on the minute.
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
                 invalidate(); // Redraw the view
-                handler.postDelayed(this, 1000); // Update every second
+                handler.postDelayed(this, msToNextMinute());
             }
-        }, 1000);
+        }, msToNextMinute());
+    }
+
+    private static long msToNextMinute() {
+        return 60_000L - System.currentTimeMillis() % 60_000L;
     }
 
     @Override

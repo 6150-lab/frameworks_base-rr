@@ -16,7 +16,8 @@ public class WordClockView extends TextView {
         @Override
         public void run() {
             updateClock();
-            handler.postDelayed(this, 1000);
+            // Hours and minutes only: the next run is on the minute.
+            handler.postDelayed(this, 60_000L - System.currentTimeMillis() % 60_000L);
         }
     };
 

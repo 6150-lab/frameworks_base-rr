@@ -311,6 +311,7 @@ class ClockStyle @JvmOverloads constructor(
 
     private fun applyDozing(dozing: Boolean) {
         isDozing = dozing
+        currentClockView?.let { setDozingOn(it, dozing) }
         animateAodTransition(dozing)
         applyClockAlpha()
         applyClockColors()
@@ -321,6 +322,14 @@ class ClockStyle @JvmOverloads constructor(
             stopBurnInProtection()
             stopAodTick()
             forceTimeUpdate()
+        }
+    }
+
+    /** Faces that tick on their own slow down on the always-on display. */
+    private fun setDozingOn(view: View, dozing: Boolean) {
+        if (view is NothingAnalogClockView) view.setDozing(dozing)
+        if (view is ViewGroup) {
+            for (i in 0 until view.childCount) setDozingOn(view.getChildAt(i), dozing)
         }
     }
 
@@ -444,6 +453,7 @@ class ClockStyle @JvmOverloads constructor(
                 updateClockAppearance()
                 updateClockFrameMargin()
                 attachClockSizeListener(view)
+                setDozingOn(view, isDozing)
             }
         }
 
