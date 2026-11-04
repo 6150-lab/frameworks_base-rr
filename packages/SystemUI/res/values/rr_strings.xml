@@ -227,6 +227,7 @@
     <string name="qs_custom_label">Label</string>
     <string name="qs_custom_label_inside">Inside</string>
     <string name="qs_custom_label_under">Under</string>
+    <string name="qs_custom_look">Look</string>
     <string name="qs_custom_media_art">Artwork</string>
     <string name="qs_custom_media_blocks">Blocks</string>
     <string name="qs_custom_media_buttons">Buttons</string>
@@ -265,6 +266,7 @@
     <string name="qs_custom_reset">Reset this theme</string>
     <string name="qs_custom_rounded">Rounded</string>
     <string name="qs_custom_rows">Rows on a page</string>
+    <string name="qs_custom_same_as_panel">Same as panel</string>
     <string name="qs_custom_save">Save as my theme</string>
     <string name="qs_custom_scroll">Scroll instead of pages</string>
     <string name="qs_custom_second_line">Second line</string>

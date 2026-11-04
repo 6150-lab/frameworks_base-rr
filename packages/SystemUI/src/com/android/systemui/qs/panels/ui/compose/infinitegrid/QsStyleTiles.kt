@@ -30,6 +30,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
@@ -90,6 +91,8 @@ import com.android.systemui.qs.panels.shared.model.QsTileLabel
 import com.android.systemui.qs.panels.shared.model.QsTweaks
 import com.android.systemui.qs.panels.ui.viewmodel.AccessibilityUiState
 import com.android.systemui.res.R
+import kotlin.math.roundToInt
+import com.android.systemui.qs.pipeline.shared.TileSpec
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -116,6 +119,24 @@ internal fun tileShapeStyle(): QsStyle = LocalQsTweaks.current.shapeFrom ?: Loca
 @Composable
 @ReadOnlyComposable
 internal fun tilePaintStyle(): QsStyle = LocalQsTweaks.current.paintFrom ?: LocalQsStyle.current
+
+/** Draws [content] in the look one tile picked for itself, on the panel's row height. */
+@Composable
+internal fun PerTileLook(spec: TileSpec, content: @Composable () -> Unit) {
+    val tweaks = LocalQsTweaks.current
+    val look = tweaks.tiles[spec.spec]?.look
+    if (look == null) {
+        content()
+        return
+    }
+    val height = tileLook(tileShapeStyle()).height
+    CompositionLocalProvider(
+        LocalQsTweaks provides
+            tweaks.copy(shapeFrom = look, paintFrom = look, tileHeight = height.value.roundToInt())
+    ) {
+        content()
+    }
+}
 
 /** The look of [style] with the current changes on top. */
 @Composable

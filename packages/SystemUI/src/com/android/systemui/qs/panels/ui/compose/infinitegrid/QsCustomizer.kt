@@ -256,6 +256,13 @@ private fun TileSheet(spec: String, columns: Int, edit: ((QsTweaks) -> QsTweaks)
     fun change(change: (QsTileTweak) -> QsTileTweak) {
         edit { it.withTile(spec, change) }
     }
+    ThemeChips(
+        stringResource(R.string.qs_custom_look),
+        tile?.look,
+        none = stringResource(R.string.qs_custom_same_as_panel),
+    ) { look ->
+        change { it.copy(look = look) }
+    }
     ChipRow(
         title = stringResource(R.string.qs_custom_tile_width),
         options =
@@ -369,6 +376,13 @@ private fun MediaSheet(edit: ((QsTweaks) -> QsTweaks) -> Unit) {
 private fun VolumeSheet(edit: ((QsTweaks) -> QsTweaks) -> Unit) {
     val tweaks = LocalQsTweaks.current
     val look = tweaks.volumeLook ?: QsVolumeLook.SLIDER
+    ThemeChips(
+        stringResource(R.string.qs_custom_look),
+        tweaks.tiles[QsVolumeSize.TILE_SPEC]?.look,
+        none = stringResource(R.string.qs_custom_same_as_panel),
+    ) { theme ->
+        edit { it.withTile(QsVolumeSize.TILE_SPEC) { t -> t.copy(look = theme) } }
+    }
     ChipRow(
         title = stringResource(R.string.qs_custom_size),
         options =
@@ -786,11 +800,16 @@ private fun RowTitle(text: String) {
 }
 
 @Composable
-private fun ThemeChips(title: String, selected: QsStyle?, onPick: (QsStyle?) -> Unit) {
+private fun ThemeChips(
+    title: String,
+    selected: QsStyle?,
+    none: String = stringResource(R.string.qs_custom_theme),
+    onPick: (QsStyle?) -> Unit,
+) {
     ChipRow(
         title = title,
         options =
-            listOf<Pair<QsStyle?, String>>(null to stringResource(R.string.qs_custom_theme)) +
+            listOf<Pair<QsStyle?, String>>(null to none) +
                 QsStyle.entries.map { it to stringResource(it.label) },
         selected = selected,
         onPick = onPick,

@@ -132,6 +132,8 @@ data class QsTileTweak(
     val color: Int? = null,
     val icon: String? = null,
     val hideLabel: Boolean = false,
+    /** The theme this one tile is drawn in, on the panel's grid. */
+    val look: QsStyle? = null,
 ) {
     val isEmpty: Boolean
         get() = this == QsTileTweak()
@@ -356,6 +358,7 @@ object QsTweaksCodec {
             putOpt("color", color)
             putOpt("icon", icon)
             if (hideLabel) put("hideLabel", true)
+            putOpt("look", look?.value)
         }
 
     private fun JSONObject.toTiles(): Map<String, QsTileTweak> = buildMap {
@@ -369,6 +372,7 @@ object QsTweaksCodec {
                     color = tile.intOrNull("color"),
                     icon = tile.optString("icon").takeIf { it.isNotEmpty() },
                     hideLabel = tile.optBoolean("hideLabel"),
+                    look = tile.styleOrNull("look"),
                 ),
             )
         }

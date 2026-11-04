@@ -162,28 +162,31 @@ constructor(
                                 .height(height),
                     )
                 } else {
-                    Tile(
-                        tile = tile,
-                        iconOnly = place.columns == 1,
-                        squishiness = { squishiness },
-                        tileHapticsViewModelFactory = tileHapticsViewModelFactory,
-                        coroutineScope = scope,
-                        bounceableInfo =
-                            bounceables.bounceableInfo(
-                                SizedTileImpl(tile, place.columns),
-                                index = index,
-                                column = place.column,
-                                columns = columns,
-                                isFirstInRow = place.column == 0,
-                                isLastInRow = placements.getOrNull(index + 1)?.row != place.row,
-                            ),
-                        detailsViewModel = detailsViewModel,
-                        isVisible = listening,
-                        requestToggleTextFeedback = textFeedbackViewModel::requestShowFeedback,
-                        enableRevealEffect = enableRevealEffect,
-                        rows = place.rows,
-                        height = height,
-                    )
+                    PerTileLook(tile.spec) {
+                        Tile(
+                            tile = tile,
+                            iconOnly = place.columns == 1,
+                            squishiness = { squishiness },
+                            tileHapticsViewModelFactory = tileHapticsViewModelFactory,
+                            coroutineScope = scope,
+                            bounceableInfo =
+                                bounceables.bounceableInfo(
+                                    SizedTileImpl(tile, place.columns),
+                                    index = index,
+                                    column = place.column,
+                                    columns = columns,
+                                    isFirstInRow = place.column == 0,
+                                    isLastInRow =
+                                        placements.getOrNull(index + 1)?.row != place.row,
+                                ),
+                            detailsViewModel = detailsViewModel,
+                            isVisible = listening,
+                            requestToggleTextFeedback = textFeedbackViewModel::requestShowFeedback,
+                            enableRevealEffect = enableRevealEffect,
+                            rows = place.rows,
+                            height = height,
+                        )
+                    }
                 }
             }
             if (preview != null) {

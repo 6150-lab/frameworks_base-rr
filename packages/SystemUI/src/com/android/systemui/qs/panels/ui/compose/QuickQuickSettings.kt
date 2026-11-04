@@ -38,6 +38,7 @@ import com.android.systemui.qs.panels.shared.model.LocalQsTweaks
 import com.android.systemui.qs.panels.shared.model.QsMediaTileSize
 import com.android.systemui.qs.panels.ui.compose.infinitegrid.Tile
 import com.android.systemui.qs.panels.ui.compose.infinitegrid.tileLook
+import com.android.systemui.qs.panels.ui.compose.infinitegrid.PerTileLook
 import com.android.systemui.qs.panels.ui.compose.infinitegrid.tileShapeStyle
 import com.android.systemui.qs.panels.ui.viewmodel.BounceableTileViewModel
 import com.android.systemui.qs.panels.ui.viewmodel.QuickQuickSettingsViewModel
@@ -81,25 +82,28 @@ fun ContentScope.QuickQuickSettings(
                         modifier = Modifier.fillMaxWidth().height(tileHeight),
                     )
                 } else {
-                    Tile(
-                        tile = it.tile,
-                        iconOnly = it.isIcon,
-                        squishiness = { squishiness },
-                        coroutineScope = scope,
-                        bounceableInfo =
-                            bounceables.bounceableInfo(
-                                it,
-                                index = spanIndex,
-                                column = column,
-                                columns = columns,
-                                isFirstInRow = isFirstInColumn,
-                                isLastInRow = isLastInColumn,
-                            ),
-                        tileHapticsViewModelFactory = viewModel.tileHapticsViewModelFactory,
-                        // There should be no QuickQuickSettings when the details view is enabled.
-                        detailsViewModel = null,
-                        isVisible = listening,
-                    )
+                    PerTileLook(it.tile.spec) {
+                        Tile(
+                            tile = it.tile,
+                            iconOnly = it.isIcon,
+                            squishiness = { squishiness },
+                            coroutineScope = scope,
+                            bounceableInfo =
+                                bounceables.bounceableInfo(
+                                    it,
+                                    index = spanIndex,
+                                    column = column,
+                                    columns = columns,
+                                    isFirstInRow = isFirstInColumn,
+                                    isLastInRow = isLastInColumn,
+                                ),
+                            tileHapticsViewModelFactory = viewModel.tileHapticsViewModelFactory,
+                            // There should be no QuickQuickSettings when the details view is
+                            // enabled.
+                            detailsViewModel = null,
+                            isVisible = listening,
+                        )
+                    }
                 }
             }
         }
