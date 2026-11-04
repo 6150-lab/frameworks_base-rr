@@ -24,7 +24,7 @@ class NowBarSettings(private val context: Context) {
         private set
     var hideCall = true
         private set
-    /** Where live scores come from: [NowBarScores.SOURCE_OFF], At a Glance or Smartspacer. */
+    /** Live scores from At a Glance: [NowBarScores.SOURCE_GLANCE], or [NowBarScores.SOURCE_OFF]. */
     var scores = NowBarScores.SOURCE_GLANCE
         private set
     var look = NowBarLook()

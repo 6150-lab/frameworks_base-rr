@@ -1247,13 +1247,6 @@
             </intent-filter>
         </receiver>
 
-        <!-- Smartspacer's cards, for live scores in the Now Bar. -->
-        <receiver android:name=".rr.nowbar.NowBarScores$SmartspacerReceiver"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="com.google.android.apps.nexuslauncher.UPDATE_SMARTSPACE" />
-            </intent-filter>
-        </receiver>
         <meta-data
             android:name="com.google.android.systemui.smartspace.ENABLE_UPDATE"
             android:value="true" />
