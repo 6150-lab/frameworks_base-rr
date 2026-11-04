@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="accessibility_next_alarm">Næsti vekjari kl. %s</string>
+    <string name="accessibility_smartspace_page">"Síða %1$d af %2$d"</string>
+    <string name="smartspace_content_desc">Í fljótu bragði</string>
+    <string name="smartspace_flight_qr_code">"QR-kóði"</string>
+    <string name="smartspace_role_desc">"Skoða"</string>
+</resources>

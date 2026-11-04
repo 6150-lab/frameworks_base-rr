@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="accessibility_next_alarm">ඊළඟ එලාමය %sට</string>
+    <string name="accessibility_smartspace_page">"%2$d හි %1$d පිටුව"</string>
+    <string name="smartspace_content_desc">එක් බැල්මකින්</string>
+    <string name="smartspace_flight_qr_code">"QR කේතය"</string>
+    <string name="smartspace_role_desc">"බලන්න"</string>
+</resources>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="pocket_mode_title">La modalità tasca è attiva</string>
+    <string name="pocket_mode_illustration_description">Illustrazione del telefono in tasca</string>
+    <string name="pocket_mode_instructions_header">Per utilizzare il tuo telefono:</string>
+    <string name="pocket_mode_instruction_step1">1. Assicurarsi che l\'area blu (sensore di prossimità) mostrata sopra non sia ostruita e sia libera da sporcizia o polvere.</string>
+    <string name="pocket_mode_instruction_step2">2. Tenere premuto il pulsante di accensione per uscire dalla modalità tasca.</string>
+</resources>

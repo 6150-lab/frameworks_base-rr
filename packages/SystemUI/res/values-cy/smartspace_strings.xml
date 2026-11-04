@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="accessibility_smartspace_page">Tudalen %1$d o %2$d</string>
+    <string name="smartspace_flight_qr_code">Cod QR</string>
+    <string name="smartspace_role_desc">Gweld</string>
+</resources>

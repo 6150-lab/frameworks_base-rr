@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="pocket_mode_title">Ochrona przed przypadkowymi dotknięciami jest aktywna</string>
+    <string name="pocket_mode_illustration_description">Ilustracja telefonu w kieszeni</string>
+    <string name="pocket_mode_instructions_header">Aby użyć swojego telefonu:</string>
+    <string name="pocket_mode_instruction_step1">1. Upewnij się, że niebieski obszar (czujnik zbliżeniowy) pokazany powyżej nie jest niczym zasłonięty i nie ma na nim brudu ani kurzu.</string>
+    <string name="pocket_mode_instruction_step2">2. Naciśnij i przytrzymaj przycisk zasilania, aby wyjść z trybu ochrony przed przypadkowymi dotknięciami.</string>
+</resources>

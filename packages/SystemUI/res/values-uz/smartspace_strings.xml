@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="accessibility_next_alarm">Keyingi signal: %s</string>
+    <string name="accessibility_smartspace_page">"%2$ddan %1$d ta sahifa"</string>
+    <string name="smartspace_content_desc">Eng asosiy</string>
+    <string name="smartspace_flight_qr_code">"QR kod"</string>
+    <string name="smartspace_role_desc">"Ko‘rish"</string>
+</resources>

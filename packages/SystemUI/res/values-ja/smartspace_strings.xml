@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="accessibility_next_alarm">次のアラーム: %s</string>
+    <string name="accessibility_smartspace_page">"%1$d/%2$dページ"</string>
+    <string name="smartspace_content_desc">スナップショット</string>
+    <string name="smartspace_flight_qr_code">"QR コード"</string>
+    <string name="smartspace_role_desc">"表示"</string>
+</resources>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="accessibility_next_alarm">%s ላይ ቀጣዩ ማንቂያ</string>
+    <string name="accessibility_smartspace_page">"ገፅ %1$d ከ%2$d"</string>
+    <string name="smartspace_content_desc">በአፍታ ዕይታ</string>
+    <string name="smartspace_flight_qr_code">"QR ኮድ"</string>
+    <string name="smartspace_role_desc">"ይመልከቱ"</string>
+</resources>

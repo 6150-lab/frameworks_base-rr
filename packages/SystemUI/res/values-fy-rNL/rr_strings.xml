@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="rr_power_tile_on">Oan</string>
+    <string name="rr_power_tile_off">Ut</string>
+    <string name="quick_launch_camera">Kamera</string>
+    <string name="quick_launch_flashlight">Bûslampe</string>
+    <string name="quick_launch_timer">Timer</string>
+    <string name="now_bar_turn_off">Utskeakelje</string>
+    <string name="stage_flashlight">Bûslampe</string>
+    <string name="stage_camera">Kamera</string>
+    <string name="usb_mode_tethering">USB-tethering</string>
+    <string name="usb_island_dismiss">Slute</string>
+    <string name="qs_custom_volume_on">Oan</string>
+    <string name="qs_custom_circle">Sirkel</string>
+    <string name="qs_custom_color_blue">Blau</string>
+    <string name="qs_custom_color_green">Grien</string>
+    <string name="qs_custom_default">Standert</string>
+    <string name="qs_custom_done">Foltôge</string>
+    <string name="qs_custom_font">Tekst</string>
+    <string name="qs_custom_media_buttons">Knoppen</string>
+    <string name="qs_custom_media_small">Lyts</string>
+    <string name="qs_custom_none">Gjin</string>
+    <string name="qs_custom_off">Ut</string>
+</resources>

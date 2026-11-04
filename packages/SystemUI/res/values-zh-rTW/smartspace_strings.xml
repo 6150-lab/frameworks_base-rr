@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="accessibility_next_alarm">下次鬧鐘時間：%s</string>
+    <string name="accessibility_smartspace_page">"第 %1$d 頁，共 %2$d 頁"</string>
+    <string name="smartspace_content_desc">資訊一覽</string>
+    <string name="smartspace_role_desc">"查看"</string>
+</resources>

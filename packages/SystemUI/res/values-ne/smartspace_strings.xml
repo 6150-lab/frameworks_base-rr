@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="accessibility_next_alarm">आगामी अलार्म %s बजे बज्ने छ</string>
+    <string name="accessibility_smartspace_page">"पृष्ठ %2$d को %1$d"</string>
+    <string name="smartspace_flight_qr_code">"QR कोड"</string>
+    <string name="smartspace_role_desc">"हेर्नुहोस्"</string>
+</resources>

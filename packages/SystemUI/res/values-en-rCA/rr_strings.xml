@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="quick_launch_timer">Timer</string>
+    <string name="usb_mode_short_tethering">"Tethering"</string>
+    <string name="usb_mode_short_webcam">"Webcam"</string>
+    <string name="qs_custom_tab_layout">"Layout"</string>
+</resources>

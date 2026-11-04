@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="tristate_rotation_auto">Үзе борылу</string>
+    <string name="quick_launch_camera">Камера</string>
+    <string name="stage_camera">Камера</string>
+    <string name="qs_custom_volume_sound">Тавыш</string>
+    <string name="qs_custom_default">Гадәти</string>
+    <string name="qs_custom_tab_theme">Тема</string>
+    <string name="qs_custom_theme">Тема</string>
+</resources>

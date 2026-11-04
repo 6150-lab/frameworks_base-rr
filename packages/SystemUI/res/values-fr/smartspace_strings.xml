@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="accessibility_next_alarm">Prochaine alarme à %s</string>
+    <string name="accessibility_smartspace_page">"Page %1$d sur %2$d"</string>
+    <string name="smartspace_content_desc">Aperçu</string>
+    <string name="smartspace_role_desc">"Afficher"</string>
+</resources>
