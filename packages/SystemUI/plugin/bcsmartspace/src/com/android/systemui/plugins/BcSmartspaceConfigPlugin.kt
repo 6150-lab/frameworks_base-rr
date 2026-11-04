@@ -18,4 +18,11 @@ package com.android.systemui.plugins
 
 // TODO(b/265360975): Evaluate this plugin approach.
 /** Plugin to provide BC smartspace configuration */
-interface BcSmartspaceConfigPlugin {}
+interface BcSmartspaceConfigPlugin {
+    /** Whether the card adapter leaves the date and weather to the keyguard's own views. */
+    val isDefaultDateWeatherDisabled: Boolean
+    /** Whether the cards page with ViewPager2. */
+    val isViewPager2Enabled: Boolean
+    /** Whether card swipes are logged. */
+    val isSwipeEventLoggingEnabled: Boolean
+}
