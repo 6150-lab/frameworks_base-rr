@@ -62,4 +62,192 @@
     <string name="qs_custom_tile_icon">"Simge"</string>
     <string name="qs_custom_tile_width">"Genişlik"</string>
     <string name="qs_custom_title">"Özelleştir"</string>
+    <string name="rr_power_title">Güç</string>
+    <string name="rr_power_status">%1$s açık · pil %2$s</string>
+    <string name="rr_power_status_uptime">%1$s açık</string>
+    <string name="rr_power_back">Güç menüsüne dön</string>
+    <string name="rr_shutdown_back_soon">Resurrected Remix birazdan dönecek</string>
+    <string name="global_action_restart_subtitle">Telefonun nasıl yeniden başlayacağını seçin</string>
+    <string name="global_action_restart_system_summary">Android\'i yeniden başlatır. Güvenli mod için uzun basın</string>
+    <string name="global_action_restart_recovery_summary">Güncelleme yükleyin, sideload yapın veya verileri silin</string>
+    <string name="global_action_restart_bootloader_summary">Fastboot, önyükleme görüntülerini yazmak için</string>
+    <string name="global_action_restart_fastboot_summary">Kullanıcı alanı fastboot, sistem bölümleri için</string>
+    <string name="global_action_restart_download_summary">İndirme modu, üreticinin yazma aracı için</string>
+    <string name="volume_ringer_priority_only">Öncelikli</string>
+    <string name="volume_ringer_dnd">Rahatsız Etmeyin</string>
+    <string name="tristate_flashlight_blink">El feneri yanıp sönsün</string>
+    <string name="tristate_brightness_bright">Maksimum parlaklık</string>
+    <string name="tristate_brightness_dark">Minimum parlaklık</string>
+    <string name="tristate_brightness_auto">Otomatik parlaklık</string>
+    <string name="tristate_rotation_0">Dikey</string>
+    <string name="tristate_rotation_90">Yatay (90°)</string>
+    <string name="tristate_rotation_270">Yatay (270°)</string>
+    <string name="tristate_app_launch">Uygulama açılıyor</string>
+    <string name="screen_on_time_label">Ekran <xliff:g id="duration" example="5 hr 12 min">%1$s</xliff:g></string>
+    <string name="quick_launch_video">Video</string>
+    <string name="quick_launch_qr">QR tara</string>
+    <string name="now_bar_charging">Şarj oluyor · <xliff:g id="level" example="74">%1$d</xliff:g>%%</string>
+    <string name="now_bar_full_in"><xliff:g id="duration" example="22 min">%1$s</xliff:g> içinde dolacak</string>
+    <string name="now_bar_charged">Şarj oldu</string>
+    <string name="now_bar_flashlight_on">El feneri açık</string>
+    <string name="now_bar_buds">Kulaklık</string>
+    <string name="now_bar_buds_case">Kılıf <xliff:g id="level" example="61">%1$d</xliff:g></string>
+    <string name="now_bar_play">Oynat</string>
+    <string name="now_bar_pause">Duraklat</string>
+    <string name="now_bar_previous">Önceki</string>
+    <string name="now_bar_next">Sonraki</string>
+    <string name="now_bar_hide">Bitene kadar gizle</string>
+    <string name="now_bar_settings">Now Bar ayarları</string>
+    <string name="now_bar_pin">Her zaman açık ekrana sabitle</string>
+    <string name="stage_battery_description">Pil yüzde <xliff:g id="percent" example="74">%1$d</xliff:g></string>
+    <string name="stage_alarm_description">Sonraki alarm <xliff:g id="time" example="Tue 6:30">%1$s</xliff:g></string>
+    <string name="flatline_playing">ŞİMDİ ÇALIYOR</string>
+    <string name="flatline_call">GELEN ARAMA</string>
+    <string name="flatline_vitals">Durum</string>
+    <string name="flatline_vitals_preview">%74 · Alarm 6:30</string>
+    <string name="flatline_alarm">Alarm <xliff:g id="time" example="6:30">%1$s</xliff:g></string>
+    <string name="now_bar_unpin">Her zaman açık ekrandan kaldır</string>
+    <string name="now_bar_open">Aç</string>
+    <string name="now_bar_output">Çıkış</string>
+    <string name="now_bar_close">Kapat</string>
+    <string name="now_bar_minutes_left"><xliff:g id="minutes" example="4">%1$d</xliff:g> dk kaldı</string>
+    <string name="now_bar_minutes"><xliff:g id="minutes" example="12">%1$d</xliff:g> dk</string>
+    <string name="now_bar_versus"><xliff:g id="team" example="Lakers">%1$s</xliff:g> - <xliff:g id="team" example="Celtics">%2$s</xliff:g></string>
+    <string name="charge_report_channel">Şarj raporları</string>
+    <string name="charge_report_title">Şarj raporu</string>
+    <string name="charge_report_summary"><xliff:g id="time" example="31 min">%2$s</xliff:g> içinde +%%<xliff:g id="added" example="62">%1$d</xliff:g> · en yüksek <xliff:g id="watts" example="55.0">%3$s</xliff:g> W · en fazla <xliff:g id="temp" example="38">%4$s</xliff:g> °C</string>
+    <string name="charge_report_details"><xliff:g id="charger" example="Wired">%1$s</xliff:g> · %%<xliff:g id="from" example="12">%2$d</xliff:g> - %%<xliff:g id="to" example="74">%3$d</xliff:g> · ortalama <xliff:g id="watts" example="41.3">%4$s</xliff:g> W</string>
+    <string name="charge_report_wired">Kablolu</string>
+    <string name="charge_report_dock">Yuva</string>
+    <string name="usb_mode_tethering">USB tethering</string>
+    <string name="usb_island_title">USB bağlı</string>
+    <string name="usb_island_settings">USB ayarları</string>
+    <string name="usb_mode_short_charge">Şarj et</string>
+    <string name="keyguard_indication_dash_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Dash şarj (dolmasına <xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g>)</string>
+    <string name="keyguard_plugged_in_dash_charging"><xliff:g id="percentage">%s</xliff:g> • Dash şarj</string>
+    <string name="keyguard_indication_warp_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Warp şarj (dolmasına <xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g>)</string>
+    <string name="keyguard_plugged_in_warp_charging"><xliff:g id="percentage">%s</xliff:g> • Warp şarj</string>
+    <string name="keyguard_indication_vooc_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • VOOC şarj (dolmasına <xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g>)</string>
+    <string name="keyguard_plugged_in_vooc_charging"><xliff:g id="percentage">%s</xliff:g> • VOOC şarj</string>
+    <string name="keyguard_indication_turbo_power_time"><xliff:g id="percentage">%2$s</xliff:g> • Turbo şarj (dolmasına <xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g>)</string>
+    <string name="keyguard_plugged_in_turbo_charging"><xliff:g id="percentage">%s</xliff:g> • Turbo şarj</string>
+    <string name="charging_vfx_long_press_to_speed">Hızlandırmak için dokunup basılı tutun</string>
+    <string name="charging_vfx_source_dock">Yuva</string>
+    <string name="charging_vfx_time_to_full"><xliff:g id="time" example="25 min">%s</xliff:g> içinde dolacak</string>
+    <string name="qs_media_tile_idle">Çalan bir şey yok</string>
+    <string name="qs_volume_tile_muted">Sessiz</string>
+    <string name="qs_custom_volume_half">Yarım</string>
+    <string name="qs_custom_volume_slider">Kaydırıcı</string>
+    <string name="qs_custom_volume_fill">Dolgu</string>
+    <string name="qs_custom_volume_stack">Yığın</string>
+    <string name="qs_custom_volume_ring">Zil</string>
+    <string name="qs_custom_volume_alarm">Alarm</string>
+    <string name="qs_custom_volume_call">Arama</string>
+    <string name="qs_custom_volume_show_all">Ad ve yüzde</string>
+    <string name="qs_custom_volume_show_percent">Yüzde</string>
+    <string name="qs_custom_volume_show_icon">Yalnızca simge</string>
+    <string name="qs_custom_volume_tap">Simgeye dokunun</string>
+    <string name="qs_custom_volume_mute">Sesi kapat</string>
+    <string name="qs_custom_volume_ticks">Sürüklerken tıklama</string>
+    <string name="qs_custom_accent">Vurgu</string>
+    <string name="qs_custom_add_tile">Kutu ekle</string>
+    <string name="qs_custom_all_added">Tüm kutular panelde</string>
+    <string name="qs_custom_all_icons">Tümü simge</string>
+    <string name="qs_custom_all_long">Tümü uzun</string>
+    <string name="qs_custom_backing">Simge arka planı</string>
+    <string name="qs_custom_blob">Leke</string>
+    <string name="qs_custom_code_applied">Tema uygulandı</string>
+    <string name="qs_custom_code_bad">Yapıştırılacak tema kodu yok</string>
+    <string name="qs_custom_code_copied">Tema kodu kopyalandı</string>
+    <string name="qs_custom_color_amber">Kehribar</string>
+    <string name="qs_custom_color_rose">Gül</string>
+    <string name="qs_custom_columns">Sütunlar</string>
+    <string name="qs_custom_copy_code">Kodu kopyala</string>
+    <string name="qs_custom_corners">Köşeler</string>
+    <string name="qs_custom_depth">Derinlik</string>
+    <string name="qs_custom_depth_flat">Düz</string>
+    <string name="qs_custom_depth_raised">Kabartmalı</string>
+    <string name="qs_custom_drop_remove">Kaldırmak için buraya bırakın</string>
+    <string name="qs_custom_fill_clear">Temizle</string>
+    <string name="qs_custom_fill_dark">Koyu</string>
+    <string name="qs_custom_fill_gradient">Geçiş</string>
+    <string name="qs_custom_fill_icon">Yalnızca simge</string>
+    <string name="qs_custom_fill_solid">Düz renk</string>
+    <string name="qs_custom_fill_surface">Yüzey</string>
+    <string name="qs_custom_fill_tint">Renk tonu</string>
+    <string name="qs_custom_font_caps">Büyük harf</string>
+    <string name="qs_custom_font_mono">Mono</string>
+    <string name="qs_custom_font_sans">Sans</string>
+    <string name="qs_custom_glow">Açıkken parlama</string>
+    <string name="qs_custom_hide">Gizle</string>
+    <string name="qs_custom_hint">Seçenekler için kutuya dokunun · Taşımak için basılı tutun · Boyut için köşeyi sürükleyin</string>
+    <string name="qs_custom_label">Etiket</string>
+    <string name="qs_custom_label_inside">İçinde</string>
+    <string name="qs_custom_label_under">Altında</string>
+    <string name="qs_custom_look">Görünüm</string>
+    <string name="qs_custom_media_art">Kapak</string>
+    <string name="qs_custom_media_blocks">Bloklar</string>
+    <string name="qs_custom_media_cover">Tam kapak</string>
+    <string name="qs_custom_media_full">Tam</string>
+    <string name="qs_custom_media_glow">Parlama</string>
+    <string name="qs_custom_media_line">Çizgi</string>
+    <string name="qs_custom_media_look">Görünüm</string>
+    <string name="qs_custom_media_place">Konum</string>
+    <string name="qs_custom_media_place_above">Kutuların üstünde</string>
+    <string name="qs_custom_media_place_below">Kutuların altında</string>
+    <string name="qs_custom_media_place_grid">Kutularla birlikte</string>
+    <string name="qs_custom_media_play">Yalnızca oynat</string>
+    <string name="qs_custom_media_tall">Uzun</string>
+    <string name="qs_custom_media_trio">Önceki, oynat, sonraki</string>
+    <string name="qs_custom_media_wave">Dalga</string>
+    <string name="qs_custom_media_wide">Geniş</string>
+    <string name="qs_custom_mix_footer">Alt düğmeler</string>
+    <string name="qs_custom_mix_media">Medya oynatıcı</string>
+    <string name="qs_custom_mix_paint">Kutu renkleri</string>
+    <string name="qs_custom_mix_slider">Kaydırıcı</string>
+    <string name="qs_custom_mixed">Karışık</string>
+    <string name="qs_custom_my_theme_name">Temam %1$d</string>
+    <string name="qs_custom_my_themes">Temalarım (silmek için basılı tutun)</string>
+    <string name="qs_custom_off_fill">Kapalı kutular</string>
+    <string name="qs_custom_on_fill">Açık kutular</string>
+    <string name="qs_custom_paste_code">Kodu yapıştır</string>
+    <string name="qs_custom_pill">Hap</string>
+    <string name="qs_custom_reset">Bu temayı sıfırla</string>
+    <string name="qs_custom_reset_tiles">Kutuları sıfırla</string>
+    <string name="qs_custom_rounded">Yuvarlak</string>
+    <string name="qs_custom_rows">Sayfadaki satır</string>
+    <string name="qs_custom_same_as_panel">Panelle aynı</string>
+    <string name="qs_custom_save">Temam olarak kaydet</string>
+    <string name="qs_custom_scroll">Sayfalar yerine kaydır</string>
+    <string name="qs_custom_second_line">İkinci satır</string>
+    <string name="qs_custom_show">Göster</string>
+    <string name="qs_custom_sizes">Kutu boyutları</string>
+    <string name="qs_custom_slider_by_player">Oynatıcının yanında</string>
+    <string name="qs_custom_slider_look">Görünüm</string>
+    <string name="qs_custom_slider_place">Konum</string>
+    <string name="qs_custom_slider_top">Üst</string>
+    <string name="qs_custom_slider_under">Kutuların altında</string>
+    <string name="qs_custom_spacing">Aralık</string>
+    <string name="qs_custom_start_from">Başlangıç</string>
+    <string name="qs_custom_tab_add">Ekle</string>
+    <string name="qs_custom_tab_mix">Karışım</string>
+    <string name="qs_custom_tab_slider">Kaydırıcı</string>
+    <string name="qs_custom_tab_tiles">Kutular</string>
+    <string name="qs_custom_theme_blueprint">Blueprint</string>
+    <string name="qs_custom_theme_cards">Kartlar</string>
+    <string name="qs_custom_theme_circles">Daireler</string>
+    <string name="qs_custom_theme_classic">Klasik</string>
+    <string name="qs_custom_theme_compact">Kompakt</string>
+    <string name="qs_custom_theme_duo">Duo</string>
+    <string name="qs_custom_theme_glass">Cam</string>
+    <string name="qs_custom_theme_neon">Neon</string>
+    <string name="qs_custom_theme_remix">Remix</string>
+    <string name="qs_custom_theme_shapes">Şekiller</string>
+    <string name="qs_custom_theme_soft">Yumuşak</string>
+    <string name="qs_custom_theme_stock">Varsayılan</string>
+    <string name="qs_custom_tile_color">Açıkken renk</string>
+    <string name="qs_custom_tile_height">Yükseklik</string>
+    <string name="qs_custom_tile_height_dp">Kutu yüksekliği</string>
+    <string name="qs_look_label">Görünüm</string>
+    <string name="qs_look_none">Sonraki Görünüm için dokunun</string>
 </resources>

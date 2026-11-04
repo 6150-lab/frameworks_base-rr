@@ -58,4 +58,196 @@
     <string name="qs_custom_tile_icon">"Icône"</string>
     <string name="qs_custom_tile_width">"Largeur"</string>
     <string name="qs_custom_title">"Personnaliser"</string>
+    <string name="rr_power_title">Marche/Arrêt</string>
+    <string name="rr_power_status">Allumé depuis %1$s · batterie %2$s</string>
+    <string name="rr_power_status_uptime">Allumé depuis %1$s</string>
+    <string name="rr_power_back">Retour au menu Marche/Arrêt</string>
+    <string name="rr_shutdown_back_soon">Resurrected Remix revient tout de suite</string>
+    <string name="global_action_restart_subtitle">Choisissez comment le téléphone redémarre</string>
+    <string name="global_action_restart_system_summary">Redémarre Android. Appui long pour le mode sans échec</string>
+    <string name="global_action_restart_recovery_summary">Installer des mises à jour, sideload ou effacer les données</string>
+    <string name="global_action_restart_bootloader_summary">Fastboot, pour flasher les images de démarrage</string>
+    <string name="global_action_restart_fastboot_summary">Fastboot en espace utilisateur, pour les partitions système</string>
+    <string name="global_action_restart_download_summary">Mode téléchargement, pour l\'outil de flash du fabricant</string>
+    <string name="volume_ringer_priority_only">Priorité</string>
+    <string name="tristate_rotation_0">Portrait</string>
+    <string name="tristate_app_launch">Lancement de l\'appli</string>
+    <string name="screen_on_time_label">Écran <xliff:g id="duration" example="5 hr 12 min">%1$s</xliff:g></string>
+    <string name="quick_launch_video">Vidéo</string>
+    <string name="quick_launch_qr">Scanner QR</string>
+    <string name="now_bar_charging">En charge · <xliff:g id="level" example="74">%1$d</xliff:g>%%</string>
+    <string name="now_bar_full_in">Complet dans <xliff:g id="duration" example="22 min">%1$s</xliff:g></string>
+    <string name="now_bar_charged">Chargé</string>
+    <string name="now_bar_flashlight_on">Lampe de poche allumée</string>
+    <string name="now_bar_buds">Écouteurs</string>
+    <string name="now_bar_buds_case">Boîtier <xliff:g id="level" example="61">%1$d</xliff:g></string>
+    <string name="now_bar_play">Lire</string>
+    <string name="now_bar_pause">Pause</string>
+    <string name="now_bar_previous">Précédent</string>
+    <string name="now_bar_next">Suivant</string>
+    <string name="now_bar_hide">Masquer jusqu\'à la fin</string>
+    <string name="now_bar_settings">Paramètres de la Now Bar</string>
+    <string name="now_bar_pin">Épingler à l\'écran toujours activé</string>
+    <string name="stage_battery_description">Batterie à <xliff:g id="percent" example="74">%1$d</xliff:g> pour cent</string>
+    <string name="stage_alarm_description">Prochaine alarme <xliff:g id="time" example="Tue 6:30">%1$s</xliff:g></string>
+    <string name="flatline_playing">EN COURS DE LECTURE</string>
+    <string name="flatline_call">APPEL ENTRANT</string>
+    <string name="flatline_vitals">État</string>
+    <string name="flatline_vitals_preview">74 % · Alarme 6:30</string>
+    <string name="flatline_alarm">Alarme <xliff:g id="time" example="6:30">%1$s</xliff:g></string>
+    <string name="now_bar_unpin">Retirer de l\'écran toujours activé</string>
+    <string name="now_bar_open">Ouvrir</string>
+    <string name="now_bar_output">Sortie</string>
+    <string name="now_bar_close">Fermer</string>
+    <string name="now_bar_minutes_left"><xliff:g id="minutes" example="4">%1$d</xliff:g> min restantes</string>
+    <string name="now_bar_minutes"><xliff:g id="minutes" example="12">%1$d</xliff:g> min</string>
+    <string name="now_bar_versus"><xliff:g id="team" example="Lakers">%1$s</xliff:g> contre <xliff:g id="team" example="Celtics">%2$s</xliff:g></string>
+    <string name="charge_report_channel">Rapports de charge</string>
+    <string name="charge_report_title">Rapport de charge</string>
+    <string name="charge_report_summary">+<xliff:g id="added" example="62">%1$d</xliff:g>%% en <xliff:g id="time" example="31 min">%2$s</xliff:g> · pic <xliff:g id="watts" example="55.0">%3$s</xliff:g> W · max. <xliff:g id="temp" example="38">%4$s</xliff:g> °C</string>
+    <string name="charge_report_details"><xliff:g id="charger" example="Wired">%1$s</xliff:g> · de <xliff:g id="from" example="12">%2$d</xliff:g>%% à <xliff:g id="to" example="74">%3$d</xliff:g>%% · moyenne <xliff:g id="watts" example="41.3">%4$s</xliff:g> W</string>
+    <string name="charge_report_wired">Filaire</string>
+    <string name="charge_report_wireless">Sans fil</string>
+    <string name="charge_report_dock">Station</string>
+    <string name="usb_mode_picker_title">Sélectionner le mode USB</string>
+    <string name="usb_mode_photo_transfer">Transfert de photos et de vidéos</string>
+    <string name="usb_mode_webcam">Webcam USB</string>
+    <string name="usb_mode_charging_only">Recharge uniquement</string>
+    <string name="usb_charging_status">Recharge USB activée</string>
+    <string name="usb_island_title">USB connecté</string>
+    <string name="usb_island_settings">Paramètres USB</string>
+    <string name="usb_mode_short_photos">Photos</string>
+    <string name="usb_mode_short_charge">Recharger</string>
+    <string name="keyguard_indication_dash_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Charge Dash (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> avant la charge complète)</string>
+    <string name="keyguard_plugged_in_dash_charging"><xliff:g id="percentage">%s</xliff:g> • Charge Dash</string>
+    <string name="keyguard_indication_warp_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Charge Warp (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> avant la charge complète)</string>
+    <string name="keyguard_plugged_in_warp_charging"><xliff:g id="percentage">%s</xliff:g> • Charge Warp</string>
+    <string name="keyguard_indication_vooc_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Charge VOOC (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> avant la charge complète)</string>
+    <string name="keyguard_plugged_in_vooc_charging"><xliff:g id="percentage">%s</xliff:g> • Charge VOOC</string>
+    <string name="keyguard_indication_turbo_power_time"><xliff:g id="percentage">%2$s</xliff:g> • Charge Turbo (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> avant la charge complète)</string>
+    <string name="keyguard_plugged_in_turbo_charging"><xliff:g id="percentage">%s</xliff:g> • Charge Turbo</string>
+    <string name="charging_vfx_long_press_to_speed">Appuyez de manière prolongée pour accélérer</string>
+    <string name="charging_vfx_source_wireless">Sans fil</string>
+    <string name="charging_vfx_source_dock">Station</string>
+    <string name="charging_vfx_time_to_full">Complet dans <xliff:g id="time" example="25 min">%s</xliff:g></string>
+    <string name="qs_media_tile_idle">Aucune lecture en cours</string>
+    <string name="qs_volume_tile_label">Volume</string>
+    <string name="qs_volume_tile_muted">Muet</string>
+    <string name="qs_custom_volume_half">Moitié</string>
+    <string name="qs_custom_volume_slider">Curseur</string>
+    <string name="qs_custom_volume_fill">Remplissage</string>
+    <string name="qs_custom_volume_stack">Pile</string>
+    <string name="qs_custom_volume_ring">Sonnerie</string>
+    <string name="qs_custom_volume_call">Appel</string>
+    <string name="qs_custom_volume_show_all">Nom et pourcentage</string>
+    <string name="qs_custom_volume_show_percent">Pourcentage</string>
+    <string name="qs_custom_volume_show_icon">Icône seule</string>
+    <string name="qs_custom_volume_tap">Appuyez sur l\'icône</string>
+    <string name="qs_custom_volume_mute">Couper le son</string>
+    <string name="qs_custom_volume_ticks">Vibration pendant le glissement</string>
+    <string name="qs_custom_accent">Accent</string>
+    <string name="qs_custom_add_tile">Ajouter une vignette</string>
+    <string name="qs_custom_all_added">Toutes les vignettes sont dans le panneau</string>
+    <string name="qs_custom_all_icons">Toutes en icônes</string>
+    <string name="qs_custom_all_long">Toutes longues</string>
+    <string name="qs_custom_backing">Fond de l\'icône</string>
+    <string name="qs_custom_blob">Tache</string>
+    <string name="qs_custom_code_applied">Thème appliqué</string>
+    <string name="qs_custom_code_bad">Aucun code de thème à coller</string>
+    <string name="qs_custom_code_copied">Code de thème copié</string>
+    <string name="qs_custom_color_amber">Ambre</string>
+    <string name="qs_custom_color_rose">Rose</string>
+    <string name="qs_custom_color_violet">Violet</string>
+    <string name="qs_custom_columns">Colonnes</string>
+    <string name="qs_custom_copy_code">Copier le code</string>
+    <string name="qs_custom_corners">Coins</string>
+    <string name="qs_custom_depth">Profondeur</string>
+    <string name="qs_custom_depth_flat">Plat</string>
+    <string name="qs_custom_depth_raised">En relief</string>
+    <string name="qs_custom_drop_remove">Déposez ici pour retirer</string>
+    <string name="qs_custom_fill_clear">Effacer</string>
+    <string name="qs_custom_fill_dark">Sombre</string>
+    <string name="qs_custom_fill_gradient">Dégradé</string>
+    <string name="qs_custom_fill_icon">Icône seule</string>
+    <string name="qs_custom_fill_solid">Plein</string>
+    <string name="qs_custom_fill_surface">Surface</string>
+    <string name="qs_custom_fill_tint">Teinte</string>
+    <string name="qs_custom_font_caps">Capitales</string>
+    <string name="qs_custom_font_mono">Mono</string>
+    <string name="qs_custom_font_sans">Sans</string>
+    <string name="qs_custom_glow">Brille une fois activé</string>
+    <string name="qs_custom_hide">Masquer</string>
+    <string name="qs_custom_hint">Appuyez sur une vignette pour ses options · Maintenez pour déplacer · Faites glisser le coin pour redimensionner</string>
+    <string name="qs_custom_icon_size">Taille de l\'icône</string>
+    <string name="qs_custom_label">Libellé</string>
+    <string name="qs_custom_label_inside">Dedans</string>
+    <string name="qs_custom_label_under">Dessous</string>
+    <string name="qs_custom_look">Aspect</string>
+    <string name="qs_custom_media_art">Pochette</string>
+    <string name="qs_custom_media_blocks">Blocs</string>
+    <string name="qs_custom_media_cover">Pochette pleine</string>
+    <string name="qs_custom_media_full">Complet</string>
+    <string name="qs_custom_media_glow">Lueur</string>
+    <string name="qs_custom_media_line">Ligne</string>
+    <string name="qs_custom_media_look">Aspect</string>
+    <string name="qs_custom_media_place">Où</string>
+    <string name="qs_custom_media_place_above">Au-dessus des vignettes</string>
+    <string name="qs_custom_media_place_below">Sous les vignettes</string>
+    <string name="qs_custom_media_place_grid">Avec les vignettes</string>
+    <string name="qs_custom_media_play">Lecture seule</string>
+    <string name="qs_custom_media_progress">Progression</string>
+    <string name="qs_custom_media_tall">Haut</string>
+    <string name="qs_custom_media_trio">Précédent, lecture, suivant</string>
+    <string name="qs_custom_media_wave">Vague</string>
+    <string name="qs_custom_media_wide">Large</string>
+    <string name="qs_custom_mix_footer">Boutons du bas</string>
+    <string name="qs_custom_mix_media">Lecteur multimédia</string>
+    <string name="qs_custom_mix_paint">Couleurs des vignettes</string>
+    <string name="qs_custom_mix_shape">Forme des vignettes</string>
+    <string name="qs_custom_mix_slider">Curseur</string>
+    <string name="qs_custom_mixed">Mixte</string>
+    <string name="qs_custom_my_theme_name">Mon thème %1$d</string>
+    <string name="qs_custom_my_themes">Mes thèmes (maintenez pour supprimer)</string>
+    <string name="qs_custom_off_fill">Vignettes désactivées</string>
+    <string name="qs_custom_on_fill">Vignettes activées</string>
+    <string name="qs_custom_paste_code">Coller le code</string>
+    <string name="qs_custom_pill">Pilule</string>
+    <string name="qs_custom_reset">Réinitialiser ce thème</string>
+    <string name="qs_custom_reset_tiles">Réinitialiser les vignettes</string>
+    <string name="qs_custom_rounded">Arrondi</string>
+    <string name="qs_custom_rows">Lignes par page</string>
+    <string name="qs_custom_same_as_panel">Comme le panneau</string>
+    <string name="qs_custom_save">Enregistrer comme mon thème</string>
+    <string name="qs_custom_scroll">Défiler au lieu de changer de page</string>
+    <string name="qs_custom_second_line">Deuxième ligne</string>
+    <string name="qs_custom_show">Afficher</string>
+    <string name="qs_custom_sizes">Tailles des vignettes</string>
+    <string name="qs_custom_slider_by_player">À côté du lecteur</string>
+    <string name="qs_custom_slider_look">Aspect</string>
+    <string name="qs_custom_slider_place">Où</string>
+    <string name="qs_custom_slider_top">Haut</string>
+    <string name="qs_custom_slider_under">Sous les vignettes</string>
+    <string name="qs_custom_spacing">Espacement</string>
+    <string name="qs_custom_start_from">Commencer par</string>
+    <string name="qs_custom_tab_add">Ajouter</string>
+    <string name="qs_custom_tab_mix">Mélange</string>
+    <string name="qs_custom_tab_slider">Curseur</string>
+    <string name="qs_custom_tab_tiles">Vignettes</string>
+    <string name="qs_custom_theme_blueprint">Blueprint</string>
+    <string name="qs_custom_theme_cards">Cartes</string>
+    <string name="qs_custom_theme_circles">Cercles</string>
+    <string name="qs_custom_theme_classic">Classique</string>
+    <string name="qs_custom_theme_compact">Compact</string>
+    <string name="qs_custom_theme_duo">Duo</string>
+    <string name="qs_custom_theme_glass">Verre</string>
+    <string name="qs_custom_theme_neon">Néon</string>
+    <string name="qs_custom_theme_remix">Remix</string>
+    <string name="qs_custom_theme_shapes">Formes</string>
+    <string name="qs_custom_theme_soft">Doux</string>
+    <string name="qs_custom_theme_stock">D\'origine</string>
+    <string name="qs_custom_tile_color">Couleur une fois activé</string>
+    <string name="qs_custom_tile_height">Hauteur</string>
+    <string name="qs_custom_tile_height_dp">Hauteur des vignettes</string>
+    <string name="qs_look_label">Aspect</string>
+    <string name="qs_look_none">Appuyez pour le Look suivant</string>
 </resources>
