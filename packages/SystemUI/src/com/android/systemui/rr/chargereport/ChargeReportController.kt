@@ -20,6 +20,7 @@ import android.os.Handler
 import android.os.Looper
 import android.os.UserHandle
 import android.provider.Settings
+import android.util.Log
 import com.android.settingslib.utils.StringUtil
 import com.android.systemui.CoreStartable
 import com.android.systemui.dagger.SysUISingleton
@@ -232,12 +233,38 @@ constructor(
             .put("start", startTime).put("from", startLevel).put("to", level)
             .put("minutes", minutes).put("peak", Math.round(peakWatts * 10) / 10.0)
             .put("avg", Math.round(average * 10) / 10.0).put("temp", Math.round(maxTemp * 10) / 10.0)
-            .put("plugged", plugged).put("curve", curve))
+            .put("plugged", plugged).put("curve", thinned(curve)))
         for (i in 0 until old.length()) {
             val entry = old.optJSONObject(i) ?: continue
-            if (entry.optLong("start") >= cutoff && history.length() < MAX_SESSIONS) history.put(entry)
+            if (entry.optLong("start") < cutoff || history.length() >= MAX_SESSIONS) continue
+            entry.optJSONArray("curve")?.let { entry.put("curve", thinned(it)) }
+            history.put(entry)
         }
-        Settings.System.putStringForUser(resolver, KEY_HISTORY, history.toString(), UserHandle.USER_CURRENT)
+        // The settings provider throws past 32K chars a value and 40K bytes a package: the
+        // history stays well under, oldest sessions out first.
+        var json = history.toString()
+        while (json.length > MAX_CHARS && history.length() > 1) {
+            history.remove(history.length() - 1)
+            json = history.toString()
+        }
+        try {
+            Settings.System.putStringForUser(resolver, KEY_HISTORY, json, UserHandle.USER_CURRENT)
+        } catch (e: RuntimeException) {
+            Log.w(TAG, "Charge history not saved, keeping this session only", e)
+            runCatching {
+                Settings.System.putStringForUser(resolver, KEY_HISTORY,
+                    JSONArray().put(history.get(0)).toString(), UserHandle.USER_CURRENT)
+            }
+        }
+    }
+
+    /** At most [STORED_POINTS] of [points], spread evenly; the notification draws them all. */
+    private fun thinned(points: JSONArray): JSONArray {
+        val n = points.length()
+        if (n <= STORED_POINTS) return points
+        val out = JSONArray()
+        for (i in 0 until STORED_POINTS) out.put(points.opt(i * (n - 1) / (STORED_POINTS - 1)))
+        return out
     }
 
     companion object {
@@ -257,7 +284,10 @@ constructor(
         private const val SAMPLE_MS = 30_000L
         private const val TIMEOUT_MS = 6 * 60 * 60 * 1000L
         private const val DAY_MS = 24 * 60 * 60 * 1000L
-        private const val MAX_SESSIONS = 40
+        private const val MAX_SESSIONS = 10
+        /** Points sampled while charging; the history keeps [STORED_POINTS] of them. */
         private const val MAX_POINTS = 160
+        private const val STORED_POINTS = 40
+        private const val MAX_CHARS = 12_000
     }
 }
