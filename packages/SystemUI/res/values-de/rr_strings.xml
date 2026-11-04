@@ -53,4 +53,201 @@
     <string name="qs_custom_tile_icon">"Symbol"</string>
     <string name="qs_custom_tile_width">"Breite"</string>
     <string name="qs_custom_title">"Anpassen"</string>
+    <string name="rr_power_title">Ein/Aus</string>
+    <string name="rr_power_status">Seit %1$s an · Akku %2$s</string>
+    <string name="rr_power_status_uptime">Seit %1$s an</string>
+    <string name="rr_power_back">Zurück zum Ein/Aus-Menü</string>
+    <string name="rr_shutdown_back_soon">Resurrected Remix ist gleich wieder da</string>
+    <string name="global_action_restart_subtitle">Wähle, wie das Smartphone neu startet</string>
+    <string name="global_action_restart_system_summary">Startet Android neu. Lange drücken für den abgesicherten Modus</string>
+    <string name="global_action_restart_recovery_summary">Updates installieren, Sideload oder Daten löschen</string>
+    <string name="global_action_restart_bootloader_summary">Fastboot, zum Flashen von Boot-Images</string>
+    <string name="global_action_restart_fastboot_summary">Userspace-Fastboot, für Systempartitionen</string>
+    <string name="global_action_restart_download_summary">Download-Modus, für das Flash-Tool des Herstellers</string>
+    <string name="volume_ringer_priority_only">Priorität</string>
+    <string name="volume_ringer_dnd">Bitte nicht stören</string>
+    <string name="tristate_flashlight_blink">Taschenlampe blinkt</string>
+    <string name="tristate_brightness_bright">Maximale Helligkeit</string>
+    <string name="tristate_brightness_dark">Minimale Helligkeit</string>
+    <string name="tristate_brightness_auto">Automatische Helligkeit</string>
+    <string name="tristate_rotation_0">Hochformat</string>
+    <string name="tristate_rotation_90">Querformat (90°)</string>
+    <string name="tristate_rotation_270">Querformat (270°)</string>
+    <string name="tristate_app_launch">App wird gestartet</string>
+    <string name="screen_on_time_label">Display <xliff:g id="duration" example="5 hr 12 min">%1$s</xliff:g></string>
+    <string name="quick_launch_video">Video</string>
+    <string name="quick_launch_qr">QR scannen</string>
+    <string name="now_bar_charging">Wird geladen · <xliff:g id="level" example="74">%1$d</xliff:g>%%</string>
+    <string name="now_bar_full_in">Voll in <xliff:g id="duration" example="22 min">%1$s</xliff:g></string>
+    <string name="now_bar_charged">Geladen</string>
+    <string name="now_bar_flashlight_on">Taschenlampe an</string>
+    <string name="now_bar_buds">Earbuds</string>
+    <string name="now_bar_buds_case">Ladecase <xliff:g id="level" example="61">%1$d</xliff:g></string>
+    <string name="now_bar_play">Abspielen</string>
+    <string name="now_bar_pause">Pausieren</string>
+    <string name="now_bar_previous">Vorheriger</string>
+    <string name="now_bar_next">Nächster</string>
+    <string name="now_bar_hide">Bis zum Ende ausblenden</string>
+    <string name="now_bar_settings">Now Bar-Einstellungen</string>
+    <string name="now_bar_pin">An Always-on-Display anpinnen</string>
+    <string name="stage_battery_description">Akku <xliff:g id="percent" example="74">%1$d</xliff:g> Prozent</string>
+    <string name="stage_alarm_description">Nächster Wecker <xliff:g id="time" example="Tue 6:30">%1$s</xliff:g></string>
+    <string name="flatline_playing">LÄUFT GERADE</string>
+    <string name="flatline_call">EINGEHENDER ANRUF</string>
+    <string name="flatline_vitals">Status</string>
+    <string name="flatline_vitals_preview">74 % · Wecker 6:30</string>
+    <string name="flatline_alarm">Wecker <xliff:g id="time" example="6:30">%1$s</xliff:g></string>
+    <string name="now_bar_unpin">Vom Always-on-Display lösen</string>
+    <string name="now_bar_open">Öffnen</string>
+    <string name="now_bar_output">Ausgabe</string>
+    <string name="now_bar_close">Schließen</string>
+    <string name="now_bar_minutes_left">Noch <xliff:g id="minutes" example="4">%1$d</xliff:g> Min.</string>
+    <string name="now_bar_minutes"><xliff:g id="minutes" example="12">%1$d</xliff:g> Min.</string>
+    <string name="now_bar_versus"><xliff:g id="team" example="Lakers">%1$s</xliff:g> gegen <xliff:g id="team" example="Celtics">%2$s</xliff:g></string>
+    <string name="charge_report_channel">Ladeberichte</string>
+    <string name="charge_report_title">Ladebericht</string>
+    <string name="charge_report_summary">+<xliff:g id="added" example="62">%1$d</xliff:g>%% in <xliff:g id="time" example="31 min">%2$s</xliff:g> · Spitze <xliff:g id="watts" example="55.0">%3$s</xliff:g> W · max. <xliff:g id="temp" example="38">%4$s</xliff:g> °C</string>
+    <string name="charge_report_details"><xliff:g id="charger" example="Wired">%1$s</xliff:g> · <xliff:g id="from" example="12">%2$d</xliff:g>%% bis <xliff:g id="to" example="74">%3$d</xliff:g>%% · Durchschnitt <xliff:g id="watts" example="41.3">%4$s</xliff:g> W</string>
+    <string name="charge_report_wired">Kabel</string>
+    <string name="charge_report_wireless">Kabellos</string>
+    <string name="charge_report_dock">Dock</string>
+    <string name="usb_mode_picker_title">USB-Modus auswählen</string>
+    <string name="usb_mode_photo_transfer">Foto- &amp; Videoübertragung</string>
+    <string name="usb_mode_webcam">USB-Webcam</string>
+    <string name="usb_mode_charging_only">Nur Laden</string>
+    <string name="usb_charging_status">USB-Laden ist an</string>
+    <string name="usb_island_title">USB verbunden</string>
+    <string name="usb_island_settings">USB-Einstellungen</string>
+    <string name="usb_mode_short_charge">Laden</string>
+    <string name="keyguard_indication_dash_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Dash-Laden (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> bis voll)</string>
+    <string name="keyguard_plugged_in_dash_charging"><xliff:g id="percentage">%s</xliff:g> • Dash-Laden</string>
+    <string name="keyguard_indication_warp_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Warp-Laden (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> bis voll)</string>
+    <string name="keyguard_plugged_in_warp_charging"><xliff:g id="percentage">%s</xliff:g> • Warp-Laden</string>
+    <string name="keyguard_indication_vooc_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • VOOC-Laden (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> bis voll)</string>
+    <string name="keyguard_plugged_in_vooc_charging"><xliff:g id="percentage">%s</xliff:g> • VOOC-Laden</string>
+    <string name="keyguard_indication_turbo_power_time"><xliff:g id="percentage">%2$s</xliff:g> • Turbo-Laden (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> bis voll)</string>
+    <string name="keyguard_plugged_in_turbo_charging"><xliff:g id="percentage">%s</xliff:g> • Turbo-Laden</string>
+    <string name="charging_vfx_long_press_to_speed">Berühren und halten, um zu beschleunigen</string>
+    <string name="charging_vfx_source_wireless">Kabellos</string>
+    <string name="charging_vfx_source_dock">Dock</string>
+    <string name="charging_vfx_time_to_full">Voll in <xliff:g id="time" example="25 min">%s</xliff:g></string>
+    <string name="qs_media_tile_idle">Keine Wiedergabe</string>
+    <string name="qs_volume_tile_muted">Stumm</string>
+    <string name="qs_custom_volume_half">Halb</string>
+    <string name="qs_custom_volume_slider">Schieberegler</string>
+    <string name="qs_custom_volume_fill">Füllung</string>
+    <string name="qs_custom_volume_stack">Stapel</string>
+    <string name="qs_custom_volume_ring">Klingelton</string>
+    <string name="qs_custom_volume_call">Anruf</string>
+    <string name="qs_custom_volume_show_all">Name und Prozent</string>
+    <string name="qs_custom_volume_show_percent">Prozent</string>
+    <string name="qs_custom_volume_show_icon">Nur Symbol</string>
+    <string name="qs_custom_volume_tap">Auf das Symbol tippen</string>
+    <string name="qs_custom_volume_mute">Stummschalten</string>
+    <string name="qs_custom_volume_ticks">Ticken beim Ziehen</string>
+    <string name="qs_custom_accent">Akzent</string>
+    <string name="qs_custom_add_tile">Kachel hinzufügen</string>
+    <string name="qs_custom_all_added">Alle Kacheln sind im Bereich</string>
+    <string name="qs_custom_all_icons">Alle Symbole</string>
+    <string name="qs_custom_all_long">Alle lang</string>
+    <string name="qs_custom_backing">Symbolhintergrund</string>
+    <string name="qs_custom_blob">Klecks</string>
+    <string name="qs_custom_code_applied">Design angewendet</string>
+    <string name="qs_custom_code_bad">Kein Designcode zum Einfügen</string>
+    <string name="qs_custom_code_copied">Designcode kopiert</string>
+    <string name="qs_custom_color_amber">Bernstein</string>
+    <string name="qs_custom_color_rose">Rosé</string>
+    <string name="qs_custom_columns">Spalten</string>
+    <string name="qs_custom_copy_code">Code kopieren</string>
+    <string name="qs_custom_corners">Ecken</string>
+    <string name="qs_custom_depth">Tiefe</string>
+    <string name="qs_custom_depth_flat">Flach</string>
+    <string name="qs_custom_depth_raised">Erhaben</string>
+    <string name="qs_custom_drop_remove">Zum Entfernen hier ablegen</string>
+    <string name="qs_custom_fill_clear">Löschen</string>
+    <string name="qs_custom_fill_dark">Dunkel</string>
+    <string name="qs_custom_fill_gradient">Farbverlauf</string>
+    <string name="qs_custom_fill_icon">Nur Symbol</string>
+    <string name="qs_custom_fill_solid">Vollton</string>
+    <string name="qs_custom_fill_surface">Oberfläche</string>
+    <string name="qs_custom_fill_tint">Tönung</string>
+    <string name="qs_custom_font">Text</string>
+    <string name="qs_custom_font_caps">Großbuchstaben</string>
+    <string name="qs_custom_font_mono">Mono</string>
+    <string name="qs_custom_font_sans">Sans</string>
+    <string name="qs_custom_glow">Leuchten wenn an</string>
+    <string name="qs_custom_hide">Ausblenden</string>
+    <string name="qs_custom_hint">Tippe auf eine Kachel für Optionen · Halten zum Verschieben · Ecke ziehen für die Größe</string>
+    <string name="qs_custom_icon_size">Symbolgröße</string>
+    <string name="qs_custom_label">Beschriftung</string>
+    <string name="qs_custom_label_inside">Innen</string>
+    <string name="qs_custom_label_under">Unten</string>
+    <string name="qs_custom_look">Aussehen</string>
+    <string name="qs_custom_media_art">Cover</string>
+    <string name="qs_custom_media_blocks">Blöcke</string>
+    <string name="qs_custom_media_cover">Vollbild-Cover</string>
+    <string name="qs_custom_media_full">Voll</string>
+    <string name="qs_custom_media_glow">Leuchten</string>
+    <string name="qs_custom_media_line">Linie</string>
+    <string name="qs_custom_media_look">Aussehen</string>
+    <string name="qs_custom_media_place">Wo</string>
+    <string name="qs_custom_media_place_above">Über den Kacheln</string>
+    <string name="qs_custom_media_place_below">Unter den Kacheln</string>
+    <string name="qs_custom_media_place_grid">Mit den Kacheln</string>
+    <string name="qs_custom_media_play">Nur Wiedergabe</string>
+    <string name="qs_custom_media_progress">Fortschritt</string>
+    <string name="qs_custom_media_tall">Hoch</string>
+    <string name="qs_custom_media_trio">Zurück, Wiedergabe, Weiter</string>
+    <string name="qs_custom_media_wave">Welle</string>
+    <string name="qs_custom_media_wide">Breit</string>
+    <string name="qs_custom_mix_footer">Fußzeilentasten</string>
+    <string name="qs_custom_mix_media">Mediaplayer</string>
+    <string name="qs_custom_mix_paint">Kachelfarben</string>
+    <string name="qs_custom_mix_shape">Kachelform</string>
+    <string name="qs_custom_mix_slider">Schieberegler</string>
+    <string name="qs_custom_mixed">Gemischt</string>
+    <string name="qs_custom_my_theme_name">Mein Design %1$d</string>
+    <string name="qs_custom_my_themes">Meine Designs (zum Löschen halten)</string>
+    <string name="qs_custom_off_fill">Kacheln aus</string>
+    <string name="qs_custom_on_fill">Kacheln an</string>
+    <string name="qs_custom_paste_code">Code einfügen</string>
+    <string name="qs_custom_pill">Leiste</string>
+    <string name="qs_custom_reset">Dieses Design zurücksetzen</string>
+    <string name="qs_custom_reset_tiles">Kacheln zurücksetzen</string>
+    <string name="qs_custom_rounded">Abgerundet</string>
+    <string name="qs_custom_rows">Reihen pro Seite</string>
+    <string name="qs_custom_same_as_panel">Wie der Bereich</string>
+    <string name="qs_custom_save">Als mein Design speichern</string>
+    <string name="qs_custom_scroll">Scrollen statt Seiten</string>
+    <string name="qs_custom_second_line">Zweite Zeile</string>
+    <string name="qs_custom_show">Anzeigen</string>
+    <string name="qs_custom_sizes">Kachelgrößen</string>
+    <string name="qs_custom_slider_by_player">Beim Player</string>
+    <string name="qs_custom_slider_look">Aussehen</string>
+    <string name="qs_custom_slider_place">Wo</string>
+    <string name="qs_custom_slider_top">Oben</string>
+    <string name="qs_custom_slider_under">Unter den Kacheln</string>
+    <string name="qs_custom_spacing">Abstand</string>
+    <string name="qs_custom_start_from">Beginnen mit</string>
+    <string name="qs_custom_tab_add">Hinzufügen</string>
+    <string name="qs_custom_tab_mix">Mischen</string>
+    <string name="qs_custom_tab_slider">Schieberegler</string>
+    <string name="qs_custom_tab_tiles">Kacheln</string>
+    <string name="qs_custom_theme_blueprint">Blueprint</string>
+    <string name="qs_custom_theme_cards">Karten</string>
+    <string name="qs_custom_theme_circles">Kreise</string>
+    <string name="qs_custom_theme_classic">Klassisch</string>
+    <string name="qs_custom_theme_compact">Kompakt</string>
+    <string name="qs_custom_theme_duo">Duo</string>
+    <string name="qs_custom_theme_glass">Glas</string>
+    <string name="qs_custom_theme_neon">Neon</string>
+    <string name="qs_custom_theme_remix">Remix</string>
+    <string name="qs_custom_theme_shapes">Formen</string>
+    <string name="qs_custom_theme_soft">Weich</string>
+    <string name="qs_custom_theme_stock">Standard</string>
+    <string name="qs_custom_tile_color">Farbe wenn an</string>
+    <string name="qs_custom_tile_height">Höhe</string>
+    <string name="qs_custom_tile_height_dp">Kachelhöhe</string>
+    <string name="qs_look_label">Aussehen</string>
+    <string name="qs_look_none">Tippen für den nächsten Look</string>
 </resources>

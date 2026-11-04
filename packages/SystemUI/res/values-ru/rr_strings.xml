@@ -66,4 +66,188 @@
     <string name="qs_custom_tile_icon">"Значок"</string>
     <string name="qs_custom_tile_width">"Ширина"</string>
     <string name="qs_custom_title">"Настроить"</string>
+    <string name="rr_power_title">Питание</string>
+    <string name="rr_power_status">Работает %1$s · батарея %2$s</string>
+    <string name="rr_power_status_uptime">Работает %1$s</string>
+    <string name="rr_power_back">Назад в меню питания</string>
+    <string name="rr_shutdown_back_soon">Resurrected Remix скоро вернётся</string>
+    <string name="global_action_restart_subtitle">Выберите способ перезагрузки телефона</string>
+    <string name="global_action_restart_system_summary">Перезапуск Android. Долгое нажатие — безопасный режим</string>
+    <string name="global_action_restart_recovery_summary">Установка обновлений, sideload или сброс данных</string>
+    <string name="global_action_restart_bootloader_summary">Fastboot для прошивки загрузочных образов</string>
+    <string name="global_action_restart_fastboot_summary">Fastboot в пользовательском пространстве для системных разделов</string>
+    <string name="global_action_restart_download_summary">Режим загрузки для утилиты прошивки производителя</string>
+    <string name="volume_ringer_priority_only">Приоритет</string>
+    <string name="volume_ringer_dnd">Не беспокоить</string>
+    <string name="tristate_flashlight_blink">Мигание фонарика</string>
+    <string name="tristate_brightness_bright">Макс. яркость</string>
+    <string name="tristate_brightness_dark">Мин. яркость</string>
+    <string name="tristate_brightness_auto">Автояркость</string>
+    <string name="tristate_rotation_0">Портретная</string>
+    <string name="tristate_app_launch">Запуск приложения</string>
+    <string name="screen_on_time_label">Экран <xliff:g id="duration" example="5 hr 12 min">%1$s</xliff:g></string>
+    <string name="quick_launch_video">Видео</string>
+    <string name="quick_launch_qr">Сканировать QR</string>
+    <string name="now_bar_charging">Зарядка · <xliff:g id="level" example="74">%1$d</xliff:g>%%</string>
+    <string name="now_bar_full_in">Полный заряд через <xliff:g id="duration" example="22 min">%1$s</xliff:g></string>
+    <string name="now_bar_charged">Заряжено</string>
+    <string name="now_bar_flashlight_on">Фонарик включён</string>
+    <string name="now_bar_buds">Наушники</string>
+    <string name="now_bar_buds_case">Кейс <xliff:g id="level" example="61">%1$d</xliff:g></string>
+    <string name="now_bar_play">Воспроизвести</string>
+    <string name="now_bar_pause">Пауза</string>
+    <string name="now_bar_previous">Предыдущий</string>
+    <string name="now_bar_next">Следующий</string>
+    <string name="now_bar_hide">Скрыть до окончания</string>
+    <string name="now_bar_settings">Настройки Now Bar</string>
+    <string name="now_bar_pin">Закрепить на Always On Display</string>
+    <string name="stage_battery_description">Батарея <xliff:g id="percent" example="74">%1$d</xliff:g> процентов</string>
+    <string name="stage_alarm_description">Следующий будильник <xliff:g id="time" example="Tue 6:30">%1$s</xliff:g></string>
+    <string name="flatline_playing">СЕЙЧАС ИГРАЕТ</string>
+    <string name="flatline_call">ВХОДЯЩИЙ ВЫЗОВ</string>
+    <string name="flatline_vitals">Показатели</string>
+    <string name="flatline_vitals_preview">74% · Будильник 6:30</string>
+    <string name="flatline_alarm">Будильник <xliff:g id="time" example="6:30">%1$s</xliff:g></string>
+    <string name="now_bar_unpin">Открепить с Always On Display</string>
+    <string name="now_bar_open">Открыть</string>
+    <string name="now_bar_output">Вывод</string>
+    <string name="now_bar_close">Закрыть</string>
+    <string name="now_bar_minutes_left">Осталось <xliff:g id="minutes" example="4">%1$d</xliff:g> мин</string>
+    <string name="now_bar_minutes"><xliff:g id="minutes" example="12">%1$d</xliff:g> мин</string>
+    <string name="now_bar_versus"><xliff:g id="team" example="Lakers">%1$s</xliff:g> — <xliff:g id="team" example="Celtics">%2$s</xliff:g></string>
+    <string name="charge_report_channel">Отчёты о зарядке</string>
+    <string name="charge_report_title">Отчёт о зарядке</string>
+    <string name="charge_report_summary">+<xliff:g id="added" example="62">%1$d</xliff:g>%% за <xliff:g id="time" example="31 min">%2$s</xliff:g> · пик <xliff:g id="watts" example="55.0">%3$s</xliff:g> Вт · макс. <xliff:g id="temp" example="38">%4$s</xliff:g> °C</string>
+    <string name="charge_report_details"><xliff:g id="charger" example="Wired">%1$s</xliff:g> · с <xliff:g id="from" example="12">%2$d</xliff:g>%% до <xliff:g id="to" example="74">%3$d</xliff:g>%% · в среднем <xliff:g id="watts" example="41.3">%4$s</xliff:g> Вт</string>
+    <string name="charge_report_wired">Проводная</string>
+    <string name="charge_report_dock">Док-станция</string>
+    <string name="usb_island_title">USB подключён</string>
+    <string name="usb_island_settings">Настройки USB</string>
+    <string name="usb_mode_short_charge">Зарядка</string>
+    <string name="keyguard_indication_dash_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Зарядка Dash (до полного заряда <xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g>)</string>
+    <string name="keyguard_plugged_in_dash_charging"><xliff:g id="percentage">%s</xliff:g> • Зарядка Dash</string>
+    <string name="keyguard_indication_warp_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Зарядка Warp (до полного заряда <xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g>)</string>
+    <string name="keyguard_plugged_in_warp_charging"><xliff:g id="percentage">%s</xliff:g> • Зарядка Warp</string>
+    <string name="keyguard_indication_vooc_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Зарядка VOOC (до полного заряда <xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g>)</string>
+    <string name="keyguard_plugged_in_vooc_charging"><xliff:g id="percentage">%s</xliff:g> • Зарядка VOOC</string>
+    <string name="keyguard_indication_turbo_power_time"><xliff:g id="percentage">%2$s</xliff:g> • Зарядка Turbo (до полного заряда <xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g>)</string>
+    <string name="keyguard_plugged_in_turbo_charging"><xliff:g id="percentage">%s</xliff:g> • Зарядка Turbo</string>
+    <string name="charging_vfx_long_press_to_speed">Нажмите и удерживайте, чтобы ускорить</string>
+    <string name="charging_vfx_source_dock">Док-станция</string>
+    <string name="charging_vfx_time_to_full">Полный заряд через <xliff:g id="time" example="25 min">%s</xliff:g></string>
+    <string name="qs_media_tile_idle">Ничего не воспроизводится</string>
+    <string name="qs_volume_tile_muted">Без звука</string>
+    <string name="qs_custom_volume_half">Половина</string>
+    <string name="qs_custom_volume_slider">Ползунок</string>
+    <string name="qs_custom_volume_fill">Заливка</string>
+    <string name="qs_custom_volume_stack">Стопка</string>
+    <string name="qs_custom_volume_ring">Звонок</string>
+    <string name="qs_custom_volume_call">Вызов</string>
+    <string name="qs_custom_volume_show_all">Название и проценты</string>
+    <string name="qs_custom_volume_show_percent">Проценты</string>
+    <string name="qs_custom_volume_show_icon">Только значок</string>
+    <string name="qs_custom_volume_tap">Нажмите на значок</string>
+    <string name="qs_custom_volume_mute">Без звука</string>
+    <string name="qs_custom_volume_ticks">Вибрация при перетаскивании</string>
+    <string name="qs_custom_accent">Акцент</string>
+    <string name="qs_custom_add_tile">Добавить плитку</string>
+    <string name="qs_custom_all_added">Все плитки уже на панели</string>
+    <string name="qs_custom_all_icons">Все значками</string>
+    <string name="qs_custom_all_long">Все длинными</string>
+    <string name="qs_custom_backing">Подложка значка</string>
+    <string name="qs_custom_blob">Пятно</string>
+    <string name="qs_custom_code_applied">Тема применена</string>
+    <string name="qs_custom_code_bad">Нет кода темы для вставки</string>
+    <string name="qs_custom_code_copied">Код темы скопирован</string>
+    <string name="qs_custom_color_amber">Янтарный</string>
+    <string name="qs_custom_color_rose">Розовый</string>
+    <string name="qs_custom_columns">Столбцы</string>
+    <string name="qs_custom_copy_code">Копировать код</string>
+    <string name="qs_custom_corners">Углы</string>
+    <string name="qs_custom_depth">Глубина</string>
+    <string name="qs_custom_depth_flat">Плоский</string>
+    <string name="qs_custom_depth_raised">Выпуклый</string>
+    <string name="qs_custom_drop_remove">Перетащите сюда, чтобы удалить</string>
+    <string name="qs_custom_fill_clear">Очистить</string>
+    <string name="qs_custom_fill_dark">Тёмный</string>
+    <string name="qs_custom_fill_gradient">Градиент</string>
+    <string name="qs_custom_fill_icon">Только значок</string>
+    <string name="qs_custom_fill_solid">Сплошной</string>
+    <string name="qs_custom_fill_surface">Поверхность</string>
+    <string name="qs_custom_fill_tint">Тонировка</string>
+    <string name="qs_custom_font_caps">Заглавные</string>
+    <string name="qs_custom_font_mono">Моно</string>
+    <string name="qs_custom_font_sans">Sans</string>
+    <string name="qs_custom_glow">Свечение при включении</string>
+    <string name="qs_custom_hide">Скрыть</string>
+    <string name="qs_custom_hint">Нажмите на плитку для настройки · Удерживайте для перемещения · Тяните за угол для изменения размера</string>
+    <string name="qs_custom_label">Подпись</string>
+    <string name="qs_custom_label_inside">Внутри</string>
+    <string name="qs_custom_label_under">Снизу</string>
+    <string name="qs_custom_look">Вид</string>
+    <string name="qs_custom_media_art">Обложка</string>
+    <string name="qs_custom_media_blocks">Блоки</string>
+    <string name="qs_custom_media_cover">Обложка во всю ширину</string>
+    <string name="qs_custom_media_full">Полный</string>
+    <string name="qs_custom_media_glow">Свечение</string>
+    <string name="qs_custom_media_line">Линия</string>
+    <string name="qs_custom_media_look">Вид</string>
+    <string name="qs_custom_media_place">Где</string>
+    <string name="qs_custom_media_place_above">Над плитками</string>
+    <string name="qs_custom_media_place_below">Под плитками</string>
+    <string name="qs_custom_media_place_grid">Вместе с плитками</string>
+    <string name="qs_custom_media_play">Только воспроизведение</string>
+    <string name="qs_custom_media_tall">Высокий</string>
+    <string name="qs_custom_media_trio">Назад, воспроизведение, вперёд</string>
+    <string name="qs_custom_media_wave">Волна</string>
+    <string name="qs_custom_media_wide">Широкий</string>
+    <string name="qs_custom_mix_footer">Кнопки внизу</string>
+    <string name="qs_custom_mix_media">Медиаплеер</string>
+    <string name="qs_custom_mix_paint">Цвета плиток</string>
+    <string name="qs_custom_mix_slider">Ползунок</string>
+    <string name="qs_custom_mixed">Смешанный</string>
+    <string name="qs_custom_my_theme_name">Моя тема %1$d</string>
+    <string name="qs_custom_my_themes">Мои темы (удерживайте, чтобы удалить)</string>
+    <string name="qs_custom_off_fill">Выключенные плитки</string>
+    <string name="qs_custom_on_fill">Включённые плитки</string>
+    <string name="qs_custom_paste_code">Вставить код</string>
+    <string name="qs_custom_pill">Полоска</string>
+    <string name="qs_custom_reset">Сбросить эту тему</string>
+    <string name="qs_custom_reset_tiles">Сбросить плитки</string>
+    <string name="qs_custom_rounded">Скруглённый</string>
+    <string name="qs_custom_rows">Строк на странице</string>
+    <string name="qs_custom_same_as_panel">Как у панели</string>
+    <string name="qs_custom_save">Сохранить как мою тему</string>
+    <string name="qs_custom_scroll">Прокрутка вместо страниц</string>
+    <string name="qs_custom_second_line">Вторая строка</string>
+    <string name="qs_custom_show">Показать</string>
+    <string name="qs_custom_sizes">Размеры плиток</string>
+    <string name="qs_custom_slider_by_player">Рядом с плеером</string>
+    <string name="qs_custom_slider_look">Вид</string>
+    <string name="qs_custom_slider_place">Где</string>
+    <string name="qs_custom_slider_top">Сверху</string>
+    <string name="qs_custom_slider_under">Под плитками</string>
+    <string name="qs_custom_spacing">Интервал</string>
+    <string name="qs_custom_start_from">Начать с</string>
+    <string name="qs_custom_tab_add">Добавить</string>
+    <string name="qs_custom_tab_mix">Смесь</string>
+    <string name="qs_custom_tab_slider">Ползунок</string>
+    <string name="qs_custom_tab_tiles">Плитки</string>
+    <string name="qs_custom_theme_blueprint">Blueprint</string>
+    <string name="qs_custom_theme_cards">Карточки</string>
+    <string name="qs_custom_theme_circles">Круги</string>
+    <string name="qs_custom_theme_classic">Классический</string>
+    <string name="qs_custom_theme_compact">Компактный</string>
+    <string name="qs_custom_theme_duo">Duo</string>
+    <string name="qs_custom_theme_glass">Стекло</string>
+    <string name="qs_custom_theme_neon">Неон</string>
+    <string name="qs_custom_theme_remix">Remix</string>
+    <string name="qs_custom_theme_shapes">Формы</string>
+    <string name="qs_custom_theme_soft">Мягкий</string>
+    <string name="qs_custom_theme_stock">Стандарт</string>
+    <string name="qs_custom_tile_color">Цвет при включении</string>
+    <string name="qs_custom_tile_height">Высота</string>
+    <string name="qs_custom_tile_height_dp">Высота плитки</string>
+    <string name="qs_look_label">Вид</string>
+    <string name="qs_look_none">Нажмите, чтобы сменить образ</string>
 </resources>
