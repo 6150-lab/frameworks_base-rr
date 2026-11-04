@@ -34,7 +34,11 @@ fun ContentScope.TileGrid(
     enableRevealEffect: Boolean = false,
 ) {
     val gridLayout = viewModel.gridLayout
-    val tiles = viewModel.tileViewModels
+    // In edit mode the customizer orders the tiles, moving one live while it is dragged.
+    val order = LocalQsPreviewTiles.current?.order
+    val tiles =
+        if (order == null) viewModel.tileViewModels
+        else viewModel.tileViewModels.sortedBy { order.indexOf(it.spec).takeIf { i -> i >= 0 } ?: Int.MAX_VALUE }
     with(gridLayout) {
         TileGrid(
             tiles = tiles,

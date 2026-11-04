@@ -16,14 +16,12 @@
 
 package com.android.systemui.qs.panels.ui.compose.infinitegrid
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -34,6 +32,8 @@ import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.dimensionResource
@@ -50,6 +50,7 @@ import com.android.compose.animation.scene.ContentScope
 import com.android.systemui.dagger.SysUISingleton
 import com.android.systemui.haptics.msdl.qs.TileHapticsViewModel
 import com.android.systemui.lifecycle.rememberViewModel
+import com.android.compose.modifiers.thenIf
 import com.android.systemui.media.remedia.ui.compose.QsMediaTile
 import com.android.systemui.media.remedia.ui.viewmodel.MediaViewModel
 import com.android.systemui.qs.panels.shared.model.LocalQsMediaTileSize
@@ -58,15 +59,18 @@ import com.android.systemui.qs.panels.shared.model.LocalQsTweaks
 import com.android.systemui.qs.panels.shared.model.QsMediaTileSize
 import com.android.systemui.qs.panels.shared.model.QsStyle
 import com.android.systemui.qs.panels.shared.model.QsTweaks
-import com.android.systemui.qs.panels.shared.model.QsVolumeSize
 import com.android.systemui.qs.panels.shared.model.SizedTileImpl
+import com.android.systemui.qs.panels.shared.model.TileCells
 import com.android.systemui.qs.panels.shared.model.TilePlacement
 import com.android.systemui.qs.panels.shared.model.cellsOf
 import com.android.systemui.qs.panels.shared.model.packTiles
 import com.android.systemui.qs.panels.ui.compose.EditTileListState
 import com.android.systemui.qs.panels.ui.compose.LocalQsPreviewTiles
+import com.android.systemui.qs.panels.ui.compose.LocalQsPreviewPage
+import com.android.systemui.qs.panels.ui.compose.QsPlusTile
+import com.android.systemui.qs.panels.ui.compose.QsPreviewTile
+import com.android.systemui.qs.panels.ui.compose.animatePlacement
 import com.android.systemui.qs.panels.ui.compose.PaginatableGridLayout
-import com.android.systemui.qs.panels.ui.compose.QsPreviewCover
 import com.android.systemui.qs.panels.ui.compose.TileListener
 import com.android.systemui.qs.panels.ui.compose.bounceableInfo
 import com.android.systemui.qs.panels.ui.viewmodel.BounceableTileViewModel
@@ -82,7 +86,6 @@ import com.android.systemui.res.R
 import com.android.systemui.shade.shared.flag.DualShadeFlag
 import javax.inject.Inject
 import kotlin.math.roundToInt
-import kotlinx.coroutines.launch
 
 @SysUISingleton
 class InfiniteGridLayout
@@ -121,7 +124,7 @@ constructor(
         val look = tileLook(tileShapeStyle())
         val tileHeight = look.height
         val preview = LocalQsPreviewTiles.current
-        val previewRing = MaterialTheme.colorScheme.onSurface
+        val previewPage = LocalQsPreviewPage.current
         val shownTiles = remember(tiles, viewModel.pageKeys.toList()) {
             tiles.filter { viewModel.isInGrid(it.spec) }
         }
@@ -129,7 +132,18 @@ constructor(
             remember(shownTiles, largeTiles, columns, viewModel.pageKeys.toList()) {
                 shownTiles.map { viewModel.cellsOf(it.spec) }
             }
-        val placements = remember(cells, columns) { packTiles(cells, columns) }
+        // In edit mode the last page ends with the plus tile, when a cell is left for it.
+        val plus = preview != null && previewPage?.last != false
+        val packed =
+            remember(cells, columns, plus) {
+                packTiles(if (plus) cells + TileCells(1, 1) else cells, columns)
+            }
+        val plusPlace =
+            packed.getOrNull(cells.size)?.takeIf {
+                previewPage == null || it.row < previewPage.rows
+            }
+        val placements = if (plusPlace != null) packed else packed.take(cells.size)
+        var gridWidth by remember { mutableIntStateOf(0) }
         val squishiness by viewModel.squishinessViewModel.squishiness.collectAsStateWithLifecycle()
         val scope = rememberCoroutineScope()
 
@@ -138,15 +152,37 @@ constructor(
         val columnSpacing =
             tweaks.spacing?.dp ?: dimensionResource(R.dimen.qs_tile_margin_horizontal)
         val rowSpacing = tweaks.spacing?.dp ?: dimensionResource(R.dimen.qs_tile_margin_vertical)
+        // One cell with its gap, for the resize handle to snap to.
+        val (cellWidth, rowHeight) =
+            with(LocalDensity.current) {
+                val gapX = columnSpacing.toPx()
+                val cell = if (gridWidth > 0) (gridWidth - gapX * (columns - 1)) / columns else 0f
+                (if (cell > 0f) cell + gapX else 0f) to tileHeight.toPx() + rowSpacing.toPx()
+            }
 
         TilePlacementGrid(
             placements = placements,
             columns = columns,
             columnSpacing = columnSpacing,
             rowSpacing = rowSpacing,
-            keys = { shownTiles[it].spec },
-            modifier = modifier,
+            keys = { if (it < shownTiles.size) shownTiles[it].spec else PlusTileKey },
+            raised = {
+                preview != null && it < shownTiles.size && shownTiles[it].spec == preview.dragging
+            },
+            animate = preview != null,
+            modifier =
+                modifier.thenIf(preview != null) { Modifier.onSizeChanged { gridWidth = it.width } },
         ) { index ->
+            if (index >= shownTiles.size) {
+                if (preview != null) {
+                    QsPlusTile(
+                        preview = preview,
+                        radius = look.inactiveRadius,
+                        modifier = Modifier.fillMaxWidth().height(tileHeight),
+                    )
+                }
+                return@TilePlacementGrid
+            }
             val tile = shownTiles[index]
             val place = placements[index]
             val height = tileHeight * place.rows + rowSpacing * (place.rows - 1)
@@ -190,18 +226,15 @@ constructor(
                 }
             }
             if (preview != null) {
-                QsPreviewCover(
-                    modifier =
-                        if (preview.selected == tile.spec) {
-                            Modifier.border(
-                                2.dp,
-                                previewRing,
-                                RoundedCornerShape(look.activeRadius),
-                            )
-                        } else {
-                            Modifier
-                        },
-                    onTap = { preview.onTap(tile.spec) },
+                QsPreviewTile(
+                    preview = preview,
+                    spec = tile.spec,
+                    columns = place.columns,
+                    rows = place.rows,
+                    maxColumns = columns,
+                    cellWidth = cellWidth,
+                    rowHeight = rowHeight,
+                    radius = look.activeRadius,
                     content = content,
                 )
             } else {
@@ -237,16 +270,11 @@ constructor(
             rememberViewModel("InfiniteGridLayout.EditTileGrid") {
                 viewModel.editTopBarActionsViewModelFactory.create()
             }
-        val scrollState = rememberScrollState()
-        val coroutineScope = rememberCoroutineScope()
         val dialogDelegate =
             rememberViewModel("InfiniteGridLayout.EditTileGrid") {
                 viewModel.resetDialogDelegateFactory.create {
                     // Clear the stack of snapshots on reset
                     snapshotViewModel.clearStack()
-
-                    // Automatically scroll to the top on reset
-                    coroutineScope.launch { scrollState.animateScrollTo(0) }
                 }
             }
         val showDualShadeSetting =
@@ -289,7 +317,6 @@ constructor(
             listState = listState,
             allTiles = tiles,
             modifier = modifier,
-            scrollState = scrollState,
             snapshotViewModel = snapshotViewModel,
             qsStyleRepository = viewModel.qsStyleRepository,
             onStopEditing = onStopEditing,
@@ -313,18 +340,6 @@ constructor(
                 EditAction.ResetGrid -> {
                     dialogDelegate.showDialog()
                 }
-                is EditAction.ResizeTile -> {
-                    iconTilesViewModel.resize(action.tileSpec, action.toIcon)
-                    viewModel.qsStyleRepository.editTweaks { current ->
-                        current.afterResize(
-                            action.tileSpec.spec,
-                            theme,
-                            action.toIcon,
-                            largeTilesSpan,
-                            columns,
-                        )
-                    }
-                }
                 is EditAction.SetTiles -> {
                     onSetTiles(action.tileSpecs)
                 }
@@ -334,27 +349,6 @@ constructor(
 }
 
 private fun TileSpec.isMediaTile() = spec == QsMediaTileSize.TILE_SPEC
-
-/** The resize handle replaces any size picked for the tile, or the theme's when it differs. */
-private fun QsTweaks.afterResize(
-    spec: String,
-    theme: QsStyle,
-    toIcon: Boolean,
-    largeSpan: Int,
-    columns: Int,
-): QsTweaks {
-    if (spec == QsMediaTileSize.TILE_SPEC) {
-        return copy(mediaSize = if (toIcon) QsMediaTileSize.SMALL else null)
-    }
-    if (spec == QsVolumeSize.TILE_SPEC) {
-        return copy(volumeSize = if (toIcon) QsVolumeSize.SMALL else null)
-    }
-    val wanted = if (toIcon) 1 else largeSpan.coerceAtMost(columns)
-    val plain = withTile(spec) { it.copy(columns = null, rows = null) }
-    val auto = plain.cellsOf(spec, theme, !toIcon, largeSpan, columns).columns
-    return if (auto == wanted) plain
-    else plain.withTile(spec) { it.copy(columns = wanted) }
-}
 
 /**
  * A grid whose tiles can span rows as well as columns. One row tiles set the height of their row,
@@ -368,6 +362,8 @@ private fun TilePlacementGrid(
     rowSpacing: Dp,
     keys: (index: Int) -> Any,
     modifier: Modifier = Modifier,
+    raised: (index: Int) -> Boolean = { false },
+    animate: Boolean = false,
     content: @Composable (index: Int) -> Unit,
 ) {
     Layout(
@@ -375,9 +371,8 @@ private fun TilePlacementGrid(
             placements.indices.forEach { index ->
                 key(keys(index)) {
                     Box(
-                        Modifier.semantics {
-                            collectionItemInfo = CollectionItemInfo(index, 1, 0, 1)
-                        }
+                        Modifier.thenIf(animate && !raised(index)) { Modifier.animatePlacement() }
+                            .semantics { collectionItemInfo = CollectionItemInfo(index, 1, 0, 1) }
                     ) {
                         content(index)
                     }
@@ -426,8 +421,11 @@ private fun TilePlacementGrid(
                 placeable.placeRelative(
                     (place.column * (cellWidth + gapX)).roundToInt(),
                     tops[place.row],
+                    zIndex = if (raised(index)) 1f else 0f,
                 )
             }
         }
     }
 }
+
+private object PlusTileKey

@@ -29,6 +29,9 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
@@ -116,9 +119,20 @@ constructor(
         }
 
         val selected = preview?.selected
-        LaunchedEffect(selected, pages) {
-            val page = pages.indexOfFirst { page -> page.any { it.spec == selected } }
+        val reveal = preview?.reveal
+        LaunchedEffect(selected, reveal, pages) {
+            val spec = reveal ?: selected
+            val page = pages.indexOfFirst { page -> page.any { it.spec == spec } }
             if (page >= 0) pagerState.animateScrollToPage(page)
+        }
+        // A tile held at an edge of the pager asks for the page beside it.
+        LaunchedEffect(preview, pagerState) {
+            val flips = preview?.flips ?: return@LaunchedEffect
+            for (direction in flips) {
+                val target =
+                    (pagerState.currentPage + direction).coerceIn(0, pagerState.pageCount - 1)
+                if (target != pagerState.currentPage) pagerState.animateScrollToPage(target)
+            }
         }
 
         Column(modifier) {
@@ -148,21 +162,32 @@ constructor(
                 modifier =
                     Modifier.sysuiResTag("qs_pager")
                         .padding(horizontal = { -contentPaddingValue.roundToPx() })
-                        .nestedScroll(nestedScrollConnection),
+                        .nestedScroll(nestedScrollConnection)
+                        .then(
+                            if (preview != null) {
+                                Modifier.onGloballyPositioned { preview.pager = it.boundsInRoot() }
+                            } else {
+                                Modifier
+                            }
+                        ),
                 contentPadding = contentPadding,
                 pageSpacing = if (pages.size > 1) InterPageSpacing else 0.dp,
                 beyondViewportPageCount = 1,
                 verticalAlignment = Alignment.Top,
-            ) {
-                val page = pages[it]
+            ) { index ->
+                val page = pages[index]
+                val previewPage =
+                    if (preview != null) QsPreviewPage(index == pages.lastIndex, rows) else null
 
-                with(delegateGridLayout) {
-                    TileGrid(
-                        tiles = page,
-                        modifier = Modifier,
-                        listening = listening,
-                        enableRevealEffect = false,
-                    )
+                CompositionLocalProvider(LocalQsPreviewPage provides previewPage) {
+                    with(delegateGridLayout) {
+                        TileGrid(
+                            tiles = page,
+                            modifier = Modifier,
+                            listening = listening,
+                            enableRevealEffect = false,
+                        )
+                    }
                 }
             }
             FooterBar(

@@ -18,7 +18,11 @@
 
 package com.android.systemui.qs.panels.ui.compose.infinitegrid
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
@@ -54,6 +58,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -87,11 +92,16 @@ fun EditModeExpandableTopBar(
     modifier: Modifier = Modifier,
     scrollBehavior: TopAppBarScrollBehavior? = null,
     collapsibleActions: SnapshotStateList<EditTopBarActionViewModel>,
+    dragging: Boolean = false,
+    removeArmed: Boolean = false,
     actions: @Composable RowScope.() -> Unit = {},
 ) {
     TwoRowsTopAppBar(
         colors = editModeTopAppBarColors(),
-        title = { Title(MaterialTheme.typography.headlineMediumEmphasized) },
+        title = {
+            if (dragging) DropTarget(removeArmed)
+            else Title(MaterialTheme.typography.headlineMediumEmphasized)
+        },
         scrollBehavior = scrollBehavior,
         subtitle = subtitle,
         navigationIcon = { NavigationArrow(onStopEditing) },
@@ -104,10 +114,35 @@ fun EditModeExpandableTopBar(
     )
 }
 
+/** While a tile is dragged the title gives way to where it can be dropped to remove it. */
+@Composable
+private fun DropTarget(armed: Boolean, modifier: Modifier = Modifier) {
+    val scheme = MaterialTheme.colorScheme
+    val shape = RoundedCornerShape(20.dp)
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .height(40.dp)
+                .clip(shape)
+                .background(if (armed) scheme.primary.copy(alpha = .35f) else Color.Transparent)
+                .border(1.5.dp, scheme.primary, shape),
+    ) {
+        Text(
+            text = stringResource(R.string.qs_custom_drop_remove),
+            style = MaterialTheme.typography.labelLarge,
+            color = scheme.primary,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+    }
+}
+
 @Composable
 private fun Title(style: TextStyle, modifier: Modifier = Modifier) {
     Text(
-        text = stringResource(id = R.string.qs_edit_tiles),
+        text = stringResource(id = R.string.qs_custom_title),
         style = style,
         modifier = modifier,
         overflow = TextOverflow.Ellipsis,

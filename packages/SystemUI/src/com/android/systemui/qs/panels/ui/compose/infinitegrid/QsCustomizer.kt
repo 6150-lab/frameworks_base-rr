@@ -93,17 +93,21 @@ import com.android.systemui.qs.panels.shared.model.QsVolumeSize
 import com.android.systemui.qs.panels.shared.model.QsVolumeSound
 import com.android.systemui.qs.panels.shared.model.QsVolumeTap
 import com.android.systemui.qs.panels.ui.viewmodel.EditTileViewModel
+import com.android.systemui.qs.pipeline.shared.TileSpec
+import com.android.systemui.qs.shared.model.groupAndSort
+import com.android.systemui.common.ui.compose.load
 import com.android.systemui.res.R
 import kotlin.math.roundToInt
 import lineageos.providers.LineageSettings
 
-private enum class CustomizerTab(@StringRes val label: Int) {
+internal enum class CustomizerTab(@StringRes val label: Int) {
     Theme(R.string.qs_custom_tab_theme),
     Layout(R.string.qs_custom_tab_layout),
     Tiles(R.string.qs_custom_tab_tiles),
     Color(R.string.qs_custom_tab_color),
     Mix(R.string.qs_custom_tab_mix),
     Slider(R.string.qs_custom_tab_slider),
+    Add(R.string.qs_custom_tab_add),
 }
 
 private enum class SliderPlace(@StringRes val label: Int) {
@@ -144,25 +148,26 @@ private val Swatches: List<Pair<Long, Int>> =
     )
 
 /**
- * The customizer at the bottom of QS edit mode. With a [tile] tapped it shows that tile's options,
- * otherwise tabs for the whole panel. It stays a slim bar until opened, so the grid stays usable.
+ * The customizer docked under the panel in edit mode. With a [tile] tapped it shows that tile's
+ * options, otherwise a row of tabs for the whole panel, whose content folds out under the lit one.
  */
 @Composable
 internal fun QsCustomizerDock(
     repository: QsStyleRepository,
     tile: EditTileViewModel?,
+    allTiles: List<EditTileViewModel>,
     columns: Int,
-    expanded: Boolean,
-    onExpandedChange: (Boolean) -> Unit,
+    tab: CustomizerTab?,
+    onTabChange: (CustomizerTab?) -> Unit,
     onRemoveTile: (EditTileViewModel) -> Unit,
     onCloseTile: () -> Unit,
+    onAddTile: (TileSpec) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var tab by remember { mutableStateOf(CustomizerTab.Theme) }
     val edit: ((QsTweaks) -> QsTweaks) -> Unit = repository::editTweaks
 
-    BackHandler(enabled = expanded || tile != null) {
-        if (tile != null) onCloseTile() else onExpandedChange(false)
+    BackHandler(enabled = tab != null || tile != null) {
+        if (tile != null) onCloseTile() else onTabChange(null)
     }
 
     Column(
@@ -175,55 +180,47 @@ internal fun QsCustomizerDock(
                 .windowInsetsPadding(WindowInsets.navigationBars)
                 .padding(horizontal = 14.dp, vertical = 8.dp),
     ) {
-        val open = expanded || tile != null
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier =
-                Modifier.fillMaxWidth().heightIn(min = 40.dp).clickable {
-                    if (tile != null) onCloseTile() else onExpandedChange(!expanded)
-                },
-        ) {
-            Text(
-                text =
-                    tile?.label?.text
-                        ?: stringResource(
-                            if (open) R.string.qs_custom_title_open else R.string.qs_custom_title
-                        ),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f),
-            )
-            if (tile != null && tile.isRemovable) {
-                ActionChip(stringResource(R.string.qs_customize_remove)) { onRemoveTile(tile) }
-                Box(Modifier.width(6.dp))
+        if (tile != null) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth().heightIn(min = 40.dp),
+            ) {
+                Text(
+                    text = tile.label.text,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f),
+                )
+                if (tile.isRemovable) {
+                    ActionChip(stringResource(R.string.qs_customize_remove)) { onRemoveTile(tile) }
+                    Box(Modifier.width(6.dp))
+                }
+                Text(
+                    text = stringResource(R.string.qs_custom_done),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier =
+                        Modifier.clip(RoundedCornerShape(12.dp))
+                            .clickable(onClick = onCloseTile)
+                            .padding(horizontal = 8.dp, vertical = 8.dp),
+                )
             }
-            Text(
-                text =
-                    stringResource(
-                        if (open) R.string.qs_custom_done else R.string.qs_custom_open
-                    ),
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(horizontal = 6.dp),
-            )
-        }
-
-        if (open) {
-            if (tile == null) {
-                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    CustomizerTab.entries.forEach { entry ->
-                        TabButton(
-                            text = stringResource(entry.label),
-                            selected = entry == tab,
-                            modifier = Modifier.weight(1f),
-                        ) {
-                            tab = entry
-                        }
+        } else {
+            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                CustomizerTab.entries.forEach { entry ->
+                    TabButton(
+                        text = stringResource(entry.label),
+                        selected = entry == tab,
+                        modifier = Modifier.weight(1f),
+                    ) {
+                        onTabChange(if (tab == entry) null else entry)
                     }
                 }
             }
+        }
+        if (tile != null || tab != null) {
             key(tab, tile?.tileSpec) {
                 Column(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -242,11 +239,71 @@ internal fun QsCustomizerDock(
                         tab == CustomizerTab.Tiles -> TilesTab(edit)
                         tab == CustomizerTab.Color -> ColorTab(edit)
                         tab == CustomizerTab.Mix -> MixTab(edit)
-                        else -> SliderTab(edit)
+                        tab == CustomizerTab.Slider -> SliderTab(edit)
+                        else -> AddTab(allTiles, onAddTile)
                     }
                 }
             }
         }
+    }
+}
+
+/** The tiles not on the panel, by category; a tap adds one at the end. */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun AddTab(allTiles: List<EditTileViewModel>, onAddTile: (TileSpec) -> Unit) {
+    val available = allTiles.filter { !it.isCurrent }
+    if (available.isEmpty()) {
+        Text(
+            text = stringResource(R.string.qs_custom_all_added),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        return
+    }
+    val grouped = remember(available) { groupAndSort(available) }
+    grouped.forEach { (category, tiles) ->
+        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            RowTitle(category.label.load() ?: "")
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
+                tiles.forEach { tile ->
+                    key(tile.tileSpec) { TrayChip(tile) { onAddTile(tile.tileSpec) } }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun TrayChip(tile: EditTileViewModel, onClick: () -> Unit) {
+    val scheme = MaterialTheme.colorScheme
+    val label =
+        stringResource(R.string.accessibility_qs_edit_named_tile_add_action, tile.label.text)
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        modifier =
+            Modifier.height(40.dp)
+                .clip(RoundedCornerShape(20.dp))
+                .background(scheme.surfaceContainerHighest)
+                .clickable(onClickLabel = label, onClick = onClick)
+                .padding(start = 10.dp, end = 14.dp),
+    ) {
+        SmallTileContent(
+            iconProvider = { tile.icon },
+            color = scheme.onSurface,
+            size = { 20.dp },
+            animateToEnd = true,
+        )
+        Text(
+            text = tile.label.text,
+            style = MaterialTheme.typography.labelLarge,
+            color = scheme.onSurface,
+            maxLines = 1,
+        )
     }
 }
 
