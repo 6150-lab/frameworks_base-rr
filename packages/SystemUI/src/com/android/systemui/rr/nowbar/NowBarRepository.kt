@@ -6,6 +6,7 @@ package com.android.systemui.rr.nowbar
 
 import android.app.Notification
 import android.app.Person
+import android.app.WallpaperColors
 import android.content.Context
 import android.content.pm.PackageManager
 import android.database.ContentObserver
@@ -23,16 +24,20 @@ import android.provider.Settings
 import android.service.notification.NotificationListenerService.RankingMap
 import android.service.notification.StatusBarNotification
 import android.util.Log
+import androidx.core.graphics.ColorUtils
 import androidx.core.graphics.drawable.toBitmap
 import com.android.settingslib.utils.StringUtil
 import com.android.systemui.CoreStartable
 import com.android.systemui.dagger.SysUISingleton
+import com.android.systemui.dagger.qualifiers.Background
 import com.android.systemui.plugins.ActivityStarter
 import com.android.systemui.res.R
+import com.android.systemui.rr.media.MediaArt
 import com.android.systemui.statusbar.NotificationListener
 import com.android.systemui.statusbar.policy.BatteryController
 import com.android.systemui.statusbar.policy.FlashlightController
 import java.io.PrintWriter
+import java.util.concurrent.Executor
 import javax.inject.Inject
 import kotlin.math.max
 
@@ -48,6 +53,7 @@ constructor(
     private val notificationListener: NotificationListener,
     private val batteryController: BatteryController,
     private val flashlightController: FlashlightController,
+    @Background private val bgExecutor: Executor,
     val activityStarter: ActivityStarter,
 ) : CoreStartable, NotificationListener.NotificationHandler {
 
@@ -68,6 +74,12 @@ constructor(
     private var lockscreenCallKeys = emptySet<String>()
     private val controllers = ArrayList<MediaController>()
     private var mediaItem: NowBarItem? = null
+    // The song's art scaled, with its colors: one instance across state changes, so views can
+    // compare art by identity.
+    private var artKey: String? = null
+    private var pendingArtKey: String? = null
+    private var art: Bitmap? = null
+    private var artColors: IntArray? = null
     private var chargingItem: NowBarItem? = null
     private var flashlightItem: NowBarItem? = null
     private lateinit var sessionManager: MediaSessionManager
@@ -234,9 +246,10 @@ constructor(
         val artist = metadata.getString(MediaMetadata.METADATA_KEY_ARTIST)
             ?: metadata.getString(MediaMetadata.METADATA_KEY_ALBUM_ARTIST)
             ?: metadata.getString(MediaMetadata.METADATA_KEY_DISPLAY_SUBTITLE)
-        val art = metadata.getBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART)
+        val raw = metadata.getBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART)
             ?: metadata.getBitmap(MediaMetadata.METADATA_KEY_ART)
             ?: metadata.getBitmap(MediaMetadata.METADATA_KEY_DISPLAY_ICON)
+        val art = raw?.let { art(pkg, metadata, it) }
         val controls = controller.transportControls
         val actions = listOf(
             NowBarAction(context.getString(R.string.now_bar_previous),
@@ -256,7 +269,8 @@ constructor(
             type = NowBarType.MUSIC,
             packageName = pkg,
             icon = appIcon(pkg),
-            art = art?.let { scaled(it, ART_SIZE) },
+            art = art,
+            artColors = if (art != null) artColors else null,
             title = title ?: "",
             text = artist,
             playing = playing,
@@ -430,6 +444,61 @@ constructor(
             bitmap, (bitmap.width * f).toInt().coerceAtLeast(1),
             (bitmap.height * f).toInt().coerceAtLeast(1), true,
         )
+    }
+
+    /**
+     * [raw] scaled, with its colors, made on the background executor: a cover is a few frames
+     * of work. Every getMetadata() unparcels a new Bitmap, so [MediaArt.key] tells the song;
+     * the last song's art stays until the new one is ready.
+     */
+    private fun art(pkg: String, metadata: MediaMetadata, raw: Bitmap): Bitmap? {
+        val key = MediaArt.key(pkg, metadata, raw)
+        if (key != artKey && key != pendingArtKey) {
+            pendingArtKey = key
+            bgExecutor.execute {
+                val scaled = try {
+                    scaled(raw, ART_SIZE)
+                } catch (e: RuntimeException) {
+                    raw
+                }
+                val colors = paletteOf(scaled)
+                handler.post {
+                    if (pendingArtKey != key) return@post
+                    pendingArtKey = null
+                    artKey = key
+                    art = scaled
+                    artColors = colors
+                    updateMedia()
+                }
+            }
+        }
+        return art
+    }
+
+    /** The capsule's tint and three wave colors from the album art. */
+    private fun paletteOf(art: Bitmap): IntArray? =
+        try {
+            val wallpaperColors = WallpaperColors.fromBitmap(art)
+            val primary = wallpaperColors.primaryColor.toArgb()
+            val secondary = wallpaperColors.secondaryColor?.toArgb() ?: primary
+            val tertiary = wallpaperColors.tertiaryColor?.toArgb() ?: secondary
+            intArrayOf(
+                tone(primary, 0.17f, 0.5f, 0xF0),
+                tone(primary, 0.66f, 0.85f, 0x8C),
+                tone(secondary, 0.72f, 0.85f, 0x99),
+                tone(tertiary, 0.6f, 0.85f, 0x8C),
+            )
+        } catch (e: RuntimeException) {
+            // Hardware or odd bitmaps: the default look.
+            null
+        }
+
+    private fun tone(color: Int, lightness: Float, maxSaturation: Float, alpha: Int): Int {
+        val hsl = FloatArray(3)
+        ColorUtils.colorToHSL(color, hsl)
+        hsl[1] = hsl[1].coerceAtMost(maxSaturation)
+        hsl[2] = lightness
+        return ColorUtils.setAlphaComponent(ColorUtils.HSLToColor(hsl), alpha)
     }
 
     companion object {

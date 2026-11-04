@@ -51,6 +51,8 @@ class NowBarItem(
     val packageName: String?,
     val icon: Drawable?,
     val art: Bitmap?,
+    /** The capsule tint and wave colors drawn from [art], made with it. */
+    val artColors: IntArray? = null,
     val title: CharSequence,
     val text: CharSequence?,
     /** Wall clock time a chronometer counts from or to, or 0. */

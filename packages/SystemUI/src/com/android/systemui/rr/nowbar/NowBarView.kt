@@ -5,13 +5,11 @@
 package com.android.systemui.rr.nowbar
 
 import android.app.PendingIntent
-import android.app.WallpaperColors
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.res.ColorStateList
-import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Outline
@@ -121,8 +119,6 @@ class NowBarView(
     private var card: NowBarCard? = null
     private var popup: PopupMenu? = null
     private var burnIn = 0
-    private var artColorsFor: Bitmap? = null
-    private var artColors: IntArray? = null
 
     private var downX = 0f
     private var downY = 0f
@@ -472,7 +468,7 @@ class NowBarView(
         visibility = VISIBLE
         val music = item.type == NowBarType.MUSIC && !dozing
         val game = item.score != null
-        val colors = if (music) item.art?.let(::colorsOf) else null
+        val colors = if (music) item.artColors else null
         paintCapsule(colors)
         capsule.alpha = if (dozing) 0.85f else 1f
         val more = items.size > 1 && !dozing
@@ -712,36 +708,6 @@ class NowBarView(
             view.visibility = if (logo != null) VISIBLE else GONE
             view.alpha = if (dozing) 0.6f else 1f
         }
-    }
-
-    /** The capsule's tint and three wave colors from the album art, cached per bitmap. */
-    private fun colorsOf(art: Bitmap): IntArray? {
-        if (art === artColorsFor) return artColors
-        artColorsFor = art
-        artColors = try {
-            val wallpaperColors = WallpaperColors.fromBitmap(art)
-            val primary = wallpaperColors.primaryColor.toArgb()
-            val secondary = wallpaperColors.secondaryColor?.toArgb() ?: primary
-            val tertiary = wallpaperColors.tertiaryColor?.toArgb() ?: secondary
-            intArrayOf(
-                tone(primary, 0.17f, 0.5f, 0xF0),
-                tone(primary, 0.66f, 0.85f, 0x8C),
-                tone(secondary, 0.72f, 0.85f, 0x99),
-                tone(tertiary, 0.6f, 0.85f, 0x8C),
-            )
-        } catch (e: RuntimeException) {
-            // Hardware or odd bitmaps: the default look.
-            null
-        }
-        return artColors
-    }
-
-    private fun tone(color: Int, lightness: Float, maxSaturation: Float, alpha: Int): Int {
-        val hsl = FloatArray(3)
-        ColorUtils.colorToHSL(color, hsl)
-        hsl[1] = hsl[1].coerceAtMost(maxSaturation)
-        hsl[2] = lightness
-        return ColorUtils.setAlphaComponent(ColorUtils.HSLToColor(hsl), alpha)
     }
 
     private fun run(action: NowBarAction) {
