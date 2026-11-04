@@ -653,6 +653,9 @@ class AnimatedDialog(
     /** The background color of [dialog], taking into consideration its window background color. */
     private var originalDialogBackgroundColor = Color.BLACK
 
+    /** Catalyxx glass on the dialog, while and after it grows; null without it. */
+    private var glass: DialogGlass? = null
+
     /**
      * Whether we are currently launching/showing the dialog by animating it from its source
      * controlled by [controller].
@@ -748,6 +751,11 @@ class AnimatedDialog(
             GhostedViewTransitionAnimatorController.findGradientDrawable(background)
                 ?.color
                 ?.defaultColor ?: Color.BLACK
+        // Catalyxx glass, on dialogs that are a window of their own size; fullscreen ones, such
+        // as the power menu, have their own
+        if (!isWindowFullScreen) {
+            glass = DialogGlass.create(dialog, decorView, dialogContentWithBackground)
+        }
 
         // Make the background view invisible until we start the animation. We use the transition
         // visibility like GhostView does so that we don't mess up with the accessibility tree (see
@@ -994,6 +1002,7 @@ class AnimatedDialog(
                  */
                 startController?.onExitAnimationCancelled()
             }
+            // Its glass, if any, fades out with the window
             onAnimationFinished(false /* instantDismiss */)
             onDialogDismissed(this@AnimatedDialog)
             return
@@ -1037,6 +1046,7 @@ class AnimatedDialog(
                     startController?.stopDrawingInOverlay()
                 }
                 synchronizeNextDraw(endController) {
+                    glass?.dispose()
                     onAnimationFinished(true /* instantDismiss */)
                     onDialogDismissed(this@AnimatedDialog)
                 }
@@ -1050,6 +1060,12 @@ class AnimatedDialog(
         onLaunchAnimationStart: () -> Unit = {},
         onLaunchAnimationEnd: () -> Unit = {},
     ) {
+        // The dialog's background is plain again before the controllers below wrap it
+        val glass = this.glass
+        glass?.beforeTransition()
+        // The controller below always says it's launching, so the glass hears it from here
+        val isGrowing = isLaunching
+
         // Create 2 controllers to animate both the dialog and the source.
         val startController =
             if (isLaunching) {
@@ -1065,6 +1081,7 @@ class AnimatedDialog(
             }
         startController.transitionContainer = decorView
         endController.transitionContainer = decorView
+        glass?.onTransitionStart(startController.createAnimatorState())
 
         val endState = endController.createAnimatorState()
         val controller =
@@ -1100,6 +1117,7 @@ class AnimatedDialog(
                     val onEnd = {
                         startController.onTransitionAnimationEnd(isExpandingFullyAbove)
                         endController.onTransitionAnimationEnd(isExpandingFullyAbove)
+                        glass?.onTransitionEnd(isGrowing)
                         onLaunchAnimationEnd()
                     }
                     if (Flags.sceneContainer()) {
@@ -1127,11 +1145,44 @@ class AnimatedDialog(
                     progress: Float,
                     linearProgress: Float,
                 ) {
-                    startController.onTransitionAnimationProgress(state, progress, linearProgress)
+                    if (glass != null) {
+                        // On glass the two cross-fade on the glass shape the whole way, instead of
+                        // swapping halfway under an opaque layer, which glass has none of
+                        glass.onTransitionProgress(state)
+                        val wasVisible = state.visible
+                        state.visible = true
+                        state.alpha =
+                            1f -
+                                DialogGlass.fade(
+                                    DialogGlass.FADE_OUT_FROM,
+                                    DialogGlass.FADE_OUT_TO,
+                                    linearProgress,
+                                )
+                        startController.onTransitionAnimationProgress(
+                            state,
+                            progress,
+                            linearProgress,
+                        )
+                        state.alpha =
+                            DialogGlass.fade(
+                                DialogGlass.FADE_IN_FROM,
+                                DialogGlass.FADE_IN_TO,
+                                linearProgress,
+                            )
+                        endController.onTransitionAnimationProgress(state, progress, linearProgress)
+                        state.alpha = 1f
+                        state.visible = wasVisible
+                    } else {
+                        startController.onTransitionAnimationProgress(
+                            state,
+                            progress,
+                            linearProgress,
+                        )
 
-                    // The end view is visible only iff the starting view is not visible.
-                    state.visible = !state.visible
-                    endController.onTransitionAnimationProgress(state, progress, linearProgress)
+                        // The end view is visible only iff the starting view is not visible.
+                        state.visible = !state.visible
+                        endController.onTransitionAnimationProgress(state, progress, linearProgress)
+                    }
 
                     // animate touch Interceptor view
                     updateTouchInterceptorViewConstraints(state)
@@ -1152,7 +1203,8 @@ class AnimatedDialog(
             transitionAnimator.startAnimation(
                 controller,
                 { endController.createAnimatorState() },
-                originalDialogBackgroundColor,
+                // Glass shows through where Android lays its opaque layer
+                if (glass != null) Color.TRANSPARENT else originalDialogBackgroundColor,
                 startVelocity =
                     if (Flags.enableDialogSpringAnimation()) {
                         // initial speed would be 0, if flag is set
@@ -1160,7 +1212,13 @@ class AnimatedDialog(
                     } else {
                         null
                     },
-                springParams = if (isLaunching) LAUNCH_SPRING_PARAMS else COLLAPSE_SPRING_PARAMS,
+                // Catalyxx glass's morph, where it's on for tile pop-ups
+                springParams =
+                    DialogGlass.springParams(
+                        dialog.context,
+                        isLaunching,
+                        if (isLaunching) LAUNCH_SPRING_PARAMS else COLLAPSE_SPRING_PARAMS,
+                    ),
                 useDynamicPivot = true,
             )
     }

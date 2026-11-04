@@ -283,6 +283,13 @@ class TransitionAnimator(
 
         /** Whether the expanding view should be visible or hidden. */
         var visible: Boolean = true
+
+        /**
+         * How opaque the expanding view is drawn, from 0 to 1. Always 1 in Android's own
+         * transitions; Catalyxx glass fades a tile's pop-up in over the tile while both grow on
+         * the same glass (DialogGlass).
+         */
+        var alpha: Float = 1f
     }
 
     /** Encapsulated the state of a multi-spring animation. */

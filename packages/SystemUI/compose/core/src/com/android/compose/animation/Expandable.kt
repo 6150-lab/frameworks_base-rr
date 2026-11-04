@@ -49,15 +49,18 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathOperation
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.drawscope.translate
@@ -555,25 +558,27 @@ private class DrawExpandableInOverlayNode(
         val leftOffset = state.left.toFloat() - composeViewLocationOnScreen[0]
 
         translate(top = topOffset, left = leftOffset) {
-            // Background.
-            this@draw.drawBackground(
-                state,
-                controller.color(),
-                controller.borderStroke,
-                size = Size(state.width.toFloat(), state.height.toFloat()),
-            )
+            withAlpha(state.alpha, Size(state.width.toFloat(), state.height.toFloat())) {
+                // Background.
+                this@draw.drawBackground(
+                    state,
+                    controller.color(),
+                    controller.borderStroke,
+                    size = Size(state.width.toFloat(), state.height.toFloat()),
+                )
 
-            // Content, scaled & centered w.r.t. the animated state bounds.
-            val contentSize = controller.boundsInComposeViewRoot.size
-            val contentWidth = contentSize.width
-            val contentHeight = contentSize.height
-            val scale = min(state.width / contentWidth, state.height / contentHeight)
-            scale(scale, pivot = Offset(state.width / 2f, state.height / 2f)) {
-                translate(
-                    left = (state.width - contentWidth) / 2f,
-                    top = (state.height - contentHeight) / 2f,
-                ) {
-                    drawLayer(contentGraphicsLayer)
+                // Content, scaled & centered w.r.t. the animated state bounds.
+                val contentSize = controller.boundsInComposeViewRoot.size
+                val contentWidth = contentSize.width
+                val contentHeight = contentSize.height
+                val scale = min(state.width / contentWidth, state.height / contentHeight)
+                scale(scale, pivot = Offset(state.width / 2f, state.height / 2f)) {
+                    translate(
+                        left = (state.width - contentWidth) / 2f,
+                        top = (state.height - contentHeight) / 2f,
+                    ) {
+                        drawLayer(contentGraphicsLayer)
+                    }
                 }
             }
         }
@@ -668,8 +673,10 @@ private fun AnimatedContentInOverlay(
                                     return@drawWithContent
                                 }
 
-                                drawBackground(animatorState, color(), controller.borderStroke)
-                                drawContent()
+                                withAlpha(animatorState.alpha, size) {
+                                    drawBackground(animatorState, color(), controller.borderStroke)
+                                    drawContent()
+                                }
                             },
                             // We center the content in the expanding container.
                             contentAlignment = Alignment.Center,
@@ -749,6 +756,24 @@ private fun getOverlayViewGroup(context: Context, overlay: ViewGroupOverlay): Vi
 
 private fun Modifier.border(controller: ExpandableController): Modifier =
     controller.borderStroke?.let { stroke -> this.border(stroke, controller.shape) } ?: this
+
+/**
+ * Draws [block] at [alpha] (see [TransitionAnimator.State.alpha]): as it is at 1, through a layer
+ * the size of [size] below that, and not at all at 0.
+ */
+private inline fun DrawScope.withAlpha(alpha: Float, size: Size, block: () -> Unit) {
+    if (alpha >= 1f) {
+        block()
+        return
+    }
+    if (alpha <= 0f) {
+        return
+    }
+    val canvas = drawContext.canvas
+    canvas.saveLayer(Rect(Offset.Zero, size), Paint().apply { this.alpha = alpha })
+    block()
+    canvas.restore()
+}
 
 private fun ContentDrawScope.drawBackground(
     animatorState: TransitionAnimator.State,

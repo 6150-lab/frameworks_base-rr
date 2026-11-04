@@ -367,6 +367,9 @@ constructor(
             ghostView.visibility = View.VISIBLE
             backgroundView.visibility = View.VISIBLE
         }
+        // Faded in or out while it crosses with another view on Catalyxx glass
+        ghostView.alpha = state.alpha
+        backgroundView.alpha = state.alpha
 
         fillGhostedViewState(ghostedViewState)
         val leftChange = state.left - ghostedViewState.left
