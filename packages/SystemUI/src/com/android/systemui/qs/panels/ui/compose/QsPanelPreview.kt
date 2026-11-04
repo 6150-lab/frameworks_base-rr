@@ -115,6 +115,9 @@ class QsPreviewTiles {
 
     var dragging by mutableStateOf<TileSpec?>(null)
 
+    /** A drag or a handle resize is on or just ended: the other tiles glide to their places. */
+    var settling by mutableStateOf(false)
+
     /** Where the dragged tile's top start corner is drawn, in root coordinates. */
     var dragCorner by mutableStateOf(Offset.Unspecified)
 

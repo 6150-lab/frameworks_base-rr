@@ -17,6 +17,8 @@
 package com.android.systemui.qs.panels.ui.compose.infinitegrid
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.RowScope
@@ -52,6 +54,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
@@ -119,6 +122,16 @@ fun DefaultEditTileGrid(
     val preview = remember {
         QsPreviewTiles().also { p ->
             var edgeJob: Job? = null
+            var settleJob: Job? = null
+            fun settle() {
+                settleJob?.cancel()
+                p.settling = true
+                settleJob =
+                    scope.launch {
+                        delay(SettleMillis)
+                        if (p.dragging == null) p.settling = false
+                    }
+            }
             p.host =
                 object : QsPreviewHost {
                     override fun onTap(spec: TileSpec) {
@@ -135,6 +148,7 @@ fun DefaultEditTileGrid(
                         p.order = currentListState.tileSpecs()
                         p.dragging = spec
                         p.removeArmed = false
+                        settle()
                     }
 
                     override fun onDragTo(pointer: Offset) {
@@ -177,6 +191,7 @@ fun DefaultEditTileGrid(
                         p.dragging = null
                         p.dragCorner = Offset.Unspecified
                         p.removeArmed = false
+                        settle()
                         when {
                             remove -> currentAction(EditAction.RemoveTile(moving))
                             !cancelled && order != currentListState.tileSpecs() ->
@@ -186,6 +201,7 @@ fun DefaultEditTileGrid(
                     }
 
                     override fun onResize(spec: TileSpec, columns: Int, rows: Int) {
+                        settle()
                         qsStyleRepository.editTweaks {
                             it.resized(spec.spec, theme, columns, rows, currentListState.columns)
                         }
@@ -291,8 +307,22 @@ fun DefaultEditTileGrid(
         },
     ) { innerPadding ->
         val panel = LocalQsEditPreview.current ?: return@Scaffold
+        // A theme change relays the panel out at once; it fades in instead of tumbling.
+        val style = LocalQsStyle.current
+        val fade = remember { Animatable(1f) }
+        var shownStyle by remember { mutableStateOf(style) }
+        LaunchedEffect(style) {
+            if (style != shownStyle) {
+                shownStyle = style
+                fade.snapTo(0.3f)
+                fade.animateTo(1f, tween(ThemeFadeMillis))
+            }
+        }
         CompositionLocalProvider(LocalQsPreviewTiles provides preview) {
-            QsFitToHeight(Modifier.fillMaxSize().padding(innerPadding), panel)
+            QsFitToHeight(
+                Modifier.fillMaxSize().padding(innerPadding).graphicsLayer { alpha = fade.value },
+                panel,
+            )
         }
     }
 }
@@ -321,4 +351,7 @@ private fun QsPreviewTiles.targetFor(moving: TileSpec, pointer: Offset): Pair<Ti
 
 private val EdgeFlipWidth = 24.dp
 private const val EdgeFlipDelayMillis = 450L
+/** How long the tiles keep gliding after a drop or a resize. */
+private const val SettleMillis = 500L
+private const val ThemeFadeMillis = 240
 private const val EDIT_MODE_ROOT_TEST_TAG = "EditModeRoot"

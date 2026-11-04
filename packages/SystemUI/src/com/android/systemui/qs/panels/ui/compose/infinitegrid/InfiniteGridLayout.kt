@@ -169,7 +169,7 @@ constructor(
             raised = {
                 preview != null && it < shownTiles.size && shownTiles[it].spec == preview.dragging
             },
-            animate = preview != null,
+            animate = preview?.settling == true,
             modifier =
                 modifier.thenIf(preview != null) { Modifier.onSizeChanged { gridWidth = it.width } },
         ) { index ->
