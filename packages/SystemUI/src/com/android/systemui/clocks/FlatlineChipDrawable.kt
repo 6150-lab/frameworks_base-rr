@@ -69,7 +69,8 @@ class FlatlineChipDrawable(private val host: TextView) : Drawable(), NowBarRepos
         val base = b.exactCenterY()
         val amp = b.height() * 0.46f
         val period = (if (calling) 34f else 56f) * density
-        val shift = (now % 100_000L) / 1000f * period * (if (calling) 1.6f else 0.9f)
+        // Half the clock face's pace: the chip is only half a beat wide, so it read as a race.
+        val shift = (now % 100_000L) / 1000f * period * (if (calling) 0.8f else 0.45f)
         val head = b.left + b.width() * (now - spikeAt) / SPIKE_MS.toFloat()
         paint.color = host.currentTextColor
         path.rewind()
