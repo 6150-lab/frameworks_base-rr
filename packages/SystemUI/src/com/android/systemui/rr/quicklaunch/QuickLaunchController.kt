@@ -95,6 +95,8 @@ constructor(
 
     private val showFan = Runnable { showFan() }
     private val giveUp = Runnable { if (!authenticated) stopTracking() }
+    // A kept window whose UP never comes would leave the fan up for good.
+    private val expire = Runnable { stopTracking() }
     private val endGrace = Runnable { updateMonitor() }
 
     // The monitor runs while the lock screen shows, so it sees the touch that lands on the sensor
@@ -225,6 +227,8 @@ constructor(
         authenticated = true
         handler.removeCallbacks(giveUp)
         handler.postDelayed(showFan, holdMs)
+        handler.removeCallbacks(expire)
+        handler.postDelayed(expire, FAN_TIMEOUT_MS)
     }
 
     private fun inGrace() = SystemClock.uptimeMillis() - unlockedAt < GRACE_MS
@@ -232,6 +236,7 @@ constructor(
     private fun stopTracking() {
         handler.removeCallbacks(showFan)
         handler.removeCallbacks(giveUp)
+        handler.removeCallbacks(expire)
         tracking = false
         pointerDown = false
         authenticated = false
@@ -408,6 +413,7 @@ constructor(
         private const val DEFAULT_HOLD_MS = 500L
         private const val AUTH_TIMEOUT_MS = 3000L
         private const val KEEP_TIMEOUT_MS = 1000L
+        private const val FAN_TIMEOUT_MS = 8000L
         private const val GRACE_MS = 600L
         private const val MAX_SHORTCUTS = 5
     }
