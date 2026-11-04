@@ -19,6 +19,7 @@ import com.android.systemui.keyguard.ui.view.layout.blueprints.transitions.Intra
 import com.android.systemui.plugins.ActivityStarter
 import com.android.systemui.plugins.statusbar.StatusBarStateController
 import com.android.systemui.res.R
+import com.android.systemui.shared.R as sharedR
 import com.android.systemui.rr.stage.BatteryRingView
 import com.android.systemui.rr.stage.NextAlarmView
 import com.android.systemui.rr.nightstand.NightstandController
@@ -157,7 +158,7 @@ constructor(
             val box = box(constraintSet, stage, tile)
             when (tile.id) {
                 StageSpec.CLOCK -> place(constraintSet, R.id.clock_ls, box, wrapHeight = true)
-                StageSpec.GLANCE -> place(constraintSet, R.id.keyguard_slice_view, box, wrapHeight = true)
+                StageSpec.GLANCE -> glance(constraintSet, box)
                 StageSpec.WEATHER -> place(constraintSet, R.id.keyguard_weather, box, wrapHeight = true)
                 StageSpec.NOW_BAR -> place(constraintSet, R.id.now_bar, box, wrapHeight = true)
                 StageSpec.SHORTCUTS -> shortcuts(constraintSet, box)
@@ -235,6 +236,22 @@ constructor(
     }
 
     /** The two shortcut buttons keep their size, at the tile's ends. */
+    /** The date row, or Google's At a Glance date with its cards under it when that is on. */
+    private fun glance(set: ConstraintSet, box: Box) {
+        place(set, R.id.keyguard_slice_view, box, wrapHeight = true)
+        place(set, sharedR.id.date_smartspace_view, box, wrapHeight = true)
+        val cards = sharedR.id.bc_smartspace_view
+        if (set.getConstraint(cards) == null || set.getConstraint(sharedR.id.date_smartspace_view) == null) return
+        val inset = (6 * context.resources.displayMetrics.density).toInt()
+        set.clear(cards)
+        set.connect(cards, ConstraintSet.START, box.left, ConstraintSet.START, inset)
+        set.connect(cards, ConstraintSet.END, box.right, ConstraintSet.START, inset)
+        set.connect(cards, ConstraintSet.TOP, sharedR.id.date_smartspace_view, ConstraintSet.BOTTOM)
+        set.constrainWidth(cards, ConstraintSet.MATCH_CONSTRAINT)
+        set.constrainHeight(cards, ConstraintSet.WRAP_CONTENT)
+        set.setElevation(cards, 1f)
+    }
+
     private fun shortcuts(set: ConstraintSet, box: Box) {
         val res = context.resources
         val width = res.getDimensionPixelSize(R.dimen.keyguard_affordance_fixed_width)
