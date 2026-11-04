@@ -8,6 +8,7 @@ import com.android.systemui.CoreStartable
 import com.android.systemui.edgelight.EdgeLightMomentsController
 import com.android.systemui.rr.chargereport.ChargeReportController
 import com.android.systemui.rr.media.MediaSessionFeeder
+import com.android.systemui.rr.modes.RemixModesController
 import com.android.systemui.rr.nowbar.NowBarRepository
 import com.android.systemui.rr.pie.PieController
 import com.android.systemui.rr.quicklaunch.QuickLaunchController
@@ -48,4 +49,9 @@ abstract class RrModule {
     @IntoMap
     @ClassKey(MediaSessionFeeder::class)
     abstract fun bindMediaSessionFeeder(impl: MediaSessionFeeder): CoreStartable
+
+    @Binds
+    @IntoMap
+    @ClassKey(RemixModesController::class)
+    abstract fun bindRemixModes(impl: RemixModesController): CoreStartable
 }
