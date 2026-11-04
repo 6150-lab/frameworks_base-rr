@@ -11,9 +11,6 @@
     <string name="quick_launch_flashlight">Llanterna</string>
     <string name="quick_launch_timer">Temporitzador</string>
     <string name="now_bar_turn_off">"Desactiva"</string>
-    <string name="stage_flashlight">Llanterna</string>
-    <string name="stage_camera">"Càmera"</string>
-    <string name="stage_qr">"Escàner codis QR"</string>
     <string name="usb_mode_file_transfer">"Transferència de fitxers"</string>
     <string name="usb_mode_tethering">"Compartició de xarxa per USB"</string>
     <string name="usb_island_dismiss">"Ignora"</string>

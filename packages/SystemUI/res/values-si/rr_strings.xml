@@ -11,9 +11,6 @@
     <string name="quick_launch_flashlight">"සැණෙළි ආලෝකය"</string>
     <string name="quick_launch_timer">කාලමාපකය</string>
     <string name="now_bar_turn_off">"ක්‍රියාවිරහිත කරන්න"</string>
-    <string name="stage_flashlight">"සැණෙළි ආලෝකය"</string>
-    <string name="stage_camera">"කැමරාව"</string>
-    <string name="stage_qr">"QR කේත ස්කෑනරය"</string>
     <string name="usb_mode_file_transfer">"ගොනු මාරුව"</string>
     <string name="usb_mode_tethering">"USB ටෙදරින්"</string>
     <string name="usb_island_dismiss">"ඉවත ලන්න"</string>

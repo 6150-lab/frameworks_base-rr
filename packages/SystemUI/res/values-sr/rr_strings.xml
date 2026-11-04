@@ -11,9 +11,6 @@
     <string name="quick_launch_flashlight">"Лампа"</string>
     <string name="quick_launch_timer">Тајмер</string>
     <string name="now_bar_turn_off">"Искључи"</string>
-    <string name="stage_flashlight">"Лампа"</string>
-    <string name="stage_camera">"Камера"</string>
-    <string name="stage_qr">"Скенер QR кода"</string>
     <string name="usb_mode_file_transfer">"Пренос датотеке"</string>
     <string name="usb_mode_tethering">"USB привезивање"</string>
     <string name="usb_island_dismiss">"Одбаци"</string>

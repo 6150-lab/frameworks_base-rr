@@ -12,9 +12,6 @@
     <string name="quick_launch_flashlight">Senter</string>
     <string name="quick_launch_timer">Timer</string>
     <string name="now_bar_turn_off">"Nonaktifkan"</string>
-    <string name="stage_flashlight">Senter</string>
-    <string name="stage_camera">"Kamera"</string>
-    <string name="stage_qr">"Pemindai kode QR"</string>
     <string name="charge_report_wireless">Nirkabel</string>
     <string name="usb_mode_picker_title">Pilih mode USB</string>
     <string name="usb_mode_file_transfer">"Transfer file"</string>

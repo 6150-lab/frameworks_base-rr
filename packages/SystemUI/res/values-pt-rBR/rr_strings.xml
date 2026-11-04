@@ -12,9 +12,6 @@
     <string name="quick_launch_flashlight">Lanterna</string>
     <string name="quick_launch_timer">Temporizador</string>
     <string name="now_bar_turn_off">"Desativar"</string>
-    <string name="stage_flashlight">Lanterna</string>
-    <string name="stage_camera">"Câmera"</string>
-    <string name="stage_qr">"Leitor de QR code"</string>
     <string name="charge_report_wireless">Sem fio</string>
     <string name="usb_mode_picker_title">Selecione o modo USB</string>
     <string name="usb_mode_file_transfer">"Transferência de arquivo"</string>

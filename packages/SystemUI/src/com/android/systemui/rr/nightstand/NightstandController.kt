@@ -29,7 +29,7 @@ import kotlinx.coroutines.launch
  * Nightstand: on the charger at night the always-on display shows the Nightstand stage, dim.
  * Starts on a charger inside the night window, on a schedule, or while a Bedtime Mode is on;
  * ends when the charger goes, the alarm rings, or the window closes. While on it writes
- * [KEY_ACTIVE], which the Lock Stage section and the doze brightness read, turns the always-on
+ * [KEY_ACTIVE], which the Nightstand section and the doze brightness read, turns the always-on
  * display on if it was off, and swaps in the Nightstand clock face when both faces are custom.
  */
 @SysUISingleton
@@ -176,9 +176,7 @@ constructor(
         const val KEY_FROM = "rr_nightstand_from"
         const val KEY_TO = "rr_nightstand_to"
         const val KEY_FACE = "rr_nightstand_face"
-        /** The Nightstand stage spec, the same JSON as rr_lock_stage. */
-        const val KEY_STAGE = "rr_lock_stage_night"
-        /** 1 while Nightstand is on; read by the Lock Stage section and doze brightness. */
+        /** 1 while Nightstand is on; read by the Nightstand section and doze brightness. */
         const val KEY_ACTIVE = "rr_nightstand_active"
         /** The brightness cap on the always-on display while on, 1 to 255. */
         const val KEY_BRIGHTNESS = "rr_nightstand_brightness"

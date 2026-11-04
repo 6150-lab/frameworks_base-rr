@@ -19,9 +19,6 @@
     <string name="quick_launch_flashlight">Svítilna</string>
     <string name="quick_launch_timer">Časovač</string>
     <string name="now_bar_turn_off">"Vypnout"</string>
-    <string name="stage_flashlight">Svítilna</string>
-    <string name="stage_camera">"Fotoaparát"</string>
-    <string name="stage_qr">"Čtečka QR kódů"</string>
     <string name="usb_mode_file_transfer">"Přenos souborů"</string>
     <string name="usb_mode_tethering">"Tethering přes USB"</string>
     <string name="usb_island_dismiss">"Zavřít"</string>

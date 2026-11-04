@@ -12,9 +12,6 @@
     <string name="quick_launch_flashlight">Baterka</string>
     <string name="quick_launch_timer">Časovač</string>
     <string name="now_bar_turn_off">"Vypnúť"</string>
-    <string name="stage_flashlight">Baterka</string>
-    <string name="stage_camera">"Kamera"</string>
-    <string name="stage_qr">"Skener QR kódov"</string>
     <string name="usb_mode_file_transfer">"Prenos súborov"</string>
     <string name="usb_mode_tethering">"Tethering cez USB"</string>
     <string name="usb_island_dismiss">"Zavrieť"</string>

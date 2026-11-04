@@ -11,9 +11,6 @@
     <string name="quick_launch_flashlight">"फ़्लैशलाइट"</string>
     <string name="quick_launch_timer">टाइमर</string>
     <string name="now_bar_turn_off">"बंद करें"</string>
-    <string name="stage_flashlight">"फ़्लैशलाइट"</string>
-    <string name="stage_camera">"कैमरा"</string>
-    <string name="stage_qr">"क्यूआर कोड स्कैनर"</string>
     <string name="usb_mode_file_transfer">"फ़ाइल ट्रांसफ़र करें"</string>
     <string name="usb_mode_tethering">"यूएसबी टेदरिंग"</string>
     <string name="usb_island_dismiss">"खारिज करें"</string>

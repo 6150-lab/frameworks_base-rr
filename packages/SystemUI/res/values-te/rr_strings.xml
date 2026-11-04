@@ -11,9 +11,6 @@
     <string name="quick_launch_flashlight">"ఫ్లాష్‌లైట్"</string>
     <string name="quick_launch_timer">టైమర్</string>
     <string name="now_bar_turn_off">"ఆఫ్ చేయండి"</string>
-    <string name="stage_flashlight">"ఫ్లాష్‌లైట్"</string>
-    <string name="stage_camera">"కెమెరా"</string>
-    <string name="stage_qr">"QR కోడ్ స్కానర్"</string>
     <string name="usb_mode_file_transfer">"ఫైల్ బదిలీ"</string>
     <string name="usb_mode_tethering">"USB టెథరింగ్‌"</string>
     <string name="usb_island_dismiss">"విస్మరించండి"</string>

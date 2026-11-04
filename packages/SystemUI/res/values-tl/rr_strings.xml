@@ -9,7 +9,6 @@
     <string name="tristate_rotation_auto">"I-auto rotate"</string>
     <string name="quick_launch_timer">Timer</string>
     <string name="now_bar_turn_off">"I-off"</string>
-    <string name="stage_qr">"Scanner ng QR code"</string>
     <string name="usb_mode_file_transfer">"Paglilipat ng file"</string>
     <string name="usb_mode_tethering">"Pag-tether ng USB"</string>
     <string name="usb_island_dismiss">"I-dismiss"</string>

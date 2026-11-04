@@ -82,9 +82,6 @@
     <!-- Lock Stage complications -->
     <string name="stage_battery_description">Battery <xliff:g id="percent" example="74">%1$d</xliff:g> percent</string>
     <string name="stage_alarm_description">Next alarm <xliff:g id="time" example="Tue 6:30">%1$s</xliff:g></string>
-    <string name="stage_flashlight">Flashlight</string>
-    <string name="stage_camera">Camera</string>
-    <string name="stage_qr">QR code scanner</string>
     <!-- Flatline clock face readout -->
     <string name="flatline_idle">RESURRECTED REMIX</string>
     <string name="flatline_playing">NOW PLAYING</string>

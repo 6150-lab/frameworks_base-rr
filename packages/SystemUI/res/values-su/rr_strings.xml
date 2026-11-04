@@ -2,6 +2,5 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="rr_power_tile_off">Pareum</string>
     <string name="quick_launch_camera">Kaméra</string>
-    <string name="stage_camera">Kaméra</string>
     <string name="qs_custom_off">Pareum</string>
 </resources>

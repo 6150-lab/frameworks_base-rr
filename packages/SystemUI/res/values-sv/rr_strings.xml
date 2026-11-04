@@ -11,9 +11,6 @@
     <string name="quick_launch_flashlight">Ficklampa</string>
     <string name="quick_launch_timer">Timer</string>
     <string name="now_bar_turn_off">"Inaktivera"</string>
-    <string name="stage_flashlight">Ficklampa</string>
-    <string name="stage_camera">"Kamera"</string>
-    <string name="stage_qr">"QR-skanner"</string>
     <string name="usb_mode_file_transfer">"Filöverföring"</string>
     <string name="usb_mode_tethering">"Delning via USB"</string>
     <string name="usb_island_dismiss">"Stäng"</string>

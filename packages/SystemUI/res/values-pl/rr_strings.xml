@@ -12,9 +12,6 @@
     <string name="quick_launch_flashlight">Latarka</string>
     <string name="quick_launch_timer">Minutnik</string>
     <string name="now_bar_turn_off">"Wyłącz"</string>
-    <string name="stage_flashlight">Latarka</string>
-    <string name="stage_camera">"Aparat"</string>
-    <string name="stage_qr">"Skaner kodów QR"</string>
     <string name="charge_report_wireless">Bezprzewodowo</string>
     <string name="usb_mode_picker_title">Wybierz tryb USB</string>
     <string name="usb_mode_file_transfer">"Przesyłanie pliku"</string>

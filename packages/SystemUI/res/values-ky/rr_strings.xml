@@ -11,9 +11,6 @@
     <string name="quick_launch_flashlight">"Кол чырак"</string>
     <string name="quick_launch_timer">Таймер</string>
     <string name="now_bar_turn_off">"Өчүрүү"</string>
-    <string name="stage_flashlight">"Кол чырак"</string>
-    <string name="stage_camera">"Камера"</string>
-    <string name="stage_qr">"QR сканери"</string>
     <string name="usb_mode_file_transfer">"Файл өткөрүү"</string>
     <string name="usb_mode_tethering">"USB модем"</string>
     <string name="usb_island_dismiss">"Жабуу"</string>
