@@ -51,6 +51,9 @@ private constructor(
     // While the pop-up grows, its glass waits for the transition's first step
     private var isWaitingToShow = false
 
+    // The root of the window the pop-up grows out of, while it does
+    private var sourceView: View? = null
+
     // The glass under the pop-up's background at rest
     private var restGlass: BackgroundBlurDrawable? = null
 
@@ -70,9 +73,15 @@ private constructor(
      * is there at once, in place of the pop-up's own glass. Growing, it shows on the frame after
      * the transition's first step: what the pop-up grows out of starts to draw in the pop-up's
      * window only then, as a Quick Settings tile does (Compose draws a change on the frame after
-     * it), and glass there before it would blur the tile where it still is.
+     * it), and glass there before it would blur the tile where it still is. That frame of the
+     * window it leaves, [sourceView]'s, and the pop-up's then show together: one shown before the
+     * other would leave the tile out of both, or in both, for a frame.
      */
-    fun onTransitionStart(state: TransitionAnimator.State, isLaunching: Boolean) {
+    fun onTransitionStart(
+        state: TransitionAnimator.State,
+        isLaunching: Boolean,
+        sourceView: View?,
+    ) {
         if (morphHost == null) {
             val viewRoot = decorView.viewRootImpl ?: return
             val glass =
@@ -87,6 +96,7 @@ private constructor(
         }
         morphGlass?.alpha = if (isLaunching) 0 else 255
         isWaitingToShow = isLaunching
+        this.sourceView = if (isLaunching) sourceView else null
         place(state)
     }
 
@@ -102,6 +112,7 @@ private constructor(
             host.postOnAnimation {
                 if (morphGlass === glass) {
                     glass?.alpha = 255
+                    sourceView?.let { ViewRootSync.synchronizeNextDraw(it, decorView) {} }
                 }
             }
         }
@@ -152,6 +163,7 @@ private constructor(
         decorView.overlay.remove(host)
         morphHost = null
         morphGlass = null
+        sourceView = null
     }
 
     private fun addRestGlass() {
