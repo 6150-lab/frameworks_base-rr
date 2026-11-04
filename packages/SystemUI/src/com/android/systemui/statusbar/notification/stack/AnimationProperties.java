@@ -18,12 +18,14 @@ package com.android.systemui.statusbar.notification.stack;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.annotation.Nullable;
 import android.util.ArrayMap;
 import android.util.Property;
 import android.view.View;
 import android.view.animation.Interpolator;
 
 import com.android.internal.dynamicanimation.animation.DynamicAnimation;
+import com.android.internal.dynamicanimation.animation.SpringForce;
 
 import java.util.function.Consumer;
 
@@ -36,6 +38,11 @@ public class AnimationProperties {
     private ArrayMap<Property, Interpolator> mInterpolatorMap;
     private Consumer<Property> mAnimationCancelAction;
     private Consumer<Property> mAnimationEndAction;
+
+    // Catalyxx glass's morph: the spring physics-based animations run on instead of their own, as
+    // its stiffness and damping ratio; no stiffness for their own
+    private float mSpringStiffness;
+    private float mSpringDampingRatio;
 
     /**
      * @return an animation filter for this animation.
@@ -168,6 +175,33 @@ public class AnimationProperties {
 
     public AnimationProperties resetCustomInterpolators() {
         mInterpolatorMap = null;
+        return this;
+    }
+
+    /**
+     * A new spring for physics-based animations to run on, or null for their own. Catalyxx
+     * glass's morph sets one while notifications open or close.
+     */
+    @Nullable
+    public SpringForce createSpring() {
+        if (mSpringStiffness <= 0f) {
+            return null;
+        }
+        return new SpringForce()
+                .setStiffness(mSpringStiffness)
+                .setDampingRatio(mSpringDampingRatio);
+    }
+
+    /** Physics-based animations run on a spring of {@code stiffness} and {@code dampingRatio}. */
+    public AnimationProperties setSpring(float stiffness, float dampingRatio) {
+        mSpringStiffness = stiffness;
+        mSpringDampingRatio = dampingRatio;
+        return this;
+    }
+
+    /** Physics-based animations run on their own spring again. */
+    public AnimationProperties resetSpring() {
+        mSpringStiffness = 0f;
         return this;
     }
 }

@@ -22,6 +22,8 @@ import static com.android.systemui.statusbar.notification.stack.NotificationStac
 import static com.android.systemui.statusbar.notification.stack.NotificationStackScrollLayout.AnimationEvent.ANIMATION_TYPE_HEADS_UP_CYCLING_OUT;
 import static com.android.systemui.statusbar.notification.stack.NotificationStackScrollLayout.AnimationEvent.ANIMATION_TYPE_HEADS_UP_DISAPPEAR;
 import static com.android.systemui.statusbar.notification.stack.NotificationStackScrollLayout.AnimationEvent.ANIMATION_TYPE_HEADS_UP_DISAPPEAR_CLICK;
+import static com.android.systemui.statusbar.notification.stack.NotificationStackScrollLayout.AnimationEvent.ANIMATION_TYPE_GROUP_EXPANSION_CHANGED;
+import static com.android.systemui.statusbar.notification.stack.NotificationStackScrollLayout.AnimationEvent.ANIMATION_TYPE_VIEW_RESIZE;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -33,6 +35,7 @@ import android.view.View;
 import com.android.app.animation.Interpolators;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.dynamicanimation.animation.DynamicAnimation;
+import com.android.systemui.glass.ui.OwnGlassNotificationMorph;
 import com.android.systemui.res.R;
 import com.android.systemui.statusbar.NotificationShelf;
 import com.android.systemui.statusbar.notification.PhysicsPropertyAnimator;
@@ -176,6 +179,12 @@ public class StackStateAnimator {
         mAnimationFilter.applyCombination(mNewEvents);
         mCurrentAdditionalDelay = additionalDelay;
         mCurrentLength = NotificationStackScrollLayout.AnimationEvent.combineLength(mNewEvents);
+        // Catalyxx glass's morph: notifications that open or close, and the cards around them,
+        // move on its spring
+        if (opensOrCloses(mNewEvents)) {
+            OwnGlassNotificationMorph.applySpring(mAnimationProperties, mHostLayout.getContext(),
+                    growth() > 0f);
+        }
         // Used to stagger concurrent animations' delays and durations for visual effect
         int animationStaggerCount = 0;
         for (int i = 0; i < childCount; i++) {
@@ -202,6 +211,35 @@ public class StackStateAnimator {
         mNewEvents.clear();
         mNewAddChildren.clear();
         mAnimationProperties.resetCustomInterpolators();
+        mAnimationProperties.resetSpring();
+    }
+
+    /** Whether all of {@code events}, none missing, open or close notifications. */
+    private static boolean opensOrCloses(
+            ArrayList<NotificationStackScrollLayout.AnimationEvent> events) {
+        if (events.isEmpty()) {
+            return false;
+        }
+        for (NotificationStackScrollLayout.AnimationEvent event : events) {
+            if (event.animationType != ANIMATION_TYPE_VIEW_RESIZE
+                    && event.animationType != ANIMATION_TYPE_GROUP_EXPANSION_CHANGED) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /** How much taller the notifications get, all together, as they move to their new states. */
+    private float growth() {
+        float growth = 0f;
+        for (int i = 0; i < mHostLayout.getChildCount(); i++) {
+            ExpandableView child = (ExpandableView) mHostLayout.getChildAt(i);
+            ExpandableViewState viewState = child.getViewState();
+            if (viewState != null && child.getVisibility() != View.GONE) {
+                growth += viewState.height - child.getActualHeight();
+            }
+        }
+        return growth;
     }
 
     private void initAnimationProperties(ExpandableView child,

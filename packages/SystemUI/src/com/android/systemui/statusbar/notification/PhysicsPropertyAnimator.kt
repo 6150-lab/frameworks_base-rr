@@ -224,10 +224,11 @@ private fun startAnimation(
 
     val startOffset = previousEndValue - newEndValue + propertyData.offset
 
-    // reset a new spring as it may have been modified
-    val spring = createDefaultSpring().setFinalPosition(0f)
+    // reset a new spring as it may have been modified; Catalyxx glass's morph may bring its own
+    val spring = (properties?.createSpring() ?: createDefaultSpring()).setFinalPosition(0f)
     maxOvershoot
-        ?.takeIf { it > 0f }
+        // A spring that doesn't overshoot has nothing to limit
+        ?.takeIf { it > 0f && spring.dampingRatio < 1f }
         ?.let {
             // The spring will animate from [startOffset] to 0. Modify the spring parameters to
             // guarantee the overshoot won't exceed [maxOvershoot].
