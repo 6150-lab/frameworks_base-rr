@@ -63,6 +63,8 @@ import android.os.UserHandle;
 import android.os.UserManager;
 import android.os.VibrationEffect;
 import android.provider.Settings;
+
+import com.android.internal.rr.RemixHaptics;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
@@ -552,6 +554,13 @@ public final class NotificationAttentionHelper {
                         AudioAttributes.toLegacyStreamType(record.getAudioAttributes())) == 0) {
                     boolean insistent = (record.getFlags() & Notification.FLAG_INSISTENT) != 0;
                     vibration = mVibratorHelper.createFallbackVibration(insistent);
+                }
+                if (vibration != null) {
+                    // Haptic Remix: the pattern the user gave this app, if any.
+                    final VibrationEffect remix = RemixHaptics.effect(mContext,
+                            RemixHaptics.PREFIX_APP + record.getSbn().getPackageName(),
+                            (record.getFlags() & Notification.FLAG_INSISTENT) != 0);
+                    if (remix != null) vibration = remix;
                 }
                 hasValidVibrate = vibration != null;
                 // Vibration-only if unlocked and Settings flag set

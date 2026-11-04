@@ -25,6 +25,7 @@ import android.view.HapticFeedbackConstants
 import android.view.InputDevice
 import android.view.MotionEvent
 import android.view.View
+import com.android.internal.rr.RemixHaptics
 import android.view.View.GONE
 import android.view.View.INVISIBLE
 import android.view.View.OnLayoutChangeListener
@@ -139,7 +140,12 @@ object KeyguardRootViewBinder {
                     if (deviceEntryHapticsInteractor != null && vibratorHelper != null) {
                         launch {
                             deviceEntryHapticsInteractor.playSuccessHapticOnDeviceEntry.collect {
-                                if (msdlFeedback()) {
+                                // Haptic Remix: the user's own unlock pattern, if any.
+                                val remix = RemixHaptics.effect(
+                                    view.context, RemixHaptics.TARGET_FINGERPRINT, false)
+                                if (remix != null) {
+                                    vibratorHelper.vibrate(remix)
+                                } else if (msdlFeedback()) {
                                     msdlPlayer?.playToken(
                                         MSDLToken.UNLOCK,
                                         authInteractionProperties,

@@ -84,6 +84,7 @@ import android.util.SparseArray;
 import android.util.proto.ProtoOutputStream;
 import android.view.HapticFeedbackConstants;
 
+import com.android.internal.rr.RemixHaptics;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.app.IBatteryStats;
@@ -553,6 +554,12 @@ public class VibratorManagerService extends IVibratorManagerService.Stub {
             @Nullable VibrationAttributes attrs, String reason, IBinder token) {
         Trace.traceBegin(TRACE_TAG_VIBRATOR, "vibrate");
         try {
+            // Haptic Remix: an alarm or timer buzzes with the user's alarm pattern.
+            if (attrs != null && attrs.getUsage() == VibrationAttributes.USAGE_ALARM) {
+                final VibrationEffect remix =
+                        RemixHaptics.effect(mContext, RemixHaptics.TARGET_ALARM, true);
+                if (remix != null) effect = CombinedVibration.createParallel(remix);
+            }
             vibrateWithPermissionCheck(uid, deviceId, opPkg, effect, attrs, reason, token);
         } finally {
             Trace.traceEnd(TRACE_TAG_VIBRATOR);

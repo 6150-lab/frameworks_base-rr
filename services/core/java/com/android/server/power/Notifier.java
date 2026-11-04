@@ -58,6 +58,8 @@ import android.os.Vibrator;
 import android.os.WorkSource;
 import android.os.WorkSource.WorkChain;
 import android.provider.Settings;
+
+import com.android.internal.rr.RemixHaptics;
 import android.telephony.TelephonyManager;
 import android.util.ArrayMap;
 import android.util.EventLog;
@@ -1307,8 +1309,12 @@ public class Notifier {
             final boolean vibrate = Settings.Secure.getIntForUser(mContext.getContentResolver(),
                     Settings.Secure.CHARGING_VIBRATION_ENABLED, 1, userId) != 0;
             if (vibrate) {
+                // Haptic Remix: the user's own plug-in pattern, if any.
+                final VibrationEffect remix =
+                        RemixHaptics.effect(mContext, RemixHaptics.TARGET_PLUG, false);
                 mVibrator.vibrate(Process.SYSTEM_UID, mContext.getOpPackageName(),
-                        CHARGING_VIBRATION_EFFECT, /* reason= */ "Charging started",
+                        remix != null ? remix : CHARGING_VIBRATION_EFFECT,
+                        /* reason= */ "Charging started",
                         HARDWARE_FEEDBACK_VIBRATION_ATTRIBUTES);
             }
 
