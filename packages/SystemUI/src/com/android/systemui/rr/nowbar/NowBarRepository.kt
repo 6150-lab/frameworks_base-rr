@@ -28,6 +28,7 @@ import androidx.core.graphics.ColorUtils
 import androidx.core.graphics.drawable.toBitmap
 import com.android.settingslib.utils.StringUtil
 import com.android.systemui.CoreStartable
+import com.android.systemui.clocks.FlatlineClockView
 import com.android.systemui.dagger.SysUISingleton
 import com.android.systemui.dagger.qualifiers.Background
 import com.android.systemui.plugins.ActivityStarter
@@ -292,6 +293,12 @@ constructor(
     // Notifications
 
     override fun onNotificationPosted(sbn: StatusBarNotification, rankingMap: RankingMap) {
+        val n = sbn.notification
+        if (sbn.packageName != context.packageName && !n.isGroupSummary &&
+            n.flags and (Notification.FLAG_ONGOING_EVENT or Notification.FLAG_ONLY_ALERT_ONCE) == 0
+        ) {
+            FlatlineClockView.pulse()
+        }
         val item = notificationItem(sbn)
         if (item != null) {
             notificationItems[sbn.key] = item

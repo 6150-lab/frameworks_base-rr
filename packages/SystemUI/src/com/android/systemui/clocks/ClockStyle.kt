@@ -328,6 +328,7 @@ class ClockStyle @JvmOverloads constructor(
     /** Faces that tick on their own slow down on the always-on display. */
     private fun setDozingOn(view: View, dozing: Boolean) {
         if (view is NothingAnalogClockView) view.setDozing(dozing)
+        if (view is FlatlineClockView) view.setDozing(dozing)
         if (view is ViewGroup) {
             for (i in 0 until view.childCount) setDozingOn(view.getChildAt(i), dozing)
         }
@@ -688,6 +689,14 @@ class ClockStyle @JvmOverloads constructor(
                 else -> ColorStateList.valueOf(Color.TRANSPARENT)
             }
         }
+        currentClockView?.let { setFlatlineColor(it, if (isDozing) whiteColor else shapeColor) }
+    }
+
+    private fun setFlatlineColor(view: View, color: Int) {
+        if (view is FlatlineClockView) view.setColor(color)
+        if (view is ViewGroup) {
+            for (i in 0 until view.childCount) setFlatlineColor(view.getChildAt(i), color)
+        }
     }
 
     private fun getScaleFactor(): Float =
@@ -999,6 +1008,7 @@ class ClockStyle @JvmOverloads constructor(
             R.layout.keyguard_clock_space_age,      // 90
             R.layout.keyguard_clock_polyline,       // 91
             R.layout.keyguard_clock_oppo,           // 92
+            R.layout.keyguard_clock_flatline,       // 93
         )
 
         private val NO_COLOR_CLOCKS = hashSetOf(1, 2, 25, 26)
