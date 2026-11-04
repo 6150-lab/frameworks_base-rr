@@ -12,6 +12,7 @@ import android.os.UserHandle
 import androidx.activity.compose.BackHandler
 import androidx.annotation.StringRes
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -177,6 +178,7 @@ internal fun QsCustomizerDock(
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(topStart = 26.dp, topEnd = 26.dp))
                 .background(MaterialTheme.colorScheme.surfaceContainer)
+                .animateContentSize()
                 .windowInsetsPadding(WindowInsets.navigationBars)
                 .padding(horizontal = 14.dp, vertical = 8.dp),
     ) {
