@@ -58,10 +58,17 @@ constructor(
     private var night = false
 
     private val observer = object : ContentObserver(handler) {
-        override fun onChange(selfChange: Boolean) {
-            keyguardBlueprintInteractor.get()
-                .refreshBlueprint(IntraBlueprintTransition.Type.DefaultTransition)
-        }
+        override fun onChange(selfChange: Boolean) = rebuild()
+    }
+
+    /** Re-reads the layout and rebuilds this section's views; a plain refresh keeps the old spec. */
+    private fun rebuild() {
+        keyguardBlueprintInteractor.get().refreshBlueprint(
+            IntraBlueprintTransition.Config(
+                IntraBlueprintTransition.Type.DefaultTransition,
+                rebuildSections = listOf(this),
+            )
+        )
     }
 
     private val stateListener = object : StatusBarStateController.StateListener {
