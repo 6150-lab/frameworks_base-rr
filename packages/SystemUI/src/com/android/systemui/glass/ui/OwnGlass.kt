@@ -204,6 +204,14 @@ object OwnGlass {
      */
     fun morphs(morphPlace: String): Boolean = settings.morphs(morphPlace)
 
+    /**
+     * Whether heads-up notifications drip out of the camera hole now (GlassSettings
+     * .MORPH_HEADS_UP, off by default), where the screen has one at the top
+     * ([OwnGlassHeadsUpMorph]).
+     */
+    val morphsHeadsUp: Boolean
+        get() = settings.morphsHeadsUp()
+
     /** How panels morph: one of GlassSettings' `MORPH_LIQUID` and `MORPH_SMOOTH`. */
     val morphStyle: Int
         get() = settings.morphStyle
@@ -293,6 +301,7 @@ object OwnGlass {
             morphStyle = get(GlassSettings.MORPH_STYLE, GlassSettings.DEFAULT_MORPH_STYLE),
             morphSpeed = get(GlassSettings.MORPH_SPEED, GlassSettings.DEFAULT_MORPH_SPEED),
             morphOff = GlassSettings.MORPH_PLACES.filterTo(HashSet()) { get(it, 1) == 0 },
+            morphHeadsUp = get(GlassSettings.MORPH_HEADS_UP, 0) == 1,
         )
     }
 
@@ -327,10 +336,13 @@ object OwnGlass {
         val morphStyle: Int,
         val morphSpeed: Int,
         val morphOff: Set<String>,
+        val morphHeadsUp: Boolean,
     ) {
         fun isOn(place: String) = enabled && place !in placesOff
 
         fun morphs(morphPlace: String) = enabled && morph && morphPlace !in morphOff
+
+        fun morphsHeadsUp() = enabled && morph && morphHeadsUp
 
         fun hasRim(place: String) = isOn(place) && style != GlassSettings.STYLE_FLAT
 
@@ -361,6 +373,7 @@ object OwnGlass {
                     morphStyle = GlassSettings.DEFAULT_MORPH_STYLE,
                     morphSpeed = GlassSettings.DEFAULT_MORPH_SPEED,
                     morphOff = emptySet(),
+                    morphHeadsUp = false,
                 )
         }
     }

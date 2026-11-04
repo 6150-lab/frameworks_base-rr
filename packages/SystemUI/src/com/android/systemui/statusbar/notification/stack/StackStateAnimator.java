@@ -29,12 +29,14 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.graphics.RectF;
 import android.util.Property;
 import android.view.View;
 
 import com.android.app.animation.Interpolators;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.dynamicanimation.animation.DynamicAnimation;
+import com.android.systemui.glass.ui.OwnGlassHeadsUpMorph;
 import com.android.systemui.glass.ui.OwnGlassNotificationMorph;
 import com.android.systemui.res.R;
 import com.android.systemui.statusbar.NotificationShelf;
@@ -591,9 +593,15 @@ public class StackStateAnimator {
                 mHeadsUpAppearChildren.add(changingView);
 
                 mTmpState.copyFrom(changingView.getViewState());
-                mTmpState.setYTranslation(getHeadsUpYTranslationStart(
-                                event.headsUpFromBottom, event.headsUpHasStatusBarChip),
-                        "StackStateAnimator.processAnimationEvents.headsUpAppear");
+                // Catalyxx glass's morph: a heads-up that drips out of the camera hole grows where
+                // it shows, instead of sliding down from above
+                final RectF drop = event.headsUpFromBottom || event.headsUpHasStatusBarChip
+                        ? null : OwnGlassHeadsUpMorph.dropFor(changingView);
+                if (drop == null) {
+                    mTmpState.setYTranslation(getHeadsUpYTranslationStart(
+                                    event.headsUpFromBottom, event.headsUpHasStatusBarChip),
+                            "StackStateAnimator.processAnimationEvents.headsUpAppear");
+                }
                 // set the height and the initial position
                 mTmpState.applyToView(changingView);
                 mAnimationProperties.setCustomInterpolator(View.TRANSLATION_Y,
@@ -607,8 +615,20 @@ public class StackStateAnimator {
                     mLogger.logHUNViewAppearing(key);
                     onAnimationEnd = () -> mLogger.appearAnimationEnded(finalKey);
                 }
-                changingView.performAddAnimation(0, ANIMATION_DURATION_HEADS_UP_APPEAR,
-                        /* isHeadsUpAppear= */ true, /* isHeadsUpCycling= */ false, onAnimationEnd);
+                if (drop == null) {
+                    changingView.performAddAnimation(0, ANIMATION_DURATION_HEADS_UP_APPEAR,
+                            /* isHeadsUpAppear= */ true, /* isHeadsUpCycling= */ false,
+                            onAnimationEnd);
+                } else {
+                    // Android's own appear runs at once, for all that hangs on it, and the drop
+                    // is what shows
+                    OwnGlassHeadsUpMorph.beginStockAnimations();
+                    changingView.performAddAnimation(0, /* duration= */ 0,
+                            /* isHeadsUpAppear= */ true, /* isHeadsUpCycling= */ false,
+                            onAnimationEnd);
+                    OwnGlassHeadsUpMorph.endStockAnimations();
+                    OwnGlassHeadsUpMorph.appear(changingView, drop);
+                }
             } else if (event.animationType == ANIMATION_TYPE_HEADS_UP_CYCLING_OUT) {
                 mHeadsUpDisappearChildren.add(changingView);
                 Runnable endRunnable = null;
@@ -696,6 +716,11 @@ public class StackStateAnimator {
                 mHeadsUpDisappearChildren.add(changingView);
                 Runnable endRunnable = null;
                 mTmpState.copyFrom(changingView.getViewState());
+                // Catalyxx glass's morph: a heads-up that goes back into the camera hole stays
+                // where it is while it does, instead of sliding up. Not one that was tapped
+                final RectF drop = event.animationType == ANIMATION_TYPE_HEADS_UP_DISAPPEAR
+                        && !event.headsUpFromBottom && !event.headsUpHasStatusBarChip
+                        ? OwnGlassHeadsUpMorph.dropFor(changingView) : null;
                 if (changingView.getParent() == null) {
                     // This notification was actually removed, so we need to add it
                     // transiently
@@ -704,10 +729,12 @@ public class StackStateAnimator {
                     // StackScrollAlgorithm cannot find this view because it has been removed
                     // from the NSSL. To correctly translate the view to the top or bottom of
                     // the screen (where it animated from), we need to update its translation.
-                    mTmpState.setYTranslation(
-                            getHeadsUpYTranslationStart(
-                                    event.headsUpFromBottom, event.headsUpHasStatusBarChip),
-                                    "StackStateAnimator.processAnimationEvents.disappear");
+                    if (drop == null) {
+                        mTmpState.setYTranslation(
+                                getHeadsUpYTranslationStart(
+                                        event.headsUpFromBottom, event.headsUpHasStatusBarChip),
+                                        "StackStateAnimator.processAnimationEvents.disappear");
+                    }
                     endRunnable = changingView::removeFromTransientContainer;
                 }
 
@@ -759,17 +786,28 @@ public class StackStateAnimator {
                             // Note: a cancellation would not be finalized by onAnimationFinished().
                             changingView.getViewState().finishAnimations(changingView);
                         }
+                        if (drop != null) {
+                            // Gone into the hole: back as it was, for wherever it shows next
+                            OwnGlassHeadsUpMorph.cancel(changingView);
+                        }
                         if (tmpEndRunnable != null) {
                             tmpEndRunnable.run();
                         }
                     };
 
+                    if (drop != null) {
+                        OwnGlassHeadsUpMorph.beginStockAnimations();
+                    }
                     long removeAnimationDelay = changingView.performRemoveAnimation(
                             ANIMATION_DURATION_HEADS_UP_DISAPPEAR,
                             0, 0.0f, true /* isHeadsUpAppear */,
                             false /* isHeadsUpCycling */,
                             startAnimation, postAnimation,
                             getGlobalAnimationFinishedListener(), ExpandableView.ClipSide.BOTTOM);
+                    if (drop != null) {
+                        OwnGlassHeadsUpMorph.endStockAnimations();
+                        OwnGlassHeadsUpMorph.disappear(changingView, drop);
+                    }
                     mAnimationProperties.delay += removeAnimationDelay;
                     mAnimationProperties.duration = ANIMATION_DURATION_HEADS_UP_DISAPPEAR;
                     mAnimationProperties.setCustomInterpolator(View.TRANSLATION_Y,

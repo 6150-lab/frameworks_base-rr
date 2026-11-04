@@ -49,6 +49,7 @@ import com.android.internal.util.catalyxx.GlassSettings;
 import com.android.systemui.Flags;
 import com.android.systemui.Gefingerpoken;
 import com.android.systemui.glass.ui.OwnGlass;
+import com.android.systemui.glass.ui.OwnGlassHeadsUpMorph;
 import com.android.systemui.glass.ui.OwnGlassViewSquish;
 import com.android.systemui.common.shared.colors.SurfaceEffectColors;
 import com.android.systemui.res.R;
@@ -524,6 +525,8 @@ public abstract class ActivatableNotificationView extends ExpandableOutlineView 
     private void startAppearAnimation(boolean isAppearing, float translationDirection, long delay,
             long duration, final Runnable onStartedRunnable, final Runnable onFinishedRunnable,
             AnimatorListenerAdapter animationListener, ClipSide clipSide) {
+        // Catalyxx glass's morph out of the camera hole stops, unless this is for it
+        OwnGlassHeadsUpMorph.onStockAnimationStarting(this);
         mAnimationTranslationY = translationDirection * getActualHeight();
         cancelAppearAnimation();
         if (mAppearAnimationFraction == -1.0f) {
@@ -674,6 +677,7 @@ public abstract class ActivatableNotificationView extends ExpandableOutlineView 
     public void cancelAppearDrawing() {
         cancelAppearAnimation();
         enableAppearDrawing(false);
+        OwnGlassHeadsUpMorph.cancel(this);
     }
 
     /**
@@ -971,6 +975,7 @@ public abstract class ActivatableNotificationView extends ExpandableOutlineView 
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
+        OwnGlassHeadsUpMorph.cancel(this);
         OwnGlass.INSTANCE.removeListener(mGlassListener);
         mGlassVersion = -1;
         if (!mOnDetachResetRoundness.isEmpty()) {

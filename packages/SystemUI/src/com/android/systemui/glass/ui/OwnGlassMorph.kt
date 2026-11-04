@@ -29,9 +29,9 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  * and shrinks it back there, for Catalyxx glass's morph (GlassSettings.MORPH).
  *
  * The panel's main glass ([glass], in [view]'s own pixels) starts as a drop [DROP_OUT_DP] thick
- * and [DROP_ALONG_DP] long against the edge, its middle at the spot, and moves and grows to its
- * own place and size on two springs, one along the edge and one out of it; [view], which holds
- * the whole panel, is scaled and moved to match. Liquid lets the spring along the edge lead, so
+ * and [DROP_ALONG_DP] long against the edge, its middle at the spot, or as the spot's own drop,
+ * and moves and grows to its own place and size on two springs, one along the edge and one out of
+ * it; [view], which holds the whole panel, is scaled and moved to match. Liquid lets the spring along the edge lead, so
  * the drop first stretches along the edge, then the panel swells a little past its size on each
  * axis in turn and settles; Smooth grows it cleanly. The view's content fades in once the drop
  * has grown and fades out early as it shrinks back. SurfaceFlinger's glass follows the view's
@@ -39,14 +39,18 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  * radius, which Skia fits to the shrunk bounds: the drop is a capsule of glass.
  *
  * [progress] hears how far out the panel is, from 0 to 1, every frame, for what goes with it,
- * such as the dim behind. Main thread only.
+ * such as the dim behind. [target] is how the morph shows on the view: by default on its own
+ * scale, offset and alpha. Main thread only.
  */
 @MainThread
-class OwnGlassMorph(
+class OwnGlassMorph
+@JvmOverloads
+constructor(
     private val view: View,
     private val origin: Origin,
     private val glass: Glass,
     private val progress: Progress? = null,
+    private val target: Target = ViewTarget(),
 ) {
 
     /** Where the panel grows out of, asked once it's laid out. */
@@ -64,6 +68,53 @@ class OwnGlassMorph(
         fun onProgress(progress: Float)
     }
 
+    /** How the morph shows on the view. */
+    interface Target {
+        /** Before the morph sets out: puts [view], whose glass is [shape], back at rest. */
+        fun prepare(view: View, shape: Rect)
+
+        /**
+         * A frame: [view]'s glass, [shape] in its own pixels and [full] on the screen at its full
+         * size, is drawn at [now] on the screen, and its content at [alpha].
+         */
+        fun apply(view: View, shape: Rect, full: RectF, now: RectF, alpha: Float)
+
+        /** There's nothing to grow out of: [view] just shows ([shown]) or goes. */
+        fun jump(view: View, shown: Boolean)
+    }
+
+    /**
+     * The morph on the view's own scale, offset and alpha, for a view that nothing else moves
+     * while it morphs. It's scaled about its glass's top left corner, then moved to put the glass
+     * where it is now.
+     */
+    class ViewTarget : Target {
+        // The view's own offset at rest, which the morph moves it from
+        private var restX = 0f
+        private var restY = 0f
+
+        override fun prepare(view: View, shape: Rect) {
+            view.scaleX = 1f
+            view.scaleY = 1f
+            restX = view.translationX
+            restY = view.translationY
+            view.pivotX = shape.left.toFloat()
+            view.pivotY = shape.top.toFloat()
+        }
+
+        override fun apply(view: View, shape: Rect, full: RectF, now: RectF, alpha: Float) {
+            view.scaleX = max(GONE_PX, now.width()) / full.width()
+            view.scaleY = max(GONE_PX, now.height()) / full.height()
+            view.translationX = restX + now.left - full.left
+            view.translationY = restY + now.top - full.top
+            view.alpha = alpha
+        }
+
+        override fun jump(view: View, shown: Boolean) {
+            view.alpha = if (shown) 1f else 0f
+        }
+    }
+
     // How far each spring has taken the panel from the drop (0) to its full size (1)
     private val along = FloatValueHolder(0f)
     private val out = FloatValueHolder(0f)
@@ -75,15 +126,16 @@ class OwnGlassMorph(
     private val full = RectF()
     private val drop = RectF()
     private val now = RectF()
-    // The view's own offset when it was laid out, which the morph moves it from
-    private var restX = 0f
-    private var restY = 0f
+    // The panel's glass in the view's own pixels when it was laid out
+    private val shape = Rect()
     private var alongIsY = true
     // Whether the edge is the screen's left or top, where the glass starts out of it
     private var edgeIsLow = true
     private var isPrepared = false
     private var isWaitingForLayout = false
     private var isGrowing = false
+    // Whether the next prepare() puts the panel at its full size rather than at the drop
+    private var startsFull = false
     private var onEnd: Runnable? = null
     // Both springs draw each frame; what goes with the panel only hears when it has moved
     private var lastProgress = Float.NaN
@@ -109,6 +161,19 @@ class OwnGlassMorph(
             finish()
             return
         }
+        start(then)
+    }
+
+    /**
+     * Shrinks the panel back into its spot from its full size, where it is now, until it's gone,
+     * then runs [then]: for a panel that never grew out of it, or did long ago.
+     */
+    fun shrinkFromFull(then: Runnable? = null) {
+        alongSpring.cancel()
+        outSpring.cancel()
+        isGrowing = false
+        isPrepared = false
+        startsFull = true
         start(then)
     }
 
@@ -167,7 +232,7 @@ class OwnGlassMorph(
     private fun run() {
         if (!isPrepared && !prepare()) {
             // Nothing to grow out of: the panel just shows, or goes
-            view.alpha = if (isGrowing) 1f else 0f
+            target.jump(view, isGrowing)
             progress?.onProgress(if (isGrowing) 1f else 0f)
             finish()
             return
@@ -198,40 +263,46 @@ class OwnGlassMorph(
      * the drop. False when the panel has no glass to grow.
      */
     private fun prepare(): Boolean {
-        val shape = glass.now()
-        if (shape.width() <= 0 || shape.height() <= 0) {
+        val glassNow = glass.now()
+        if (glassNow.width() <= 0 || glassNow.height() <= 0) {
             return false
         }
         val screen =
             view.context.getSystemService(WindowManager::class.java)?.maximumWindowMetrics?.bounds
                 ?: return false
         val spot = origin.now()
-        view.scaleX = 1f
-        view.scaleY = 1f
-        restX = view.translationX
-        restY = view.translationY
+        shape.set(glassNow)
+        target.prepare(view, shape)
         val location = IntArray(2)
         view.getLocationOnScreen(location)
         full.set(shape)
         full.offset(location[0].toFloat(), location[1].toFloat())
         alongIsY = spot.edge == OwnGlassMorphOrigin.LEFT || spot.edge == OwnGlassMorphOrigin.RIGHT
         edgeIsLow = spot.edge == OwnGlassMorphOrigin.LEFT || spot.edge == OwnGlassMorphOrigin.TOP
-        // The drop lies against the edge with its middle at the spot; never bigger than the panel
-        val density = view.resources.displayMetrics.density
-        val outSize = min(DROP_OUT_DP * density, if (alongIsY) full.width() else full.height())
-        val alongSize = min(DROP_ALONG_DP * density, if (alongIsY) full.height() else full.width())
-        if (alongIsY) {
-            val middle = spot.along ?: full.centerY()
-            val x =
-                if (spot.edge == OwnGlassMorphOrigin.LEFT) screen.left.toFloat()
-                else screen.right - outSize
-            drop.set(x, middle - alongSize / 2f, x + outSize, middle + alongSize / 2f)
+        val spotDrop = spot.drop
+        if (spotDrop != null) {
+            // The spot's own drop, such as one inside the camera hole
+            drop.set(spotDrop)
         } else {
-            val middle = spot.along ?: full.centerX()
-            val y =
-                if (spot.edge == OwnGlassMorphOrigin.TOP) screen.top.toFloat()
-                else screen.bottom - outSize
-            drop.set(middle - alongSize / 2f, y, middle + alongSize / 2f, y + outSize)
+            // The drop lies against the edge with its middle at the spot; never bigger than the
+            // panel
+            val density = view.resources.displayMetrics.density
+            val outSize = min(DROP_OUT_DP * density, if (alongIsY) full.width() else full.height())
+            val alongSize =
+                min(DROP_ALONG_DP * density, if (alongIsY) full.height() else full.width())
+            if (alongIsY) {
+                val middle = spot.along ?: full.centerY()
+                val x =
+                    if (spot.edge == OwnGlassMorphOrigin.LEFT) screen.left.toFloat()
+                    else screen.right - outSize
+                drop.set(x, middle - alongSize / 2f, x + outSize, middle + alongSize / 2f)
+            } else {
+                val middle = spot.along ?: full.centerX()
+                val y =
+                    if (spot.edge == OwnGlassMorphOrigin.TOP) screen.top.toFloat()
+                    else screen.bottom - outSize
+                drop.set(middle - alongSize / 2f, y, middle + alongSize / 2f, y + outSize)
+            }
         }
         // The panel can only draw inside its window: where the window doesn't reach the spot,
         // such as a narrow volume dialog with the keys across the screen, the drop starts at the
@@ -245,11 +316,11 @@ class OwnGlassMorph(
             fit(drop.left, drop.right, windowLeft, windowLeft + root.width),
             fit(drop.top, drop.bottom, windowTop, windowTop + root.height),
         )
-        // The view is scaled about its glass's top left corner, then moved to put it where `now` is
-        view.pivotX = shape.left.toFloat()
-        view.pivotY = shape.top.toFloat()
-        along.value = 0f
-        out.value = 0f
+        // It sets out from the drop, or from its full size for shrinkFromFull()
+        val startAt = if (startsFull) 1f else 0f
+        startsFull = false
+        along.value = startAt
+        out.value = startAt
         isPrepared = true
         applyFrame()
         return true
@@ -280,15 +351,12 @@ class OwnGlassMorph(
             finish()
             return
         }
-        view.scaleX = max(GONE_PX, now.width()) / full.width()
-        view.scaleY = max(GONE_PX, now.height()) / full.height()
-        view.translationX = restX + now.left - full.left
-        view.translationY = restY + now.top - full.top
         // The content shows once the drop has grown, and is the first to go
         val grown = min(a, o)
-        view.alpha =
+        val alpha =
             if (isGrowing) smooth(FADE_IN_FROM, FADE_IN_TO, grown)
             else smooth(FADE_OUT_TO, FADE_OUT_FROM, grown)
+        target.apply(view, shape, full, now, alpha)
         val out = o.coerceIn(0f, 1f)
         if (out != lastProgress) {
             lastProgress = out
@@ -421,9 +489,13 @@ class OwnGlassMorph(
 /**
  * A spot on the screen's edge that a panel grows out of: the [edge] ([LEFT], [TOP], [RIGHT] or
  * [BOTTOM] of the screen as it's turned now) and how far [along] it, in pixels: x on the top and
- * bottom edges, y on the sides. A null [along] stands for the panel's own middle.
+ * bottom edges, y on the sides. A null [along] stands for the panel's own middle. A [drop], on
+ * the screen, is the drop the panel grows out of, such as one inside the camera hole, in place of
+ * one against the edge; the edge still says which way is out of it.
  */
-data class OwnGlassMorphOrigin(val edge: Int, val along: Float?) {
+data class OwnGlassMorphOrigin
+@JvmOverloads
+constructor(val edge: Int, val along: Float?, val drop: RectF? = null) {
 
     companion object {
         const val LEFT = 0
