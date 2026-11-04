@@ -22,6 +22,7 @@ import com.android.systemui.res.R
 import com.android.systemui.rr.stage.BatteryRingView
 import com.android.systemui.rr.stage.NextAlarmView
 import com.android.systemui.rr.nightstand.NightstandController
+import com.android.systemui.rr.stage.PageDotsView
 import com.android.systemui.rr.stage.StageSpec
 import com.android.systemui.rr.stage.StageTile
 import com.android.systemui.rr.stage.TogglesView
@@ -56,6 +57,9 @@ constructor(
     private var dozing = false
     /** Nightstand is on: the night stage, and every tile stays on the always-on display. */
     private var night = false
+    /** The page on show; the always-on display goes back to the first. */
+    private var page = 0
+    private var dots: PageDotsView? = null
 
     private val observer = object : ContentObserver(handler) {
         override fun onChange(selfChange: Boolean) = rebuild()
@@ -74,8 +78,23 @@ constructor(
     private val stateListener = object : StatusBarStateController.StateListener {
         override fun onDozingChanged(isDozing: Boolean) {
             dozing = isDozing
+            if (isDozing && page != 0) {
+                page = 0
+                rebuild()
+                return
+            }
             applyDozing()
         }
+    }
+
+    /** A sideways swipe on the lock screen: the next or previous page, if there is one. */
+    fun swipe(direction: Int) {
+        val stage = spec ?: return
+        val next = (page + direction).coerceIn(0, stage.pages.size - 1)
+        if (next == page || dozing) return
+        page = next
+        rebuild()
+        handler.post { dots?.show() }
     }
 
     override fun addViews(constraintLayout: ConstraintLayout) {
@@ -96,8 +115,19 @@ constructor(
                 if (night) NightstandController.KEY_STAGE else StageSpec.KEY,
                 UserHandle.USER_CURRENT))
         removeComplications(constraintLayout)
+        current = this
         val stage = spec ?: return
-        for (tile in stage.tiles) {
+        if (page >= stage.pages.size) page = 0
+        if (stage.pages.size > 1) {
+            val view = PageDotsView(context).apply {
+                id = View.generateViewId()
+                pages = stage.pages.size
+                current = page
+            }
+            dots = view
+            constraintLayout.addView(view)
+        }
+        for (tile in stage.page(page)) {
             val view: View = when (tile.id) {
                 StageSpec.BATTERY -> BatteryRingView(context, batteryController)
                 StageSpec.ALARM -> NextAlarmView(context, nextAlarmController)
@@ -115,7 +145,15 @@ constructor(
 
     override fun applyConstraints(constraintSet: ConstraintSet) {
         val stage = spec ?: return
-        for (tile in stage.tiles) {
+        dots?.let { view ->
+            constraintSet.constrainWidth(view.id, ConstraintSet.WRAP_CONTENT)
+            constraintSet.constrainHeight(view.id, ConstraintSet.WRAP_CONTENT)
+            constraintSet.connect(view.id, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+            constraintSet.connect(view.id, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+            constraintSet.connect(view.id, ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM,
+                (120 * context.resources.displayMetrics.density).toInt())
+        }
+        for (tile in stage.page(page)) {
             val box = box(constraintSet, stage, tile)
             when (tile.id) {
                 StageSpec.CLOCK -> place(constraintSet, R.id.clock_ls, box, wrapHeight = true)
@@ -133,6 +171,8 @@ constructor(
     }
 
     private fun removeComplications(constraintLayout: ConstraintLayout) {
+        dots?.let { constraintLayout.removeView(it) }
+        dots = null
         for (view in complications.values) constraintLayout.removeView(view)
         complications.clear()
     }
@@ -141,7 +181,7 @@ constructor(
     private fun applyDozing() {
         val stage = spec ?: return
         for ((id, view) in complications) {
-            val tile = stage.tile(id) ?: continue
+            val tile = stage.tile(id, page) ?: continue
             view.visibility = if (dozing && !tile.aod && !night) View.GONE else View.VISIBLE
             when (view) {
                 is BatteryRingView -> view.dozing = dozing
@@ -182,6 +222,16 @@ constructor(
         set.constrainHeight(id, if (wrapHeight) ConstraintSet.WRAP_CONTENT else ConstraintSet.MATCH_CONSTRAINT)
         set.setVerticalBias(id, 0f)
         set.setElevation(id, 1f)
+    }
+
+    companion object {
+        /** The section on the lock screen now, for the shade's swipe detector. */
+        @Volatile private var current: LockStageSection? = null
+
+        @JvmStatic
+        fun swipePage(direction: Int) {
+            current?.swipe(direction)
+        }
     }
 
     /** The two shortcut buttons keep their size, at the tile's ends. */

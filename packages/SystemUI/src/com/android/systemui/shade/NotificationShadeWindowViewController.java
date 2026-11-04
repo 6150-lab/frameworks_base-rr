@@ -19,6 +19,8 @@ package com.android.systemui.shade;
 import static com.android.systemui.keyguard.shared.model.KeyguardState.DREAMING;
 import static com.android.systemui.keyguard.shared.model.KeyguardState.LOCKSCREEN;
 import static com.android.systemui.statusbar.StatusBarState.KEYGUARD;
+
+import com.android.systemui.keyguard.ui.view.layout.sections.LockStageSection;
 import static com.android.systemui.util.kotlin.JavaAdapterKt.collectFlow;
 import static com.android.systemui.util.kotlin.JavaAdapterKt.combineFlows;
 
@@ -182,6 +184,8 @@ public class NotificationShadeWindowViewController implements Dumpable {
     private final SystemClock mClock;
 
     private GestureDetector mQQSGestureHandler;
+    /** Watches lock screen touches for a sideways fling between Lock Stage pages; consumes none. */
+    private GestureDetector mStagePageGestureHandler;
     private final QQSGestureListener mQQSGestureListener;
 
     @Inject
@@ -387,6 +391,27 @@ public class NotificationShadeWindowViewController implements Dumpable {
                 mPulsingGestureListener);
         mQQSGestureHandler = new GestureDetector(mView.getContext(),
                 mQQSGestureListener);
+        mStagePageGestureHandler = new GestureDetector(mView.getContext(),
+                new GestureDetector.SimpleOnGestureListener() {
+                    @Override
+                    public boolean onFling(MotionEvent e1, MotionEvent e2, float vx, float vy) {
+                        if (e1 == null) return false;
+                        float dx = e2.getX() - e1.getX();
+                        float dy = e2.getY() - e1.getY();
+                        float min = 96 * mView.getResources().getDisplayMetrics().density;
+                        if (Math.abs(dx) < min || Math.abs(dx) < Math.abs(dy) * 2) return false;
+                        if (mStatusBarStateController.getState() != KEYGUARD
+                                || mStatusBarStateController.isDozing()
+                                || mPrimaryBouncerInteractor.isBouncerShowing()
+                                || (mStackScrollLayout != null
+                                        && !mStackScrollLayout.isBelowLastNotification(
+                                                e1.getX(), e1.getY()))) {
+                            return false;
+                        }
+                        LockStageSection.swipePage(dx < 0 ? 1 : -1);
+                        return false;
+                    }
+                });
         mView.setLayoutInsetsController(mNotificationInsetsController);
         mView.setWindowRootViewKeyEventHandler(mWindowRootViewKeyEventHandler);
         mView.setInteractionEventHandler(new NotificationShadeWindowView.InteractionEventHandler() {
@@ -403,6 +428,8 @@ public class NotificationShadeWindowViewController implements Dumpable {
                 boolean isDown = ev.getActionMasked() == MotionEvent.ACTION_DOWN;
                 boolean isUp = ev.getActionMasked() == MotionEvent.ACTION_UP;
                 boolean isCancel = ev.getActionMasked() == MotionEvent.ACTION_CANCEL;
+
+                if (mStagePageGestureHandler != null) mStagePageGestureHandler.onTouchEvent(ev);
 
                 boolean expandingBelowNotch = mExpandingBelowNotch;
                 if (isUp || isCancel) {
