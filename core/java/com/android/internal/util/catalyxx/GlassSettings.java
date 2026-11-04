@@ -340,10 +340,10 @@ public final class GlassSettings {
     /**
      * 1 (the default) grows panels out of what opened them and shrinks them back into it, where
      * that panel's own switch is on too: the volume panel out of the volume keys
-     * ({@link #MORPH_VOLUME}), the power menu out of the power key ({@link #MORPH_POWER_MENU})
-     * and tile pop-ups out of their tile ({@link #MORPH_TILES}). 0 keeps Android's own
-     * animations. It needs the main switch,
-     * not the panel's glass: a solid panel morphs too.
+     * ({@link #MORPH_VOLUME}), the power menu out of the power key ({@link #MORPH_POWER_MENU}),
+     * tile pop-ups out of their tile ({@link #MORPH_TILES}) and notifications as they open and
+     * close ({@link #MORPH_NOTIFICATIONS}). 0 keeps Android's own animations. It needs the main
+     * switch, not the panel's glass: a solid panel morphs too.
      */
     public static final String MORPH = "catalyxx_glass_morph";
 
@@ -384,6 +384,12 @@ public final class GlassSettings {
     public static final String MORPH_TILES = "catalyxx_glass_morph_tiles";
 
     /**
+     * 1 (the default): notifications open and close in {@link #MORPH_STYLE}, the cards around
+     * them moving along. Android moves them on a spring too; 0 keeps Android's.
+     */
+    public static final String MORPH_NOTIFICATIONS = "catalyxx_glass_morph_notifications";
+
+    /**
      * The middle of the power key and of the volume keys, in pixels down from the top of the
      * screen held upright, to try a phone's values before they go in its overlay. Unset (the
      * default) keeps the phone's own. Not in the Lab, and not in {@link #KEYS}: they're read
@@ -394,7 +400,7 @@ public final class GlassSettings {
 
     /** Every panel's morph switch. */
     public static final String[] MORPH_PLACES = {
-        MORPH_VOLUME, MORPH_POWER_MENU, MORPH_TILES,
+        MORPH_VOLUME, MORPH_POWER_MENU, MORPH_TILES, MORPH_NOTIFICATIONS,
     };
 
     /** Every place key. */
@@ -412,7 +418,7 @@ public final class GlassSettings {
         PLACE_NOTIFICATIONS, PLACE_LOCKSCREEN, PLACE_VOLUME, PLACE_POWER_MENU, PLACE_DIALOGS,
         POWER_MENU_BLUR_BEHIND, PLACE_NAVBAR, NAVBAR_SHAPE, PLACE_DOCK, DOCK_SHAPE,
         PLACE_FOLDERS, PLACE_APP_DRAWER, MORPH, MORPH_STYLE, MORPH_SPEED, MORPH_VOLUME,
-        MORPH_POWER_MENU, MORPH_TILES,
+        MORPH_POWER_MENU, MORPH_TILES, MORPH_NOTIFICATIONS,
     };
 
     public static final int MIN_BLUR_STRENGTH = 0;
