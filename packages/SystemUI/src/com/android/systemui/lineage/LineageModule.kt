@@ -27,6 +27,7 @@ import com.android.systemui.qs.tiles.HeadsUpTile
 import com.android.systemui.qs.tiles.PowerShareTile
 import com.android.systemui.qs.tiles.ProfilesTile
 import com.android.systemui.qs.tiles.ReadingModeTile
+import com.android.systemui.qs.tiles.LookTile
 import com.android.systemui.qs.tiles.RrMediaTile
 import com.android.systemui.qs.tiles.RrVolumeTile
 import com.android.systemui.qs.tiles.SyncTile
@@ -67,6 +68,12 @@ interface LineageModule {
     @IntoMap
     @StringKey(RrMediaTile.TILE_SPEC)
     fun bindRrMediaTile(rrMediaTile: RrMediaTile): QSTileImpl<*>
+
+    /** Inject LookTile into tileMap in QSModule */
+    @Binds
+    @IntoMap
+    @StringKey(LookTile.TILE_SPEC)
+    fun bindLookTile(lookTile: LookTile): QSTileImpl<*>
 
     /** Inject RrVolumeTile into tileMap in QSModule */
     @Binds
@@ -246,6 +253,21 @@ interface LineageModule {
                     ),
                 instanceId = uiEventLogger.getNewInstanceId(),
                 category = TileCategory.UTILITIES,
+            )
+
+        @Provides
+        @IntoMap
+        @StringKey(LookTile.TILE_SPEC)
+        fun provideLookTileConfig(uiEventLogger: QsEventLogger): QSTileConfig =
+            QSTileConfig(
+                tileSpec = TileSpec.create(LookTile.TILE_SPEC),
+                uiConfig =
+                    QSTileUIConfig.Resource(
+                        iconRes = R.drawable.ic_qs_look,
+                        labelRes = R.string.qs_look_label
+                    ),
+                instanceId = uiEventLogger.getNewInstanceId(),
+                category = TileCategory.DISPLAY,
             )
 
         @Provides

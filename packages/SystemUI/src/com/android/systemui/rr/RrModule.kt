@@ -7,6 +7,7 @@ package com.android.systemui.rr
 import com.android.systemui.CoreStartable
 import com.android.systemui.edgelight.EdgeLightMomentsController
 import com.android.systemui.rr.chargereport.ChargeReportController
+import com.android.systemui.rr.looks.LookRouletteController
 import com.android.systemui.rr.media.MediaSessionFeeder
 import com.android.systemui.rr.modes.RemixModesController
 import com.android.systemui.rr.nowbar.NowBarRepository
@@ -54,4 +55,9 @@ abstract class RrModule {
     @IntoMap
     @ClassKey(RemixModesController::class)
     abstract fun bindRemixModes(impl: RemixModesController): CoreStartable
+
+    @Binds
+    @IntoMap
+    @ClassKey(LookRouletteController::class)
+    abstract fun bindLookRoulette(impl: LookRouletteController): CoreStartable
 }
