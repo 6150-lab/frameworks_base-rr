@@ -25,16 +25,22 @@ object Looks {
     private const val SETTINGS_PACKAGE = "com.android.settings"
 
     /** Saved Looks first, then the built-in ones in their order. */
-    fun names(context: Context): List<String> {
-        val names = ArrayList<String>()
+    fun names(context: Context): List<String> = looks(context).map { it.optString("name") }
+
+    /** The Looks themselves, saved ones first, one per name. */
+    fun looks(context: Context): List<JSONObject> {
+        val looks = ArrayList<JSONObject>()
+        val names = HashSet<String>()
+        fun add(look: JSONObject) {
+            val name = look.optString("name")
+            if (name.isNotEmpty() && names.add(name)) looks.add(look)
+        }
         try {
             val json = Settings.System.getStringForUser(
                 context.contentResolver, KEY_LOOKS, UserHandle.USER_CURRENT
             )
             val array = JSONArray(json ?: "[]")
-            for (i in 0 until array.length()) {
-                array.getJSONObject(i).optString("name").takeIf { it.isNotEmpty() }?.let(names::add)
-            }
+            for (i in 0 until array.length()) add(array.getJSONObject(i))
         } catch (e: Exception) {
             Log.w(TAG, "Saved looks unreadable", e)
         }
@@ -46,10 +52,8 @@ object Looks {
             } catch (e: Exception) {
                 null
             }
-        }.sortedBy { it.optInt("order", 99) }.forEach { look ->
-            look.optString("name").takeIf { it.isNotEmpty() && it !in names }?.let(names::add)
-        }
-        return names
+        }.sortedBy { it.optInt("order", 99) }.forEach(::add)
+        return looks
     }
 
     fun current(context: Context): String? =
