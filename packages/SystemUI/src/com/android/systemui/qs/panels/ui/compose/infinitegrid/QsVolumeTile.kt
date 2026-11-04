@@ -60,6 +60,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
@@ -456,9 +457,11 @@ private fun ChannelIcon(
 
 @Composable
 private fun channelPercent(channel: VolumeChannel, caps: Boolean): String {
+    val locale = LocalConfiguration.current.locales[0]
+    val percent = remember(locale) { NumberFormat.getPercentInstance(locale) }
     val text =
         if (channel.silent) stringResource(R.string.qs_volume_tile_muted)
-        else NumberFormat.getPercentInstance().format(channel.fraction.toDouble())
+        else percent.format(channel.fraction.toDouble())
     return if (caps) text.uppercase() else text
 }
 

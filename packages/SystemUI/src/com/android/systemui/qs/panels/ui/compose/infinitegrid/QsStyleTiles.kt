@@ -31,6 +31,7 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -540,22 +541,30 @@ internal fun tileLayout(
 /** A glow of [strength] percent around the tile while on. */
 @Composable
 internal fun Modifier.tweakGlow(active: Boolean, radius: Dp, strength: Int, tone: Color?): Modifier {
-    val glow by animateFloatAsState(if (active) 1f else 0f, label = "QSTileTweakGlow")
+    val glow = animateFloatAsState(if (active) 1f else 0f, label = "QSTileTweakGlow")
     val glowColor = tone ?: colorResource(android.R.color.system_primary_dark)
-    return drawBehind {
-        if (glow > 0f && strength > 0) {
+    if (strength <= 0) return this
+    return glowBehind(glow, glowColor, .7f * strength / 100f, (strength * .34f).coerceAtLeast(1f).dp, radius)
+}
+
+/** A blurred round rect behind the tile, [alpha] at full [glow]; the paint is built once. */
+private fun Modifier.glowBehind(
+    glow: State<Float>,
+    color: Color,
+    alpha: Float,
+    blur: Dp,
+    radius: Dp,
+): Modifier = drawWithCache {
+    val paint =
+        android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
+            maskFilter = BlurMaskFilter(blur.toPx(), BlurMaskFilter.Blur.NORMAL)
+        }
+    val r = radius.toPx()
+    onDrawBehind {
+        val strength = glow.value
+        if (strength > 0f) {
+            paint.color = color.copy(alpha = alpha * strength).toArgb()
             drawIntoCanvas { canvas ->
-                val paint =
-                    android.graphics.Paint().apply {
-                        isAntiAlias = true
-                        color = glowColor.copy(alpha = .7f * strength / 100f * glow).toArgb()
-                        maskFilter =
-                            BlurMaskFilter(
-                                (strength * .34f).coerceAtLeast(1f).dp.toPx(),
-                                BlurMaskFilter.Blur.NORMAL,
-                            )
-                    }
-                val r = radius.toPx()
                 canvas.nativeCanvas.drawRoundRect(0f, 0f, size.width, size.height, r, r, paint)
             }
         }
@@ -614,22 +623,9 @@ internal fun BackedUnderTileContent(
 /** Glass: a soft accent glow around the tile while on. */
 @Composable
 internal fun Modifier.glassGlow(active: Boolean, radius: Dp, tone: Color? = null): Modifier {
-    val glow by animateFloatAsState(if (active) 1f else 0f, label = "QSTileGlassGlow")
+    val glow = animateFloatAsState(if (active) 1f else 0f, label = "QSTileGlassGlow")
     val glowColor = tone ?: colorResource(android.R.color.system_accent1_500)
-    return drawBehind {
-        if (glow > 0f) {
-            drawIntoCanvas { canvas ->
-                val paint =
-                    android.graphics.Paint().apply {
-                        isAntiAlias = true
-                        color = glowColor.copy(alpha = .45f * glow).toArgb()
-                        maskFilter = BlurMaskFilter(14.dp.toPx(), BlurMaskFilter.Blur.NORMAL)
-                    }
-                val r = radius.toPx()
-                canvas.nativeCanvas.drawRoundRect(0f, 0f, size.width, size.height, r, r, paint)
-            }
-        }
-    }
+    return glowBehind(glow, glowColor, .45f, 14.dp, radius)
 }
 
 /** Glass: the tile outline, accent while on. */
@@ -858,22 +854,9 @@ internal fun CardTileContent(
 /** Neon: a tight accent glow around the tile while on. */
 @Composable
 internal fun Modifier.neonGlow(active: Boolean, radius: Dp, tone: Color? = null): Modifier {
-    val glow by animateFloatAsState(if (active) 1f else 0f, label = "QSTileNeonGlow")
+    val glow = animateFloatAsState(if (active) 1f else 0f, label = "QSTileNeonGlow")
     val glowColor = tone ?: colorResource(android.R.color.system_primary_dark)
-    return drawBehind {
-        if (glow > 0f) {
-            drawIntoCanvas { canvas ->
-                val paint =
-                    android.graphics.Paint().apply {
-                        isAntiAlias = true
-                        color = glowColor.copy(alpha = .55f * glow).toArgb()
-                        maskFilter = BlurMaskFilter(10.dp.toPx(), BlurMaskFilter.Blur.NORMAL)
-                    }
-                val r = radius.toPx()
-                canvas.nativeCanvas.drawRoundRect(0f, 0f, size.width, size.height, r, r, paint)
-            }
-        }
-    }
+    return glowBehind(glow, glowColor, .55f, 10.dp, radius)
 }
 
 /** Neon and Blueprint: an outline, accent while on. */
