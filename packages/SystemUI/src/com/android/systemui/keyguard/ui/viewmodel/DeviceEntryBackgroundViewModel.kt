@@ -113,6 +113,17 @@ constructor(
                 flowOf(0)
             }
         }
+    /**
+     * Whether the glass behind the icon may blur. The window draws that blur, so it outlives the
+     * icon once the keyguard fades away; it only shows while the keyguard is up.
+     */
+    val blurVisible: Flow<Boolean> =
+        keyguardTransitionInteractor.startedKeyguardTransitionStep.map { step ->
+            step.to != KeyguardState.GONE &&
+                step.to != KeyguardState.OCCLUDED &&
+                step.to != KeyguardState.DREAMING
+        }
+
     val alpha: Flow<Float> =
         deviceEntryIconViewModel.useBackgroundProtection.flatMapLatest { useBackground ->
             if (useBackground) {

@@ -56,6 +56,7 @@ import kotlinx.coroutines.DisposableHandle
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.SharingStarted
 import android.provider.Settings
@@ -338,11 +339,14 @@ object DeviceEntryIconViewBinder {
                             bgView.removeOnLayoutChangeListener(layoutChangeListener)
                         }
 
-                        launch("$TAG#windowRootViewBlurInteractor.isBlurCurrentlySupported") {
-                            windowRootViewBlurInteractor.isBlurCurrentlySupported.collect {
-                                isSupported ->
-                                bgView.background?.setVisible(isSupported, false)
-                            }
+                        launch("$TAG#blurVisible") {
+                            combine(
+                                    windowRootViewBlurInteractor.isBlurCurrentlySupported,
+                                    bgViewModel.blurVisible,
+                                ) { isSupported, keyguardUp ->
+                                    isSupported && keyguardUp
+                                }
+                                .collect { bgView.background?.setVisible(it, false) }
                         }
                     }
 
