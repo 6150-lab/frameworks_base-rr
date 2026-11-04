@@ -36,7 +36,12 @@ final class GlassTilt implements SensorEventListener {
     // Tilt in g below which the phone counts as flat and the default light takes over.
     private static final float FLAT = 0.12f;
     private static final float TILTED = 0.45f;
-    private static final float SMOOTHING = 0.2f;
+    // Per sample at 20 Hz: the light settles in about a tenth of a second.
+    private static final float SMOOTHING = 0.45f;
+    // 20 Hz batched into 100 ms deliveries: a tenth of the wakeups of SENSOR_DELAY_UI, and a
+    // highlight direction needs no more.
+    private static final int SAMPLING_US = 50_000;
+    private static final int BATCH_US = 100_000;
     // About a degree, so a phone at rest sends nothing.
     private static final float MIN_STEP = 0.02f;
 
@@ -78,7 +83,7 @@ final class GlassTilt implements SensorEventListener {
         final Sensor sensor = mSensorManager == null ? null
                 : mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mListening = sensor != null && mSensorManager.registerListener(this, sensor,
-                SensorManager.SENSOR_DELAY_UI, mHandler);
+                SAMPLING_US, BATCH_US, mHandler);
     }
 
     private void stop() {
