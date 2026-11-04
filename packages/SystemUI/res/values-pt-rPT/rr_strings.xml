@@ -56,4 +56,198 @@
     <string name="qs_custom_tile_icon">"Ícone"</string>
     <string name="qs_custom_tile_width">"Largura"</string>
     <string name="qs_custom_title">"Personalizar"</string>
+    <string name="rr_power_title">Ligar/desligar</string>
+    <string name="rr_power_status">Ligado há %1$s · %2$s de bateria</string>
+    <string name="rr_power_status_uptime">Ligado há %1$s</string>
+    <string name="rr_power_back">Voltar ao menu liga/desliga</string>
+    <string name="rr_shutdown_back_soon">O Resurrected Remix já volta</string>
+    <string name="global_action_restart_subtitle">Escolha como o telemóvel reinicia</string>
+    <string name="global_action_restart_system_summary">Reinicia o Android. Mantenha premido para o modo de segurança</string>
+    <string name="global_action_restart_recovery_summary">Instale atualizações, faça sideload ou apague dados</string>
+    <string name="global_action_restart_bootloader_summary">Fastboot, para gravar imagens de inicialização</string>
+    <string name="global_action_restart_fastboot_summary">Fastboot do espaço do utilizador, para partições do sistema</string>
+    <string name="global_action_restart_download_summary">Modo de transferência, para a ferramenta de gravação do fabricante</string>
+    <string name="volume_ringer_priority_only">Prioridade</string>
+    <string name="volume_ringer_dnd">Não incomodar</string>
+    <string name="tristate_flashlight_blink">Lanterna a piscar</string>
+    <string name="tristate_brightness_bright">Brilho máximo</string>
+    <string name="tristate_brightness_dark">Brilho mínimo</string>
+    <string name="tristate_brightness_auto">Brilho automático</string>
+    <string name="tristate_rotation_0">Retrato</string>
+    <string name="tristate_rotation_90">Paisagem (90°)</string>
+    <string name="tristate_rotation_270">Paisagem (270°)</string>
+    <string name="tristate_app_launch">A abrir app</string>
+    <string name="face_unlock_recognizing">A reconhecer rosto...</string>
+    <string name="screen_on_time_label">Ecrã <xliff:g id="duration" example="5 hr 12 min">%1$s</xliff:g></string>
+    <string name="quick_launch_video">Vídeo</string>
+    <string name="quick_launch_qr">Ler QR</string>
+    <string name="now_bar_charging">A carregar · <xliff:g id="level" example="74">%1$d</xliff:g>%%</string>
+    <string name="now_bar_full_in">Completa em <xliff:g id="duration" example="22 min">%1$s</xliff:g></string>
+    <string name="now_bar_charged">Carregado</string>
+    <string name="now_bar_flashlight_on">Lanterna ligada</string>
+    <string name="now_bar_buds">Auriculares</string>
+    <string name="now_bar_buds_case">Estojo <xliff:g id="level" example="61">%1$d</xliff:g></string>
+    <string name="now_bar_play">Reproduzir</string>
+    <string name="now_bar_pause">Pausar</string>
+    <string name="now_bar_previous">Anterior</string>
+    <string name="now_bar_next">Próxima</string>
+    <string name="now_bar_hide">Ocultar até terminar</string>
+    <string name="now_bar_settings">Definições da Now Bar</string>
+    <string name="now_bar_pin">Fixar no ecrã sempre ativo</string>
+    <string name="stage_battery_description">Bateria em <xliff:g id="percent" example="74">%1$d</xliff:g> por cento</string>
+    <string name="stage_alarm_description">Próximo alarme <xliff:g id="time" example="Tue 6:30">%1$s</xliff:g></string>
+    <string name="flatline_playing">TOCANDO AGORA</string>
+    <string name="flatline_call">CHAMADA RECEBIDA</string>
+    <string name="flatline_vitals">Status</string>
+    <string name="flatline_vitals_preview">74% · Alarme 6:30</string>
+    <string name="flatline_alarm">Alarme <xliff:g id="time" example="6:30">%1$s</xliff:g></string>
+    <string name="now_bar_unpin">Desafixar do ecrã sempre ativo</string>
+    <string name="now_bar_open">Abrir</string>
+    <string name="now_bar_output">Saída</string>
+    <string name="now_bar_close">Fechar</string>
+    <string name="now_bar_minutes_left"><xliff:g id="minutes" example="4">%1$d</xliff:g> min restantes</string>
+    <string name="now_bar_minutes"><xliff:g id="minutes" example="12">%1$d</xliff:g> min</string>
+    <string name="now_bar_versus"><xliff:g id="team" example="Lakers">%1$s</xliff:g> x <xliff:g id="team" example="Celtics">%2$s</xliff:g></string>
+    <string name="charge_report_channel">Relatórios de carga</string>
+    <string name="charge_report_title">Relatório de carga</string>
+    <string name="charge_report_summary">+<xliff:g id="added" example="62">%1$d</xliff:g>%% em <xliff:g id="time" example="31 min">%2$s</xliff:g> · pico <xliff:g id="watts" example="55.0">%3$s</xliff:g> W · máx. <xliff:g id="temp" example="38">%4$s</xliff:g> °C</string>
+    <string name="charge_report_details"><xliff:g id="charger" example="Wired">%1$s</xliff:g> · de <xliff:g id="from" example="12">%2$d</xliff:g>%% a <xliff:g id="to" example="74">%3$d</xliff:g>%% · média <xliff:g id="watts" example="41.3">%4$s</xliff:g> W</string>
+    <string name="charge_report_wired">Com fio</string>
+    <string name="charge_report_wireless">Sem fio</string>
+    <string name="charge_report_dock">Base</string>
+    <string name="usb_mode_picker_title">Selecionar modo USB</string>
+    <string name="usb_mode_photo_transfer">Transferência de fotos e vídeos</string>
+    <string name="usb_mode_webcam">Webcam USB</string>
+    <string name="usb_mode_charging_only">Somente carregamento</string>
+    <string name="usb_charging_status">Carregamento USB ativado</string>
+    <string name="usb_island_title">USB conectado</string>
+    <string name="usb_island_settings">Definições de USB</string>
+    <string name="usb_mode_short_charge">Carregar</string>
+    <string name="keyguard_indication_dash_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Carregamento Dash (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> até completar)</string>
+    <string name="keyguard_plugged_in_dash_charging"><xliff:g id="percentage">%s</xliff:g> • Carregamento Dash</string>
+    <string name="keyguard_indication_warp_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Carregamento Warp (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> até completar)</string>
+    <string name="keyguard_plugged_in_warp_charging"><xliff:g id="percentage">%s</xliff:g> • Carregamento Warp</string>
+    <string name="keyguard_indication_vooc_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Carregamento VOOC (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> até completar)</string>
+    <string name="keyguard_plugged_in_vooc_charging"><xliff:g id="percentage">%s</xliff:g> • Carregamento VOOC</string>
+    <string name="keyguard_indication_turbo_power_time"><xliff:g id="percentage">%2$s</xliff:g> • Carregamento Turbo (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> até completar)</string>
+    <string name="keyguard_plugged_in_turbo_charging"><xliff:g id="percentage">%s</xliff:g> • Carregamento Turbo</string>
+    <string name="charging_vfx_long_press_to_speed">Toque e mantenha premido para acelerar</string>
+    <string name="charging_vfx_source_wireless">Sem fio</string>
+    <string name="charging_vfx_source_dock">Base</string>
+    <string name="charging_vfx_time_to_full">Completa em <xliff:g id="time" example="25 min">%s</xliff:g></string>
+    <string name="qs_media_tile_idle">Nada a tocar</string>
+    <string name="qs_volume_tile_label">Volume</string>
+    <string name="qs_volume_tile_muted">Silenciado</string>
+    <string name="qs_custom_volume_half">Metade</string>
+    <string name="qs_custom_volume_slider">Controle deslizante</string>
+    <string name="qs_custom_volume_fill">Preenchimento</string>
+    <string name="qs_custom_volume_stack">Pilha</string>
+    <string name="qs_custom_volume_ring">Toque</string>
+    <string name="qs_custom_volume_call">Chamada</string>
+    <string name="qs_custom_volume_show_all">Nome e porcentagem</string>
+    <string name="qs_custom_volume_show_percent">Porcentagem</string>
+    <string name="qs_custom_volume_show_icon">Somente ícone</string>
+    <string name="qs_custom_volume_tap">Toque no ícone</string>
+    <string name="qs_custom_volume_mute">Silenciar</string>
+    <string name="qs_custom_volume_ticks">Vibração ao arrastar</string>
+    <string name="qs_custom_accent">Destaque</string>
+    <string name="qs_custom_add_tile">Adicionar um mosaico</string>
+    <string name="qs_custom_all_added">Todos os mosaicos estão no painel</string>
+    <string name="qs_custom_all_icons">Todos ícones</string>
+    <string name="qs_custom_all_long">Todos longos</string>
+    <string name="qs_custom_backing">Fundo do ícone</string>
+    <string name="qs_custom_blob">Mancha</string>
+    <string name="qs_custom_code_applied">Tema aplicado</string>
+    <string name="qs_custom_code_bad">Nenhum código de tema para colar</string>
+    <string name="qs_custom_code_copied">Código do tema copiado</string>
+    <string name="qs_custom_color_amber">Âmbar</string>
+    <string name="qs_custom_color_rose">Rosa</string>
+    <string name="qs_custom_columns">Colunas</string>
+    <string name="qs_custom_copy_code">Copiar código</string>
+    <string name="qs_custom_corners">Cantos</string>
+    <string name="qs_custom_depth">Profundidade</string>
+    <string name="qs_custom_depth_flat">Plano</string>
+    <string name="qs_custom_depth_raised">Em relevo</string>
+    <string name="qs_custom_drop_remove">Solte aqui para remover</string>
+    <string name="qs_custom_fill_clear">Limpar</string>
+    <string name="qs_custom_fill_dark">Escuro</string>
+    <string name="qs_custom_fill_gradient">Gradiente</string>
+    <string name="qs_custom_fill_icon">Somente ícone</string>
+    <string name="qs_custom_fill_solid">Sólido</string>
+    <string name="qs_custom_fill_surface">Superfície</string>
+    <string name="qs_custom_fill_tint">Matiz</string>
+    <string name="qs_custom_font_caps">Maiúsculas</string>
+    <string name="qs_custom_font_mono">Mono</string>
+    <string name="qs_custom_font_sans">Sans</string>
+    <string name="qs_custom_glow">Brilho quando ativado</string>
+    <string name="qs_custom_hide">Ocultar</string>
+    <string name="qs_custom_hint">Toque em um mosaico para ver opções · Mantenha premido para mover · Arraste o canto para redimensionar</string>
+    <string name="qs_custom_label">Rótulo</string>
+    <string name="qs_custom_label_inside">Dentro</string>
+    <string name="qs_custom_label_under">Abaixo</string>
+    <string name="qs_custom_look">Aparência</string>
+    <string name="qs_custom_media_art">Capa</string>
+    <string name="qs_custom_media_blocks">Mosaicos</string>
+    <string name="qs_custom_media_cover">Capa cheia</string>
+    <string name="qs_custom_media_full">Completo</string>
+    <string name="qs_custom_media_glow">Brilho</string>
+    <string name="qs_custom_media_line">Linha</string>
+    <string name="qs_custom_media_look">Aparência</string>
+    <string name="qs_custom_media_place">Local</string>
+    <string name="qs_custom_media_place_above">Acima dos mosaicos</string>
+    <string name="qs_custom_media_place_below">Abaixo dos mosaicos</string>
+    <string name="qs_custom_media_place_grid">Junto com os mosaicos</string>
+    <string name="qs_custom_media_play">Somente reproduzir</string>
+    <string name="qs_custom_media_tall">Alto</string>
+    <string name="qs_custom_media_trio">Anterior, reproduzir, próxima</string>
+    <string name="qs_custom_media_wave">Onda</string>
+    <string name="qs_custom_media_wide">Largo</string>
+    <string name="qs_custom_mix_footer">Botões do rodapé</string>
+    <string name="qs_custom_mix_paint">Cores dos mosaicos</string>
+    <string name="qs_custom_mix_shape">Forma dos mosaicos</string>
+    <string name="qs_custom_mix_slider">Controle deslizante</string>
+    <string name="qs_custom_mixed">Misto</string>
+    <string name="qs_custom_my_theme_name">Meu tema %1$d</string>
+    <string name="qs_custom_my_themes">Meus temas (mantenha premido para eliminar)</string>
+    <string name="qs_custom_off_fill">Mosaicos desativados</string>
+    <string name="qs_custom_on_fill">Mosaicos ativados</string>
+    <string name="qs_custom_paste_code">Colar código</string>
+    <string name="qs_custom_pill">Pílula</string>
+    <string name="qs_custom_reset">Repor este tema</string>
+    <string name="qs_custom_reset_tiles">Repor mosaicos</string>
+    <string name="qs_custom_rows">Linhas por página</string>
+    <string name="qs_custom_same_as_panel">Igual ao painel</string>
+    <string name="qs_custom_save">Guardar como meu tema</string>
+    <string name="qs_custom_scroll">Rolar em vez de usar páginas</string>
+    <string name="qs_custom_second_line">Segunda linha</string>
+    <string name="qs_custom_show">Mostrar</string>
+    <string name="qs_custom_sizes">Tamanhos dos mosaicos</string>
+    <string name="qs_custom_slider_by_player">Junto ao leitor</string>
+    <string name="qs_custom_slider_look">Aparência</string>
+    <string name="qs_custom_slider_place">Local</string>
+    <string name="qs_custom_slider_top">Topo</string>
+    <string name="qs_custom_slider_under">Abaixo dos mosaicos</string>
+    <string name="qs_custom_spacing">Espaçamento</string>
+    <string name="qs_custom_start_from">Começar de</string>
+    <string name="qs_custom_tab_add">Adicionar</string>
+    <string name="qs_custom_tab_mix">Mistura</string>
+    <string name="qs_custom_tab_slider">Controle deslizante</string>
+    <string name="qs_custom_tab_tiles">Mosaicos</string>
+    <string name="qs_custom_theme_blueprint">Blueprint</string>
+    <string name="qs_custom_theme_cards">Cartões</string>
+    <string name="qs_custom_theme_circles">Círculos</string>
+    <string name="qs_custom_theme_classic">Clássico</string>
+    <string name="qs_custom_theme_compact">Compacto</string>
+    <string name="qs_custom_theme_duo">Duo</string>
+    <string name="qs_custom_theme_glass">Vidro</string>
+    <string name="qs_custom_theme_neon">Neon</string>
+    <string name="qs_custom_theme_remix">Remix</string>
+    <string name="qs_custom_theme_shapes">Formas</string>
+    <string name="qs_custom_theme_soft">Suave</string>
+    <string name="qs_custom_theme_stock">Original</string>
+    <string name="qs_custom_tile_color">Cor quando ativado</string>
+    <string name="qs_custom_tile_height">Altura</string>
+    <string name="qs_custom_tile_height_dp">Altura do mosaico</string>
+    <string name="qs_look_label">Aparência</string>
+    <string name="qs_look_none">Toque para a próxima aparência</string>
 </resources>

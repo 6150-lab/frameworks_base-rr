@@ -63,4 +63,191 @@
     <string name="qs_custom_tile_icon">"圖示"</string>
     <string name="qs_custom_tile_width">"寬度"</string>
     <string name="qs_custom_title">"自訂"</string>
+    <string name="rr_power_title">電源</string>
+    <string name="rr_power_status">已開機 %1$s · 電量 %2$s</string>
+    <string name="rr_power_status_uptime">已開機 %1$s</string>
+    <string name="rr_power_back">返回電源選單</string>
+    <string name="rr_shutdown_back_soon">Resurrected Remix 馬上回來</string>
+    <string name="global_action_restart_subtitle">選擇手機的重啟方式</string>
+    <string name="global_action_restart_system_summary">重啟 Android。長按進入安全模式</string>
+    <string name="global_action_restart_recovery_summary">安裝更新、旁載入或清除資料</string>
+    <string name="global_action_restart_bootloader_summary">Fastboot，用於刷寫啟動映象</string>
+    <string name="global_action_restart_fastboot_summary">使用者空間 Fastboot，用於系統分割槽</string>
+    <string name="global_action_restart_download_summary">下載模式，用於廠商刷機工具</string>
+    <string name="volume_ringer_priority_only">優先</string>
+    <string name="tristate_rotation_0">豎屏</string>
+    <string name="tristate_app_launch">正在開啟應用程式</string>
+    <string name="screen_on_time_label">亮屏 <xliff:g id="duration" example="5 hr 12 min">%1$s</xliff:g></string>
+    <string name="quick_launch_video">影片</string>
+    <string name="quick_launch_qr">掃描QR 圖碼</string>
+    <string name="now_bar_charging">正在充電 · <xliff:g id="level" example="74">%1$d</xliff:g>%%</string>
+    <string name="now_bar_full_in"><xliff:g id="duration" example="22 min">%1$s</xliff:g>後充滿</string>
+    <string name="now_bar_charged">已充滿</string>
+    <string name="now_bar_flashlight_on">手電筒已開啟</string>
+    <string name="now_bar_buds">耳機</string>
+    <string name="now_bar_buds_case">充電盒 <xliff:g id="level" example="61">%1$d</xliff:g></string>
+    <string name="now_bar_play">播放</string>
+    <string name="now_bar_pause">暫停</string>
+    <string name="now_bar_previous">上一首</string>
+    <string name="now_bar_next">下一首</string>
+    <string name="now_bar_hide">隱藏至結束</string>
+    <string name="now_bar_settings">Now Bar 設定</string>
+    <string name="now_bar_pin">固定到螢幕保持開啟</string>
+    <string name="stage_battery_description">電量百分之 <xliff:g id="percent" example="74">%1$d</xliff:g></string>
+    <string name="stage_alarm_description">下一個鬧鐘 <xliff:g id="time" example="Tue 6:30">%1$s</xliff:g></string>
+    <string name="flatline_playing">正在播放</string>
+    <string name="flatline_call">來電</string>
+    <string name="flatline_vitals">狀態</string>
+    <string name="flatline_vitals_preview">74% · 鬧鐘 6:30</string>
+    <string name="flatline_alarm">鬧鐘 <xliff:g id="time" example="6:30">%1$s</xliff:g></string>
+    <string name="now_bar_unpin">從螢幕保持開啟取消固定</string>
+    <string name="now_bar_open">開啟</string>
+    <string name="now_bar_output">輸出</string>
+    <string name="now_bar_close">關閉</string>
+    <string name="now_bar_minutes_left">還剩 <xliff:g id="minutes" example="4">%1$d</xliff:g> 分鐘</string>
+    <string name="now_bar_minutes"><xliff:g id="minutes" example="12">%1$d</xliff:g> 分鐘</string>
+    <string name="now_bar_versus"><xliff:g id="team" example="Lakers">%1$s</xliff:g> 對 <xliff:g id="team" example="Celtics">%2$s</xliff:g></string>
+    <string name="charge_report_channel">充電報告</string>
+    <string name="charge_report_title">充電報告</string>
+    <string name="charge_report_summary">+<xliff:g id="added" example="62">%1$d</xliff:g>%%，用時 <xliff:g id="time" example="31 min">%2$s</xliff:g> · 峰值 <xliff:g id="watts" example="55.0">%3$s</xliff:g> W · 最高 <xliff:g id="temp" example="38">%4$s</xliff:g> °C</string>
+    <string name="charge_report_details"><xliff:g id="charger" example="Wired">%1$s</xliff:g> · <xliff:g id="from" example="12">%2$d</xliff:g>%% 至 <xliff:g id="to" example="74">%3$d</xliff:g>%% · 平均 <xliff:g id="watts" example="41.3">%4$s</xliff:g> W</string>
+    <string name="charge_report_wired">有線</string>
+    <string name="charge_report_wireless">無線</string>
+    <string name="charge_report_dock">底座</string>
+    <string name="usb_mode_picker_title">選擇 USB 模式</string>
+    <string name="usb_mode_photo_transfer">照片和影片傳輸</string>
+    <string name="usb_mode_webcam">USB 攝像頭</string>
+    <string name="usb_mode_charging_only">僅充電</string>
+    <string name="usb_charging_status">USB 充電已開啟</string>
+    <string name="usb_island_title">USB 已連線</string>
+    <string name="usb_island_settings">USB 設定</string>
+    <string name="usb_mode_short_charge">充電</string>
+    <string name="keyguard_indication_dash_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Dash 閃充（還需 <xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> 充滿）</string>
+    <string name="keyguard_plugged_in_dash_charging"><xliff:g id="percentage">%s</xliff:g> • Dash 閃充</string>
+    <string name="keyguard_indication_warp_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Warp 閃充（還需 <xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> 充滿）</string>
+    <string name="keyguard_plugged_in_warp_charging"><xliff:g id="percentage">%s</xliff:g> • Warp 閃充</string>
+    <string name="keyguard_indication_vooc_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • VOOC 閃充（還需 <xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> 充滿）</string>
+    <string name="keyguard_plugged_in_vooc_charging"><xliff:g id="percentage">%s</xliff:g> • VOOC 閃充</string>
+    <string name="keyguard_indication_turbo_power_time"><xliff:g id="percentage">%2$s</xliff:g> • 渦輪快充（還需 <xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> 充滿）</string>
+    <string name="keyguard_plugged_in_turbo_charging"><xliff:g id="percentage">%s</xliff:g> • 渦輪快充</string>
+    <string name="charging_vfx_long_press_to_speed">輕觸並按住可加速</string>
+    <string name="charging_vfx_source_wireless">無線</string>
+    <string name="charging_vfx_source_dock">底座</string>
+    <string name="charging_vfx_time_to_full"><xliff:g id="time" example="25 min">%s</xliff:g>後充滿</string>
+    <string name="qs_media_tile_idle">未在播放</string>
+    <string name="qs_volume_tile_muted">已靜音</string>
+    <string name="qs_custom_volume_half">一半</string>
+    <string name="qs_custom_volume_slider">滑塊</string>
+    <string name="qs_custom_volume_fill">填充</string>
+    <string name="qs_custom_volume_stack">堆疊</string>
+    <string name="qs_custom_volume_ring">鈴聲</string>
+    <string name="qs_custom_volume_call">通話</string>
+    <string name="qs_custom_volume_show_all">名稱和百分比</string>
+    <string name="qs_custom_volume_show_percent">百分比</string>
+    <string name="qs_custom_volume_show_icon">僅圖示</string>
+    <string name="qs_custom_volume_tap">點按圖示</string>
+    <string name="qs_custom_volume_mute">靜音</string>
+    <string name="qs_custom_volume_ticks">拖動時振動</string>
+    <string name="qs_custom_accent">強調色</string>
+    <string name="qs_custom_add_tile">新增設定方塊</string>
+    <string name="qs_custom_all_added">所有設定方塊都已在面板中</string>
+    <string name="qs_custom_all_icons">全部圖示</string>
+    <string name="qs_custom_all_long">全部長條</string>
+    <string name="qs_custom_backing">圖示背景</string>
+    <string name="qs_custom_blob">不規則形</string>
+    <string name="qs_custom_code_applied">已套用主題</string>
+    <string name="qs_custom_code_bad">沒有可貼上的主題程式碼</string>
+    <string name="qs_custom_code_copied">已複製主題程式碼</string>
+    <string name="qs_custom_color_amber">琥珀色</string>
+    <string name="qs_custom_color_rose">玫瑰色</string>
+    <string name="qs_custom_columns">列</string>
+    <string name="qs_custom_copy_code">複製程式碼</string>
+    <string name="qs_custom_corners">圓角</string>
+    <string name="qs_custom_depth">深度</string>
+    <string name="qs_custom_depth_flat">扁平</string>
+    <string name="qs_custom_depth_raised">凸起</string>
+    <string name="qs_custom_drop_remove">拖放到此處以移除</string>
+    <string name="qs_custom_fill_clear">清除</string>
+    <string name="qs_custom_fill_dark">深色</string>
+    <string name="qs_custom_fill_gradient">漸變</string>
+    <string name="qs_custom_fill_icon">僅圖示</string>
+    <string name="qs_custom_fill_solid">純色</string>
+    <string name="qs_custom_fill_surface">表面</string>
+    <string name="qs_custom_fill_tint">著色</string>
+    <string name="qs_custom_font_caps">大寫</string>
+    <string name="qs_custom_font_mono">等寬</string>
+    <string name="qs_custom_font_sans">無襯線</string>
+    <string name="qs_custom_glow">開啟時發光</string>
+    <string name="qs_custom_hide">隱藏</string>
+    <string name="qs_custom_hint">點按設定方塊檢視選項 · 按住可移動 · 拖動邊角可調整大小</string>
+    <string name="qs_custom_label">標籤</string>
+    <string name="qs_custom_label_inside">內部</string>
+    <string name="qs_custom_label_under">下方</string>
+    <string name="qs_custom_look">外觀</string>
+    <string name="qs_custom_media_art">封面</string>
+    <string name="qs_custom_media_blocks">方塊</string>
+    <string name="qs_custom_media_cover">封面鋪滿</string>
+    <string name="qs_custom_media_full">完整</string>
+    <string name="qs_custom_media_glow">發光</string>
+    <string name="qs_custom_media_line">線條</string>
+    <string name="qs_custom_media_look">外觀</string>
+    <string name="qs_custom_media_place">位置</string>
+    <string name="qs_custom_media_place_above">設定方塊上方</string>
+    <string name="qs_custom_media_place_below">設定方塊下方</string>
+    <string name="qs_custom_media_place_grid">與設定方塊一起</string>
+    <string name="qs_custom_media_play">僅播放</string>
+    <string name="qs_custom_media_progress">進度</string>
+    <string name="qs_custom_media_tall">高</string>
+    <string name="qs_custom_media_trio">上一首、播放、下一首</string>
+    <string name="qs_custom_media_wave">波浪</string>
+    <string name="qs_custom_media_wide">寬</string>
+    <string name="qs_custom_mix_footer">底部按鈕</string>
+    <string name="qs_custom_mix_media">媒體播放器</string>
+    <string name="qs_custom_mix_paint">設定方塊顏色</string>
+    <string name="qs_custom_mix_slider">滑塊</string>
+    <string name="qs_custom_mixed">混合</string>
+    <string name="qs_custom_my_theme_name">我的主題 %1$d</string>
+    <string name="qs_custom_my_themes">我的主題（按住可刪除）</string>
+    <string name="qs_custom_off_fill">關閉的設定方塊</string>
+    <string name="qs_custom_on_fill">開啟的設定方塊</string>
+    <string name="qs_custom_paste_code">貼上程式碼</string>
+    <string name="qs_custom_pill">橫條</string>
+    <string name="qs_custom_reset">重置此主題</string>
+    <string name="qs_custom_reset_tiles">重置設定方塊</string>
+    <string name="qs_custom_rounded">圓角</string>
+    <string name="qs_custom_rows">每頁行數</string>
+    <string name="qs_custom_same_as_panel">與面板相同</string>
+    <string name="qs_custom_save">儲存為我的主題</string>
+    <string name="qs_custom_scroll">滾動而非分頁</string>
+    <string name="qs_custom_second_line">第二行</string>
+    <string name="qs_custom_show">顯示</string>
+    <string name="qs_custom_sizes">設定方塊大小</string>
+    <string name="qs_custom_slider_by_player">播放器旁</string>
+    <string name="qs_custom_slider_look">外觀</string>
+    <string name="qs_custom_slider_place">位置</string>
+    <string name="qs_custom_slider_top">頂部</string>
+    <string name="qs_custom_slider_under">設定方塊下方</string>
+    <string name="qs_custom_spacing">間距</string>
+    <string name="qs_custom_start_from">開始自</string>
+    <string name="qs_custom_tab_add">新增</string>
+    <string name="qs_custom_tab_mix">混搭</string>
+    <string name="qs_custom_tab_slider">滑塊</string>
+    <string name="qs_custom_tab_tiles">設定方塊</string>
+    <string name="qs_custom_theme_blueprint">Blueprint</string>
+    <string name="qs_custom_theme_cards">卡片</string>
+    <string name="qs_custom_theme_circles">圓形</string>
+    <string name="qs_custom_theme_classic">經典</string>
+    <string name="qs_custom_theme_compact">緊湊</string>
+    <string name="qs_custom_theme_duo">Duo</string>
+    <string name="qs_custom_theme_glass">玻璃</string>
+    <string name="qs_custom_theme_neon">霓虹</string>
+    <string name="qs_custom_theme_remix">Remix</string>
+    <string name="qs_custom_theme_shapes">Shapes</string>
+    <string name="qs_custom_theme_soft">柔和</string>
+    <string name="qs_custom_theme_stock">預設</string>
+    <string name="qs_custom_tile_color">開啟時的顏色</string>
+    <string name="qs_custom_tile_height">高度</string>
+    <string name="qs_custom_tile_height_dp">設定方塊高度</string>
+    <string name="qs_look_label">外觀</string>
+    <string name="qs_look_none">點按切換下一個造型</string>
 </resources>
