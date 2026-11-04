@@ -41,6 +41,7 @@ import com.android.systemui.scene.shared.flag.SceneContainerFlag
 import com.android.systemui.shared.system.ActivityManagerWrapper
 import com.android.systemui.shared.system.TaskStackChangeListener
 import com.android.systemui.shared.system.TaskStackChangeListeners
+import com.android.systemui.clocks.FlatlineChipDrawable
 import com.android.systemui.statusbar.chips.mediaprojection.domain.model.MediaProjectionStopDialogModel
 import com.android.systemui.statusbar.events.shared.model.SystemEventAnimationState
 import com.android.systemui.statusbar.events.shared.model.SystemEventAnimationState.AnimatingIn
@@ -93,6 +94,8 @@ class HomeStatusBarViewBinderImpl @Inject constructor() : HomeStatusBarViewBinde
         val gradientEndColor: Int = Color.parseColor("#4ECDC4"),
         val gradientAngle: Float = 0f,
         val gradientMaskText: Boolean = false,
+        /** RR: the Flatline beside the time, inside the chip. */
+        val flatline: Boolean = false,
     )
 
     private data class Padding(
@@ -167,6 +170,7 @@ class HomeStatusBarViewBinderImpl @Inject constructor() : HomeStatusBarViewBinde
                     Settings.System.getUriFor(Settings.System.STATUSBAR_CLOCK_CHIP_GRADIENT_ANGLE)
                 val gradientMaskTextUri: Uri =
                     Settings.System.getUriFor(Settings.System.STATUSBAR_CLOCK_CHIP_GRADIENT_MASK_TEXT)
+                val flatlineUri: Uri = Settings.System.getUriFor(KEY_FLATLINE)
 
                 val taskStackListener =
                     object : TaskStackChangeListener {
@@ -263,6 +267,12 @@ class HomeStatusBarViewBinderImpl @Inject constructor() : HomeStatusBarViewBinde
                                            gradientMaskText =
                                                context.contentResolver.readGradientMaskText()
                                        )
+                                    flatlineUri ->
+                                        current.copy(
+                                            flatline = Settings.System.getIntForUser(
+                                                context.contentResolver, KEY_FLATLINE, 0,
+                                                UserHandle.USER_CURRENT) == 1
+                                        )
                                     else -> current
                                 }
                             }
@@ -271,7 +281,7 @@ class HomeStatusBarViewBinderImpl @Inject constructor() : HomeStatusBarViewBinde
 
                 val urisToObserve = listOf(clockAutoHideUri, iconHideListUri, statusBarClockUri,
                     statusBarClockChipUri, gradientStartColorUri, gradientEndColorUri, gradientAngleUri,
-                    gradientMaskTextUri)
+                    gradientMaskTextUri, flatlineUri)
                 urisToObserve.forEach { uri ->
                     context.contentResolver.registerContentObserver(
                         uri,
@@ -380,6 +390,7 @@ class HomeStatusBarViewBinderImpl @Inject constructor() : HomeStatusBarViewBinde
                         var lastGradientEndColor: Int? = null
                         var lastGradientAngle: Float? = null
                         var lastGradientMaskText: Boolean? = null
+                        var lastFlatline: Boolean? = null
 
                         clockState.collect { state ->
                             // We only want to hide left clock for HUN
@@ -427,6 +438,7 @@ class HomeStatusBarViewBinderImpl @Inject constructor() : HomeStatusBarViewBinde
                             val chipNeedsUpdate = (lastChipStyle != state.chipStyle)
                                         || (lastClockPosition != state.position)
                                         || gradientParamsChanged
+                                        || (lastFlatline != state.flatline)
                             if (chipNeedsUpdate) {
                                 applyClockChip(
                                     context = context,
@@ -442,7 +454,9 @@ class HomeStatusBarViewBinderImpl @Inject constructor() : HomeStatusBarViewBinde
                                     gradientEndColor = state.gradientEndColor,
                                     gradientAngle = state.gradientAngle,
                                     gradientMaskText = state.gradientMaskText,
+                                    flatline = state.flatline,
                                 )
+                                lastFlatline = state.flatline
                                 lastChipStyle = state.chipStyle
                                 lastClockPosition = state.position
                                 lastGradientStartColor = state.gradientStartColor
@@ -603,6 +617,24 @@ class HomeStatusBarViewBinderImpl @Inject constructor() : HomeStatusBarViewBinde
 
     private fun View.capturePadding() = Padding(paddingStart, paddingTop, paddingEnd, paddingBottom)
 
+    /** The Flatline after the time, as the clock's end drawable; it rides inside any chip. */
+    private fun Clock.setFlatline(on: Boolean) {
+        val current = compoundDrawablesRelative[2] as? FlatlineChipDrawable
+        if (!on) {
+            if (current != null) {
+                current.detach()
+                setCompoundDrawablesRelative(null, null, null, null)
+            }
+            return
+        }
+        if (current != null) return
+        val drawable = FlatlineChipDrawable(this)
+        drawable.setBounds(0, 0, drawable.intrinsicWidth, drawable.intrinsicHeight)
+        compoundDrawablePadding = dpToPx(context, 4)
+        setCompoundDrawablesRelative(null, null, drawable, null)
+        drawable.attach()
+    }
+
     private fun dpToPx(context: Context, dp: Int): Int {
         return (dp * context.resources.displayMetrics.density).toInt()
     }
@@ -621,9 +653,11 @@ class HomeStatusBarViewBinderImpl @Inject constructor() : HomeStatusBarViewBinde
         gradientEndColor: Int = Color.parseColor("#4ECDC4"),
         gradientAngle: Float = 0f,
         gradientMaskText: Boolean = false,
+        flatline: Boolean = false,
     ) {
         fun reset(clock: Clock?, padding: Padding?) {
             if (clock == null || padding == null) return
+            clock.setFlatline(false)
             clock.setBackgroundResource(0)
             clock.setPaddingRelative(padding.start, padding.top, padding.end, padding.bottom)
             clock.setMaskTextMode(false)
@@ -689,6 +723,7 @@ class HomeStatusBarViewBinderImpl @Inject constructor() : HomeStatusBarViewBinde
         reset(centerClock, centerPaddingInit)
         reset(rightClock, rightPaddingInit)
 
+        activeClock?.setFlatline(flatline)
         if (chipStyle == 0) return
         val clockForChip = activeClock ?: return
 
@@ -815,6 +850,7 @@ class HomeStatusBarViewBinderImpl @Inject constructor() : HomeStatusBarViewBinde
     companion object {
         private const val CHIP_STYLE_CUSTOM_GRADIENT = 13
         private const val CHIP_STYLE_RR_FIRST = 14
+        private const val KEY_FLATLINE = "statusbar_clock_flatline"
         // Transparent styles keep the clock's own color: the outlines and RR glass.
         private val OUTLINE_CHIP_STYLES = setOf(2, 8, 17)
         private const val GRADIENT_TEXT_STYLE_MASK = 1

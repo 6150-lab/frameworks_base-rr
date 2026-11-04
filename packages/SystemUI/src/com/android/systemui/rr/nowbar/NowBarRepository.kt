@@ -28,6 +28,7 @@ import androidx.core.graphics.ColorUtils
 import androidx.core.graphics.drawable.toBitmap
 import com.android.settingslib.utils.StringUtil
 import com.android.systemui.CoreStartable
+import com.android.systemui.clocks.FlatlineChipDrawable
 import com.android.systemui.clocks.FlatlineClockView
 import com.android.systemui.dagger.SysUISingleton
 import com.android.systemui.dagger.qualifiers.Background
@@ -311,6 +312,7 @@ constructor(
             n.flags and (Notification.FLAG_ONGOING_EVENT or Notification.FLAG_ONLY_ALERT_ONCE) == 0
         ) {
             FlatlineClockView.pulse()
+            FlatlineChipDrawable.pulse()
         }
         val item = notificationItem(sbn)
         if (item != null) {
