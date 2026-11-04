@@ -923,9 +923,10 @@ static void nativeSetBlurRegions(JNIEnv* env, jclass clazz, jlong transactionObj
     std::vector<BlurRegion> blurRegionVector;
     const int size = regionsLength;
     float region[14];
-    // Catalyxx glass regions carry 16 more values: the glass look, its joined sides, its colors
-    // over dark and over light content (RGBA each) and the switch point between them.
-    float glass[16];
+    // Catalyxx glass regions carry 17 more values: the glass look, its joined sides, its colors
+    // over dark and over light content (RGBA each), the switch point between them and how far it
+    // melts into other glass.
+    float glass[17];
     for (int i = 0; i < size; i++) {
         jfloatArray regionArray = (jfloatArray)env->GetObjectArrayElement(regions, i);
         env->GetFloatArrayRegion(regionArray, 0, 14, region);
@@ -958,8 +959,8 @@ static void nativeSetBlurRegions(JNIEnv* env, jclass clazz, jlong transactionObj
                               .top = static_cast<int>(top),
                               .right = static_cast<int>(right),
                               .bottom = static_cast<int>(bottom)};
-        if (env->GetArrayLength(regionArray) >= 30) {
-            env->GetFloatArrayRegion(regionArray, 14, 16, glass);
+        if (env->GetArrayLength(regionArray) >= 31) {
+            env->GetFloatArrayRegion(regionArray, 14, 17, glass);
             blurRegion.glassRimWidth = glass[0];
             blurRegion.glassBend = glass[1];
             blurRegion.glassFrost = glass[2];
@@ -970,6 +971,7 @@ static void nativeSetBlurRegions(JNIEnv* env, jclass clazz, jlong transactionObj
             blurRegion.glassTintOverDark = {glass[7], glass[8], glass[9], glass[10]};
             blurRegion.glassTintOverLight = {glass[11], glass[12], glass[13], glass[14]};
             blurRegion.glassAdaptPoint = glass[15];
+            blurRegion.glassMelt = glass[16];
         }
         blurRegionVector.push_back(blurRegion);
     }

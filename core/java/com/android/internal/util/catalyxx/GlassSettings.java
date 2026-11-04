@@ -398,6 +398,20 @@ public final class GlassSettings {
     public static final String MORPH_HEADS_UP = "catalyxx_glass_morph_heads_up";
 
     /**
+     * 1: glass melts together like drops where it meets. A panel that morphs stays joined to where
+     * it came out of by a neck that stretches and snaps, and a folder opened from the dock pulls
+     * away from it the same way. 0 (the default, as it's a stretch goal) keeps glass apart.
+     */
+    public static final String MELT = "catalyxx_glass_melt";
+
+    /** How far glass reaches to melt: {@link #MELT_SHORT}, {@link #MELT_NORMAL} or longer. */
+    public static final String MELT_REACH = "catalyxx_glass_melt_reach";
+
+    public static final int MELT_SHORT = 0;
+    public static final int MELT_NORMAL = 1;
+    public static final int MELT_LONG = 2;
+
+    /**
      * The middle of the power key and of the volume keys, in pixels down from the top of the
      * screen held upright, to try a phone's values before they go in its overlay. Unset (the
      * default) keeps the phone's own. Not in the Lab, and not in {@link #KEYS}: they're read
@@ -426,7 +440,7 @@ public final class GlassSettings {
         PLACE_NOTIFICATIONS, PLACE_LOCKSCREEN, PLACE_VOLUME, PLACE_POWER_MENU, PLACE_DIALOGS,
         POWER_MENU_BLUR_BEHIND, PLACE_NAVBAR, NAVBAR_SHAPE, PLACE_DOCK, DOCK_SHAPE,
         PLACE_FOLDERS, PLACE_APP_DRAWER, MORPH, MORPH_STYLE, MORPH_SPEED, MORPH_VOLUME,
-        MORPH_POWER_MENU, MORPH_TILES, MORPH_NOTIFICATIONS, MORPH_HEADS_UP,
+        MORPH_POWER_MENU, MORPH_TILES, MORPH_NOTIFICATIONS, MORPH_HEADS_UP, MELT, MELT_REACH,
     };
 
     public static final int MIN_BLUR_STRENGTH = 0;
@@ -497,6 +511,11 @@ public final class GlassSettings {
     public static final int DEFAULT_NAVBAR_SHAPE = NAVBAR_CAPSULE;
     public static final int DEFAULT_MORPH_STYLE = MORPH_LIQUID;
     public static final int DEFAULT_MORPH_SPEED = MORPH_NORMAL;
+    public static final int DEFAULT_MELT_REACH = MELT_NORMAL;
+
+    // How close glass starts to reach for other glass at each MELT_REACH, in dp: a neck joins them
+    // from a third of it
+    private static final float[] MELT_SIZES_DP = {44f, 64f, 96f};
     public static final int DEFAULT_DOCK_SHAPE = DOCK_FLOATING;
 
     // How far the rim reaches at BEND 100, in rim widths, and the shadow's darkness at SHADOW 100
@@ -521,6 +540,18 @@ public final class GlassSettings {
     /** Whether glass is on for {@code place}, one of the {@code PLACE_} keys. */
     public static boolean isOn(ContentResolver resolver, String place) {
         return isEnabled(resolver) && Settings.Global.getInt(resolver, place, 1) == 1;
+    }
+
+    /**
+     * How close glass starts to reach for other glass now ({@link #MELT}, {@link #MELT_REACH}), in
+     * pixels for a display of {@code density}: 0 while glass doesn't melt.
+     */
+    public static float meltSize(ContentResolver resolver, float density) {
+        if (!isEnabled(resolver) || Settings.Global.getInt(resolver, MELT, 0) != 1) {
+            return 0f;
+        }
+        final int reach = Settings.Global.getInt(resolver, MELT_REACH, DEFAULT_MELT_REACH);
+        return MELT_SIZES_DP[Math.max(MELT_SHORT, Math.min(MELT_LONG, reach))] * density;
     }
 
     /**

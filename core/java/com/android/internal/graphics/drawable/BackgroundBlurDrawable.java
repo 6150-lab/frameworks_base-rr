@@ -90,6 +90,7 @@ public final class BackgroundBlurDrawable extends Drawable {
     private GlassLook mGlassLook;
     private int mGlassJoinedSides;
     private boolean mGlassFixedLight;
+    private float mGlassMelt;
     // Whether GlassTilt was told this glass shows
     private boolean mShowsGlass;
 
@@ -279,6 +280,34 @@ public final class BackgroundBlurDrawable extends Drawable {
         }
     }
 
+    /**
+     * Melts this drawable's glass into the other glass of the same window, in pixels: pieces start
+     * to reach for each other when they're this close, and a neck joins them from a third of it.
+     * The other pieces needn't melt themselves. 0, as it starts, keeps it to itself.
+     */
+    public void setGlassMelt(float size) {
+        if (mGlassMelt != size) {
+            mGlassMelt = size;
+            invalidateSelf();
+            mAggregator.onBlurDrawableUpdated(this);
+        }
+    }
+
+    /**
+     * Makes this drawable's glass, with no shadow of its own, what {@code other}'s is, with the
+     * same blur: for a bead of glass that only shows where it melts into {@code other}'s, which
+     * is what it looks like there. Returns false if {@code other} isn't glass.
+     */
+    public boolean setGlassLike(@NonNull BackgroundBlurDrawable other) {
+        if (other.mGlassLook == null) {
+            return false;
+        }
+        setGlassFixedLight(other.mGlassFixedLight);
+        setGlass(other.mGlassLook.withoutShadow());
+        setBlurRadius(other.mBlurRadius);
+        return true;
+    }
+
     @Override
     public void setBounds(int left, int top, int right, int bottom) {
         super.setBounds(left, top, right, bottom);
@@ -332,6 +361,7 @@ public final class BackgroundBlurDrawable extends Drawable {
             + ", glass=" + mGlassLook
             + ", glassJoinedSides=" + mGlassJoinedSides
             + ", glassFixedLight=" + mGlassFixedLight
+            + ", glassMelt=" + mGlassMelt
             + "}";
     }
 
@@ -587,6 +617,7 @@ public final class BackgroundBlurDrawable extends Drawable {
         public final Rect rect;
         public final GlassLook glassLook;
         public final int glassJoinedSides;
+        public final float glassMelt;
 
         BlurRegion(BackgroundBlurDrawable drawable) {
             alpha = drawable.mAlpha / 255f;
@@ -604,13 +635,14 @@ public final class BackgroundBlurDrawable extends Drawable {
             // SurfaceFlinger takes the fixed light with the joined sides
             glassJoinedSides = drawable.mGlassJoinedSides
                     | (drawable.mGlassFixedLight ? GLASS_FIXED_LIGHT : 0);
+            glassMelt = drawable.mGlassMelt;
         }
 
         /**
          * Serializes this class into a float array that's more JNI friendly.
          */
         float[] toFloatArray() {
-            final float[] floatArray = new float[glassLook != null ? 30 : 14];
+            final float[] floatArray = new float[glassLook != null ? 31 : 14];
             floatArray[0] = blurRadius;
             floatArray[1] = alpha;
             floatArray[2] = rect.left;
@@ -637,6 +669,7 @@ public final class BackgroundBlurDrawable extends Drawable {
                 putColor(floatArray, 21, glassLook.tintOverDark);
                 putColor(floatArray, 25, glassLook.tintOverLight);
                 floatArray[29] = glassLook.adaptPoint;
+                floatArray[30] = glassMelt;
             }
             return floatArray;
         }
@@ -665,6 +698,7 @@ public final class BackgroundBlurDrawable extends Drawable {
                     + ", rect=" + rect
                     + ", glass=" + glassLook
                     + ", glassJoinedSides=" + glassJoinedSides
+                    + ", glassMelt=" + glassMelt
                     + "}";
         }
     }

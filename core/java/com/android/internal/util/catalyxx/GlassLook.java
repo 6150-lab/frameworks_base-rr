@@ -59,6 +59,12 @@ public final class GlassLook {
         this.adaptPoint = adaptPoint;
     }
 
+    /** This look with no shadow. */
+    public GlassLook withoutShadow() {
+        return new GlassLook(rimWidth, bend, frost, rimLight, dispersion, /* shadow= */ 0f,
+                tintOverDark, tintOverLight, adaptPoint);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
