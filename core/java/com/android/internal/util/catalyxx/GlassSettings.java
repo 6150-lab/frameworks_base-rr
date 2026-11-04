@@ -390,6 +390,14 @@ public final class GlassSettings {
     public static final String MORPH_NOTIFICATIONS = "catalyxx_glass_morph_notifications";
 
     /**
+     * 1: a heads-up notification drips out of the camera hole at the top of the screen, grows
+     * into its card in {@link #MORPH_STYLE} and goes back into the hole as it goes. 0 (the
+     * default, as it's a stretch goal) keeps Android's slide from above, as screens without a
+     * hole at the top do. Not in {@link #MORPH_PLACES}, whose switches are on by default.
+     */
+    public static final String MORPH_HEADS_UP = "catalyxx_glass_morph_heads_up";
+
+    /**
      * The middle of the power key and of the volume keys, in pixels down from the top of the
      * screen held upright, to try a phone's values before they go in its overlay. Unset (the
      * default) keeps the phone's own. Not in the Lab, and not in {@link #KEYS}: they're read
@@ -418,7 +426,7 @@ public final class GlassSettings {
         PLACE_NOTIFICATIONS, PLACE_LOCKSCREEN, PLACE_VOLUME, PLACE_POWER_MENU, PLACE_DIALOGS,
         POWER_MENU_BLUR_BEHIND, PLACE_NAVBAR, NAVBAR_SHAPE, PLACE_DOCK, DOCK_SHAPE,
         PLACE_FOLDERS, PLACE_APP_DRAWER, MORPH, MORPH_STYLE, MORPH_SPEED, MORPH_VOLUME,
-        MORPH_POWER_MENU, MORPH_TILES, MORPH_NOTIFICATIONS,
+        MORPH_POWER_MENU, MORPH_TILES, MORPH_NOTIFICATIONS, MORPH_HEADS_UP,
     };
 
     public static final int MIN_BLUR_STRENGTH = 0;
