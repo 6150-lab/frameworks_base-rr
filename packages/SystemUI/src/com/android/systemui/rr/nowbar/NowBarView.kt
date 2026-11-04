@@ -764,7 +764,8 @@ class NowBarView(
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
         if (dozing) return false
         when (ev.actionMasked) {
-            MotionEvent.ACTION_DOWN -> startGesture(ev)
+            // A child taking the touch is a button: the hold menu is for the bar itself.
+            MotionEvent.ACTION_DOWN -> startGesture(ev, hold = false)
             MotionEvent.ACTION_MOVE -> if (horizontalDrag(ev)) return true
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> removeCallbacks(longPress)
         }
@@ -775,7 +776,7 @@ class NowBarView(
         if (dozing) return false
         velocity?.addMovement(ev)
         when (ev.actionMasked) {
-            MotionEvent.ACTION_DOWN -> startGesture(ev)
+            MotionEvent.ACTION_DOWN -> startGesture(ev, hold = true)
             MotionEvent.ACTION_MOVE -> {
                 horizontalDrag(ev)
                 if (abs(ev.y - downY) > slop) removeCallbacks(longPress)
@@ -802,7 +803,7 @@ class NowBarView(
         return true
     }
 
-    private fun startGesture(ev: MotionEvent) {
+    private fun startGesture(ev: MotionEvent, hold: Boolean) {
         downX = ev.x
         downY = ev.y
         dragging = false
@@ -810,7 +811,7 @@ class NowBarView(
         recycleVelocity()
         velocity = VelocityTracker.obtain().also { it.addMovement(ev) }
         removeCallbacks(longPress)
-        postDelayed(longPress, ViewConfiguration.getLongPressTimeout().toLong())
+        if (hold) postDelayed(longPress, ViewConfiguration.getLongPressTimeout().toLong())
     }
 
     private fun horizontalDrag(ev: MotionEvent): Boolean {
