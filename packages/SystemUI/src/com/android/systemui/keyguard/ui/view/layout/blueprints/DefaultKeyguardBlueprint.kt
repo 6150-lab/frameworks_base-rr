@@ -21,6 +21,7 @@ import com.android.systemui.dagger.SysUISingleton
 import com.android.systemui.keyguard.shared.model.KeyguardBlueprint
 import com.android.systemui.keyguard.shared.model.KeyguardSection
 import com.android.systemui.keyguard.ui.view.layout.sections.AccessibilityActionsSection
+import com.android.systemui.keyguard.ui.view.layout.sections.LockStageSection
 import com.android.systemui.keyguard.ui.view.layout.sections.NowBarSection
 import com.android.systemui.keyguard.ui.view.layout.sections.AodBurnInSection
 import com.android.systemui.keyguard.ui.view.layout.sections.AodNotificationIconsSection
@@ -57,6 +58,7 @@ class DefaultKeyguardBlueprint
 @Inject
 constructor(
     nowBarSection: NowBarSection,
+    lockStageSection: LockStageSection,
     accessibilityActionsSection: AccessibilityActionsSection,
     defaultIndicationAreaSection: DefaultIndicationAreaSection,
     defaultIndicationAreaTopSection: DefaultIndicationAreaTopSection,
@@ -103,6 +105,7 @@ constructor(
             aodStyleSection,
             clockSection,
             nowBarSection,
+            lockStageSection, // After every tile it moves, so its constraints win
             defaultDeviceEntrySection,
             udfpsAccessibilityOverlaySection, // Add LAST: Intentionally has z-order above others
     )
