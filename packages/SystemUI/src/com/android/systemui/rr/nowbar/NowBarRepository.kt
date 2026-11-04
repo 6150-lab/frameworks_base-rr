@@ -212,11 +212,11 @@ constructor(
     }
 
     private fun updateMedia() {
-        val controller = controllers.firstOrNull { it.isPlaying() && it.metadata != null }
-            ?: controllers.firstOrNull {
-                it.metadata != null && it.playbackState?.state == PlaybackState.STATE_PAUSED
-            }
-        val item = controller?.let(::mediaItem)
+        // Metadata once per session: a second fetch can come back empty when the session ends.
+        val sessions = controllers.mapNotNull { c -> c.metadata?.let { c to it } }
+        val session = sessions.firstOrNull { (c, _) -> c.isPlaying() }
+            ?: sessions.firstOrNull { (c, _) -> c.playbackState?.state == PlaybackState.STATE_PAUSED }
+        val item = session?.let { (c, metadata) -> mediaItem(c, metadata) }
         // A song swiped away while paused comes back when it plays again.
         if (item?.playing == true && mediaItem?.playing != true) hidden -= item.key
         mediaItem = item
@@ -225,8 +225,7 @@ constructor(
 
     private fun MediaController.isPlaying() = playbackState?.state == PlaybackState.STATE_PLAYING
 
-    private fun mediaItem(controller: MediaController): NowBarItem {
-        val metadata = controller.metadata!!
+    private fun mediaItem(controller: MediaController, metadata: MediaMetadata): NowBarItem {
         val playing = controller.isPlaying()
         val pkg = controller.packageName
         val title = metadata.getString(MediaMetadata.METADATA_KEY_TITLE)
