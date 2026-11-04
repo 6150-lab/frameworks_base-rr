@@ -43,6 +43,7 @@ import com.android.app.tracing.TraceUtils;
 import com.android.internal.R;
 import com.android.internal.display.BrightnessSynchronizer;
 import com.android.systemui.dagger.qualifiers.Application;
+import com.android.systemui.rr.nightstand.NightstandController;
 import com.android.systemui.dagger.qualifiers.Main;
 import com.android.systemui.doze.dagger.BrightnessSensor;
 import com.android.systemui.doze.dagger.DozeScope;
@@ -242,8 +243,8 @@ public class DozeScreenBrightness extends BroadcastReceiver implements DozeMachi
             float brightness = computeBrightness(sensorValue);
             brightnessReady = brightness >= 0;
             if (brightnessReady) {
-                mDozeService.setDozeScreenBrightness(
-                        clampToDimBrightnessForScreenOff(clampToUserSetting(brightness)));
+                mDozeService.setDozeScreenBrightness(clampToNightstand(
+                        clampToDimBrightnessForScreenOff(clampToUserSetting(brightness))));
             }
 
             int scrimOpacity = -1;
@@ -323,10 +324,22 @@ public class DozeScreenBrightness extends BroadcastReceiver implements DozeMachi
     }
 
     private void resetBrightnessToDefault() {
-        mDozeService.setDozeScreenBrightness(clampToDimBrightnessForScreenOff(
-                clampToUserSettingOrAutoBrightness(mDefaultDozeBrightness)));
+        mDozeService.setDozeScreenBrightness(clampToNightstand(clampToDimBrightnessForScreenOff(
+                clampToUserSettingOrAutoBrightness(mDefaultDozeBrightness))));
         mDozeHost.setAodDimmingScrim(0f);
         mDozeHost.setAodWallpaperDimmingScrim(0f);
+    }
+
+    /** While RR's Nightstand is on, the always-on display stays under its brightness cap. */
+    private float clampToNightstand(float brightness) {
+        if (mSystemSettings.getIntForUser(NightstandController.KEY_ACTIVE, 0,
+                UserHandle.USER_CURRENT) != 1) {
+            return brightness;
+        }
+        int cap = mSystemSettings.getIntForUser(NightstandController.KEY_BRIGHTNESS, 40,
+                UserHandle.USER_CURRENT);
+        return Math.min(brightness, BrightnessSynchronizer.brightnessIntToFloat(
+                Math.max(1, Math.min(255, cap))));
     }
 
     private float clampToUserSetting(float brightness) {

@@ -21,6 +21,7 @@ import com.android.systemui.plugins.statusbar.StatusBarStateController
 import com.android.systemui.res.R
 import com.android.systemui.rr.stage.BatteryRingView
 import com.android.systemui.rr.stage.NextAlarmView
+import com.android.systemui.rr.nightstand.NightstandController
 import com.android.systemui.rr.stage.StageSpec
 import com.android.systemui.rr.stage.StageTile
 import com.android.systemui.rr.stage.TogglesView
@@ -53,6 +54,8 @@ constructor(
     private val guidelines = HashMap<String, Int>()
     private var observing = false
     private var dozing = false
+    /** Nightstand is on: the night stage, and every tile stays on the always-on display. */
+    private var night = false
 
     private val observer = object : ContentObserver(handler) {
         override fun onChange(selfChange: Boolean) {
@@ -70,14 +73,20 @@ constructor(
 
     override fun addViews(constraintLayout: ConstraintLayout) {
         if (!observing) {
-            context.contentResolver.registerContentObserver(
-                Settings.System.getUriFor(StageSpec.KEY), false, observer, UserHandle.USER_ALL)
+            for (key in arrayOf(StageSpec.KEY, NightstandController.KEY_STAGE,
+                    NightstandController.KEY_ACTIVE)) {
+                context.contentResolver.registerContentObserver(
+                    Settings.System.getUriFor(key), false, observer, UserHandle.USER_ALL)
+            }
             statusBarStateController.addCallback(stateListener)
             dozing = statusBarStateController.isDozing
             observing = true
         }
+        night = Settings.System.getIntForUser(context.contentResolver,
+            NightstandController.KEY_ACTIVE, 0, UserHandle.USER_CURRENT) == 1
         spec = StageSpec.parse(
-            Settings.System.getStringForUser(context.contentResolver, StageSpec.KEY,
+            Settings.System.getStringForUser(context.contentResolver,
+                if (night) NightstandController.KEY_STAGE else StageSpec.KEY,
                 UserHandle.USER_CURRENT))
         removeComplications(constraintLayout)
         val stage = spec ?: return
@@ -126,7 +135,7 @@ constructor(
         val stage = spec ?: return
         for ((id, view) in complications) {
             val tile = stage.tile(id) ?: continue
-            view.visibility = if (dozing && !tile.aod) View.GONE else View.VISIBLE
+            view.visibility = if (dozing && !tile.aod && !night) View.GONE else View.VISIBLE
             when (view) {
                 is BatteryRingView -> view.dozing = dozing
                 is NextAlarmView -> view.dozing = dozing

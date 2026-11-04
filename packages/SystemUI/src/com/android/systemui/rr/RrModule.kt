@@ -10,6 +10,7 @@ import com.android.systemui.rr.chargereport.ChargeReportController
 import com.android.systemui.rr.looks.LookRouletteController
 import com.android.systemui.rr.media.MediaSessionFeeder
 import com.android.systemui.rr.modes.RemixModesController
+import com.android.systemui.rr.nightstand.NightstandController
 import com.android.systemui.rr.nowbar.NowBarRepository
 import com.android.systemui.rr.pie.PieController
 import com.android.systemui.rr.quicklaunch.QuickLaunchController
@@ -60,4 +61,9 @@ abstract class RrModule {
     @IntoMap
     @ClassKey(LookRouletteController::class)
     abstract fun bindLookRoulette(impl: LookRouletteController): CoreStartable
+
+    @Binds
+    @IntoMap
+    @ClassKey(NightstandController::class)
+    abstract fun bindNightstand(impl: NightstandController): CoreStartable
 }
