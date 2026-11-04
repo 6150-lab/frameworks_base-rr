@@ -65,6 +65,12 @@
     <string name="now_bar_full_in">Full in <xliff:g id="duration" example="22 min">%1$s</xliff:g></string>
     <string name="now_bar_charged">Charged</string>
     <string name="now_bar_flashlight_on">Flashlight on</string>
+    <string name="now_bar_buds">Earbuds</string>
+    <!-- Earbud batteries: left, right and case [CHAR LIMIT=12] -->
+    <string name="now_bar_buds_left">L <xliff:g id="level" example="82">%1$d</xliff:g></string>
+    <string name="now_bar_buds_right">R <xliff:g id="level" example="79">%1$d</xliff:g></string>
+    <string name="now_bar_buds_case">Case <xliff:g id="level" example="61">%1$d</xliff:g></string>
+    <string name="now_bar_buds_level"><xliff:g id="level" example="82">%1$d</xliff:g>%%</string>
     <string name="now_bar_turn_off">Turn off</string>
     <string name="now_bar_play">Play</string>
     <string name="now_bar_pause">Pause</string>

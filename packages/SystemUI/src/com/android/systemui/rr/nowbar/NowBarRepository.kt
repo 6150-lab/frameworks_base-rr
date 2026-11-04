@@ -35,7 +35,10 @@ import com.android.systemui.plugins.ActivityStarter
 import com.android.systemui.res.R
 import com.android.systemui.rr.media.MediaArt
 import com.android.systemui.statusbar.NotificationListener
+import android.bluetooth.BluetoothDevice
+import com.android.settingslib.bluetooth.BluetoothUtils
 import com.android.systemui.statusbar.policy.BatteryController
+import com.android.systemui.statusbar.policy.BluetoothController
 import com.android.systemui.statusbar.policy.FlashlightController
 import java.io.PrintWriter
 import java.util.concurrent.Executor
@@ -54,6 +57,7 @@ constructor(
     private val notificationListener: NotificationListener,
     private val batteryController: BatteryController,
     private val flashlightController: FlashlightController,
+    private val bluetoothController: BluetoothController,
     @Background private val bgExecutor: Executor,
     val activityStarter: ActivityStarter,
 ) : CoreStartable, NotificationListener.NotificationHandler {
@@ -82,6 +86,7 @@ constructor(
     private var art: Bitmap? = null
     private var artColors: IntArray? = null
     private var chargingItem: NowBarItem? = null
+    private var budsItems: List<NowBarItem> = emptyList()
     private var flashlightItem: NowBarItem? = null
     private lateinit var sessionManager: MediaSessionManager
     private val scores = NowBarScores(context, handler) { publish() }
@@ -106,6 +111,11 @@ constructor(
             chargingItem = if (pluggedIn) chargingItem(level, charging) else null
             publish()
         }
+    }
+
+    private val bluetoothCallback = object : BluetoothController.Callback {
+        override fun onBluetoothStateChange(enabled: Boolean) = updateBuds()
+        override fun onBluetoothDevicesChanged() = updateBuds()
     }
 
     private val flashlightListener = object : FlashlightController.FlashlightListener {
@@ -146,6 +156,8 @@ constructor(
         updateSessions(activeSessions())
         batteryController.addCallback(batteryCallback)
         flashlightController.addCallback(flashlightListener)
+        bluetoothController.addCallback(bluetoothCallback)
+        updateBuds()
         scores.setSource(if (settings.enabled) settings.scores else NowBarScores.SOURCE_OFF)
     }
 
@@ -193,6 +205,7 @@ constructor(
         mediaItem?.let(all::add)
         chargingItem?.let(all::add)
         flashlightItem?.let(all::add)
+        all += budsItems
         all += scores.items
         hidden.retainAll(all.map { it.key }.toSet())
         val pinned = settings.pinned
@@ -450,6 +463,52 @@ constructor(
             text = text,
             progress = level / 100f,
         )
+    }
+
+    // Earbuds and watches
+
+    private fun updateBuds() {
+        handler.post {
+            val items = budsItems()
+            if (items.map { it.key to it.text } == budsItems.map { it.key to it.text }) return@post
+            budsItems = items
+            publish()
+        }
+    }
+
+    /** One item per connected device that reports a battery: left, right and case, or one level. */
+    private fun budsItems(): List<NowBarItem> {
+        val items = ArrayList<NowBarItem>()
+        for (device in bluetoothController.connectedDevices) {
+            if (!device.isConnected) continue
+            val bt = device.device ?: continue
+            val left = BluetoothUtils.getIntMetaData(bt, BluetoothDevice.METADATA_UNTETHERED_LEFT_BATTERY)
+            val right = BluetoothUtils.getIntMetaData(bt, BluetoothDevice.METADATA_UNTETHERED_RIGHT_BATTERY)
+            val case = BluetoothUtils.getIntMetaData(bt, BluetoothDevice.METADATA_UNTETHERED_CASE_BATTERY)
+            val main = device.batteryLevel
+            val levels = listOf(left, right, case, main).filter { it in 0..100 }
+            if (levels.isEmpty()) continue
+            val text = if (left in 0..100 || right in 0..100) {
+                listOfNotNull(
+                    left.takeIf { it in 0..100 }?.let { context.getString(R.string.now_bar_buds_left, it) },
+                    right.takeIf { it in 0..100 }?.let { context.getString(R.string.now_bar_buds_right, it) },
+                    case.takeIf { it in 0..100 }?.let { context.getString(R.string.now_bar_buds_case, it) },
+                ).joinToString(" · ")
+            } else {
+                context.getString(R.string.now_bar_buds_level, main)
+            }
+            items += NowBarItem(
+                key = "buds:${bt.address}",
+                type = NowBarType.BUDS,
+                packageName = null,
+                icon = context.getDrawable(R.drawable.ic_headset),
+                art = null,
+                title = device.name ?: context.getString(R.string.now_bar_buds),
+                text = text,
+                progress = levels.min() / 100f,
+            )
+        }
+        return items
     }
 
     private fun flashlightItem() = NowBarItem(

@@ -21,6 +21,8 @@ enum class NowBarType {
     LIVE,
     CHARGING,
     FLASHLIGHT,
+    /** Connected earbuds or a watch and their battery. */
+    BUDS,
 }
 
 /** A button on a Now Bar item: a notification action or one of ours. */

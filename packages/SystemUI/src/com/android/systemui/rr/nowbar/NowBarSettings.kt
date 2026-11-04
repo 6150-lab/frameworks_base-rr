@@ -63,6 +63,7 @@ class NowBarSettings(private val context: Context) {
         shown[NowBarType.RECORDING] = get(KEY_RECORDING, true)
         shown[NowBarType.CHARGING] = get(KEY_CHARGING, false)
         shown[NowBarType.FLASHLIGHT] = get(KEY_FLASHLIGHT, false)
+        shown[NowBarType.BUDS] = get(KEY_BUDS, true)
         val base = NowBarLook()
         look = NowBarLook(
             glass = int(KEY_MATERIAL, 0) == 1,
@@ -104,6 +105,7 @@ class NowBarSettings(private val context: Context) {
         const val KEY_RECORDING = "now_bar_recording"
         const val KEY_CHARGING = "now_bar_charging"
         const val KEY_FLASHLIGHT = "now_bar_flashlight"
+        const val KEY_BUDS = "now_bar_buds"
         const val KEY_WAVE = "now_bar_wave"
         const val KEY_AOD = "now_bar_aod"
         const val KEY_CHIP = "now_bar_chip"
@@ -127,7 +129,7 @@ class NowBarSettings(private val context: Context) {
         val KEYS = arrayOf(
             KEY_ENABLED, KEY_MUSIC, KEY_TIMERS, KEY_CALLS, KEY_HIDE_CALL, KEY_LIVE,
             KEY_RECORDING, KEY_CHARGING,
-            KEY_FLASHLIGHT, KEY_WAVE, KEY_AOD, KEY_CHIP, KEY_SCORES,
+            KEY_FLASHLIGHT, KEY_BUDS, KEY_WAVE, KEY_AOD, KEY_CHIP, KEY_SCORES,
             KEY_MATERIAL, KEY_COLOR, KEY_OPACITY, KEY_OUTLINE, KEY_SHADOW, KEY_MORE, KEY_HEIGHT,
             KEY_WIDTH, KEY_CORNERS, KEY_RAISE, KEY_ART, KEY_BUTTONS, KEY_TEXT, KEY_TEXT_SIZE,
             KEY_LIVE_APPS,
