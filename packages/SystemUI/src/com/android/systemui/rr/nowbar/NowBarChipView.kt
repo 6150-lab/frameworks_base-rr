@@ -84,6 +84,7 @@ class NowBarChipView @JvmOverloads constructor(
         item = top?.takeIf {
             repository?.settings?.chip == true && state == StatusBarState.SHADE &&
                 ((it.type == NowBarType.MUSIC && it.playing) || it.type == NowBarType.TIMER ||
+                    it.type == NowBarType.LIVE ||
                     (it.type == NowBarType.RECORDING && it.packageName != context.packageName))
         }
         val shown = item
@@ -111,7 +112,7 @@ class NowBarChipView @JvmOverloads constructor(
             chronometer.stop()
             chronometer.visibility = GONE
             label.visibility = VISIBLE
-            label.text = shown.title
+            label.text = shown.live?.shortText ?: shown.title
         }
         contentDescription = shown.title
     }

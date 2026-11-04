@@ -457,8 +457,11 @@ class NowBarView(
 
     private fun bind() {
         updateLook()
-        val item = items.getOrNull(index)
         val settings = repository.settings
+        // The always-on display holds the pinned Live Update, whatever was swiped to.
+        val item = (if (dozing) items.firstOrNull {
+            it.type == NowBarType.LIVE && it.packageName == settings.pinned
+        } else null) ?: items.getOrNull(index)
         if (item == null || (dozing && !settings.aod)) {
             visibility = GONE
             chronometer.stop()
@@ -667,7 +670,8 @@ class NowBarView(
                 }
                 else -> {
                     title.text = item.title
-                    subtitle.text = item.text
+                    subtitle.text = listOfNotNull(item.live?.shortText,
+                        item.text?.takeIf { it.isNotEmpty() }).joinToString(" · ")
                 }
             }
         }
@@ -693,7 +697,7 @@ class NowBarView(
             dp(INSET + shown.size * (art + 6f) + 6f).toInt()
         texts.requestLayout()
         progress.visibility = if (item.progress >= 0f && !dozing && !compact) VISIBLE else GONE
-        progress.set(item.progress, accent)
+        progress.set(item.progress, accent, item.live)
     }
 
     private fun bindScore(score: NowBarScore) {
@@ -746,11 +750,14 @@ class NowBarView(
         popup = PopupMenu(context, capsule).apply {
             menu.add(0, 1, 0, R.string.now_bar_hide)
             menu.add(0, 2, 1, R.string.now_bar_settings)
+            val pinnable = item.type == NowBarType.LIVE && item.packageName != null
+            val pinned = pinnable && repository.settings.pinned == item.packageName
+            if (pinnable) menu.add(0, 3, 2, if (pinned) R.string.now_bar_unpin else R.string.now_bar_pin)
             setOnMenuItemClickListener {
-                if (it.itemId == 1) {
-                    repository.hide(item.key)
-                } else {
-                    activityStarter.postStartActivityDismissingKeyguard(
+                when (it.itemId) {
+                    1 -> repository.hide(item.key)
+                    3 -> repository.pin(if (pinned) null else item.packageName)
+                    else -> activityStarter.postStartActivityDismissingKeyguard(
                         Intent(REMIXER_ACTION).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), 0
                     )
                 }
@@ -920,19 +927,52 @@ class NowBarView(
         private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
         private var fraction = 0f
         private var color = Color.WHITE
+        private var live: NowBarLive? = null
+        private val gap = context.resources.displayMetrics.density * 2f
 
-        fun set(fraction: Float, color: Int) {
+        fun set(fraction: Float, color: Int, live: NowBarLive? = null) {
             this.fraction = fraction.coerceIn(0f, 1f)
             this.color = color
+            this.live = live
             invalidate()
         }
 
         override fun onDraw(canvas: Canvas) {
-            val r = height / 2f
-            paint.color = 0x29FFFFFF
-            canvas.drawRoundRect(0f, 0f, width.toFloat(), height.toFloat(), r, r, paint)
-            paint.color = color
-            canvas.drawRoundRect(0f, 0f, width * fraction, height.toFloat(), r, r, paint)
+            val w = width.toFloat()
+            val h = height.toFloat()
+            val r = h / 2f
+            val live = live
+            if (live == null || live.segments.size <= 1) {
+                paint.color = 0x29FFFFFF
+                canvas.drawRoundRect(0f, 0f, w, h, r, r, paint)
+                paint.color = live?.segments?.firstOrNull()?.second?.takeIf { it != 0 } ?: color
+                canvas.drawRoundRect(0f, 0f, w * fraction, h, r, r, paint)
+                drawPoints(canvas, live, w, h)
+                return
+            }
+            // Android 16's segments: each its own pill, lit up to the progress.
+            val gaps = gap * (live.segments.size - 1)
+            val end = w * fraction
+            var x = 0f
+            for ((share, tint) in live.segments) {
+                val sw = (w - gaps) * share
+                val c = if (tint != 0) tint else color
+                paint.color = ColorUtils.setAlphaComponent(c, if (live.styledByProgress) 0x29 else 0x66)
+                canvas.drawRoundRect(x, 0f, x + sw, h, r, r, paint)
+                if (end > x) {
+                    paint.color = c
+                    canvas.drawRoundRect(x, 0f, min(end, x + sw), h, r, r, paint)
+                }
+                x += sw + gap
+            }
+            drawPoints(canvas, live, w, h)
+        }
+
+        private fun drawPoints(canvas: Canvas, live: NowBarLive?, w: Float, h: Float) {
+            for ((at, tint) in live?.points ?: return) {
+                paint.color = if (tint != 0) tint else Color.WHITE
+                canvas.drawCircle(w * at, h / 2f, h * 1.1f, paint)
+            }
         }
     }
 

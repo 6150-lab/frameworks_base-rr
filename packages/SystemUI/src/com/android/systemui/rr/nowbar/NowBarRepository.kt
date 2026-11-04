@@ -175,6 +175,12 @@ constructor(
         listeners -= listener
     }
 
+    /** Pins [packageName]'s Live Update first and on the always-on display; null unpins. */
+    fun pin(packageName: String?) {
+        Settings.System.putStringForUser(context.contentResolver, NowBarSettings.KEY_PIN,
+            packageName ?: "", UserHandle.USER_CURRENT)
+    }
+
     /** Hides [key] until it ends. */
     fun hide(key: String) {
         hidden += key
@@ -188,8 +194,11 @@ constructor(
         flashlightItem?.let(all::add)
         all += scores.items
         hidden.retainAll(all.map { it.key }.toSet())
+        val pinned = settings.pinned
+        // A pinned Live Update leads, so it is what the always-on display shows.
         items = all.filter { settings.shows(it.type) && it.key !in hidden }
-            .sortedBy { it.type.ordinal }
+            .sortedWith(compareBy({ !(it.type == NowBarType.LIVE && it.packageName == pinned) },
+                { it.type.ordinal }))
         val callKeys = if (settings.hidesLockscreenCalls()) {
             items.filter { it.type == NowBarType.CALL }.map { it.key }.toSet()
         } else {
@@ -330,7 +339,9 @@ constructor(
             chronometer && (n.category == Notification.CATEGORY_ALARM ||
                 sbn.packageName in CLOCK_PACKAGES) -> NowBarType.TIMER
             sbn.packageName in RECORDER_PACKAGES -> NowBarType.RECORDING
-            n.flags and Notification.FLAG_PROMOTED_ONGOING != 0 -> NowBarType.LIVE
+            (n.flags and Notification.FLAG_PROMOTED_ONGOING != 0 ||
+                n.isStyle(Notification.ProgressStyle::class.java)) &&
+                settings.showsLiveFrom(sbn.packageName) -> NowBarType.LIVE
             else -> null
         }
     }
@@ -351,10 +362,14 @@ constructor(
                 ?.let { title = it }
         }
         val label = title ?: appLabel(sbn.packageName) ?: return null
+        val live = if (type == NowBarType.LIVE) liveOf(n, packageContext) else null
         val max = extras.getInt(Notification.EXTRA_PROGRESS_MAX)
-        val progress = if (max > 0 && !extras.getBoolean(Notification.EXTRA_PROGRESS_INDETERMINATE)) {
-            extras.getInt(Notification.EXTRA_PROGRESS).toFloat() / max
-        } else -1f
+        val progress = when {
+            live != null -> live.progress
+            max > 0 && !extras.getBoolean(Notification.EXTRA_PROGRESS_INDETERMINATE) ->
+                extras.getInt(Notification.EXTRA_PROGRESS).toFloat() / max
+            else -> -1f
+        }
         val actions = n.actions.orEmpty()
             .filter { it.remoteInputs.isNullOrEmpty() && it.title != null }
             .take(MAX_ACTIONS)
@@ -376,6 +391,32 @@ constructor(
             color = n.color,
             actions = actions,
             contentIntent = n.contentIntent,
+            live = live,
+        )
+    }
+
+    /** Android 16's progress bar from a Live Update, or null when it has none. */
+    private fun liveOf(n: Notification, packageContext: Context): NowBarLive? {
+        val short = n.shortCriticalText
+        if (!n.isStyle(Notification.ProgressStyle::class.java)) {
+            return short?.let { NowBarLive(emptyList(), emptyList(), -1f, false, it) }
+        }
+        val style = try {
+            Notification.Builder.recoverBuilder(packageContext, n).style
+                as? Notification.ProgressStyle
+        } catch (e: RuntimeException) {
+            null
+        } ?: return null
+        val max = style.progressMax.coerceAtLeast(1).toFloat()
+        val segments = style.progressSegments
+        return NowBarLive(
+            segments = if (segments.isEmpty()) listOf(1f to 0)
+                else segments.map { it.length / max to it.color },
+            points = style.progressPoints.map { (it.position / max).coerceIn(0f, 1f) to it.color },
+            progress = if (style.isProgressIndeterminate) -1f
+                else (style.progress / max).coerceIn(0f, 1f),
+            styledByProgress = style.isStyledByProgress,
+            shortText = short,
         )
     }
 

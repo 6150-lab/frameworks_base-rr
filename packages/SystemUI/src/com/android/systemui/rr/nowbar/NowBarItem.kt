@@ -43,6 +43,20 @@ class NowBarScore(
     val status: CharSequence?,
 )
 
+/** A Live Update's progress bar: Android 16's segments and points, as fractions of the bar. */
+class NowBarLive(
+    /** Each segment's share of the bar and its color, 0 for the default. */
+    val segments: List<Pair<Float, Int>>,
+    /** Each point's position along the bar and its color, 0 for the default. */
+    val points: List<Pair<Float, Int>>,
+    /** 0 to 1, or -1 while indeterminate. */
+    val progress: Float,
+    /** Only the part behind the progress takes the segment colors. */
+    val styledByProgress: Boolean,
+    /** The notification's short critical text, like "4 min". */
+    val shortText: String?,
+)
+
 /** One activity in the Now Bar. */
 class NowBarItem(
     /** Stable across updates: the notification key, "media:<package>", "charging"... */
@@ -66,4 +80,5 @@ class NowBarItem(
     val contentIntent: PendingIntent? = null,
     val controller: MediaController? = null,
     val score: NowBarScore? = null,
+    val live: NowBarLive? = null,
 )

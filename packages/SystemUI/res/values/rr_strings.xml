@@ -72,6 +72,8 @@
     <string name="now_bar_next">Next</string>
     <string name="now_bar_hide">Hide until it ends</string>
     <string name="now_bar_settings">Now Bar settings</string>
+    <string name="now_bar_pin">Pin to always-on display</string>
+    <string name="now_bar_unpin">Unpin from always-on display</string>
     <string name="now_bar_open">Open</string>
     <string name="now_bar_output">Output</string>
     <string name="now_bar_close">Close</string>

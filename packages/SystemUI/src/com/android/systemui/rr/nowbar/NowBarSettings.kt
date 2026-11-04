@@ -29,6 +29,12 @@ class NowBarSettings(private val context: Context) {
         private set
     var look = NowBarLook()
         private set
+    /** Packages whose Live Updates show; empty means every app. */
+    var liveApps: Set<String> = emptySet()
+        private set
+    /** The package whose Live Update stays first and on the always-on display. */
+    var pinned: String? = null
+        private set
     private val shown = HashMap<NowBarType, Boolean>()
 
     init {
@@ -50,6 +56,10 @@ class NowBarSettings(private val context: Context) {
         val live = get(KEY_LIVE, true)
         shown[NowBarType.NAVIGATION] = live
         shown[NowBarType.LIVE] = live
+        liveApps = Settings.System.getStringForUser(context.contentResolver, KEY_LIVE_APPS,
+            UserHandle.USER_CURRENT)?.split(',')?.filter { it.isNotBlank() }?.toSet() ?: emptySet()
+        pinned = Settings.System.getStringForUser(context.contentResolver, KEY_PIN,
+            UserHandle.USER_CURRENT)?.takeIf { it.isNotBlank() }
         shown[NowBarType.RECORDING] = get(KEY_RECORDING, true)
         shown[NowBarType.CHARGING] = get(KEY_CHARGING, false)
         shown[NowBarType.FLASHLIGHT] = get(KEY_FLASHLIGHT, false)
@@ -76,6 +86,8 @@ class NowBarSettings(private val context: Context) {
         Settings.System.getIntForUser(context.contentResolver, key, def, UserHandle.USER_CURRENT)
 
     fun shows(type: NowBarType) = enabled && shown[type] == true
+
+    fun showsLiveFrom(packageName: String) = liveApps.isEmpty() || packageName in liveApps
 
     /** The lock screen call row steps aside while that call is in the Now Bar. */
     fun hidesLockscreenCalls() = shows(NowBarType.CALL) && hideCall
@@ -110,12 +122,16 @@ class NowBarSettings(private val context: Context) {
         const val KEY_BUTTONS = "now_bar_buttons"
         const val KEY_TEXT = "now_bar_text"
         const val KEY_TEXT_SIZE = "now_bar_text_size"
+        const val KEY_LIVE_APPS = "now_bar_live_apps"
+        const val KEY_PIN = "now_bar_pin"
         val KEYS = arrayOf(
             KEY_ENABLED, KEY_MUSIC, KEY_TIMERS, KEY_CALLS, KEY_HIDE_CALL, KEY_LIVE,
             KEY_RECORDING, KEY_CHARGING,
             KEY_FLASHLIGHT, KEY_WAVE, KEY_AOD, KEY_CHIP, KEY_SCORES,
             KEY_MATERIAL, KEY_COLOR, KEY_OPACITY, KEY_OUTLINE, KEY_SHADOW, KEY_MORE, KEY_HEIGHT,
             KEY_WIDTH, KEY_CORNERS, KEY_RAISE, KEY_ART, KEY_BUTTONS, KEY_TEXT, KEY_TEXT_SIZE,
+            KEY_LIVE_APPS,
+            KEY_PIN,
         )
 
         private fun get(context: Context, key: String, def: Boolean) =
