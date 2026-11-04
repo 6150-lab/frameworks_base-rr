@@ -164,24 +164,30 @@ object OwnGlassHeadsUpMorph {
         touched.remove(view)?.reset(view)
     }
 
-    /** The morph on a row's animation matrix and its content's transition alpha. */
+    /**
+     * The morph on a row's animation matrix and its content's transition alpha, from wherever the
+     * stack has the row: it can still be moving it, such as sliding one that times out up off the
+     * screen, and where a row is as its heads-up appears isn't always where it's drawn next.
+     */
     private class HeadsUpTarget : OwnGlassMorph.Target {
         private val matrix = Matrix()
+        private val location = IntArray(2)
+
+        override val followsView = true
 
         override fun prepare(view: View, shape: Rect) {
             view.animationMatrix = null
         }
 
         override fun apply(view: View, shape: Rect, full: RectF, now: RectF, alpha: Float) {
-            // Where the view's own top left is on the screen
-            val left = full.left - shape.left
-            val top = full.top - shape.top
+            // Where the view's own top left is on the screen now, its animation matrix aside
+            view.getLocationOnScreen(location)
             matrix.setTranslate(-shape.left.toFloat(), -shape.top.toFloat())
             matrix.postScale(
                 max(MIN_SIZE_PX, now.width()) / full.width(),
                 max(MIN_SIZE_PX, now.height()) / full.height(),
             )
-            matrix.postTranslate(now.left - left, now.top - top)
+            matrix.postTranslate(now.left - location[0], now.top - location[1])
             view.animationMatrix = matrix
             setContentAlpha(view, alpha)
         }

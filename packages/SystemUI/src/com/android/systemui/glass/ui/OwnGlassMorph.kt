@@ -81,6 +81,16 @@ constructor(
 
         /** There's nothing to grow out of: [view] just shows ([shown]) or goes. */
         fun jump(view: View, shown: Boolean)
+
+        /**
+         * Whether something else moves [view] while it morphs, such as a notification the stack
+         * places. Then every frame is set again just before it's drawn, from where the view is
+         * then, the drop staying where it is on the screen: the glass grows into where the view
+         * ends up, and shrinks from where it was as it set out; gone, it's held in the spot
+         * until the morph is cancelled. [apply] places it from where the view is itself.
+         */
+        val followsView: Boolean
+            get() = false
     }
 
     /**
@@ -142,6 +152,20 @@ constructor(
     // Both springs draw each frame; what goes with the panel only hears when it has moved
     private var lastProgress = Float.NaN
 
+    // For a target that follows the view: where the view is on the screen, the frame set again
+    // just before it's drawn while the morph runs, the window that does it, and whether [full]
+    // stays where it is now, shrinking
+    private val location = IntArray(2)
+    private val follower =
+        ViewTreeObserver.OnPreDrawListener {
+            if (isPrepared) {
+                applyFrame(isBeforeDraw = true)
+            }
+            true
+        }
+    private var followedTree: ViewTreeObserver? = null
+    private var isFullKept = false
+
     /** Whether the panel is still moving. */
     val isRunning: Boolean
         get() = alongSpring.isRunning || outSpring.isRunning
@@ -196,6 +220,7 @@ constructor(
         onEnd = null
         alongSpring.cancel()
         outSpring.cancel()
+        unfollow()
     }
 
     /** Also tells [listener] of every frame, as Android's own animations do for jank tracking. */
@@ -239,6 +264,12 @@ constructor(
             finish()
             return
         }
+        if (target.followsView) {
+            // Growing, the glass goes where the view is every frame; shrinking, it sets out from
+            // where the view is on the next one, and stays there
+            isFullKept = false
+            follow()
+        }
         OwnGlass.start(view.context)
         val style =
             if (OwnGlass.morphStyle == GlassSettings.MORPH_SMOOTH) {
@@ -278,7 +309,6 @@ constructor(
         val spot = origin.now()
         shape.set(glassNow)
         target.prepare(view, shape)
-        val location = IntArray(2)
         view.getLocationOnScreen(location)
         full.set(shape)
         full.offset(location[0].toFloat(), location[1].toFloat())
@@ -332,7 +362,17 @@ constructor(
         return true
     }
 
-    private fun applyFrame() {
+    /**
+     * Sets a frame from where the springs are; [isBeforeDraw], just before it's drawn, for a
+     * target that follows the view, from where the view is then.
+     */
+    private fun applyFrame(isBeforeDraw: Boolean = false) {
+        if (isBeforeDraw && !isFullKept) {
+            view.getLocationOnScreen(location)
+            full.set(shape)
+            full.offset(location[0].toFloat(), location[1].toFloat())
+            isFullKept = !isGrowing
+        }
         val a = along.value
         val o = out.value
         if (alongIsY) {
@@ -351,10 +391,16 @@ constructor(
             now.bottom = sideEnd
         }
         if (!isGrowing && (now.width() <= GONE_PX || now.height() <= GONE_PX)) {
-            // Gone: done, rather than waiting for the springs to settle past nothing
-            alongSpring.cancel()
-            outSpring.cancel()
-            finish()
+            if (target.followsView) {
+                // Held gone in the spot, wherever the view goes, until the morph is cancelled
+                target.apply(view, shape, full, now, 0f)
+            }
+            if (isRunning) {
+                // Gone: done, rather than waiting for the springs to settle past nothing
+                alongSpring.cancel()
+                outSpring.cancel()
+                finish()
+            }
             return
         }
         // The content shows once the drop has grown, and is the first to go
@@ -429,9 +475,33 @@ constructor(
     }
 
     private fun finish() {
+        // Gone, a view something else moves stays held in the spot until the morph is cancelled
+        if (isGrowing || !target.followsView) {
+            unfollow()
+        }
         val then = onEnd
         onEnd = null
         then?.run()
+    }
+
+    private fun follow() {
+        if (followedTree != null) {
+            return
+        }
+        val tree = view.viewTreeObserver
+        tree.addOnPreDrawListener(follower)
+        followedTree = tree
+    }
+
+    private fun unfollow() {
+        val tree = followedTree ?: return
+        followedTree = null
+        // The window it was added to, or the one the view is in now if that one has gone
+        if (tree.isAlive) {
+            tree.removeOnPreDrawListener(follower)
+        } else {
+            view.viewTreeObserver.removeOnPreDrawListener(follower)
+        }
     }
 
     private fun newSpring(holder: FloatValueHolder): SpringAnimation =
