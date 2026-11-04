@@ -171,6 +171,7 @@ object OwnGlassHeadsUpMorph {
     private class HeadsUpTarget : OwnGlassMorph.Target {
         private val matrix = Matrix()
         private val location = IntArray(2)
+        private val origin = FloatArray(2)
 
         override val followsView = true
 
@@ -179,14 +180,28 @@ object OwnGlassHeadsUpMorph {
         }
 
         override fun apply(view: View, shape: Rect, full: RectF, now: RectF, alpha: Float) {
-            // Where the view's own top left is on the screen now, its animation matrix aside
+            // The row's own matrix, such as its offset in the stack, is drawn before the
+            // animation matrix, which would scale that offset too: it's undone first, so the
+            // glass is scaled about its own top left and put where it is now
+            val own = view.matrix
+            if (!own.invert(matrix)) {
+                matrix.reset()
+            }
+            // Where the row's layout corner is on the screen: its own top left there now, its
+            // animation matrix aside, less where its own matrix puts that
             view.getLocationOnScreen(location)
-            matrix.setTranslate(-shape.left.toFloat(), -shape.top.toFloat())
+            origin[0] = 0f
+            origin[1] = 0f
+            own.mapPoints(origin)
+            matrix.postTranslate(-shape.left.toFloat(), -shape.top.toFloat())
             matrix.postScale(
                 max(MIN_SIZE_PX, now.width()) / full.width(),
                 max(MIN_SIZE_PX, now.height()) / full.height(),
             )
-            matrix.postTranslate(now.left - location[0], now.top - location[1])
+            matrix.postTranslate(
+                now.left - (location[0] - origin[0]),
+                now.top - (location[1] - origin[1]),
+            )
             view.animationMatrix = matrix
             setContentAlpha(view, alpha)
         }
