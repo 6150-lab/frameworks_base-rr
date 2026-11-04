@@ -292,6 +292,7 @@ public final class BatteryService extends SystemService {
      */
     private int mLastBroadcastInvalidCharger;
     private int mLastBroadcastOemFastChgType;
+    private int mOemFastChgType;
     /**
      * The last seen charging policy after translation from HAL. This requires the
      * {@link android.Manifest.permission#BATTERY_STATS} permission and should therefore not be
@@ -557,6 +558,7 @@ public final class BatteryService extends SystemService {
             // early boot while the oplus_chg driver stack is still initializing can
             // hang/crash with a charger attached, restarting the framework.
             mOemChargeInfoReady = true;
+            mHasOplusChg = new File(OPLUS_CHG_DIR).isDirectory();
             mLineageBatteryLights = new LineageBatteryLights(mContext,
                     new LineageBatteryLights.LedUpdater() {
                 public void update() {
@@ -843,7 +845,7 @@ public final class BatteryService extends SystemService {
         shutdownIfOverTempLocked();
 
         mOemCharger = mHasOemCharger && isOemCharger();
-        final int oemFastChgType = mOemChargeInfoReady ? oemFastChgType() : 0;
+        mOemFastChgType = mOemChargeInfoReady && mHasOplusChg ? oemFastChgType() : 0;
 
         translatedChargingPolicy = translateHalChargingPolicy(mHealthInfo.chargingPolicy);
 
@@ -869,7 +871,7 @@ public final class BatteryService extends SystemService {
                 || mHealthInfo.batteryFullChargeUah != mLastBroadcastBatteryFullCharge
                 || mHealthInfo.batteryFullChargeDesignCapacityUah !=
                         mLastBroadcastBatteryFullChargeDesign
-                || oemFastChgType != mLastBroadcastOemFastChgType)) {
+                || mOemFastChgType != mLastBroadcastOemFastChgType)) {
 
             if (mPlugType != mLastBroadcastPlugType) {
                 if (mLastBroadcastPlugType == BATTERY_PLUGGED_NONE) {
@@ -1057,7 +1059,7 @@ public final class BatteryService extends SystemService {
                 mLastBroadcastBatteryLevelCritical = mBatteryLevelCritical;
                 mLastBroadcastInvalidCharger = mInvalidCharger;
                 mLastOemCharger = mOemCharger;
-                mLastBroadcastOemFastChgType = oemFastChgType;
+                mLastBroadcastOemFastChgType = mOemFastChgType;
                 mLastBroadcastBatteryCycleCount = mHealthInfo.batteryCycleCount;
                 mLastBroadcastChargingState = mHealthInfo.chargingState;
                 mLastBroadcastBatteryCapacityLevel = mHealthInfo.batteryCapacityLevel;
@@ -1095,7 +1097,7 @@ public final class BatteryService extends SystemService {
         int oemRatedWatts = 0;
         if (mOemChargeInfoReady
                 && (mHealthInfo.chargerAcOnline || mHealthInfo.chargerUsbOnline)) {
-            if (readUsbSupplyInt(VOOC_ACTIVE_PATH) == 1) {
+            if (mHasOplusChg && readUsbSupplyInt(VOOC_ACTIVE_PATH) == 1) {
                 // During VOOC/SuperVOOC the usb/current_now node reads 0, but the battery
                 // current stays valid (mA, negative while charging). Oplus 2S packs
                 // (dodge / aston) are direct-charged (no conversion): Vbus (~9 V)
@@ -1129,8 +1131,7 @@ public final class BatteryService extends SystemService {
         intent.putExtra(BatteryManager.EXTRA_MAX_CHARGING_CURRENT, chargeCurrentUa);
         intent.putExtra(BatteryManager.EXTRA_MAX_CHARGING_VOLTAGE, chargeVoltageUv);
         intent.putExtra(BatteryManager.EXTRA_OEM_CHARGER_WATTS, oemRatedWatts);
-        intent.putExtra(BatteryManager.EXTRA_OEM_FAST_CHG_TYPE,
-                mOemChargeInfoReady ? oemFastChgType() : 0);
+        intent.putExtra(BatteryManager.EXTRA_OEM_FAST_CHG_TYPE, mOemFastChgType);
         intent.putExtra(BatteryManager.EXTRA_CHARGE_COUNTER, mHealthInfo.batteryChargeCounterUah);
         intent.putExtra(BatteryManager.EXTRA_CYCLE_COUNT, mHealthInfo.batteryCycleCount);
         intent.putExtra(BatteryManager.EXTRA_CHARGING_STATUS, mHealthInfo.chargingState);
@@ -1158,10 +1159,13 @@ public final class BatteryService extends SystemService {
     // nodes while the driver stack initializes (boot with charger attached) can
     // hang the broadcast path and watchdog-restart system_server.
     private volatile boolean mOemChargeInfoReady;
+    /** The oplus_chg sysfs tree is there, so the fast charge type and VOOC state are readable. */
+    private volatile boolean mHasOplusChg;
     private static final String USB_VOLTAGE_PATH = "/sys/class/power_supply/usb/voltage_now";
     private static final String USB_CURRENT_PATH = "/sys/class/power_supply/usb/current_now";
     // VOOC zeroes usb/current_now, so fall back to battery-side nodes when VOOC is active.
     private static final String VOOC_ACTIVE_PATH = "/sys/class/oplus_chg/battery/voocchg_ing";
+    private static final String OPLUS_CHG_DIR = "/sys/class/oplus_chg";
     private static final String FAST_CHG_TYPE_PATH = "/sys/class/oplus_chg/usb/fast_chg_type";
 
     /**
