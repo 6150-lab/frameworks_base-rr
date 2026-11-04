@@ -11,6 +11,7 @@ import android.graphics.RectF
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.MainThread
+import com.android.internal.graphics.drawable.BackgroundBlurDrawable
 import com.android.systemui.statusbar.notification.row.ExpandableView
 import com.android.systemui.statusbar.notification.row.NotificationBackgroundView
 import java.util.WeakHashMap
@@ -34,6 +35,10 @@ object OwnGlassHeadsUpMorph {
 
     // How big the drop is next to the hole: inside it, so it comes out of it
     private const val DROP_SCALE = 0.6f
+
+    // How big the bead of glass that melts into the card is next to the hole: as near as it can
+    // be to filling it, out of sight (Melt together)
+    private const val BEAD_SCALE = 0.9f
 
     // The smallest a side of the card is drawn, in pixels: a view is never scaled to 0
     private const val MIN_SIZE_PX = 1.5f
@@ -156,11 +161,43 @@ object OwnGlassHeadsUpMorph {
         OwnGlassMorph(
             view,
             // It drips down out of the hole, then spreads into the card
-            { OwnGlassMorphOrigin(OwnGlassMorphOrigin.TOP, drop.centerX(), drop, outLeads = true) },
+            {
+                OwnGlassMorphOrigin(
+                    OwnGlassMorphOrigin.TOP,
+                    drop.centerX(),
+                    drop,
+                    outLeads = true,
+                    bead = beadFor(drop),
+                )
+            },
             { Rect(0, 0, view.width, view.actualHeight) },
             null,
             target,
+            { glassOf(view) },
         )
+
+    /** The bead that stays in the camera hole around [drop], at the hole's middle. */
+    private fun beadFor(drop: RectF): RectF {
+        val half = drop.width() * BEAD_SCALE / DROP_SCALE / 2f
+        return RectF(
+            drop.centerX() - half,
+            drop.centerY() - half,
+            drop.centerX() + half,
+            drop.centerY() + half,
+        )
+    }
+
+    private fun glassOf(view: View): BackgroundBlurDrawable? {
+        if (view !is ViewGroup) {
+            return null
+        }
+        for (i in 0 until view.childCount) {
+            (view.getChildAt(i) as? NotificationBackgroundView)?.let {
+                return it.blurDrawable
+            }
+        }
+        return null
+    }
 
     private fun reset(view: View) {
         touched.remove(view)?.reset(view)

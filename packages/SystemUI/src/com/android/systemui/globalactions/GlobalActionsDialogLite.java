@@ -3630,7 +3630,9 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
             mMorph = new OwnGlassMorph(layout,
                     () -> OwnGlassMorphOrigin.powerKey(layout),
                     layout::getGlassBounds,
-                    progress -> window.setDimAmount(mInitialWindowDimAmount * progress));
+                    progress -> window.setDimAmount(mInitialWindowDimAmount * progress),
+                    new OwnGlassMorph.ViewTarget(),
+                    layout::getGlassDrawable);
             window.setDimAmount(0f);
             mMorph.grow(then);
             return true;

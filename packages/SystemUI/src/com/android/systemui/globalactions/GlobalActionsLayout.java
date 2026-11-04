@@ -263,6 +263,17 @@ public abstract class GlobalActionsLayout extends MultiListLayout {
         return bounds;
     }
 
+    /** The panel's Catalyxx glass, if it has any. For Catalyxx glass that melts into it. */
+    @Nullable
+    BackgroundBlurDrawable getGlassDrawable() {
+        final ViewGroup listView = getListView();
+        if (listView != null && listView.getBackground() instanceof LayerDrawable layers
+                && layers.getDrawable(0) instanceof BackgroundBlurDrawable glass) {
+            return glass;
+        }
+        return null;
+    }
+
     protected View getWrapper() {
         return getChildAt(0);
     }

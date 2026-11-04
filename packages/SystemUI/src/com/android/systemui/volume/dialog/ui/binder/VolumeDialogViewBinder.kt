@@ -19,6 +19,7 @@ package com.android.systemui.volume.dialog.ui.binder
 import android.app.Dialog
 import android.content.Context
 import android.graphics.Rect
+import android.graphics.drawable.LayerDrawable
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
@@ -35,6 +36,7 @@ import androidx.dynamicanimation.animation.SpringAnimation
 import androidx.dynamicanimation.animation.SpringForce
 import com.android.app.tracing.coroutines.launchInTraced
 import com.android.app.tracing.coroutines.launchTraced
+import com.android.internal.graphics.drawable.BackgroundBlurDrawable
 import com.android.internal.util.catalyxx.GlassSettings
 import com.android.systemui.Flags
 import com.android.systemui.common.ui.view.onApplyWindowInsets
@@ -228,6 +230,11 @@ constructor(
                     view.findViewById<View>(R.id.volume_dialog_background)?.let {
                         Rect(it.left, it.top, it.right, it.bottom)
                     } ?: Rect()
+                },
+                meltingGlass = {
+                    (view.findViewById<View>(R.id.volume_dialog_background)?.background
+                            as? LayerDrawable)
+                        ?.getDrawable(0) as? BackgroundBlurDrawable
                 },
             )
         var isMorphing = false

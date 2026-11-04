@@ -17,6 +17,7 @@ import androidx.dynamicanimation.animation.DynamicAnimation
 import androidx.dynamicanimation.animation.FloatValueHolder
 import androidx.dynamicanimation.animation.SpringAnimation
 import androidx.dynamicanimation.animation.SpringForce
+import com.android.internal.graphics.drawable.BackgroundBlurDrawable
 import com.android.internal.util.catalyxx.GlassSettings
 import com.android.systemui.res.R
 import kotlin.coroutines.resume
@@ -40,7 +41,8 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  *
  * [progress] hears how far out the panel is, from 0 to 1, every frame, for what goes with it,
  * such as the dim behind. [target] is how the morph shows on the view: by default on its own
- * scale, offset and alpha. Main thread only.
+ * scale, offset and alpha. With [meltingGlass], the panel's glass stays joined to the spot by a
+ * neck that stretches and snaps ([OwnGlassNeck]) while Melt together is on. Main thread only.
  */
 @MainThread
 class OwnGlassMorph
@@ -51,6 +53,7 @@ constructor(
     private val glass: Glass,
     private val progress: Progress? = null,
     private val target: Target = ViewTarget(),
+    meltingGlass: MeltingGlass? = null,
 ) {
 
     /** Where the panel grows out of, asked once it's laid out. */
@@ -61,6 +64,11 @@ constructor(
     /** The panel's main glass in the view's own pixels, unscaled; empty when it has none. */
     fun interface Glass {
         fun now(): Rect
+    }
+
+    /** The panel's glass drawable, to melt into; null when it has none. */
+    fun interface MeltingGlass {
+        fun now(): BackgroundBlurDrawable?
     }
 
     /** How far out the panel is: 0 is the drop, 1 its full size. */
@@ -166,6 +174,8 @@ constructor(
     private var followedTree: ViewTreeObserver? = null
     private var isFullKept = false
 
+    private val neck = meltingGlass?.let { OwnGlassNeck(view, it) }
+
     /** Whether the panel is still moving. */
     val isRunning: Boolean
         get() = alongSpring.isRunning || outSpring.isRunning
@@ -221,6 +231,7 @@ constructor(
         alongSpring.cancel()
         outSpring.cancel()
         unfollow()
+        neck?.remove()
     }
 
     /** Also tells [listener] of every frame, as Android's own animations do for jank tracking. */
@@ -279,7 +290,7 @@ constructor(
             }
         // A spring takes as much longer as one over the square root of its stiffness. Android's
         // animation speed comes on top, in the springs themselves.
-        val speed = SPEED[OwnGlass.morphSpeed.coerceIn(0, SPEED.size - 1)]
+        val speed = currentSpeed()
         val stiffnessScale = 1f / (speed * speed)
         // A drop that drips out of its spot moves out of it first, then along the edge
         val alongStiffness = if (outLeads) style.outStiffness else style.alongStiffness
@@ -316,9 +327,14 @@ constructor(
         edgeIsLow = spot.edge == OwnGlassMorphOrigin.LEFT || spot.edge == OwnGlassMorphOrigin.TOP
         outLeads = spot.outLeads
         val spotDrop = spot.drop
+        // Where a bead of glass can stay out of sight at the spot, to melt into the panel
+        var bead: RectF? = null
+        var beadRadius = 0f
         if (spotDrop != null) {
             // The spot's own drop, such as one inside the camera hole
             drop.set(spotDrop)
+            bead = spot.bead
+            beadRadius = bead?.let { min(it.width(), it.height()) / 2f } ?: 0f
         } else {
             // The drop lies against the edge with its middle at the spot; never bigger than the
             // panel
@@ -347,10 +363,29 @@ constructor(
             root.getLocationOnScreen(rootLocation)
             val windowLeft = rootLocation[0].toFloat()
             val windowTop = rootLocation[1].toFloat()
-            drop.offset(
-                fit(drop.left, drop.right, windowLeft, windowLeft + root.width),
-                fit(drop.top, drop.bottom, windowTop, windowTop + root.height),
-            )
+            val moveX = fit(drop.left, drop.right, windowLeft, windowLeft + root.width)
+            val moveY = fit(drop.top, drop.bottom, windowTop, windowTop + root.height)
+            drop.offset(moveX, moveY)
+            if (moveX == 0f && moveY == 0f) {
+                // Just past the screen's edge, as long as the drop. Out of the window's reach,
+                // there's no neck to show
+                val behind = BEAD_BEHIND_DP * density
+                bead =
+                    when (spot.edge) {
+                        OwnGlassMorphOrigin.LEFT ->
+                            RectF(screen.left - behind, drop.top, screen.left.toFloat(), drop.bottom)
+                        OwnGlassMorphOrigin.RIGHT ->
+                            RectF(screen.right.toFloat(), drop.top, screen.right + behind, drop.bottom)
+                        OwnGlassMorphOrigin.TOP ->
+                            RectF(drop.left, screen.top - behind, drop.right, screen.top.toFloat())
+                        else ->
+                            RectF(drop.left, screen.bottom.toFloat(), drop.right, screen.bottom + behind)
+                    }
+                beadRadius = BEAD_RADIUS_DP * density
+            }
+        }
+        if (bead != null) {
+            neck?.place(bead, beadRadius, currentSpeed())
         }
         // It sets out from the drop, or from its full size for shrinkFromFull()
         val startAt = if (startsFull) 1f else 0f
@@ -390,6 +425,7 @@ constructor(
             now.top = sideStart
             now.bottom = sideEnd
         }
+        neck?.onFrame(o, isGrowing)
         if (!isGrowing && (now.width() <= GONE_PX || now.height() <= GONE_PX)) {
             if (target.followsView) {
                 // Held gone in the spot, wherever the view goes, until the morph is cancelled
@@ -479,6 +515,10 @@ constructor(
         if (isGrowing || !target.followsView) {
             unfollow()
         }
+        // Grown, the neck lets go in its own time
+        if (!isGrowing) {
+            neck?.remove()
+        }
         val then = onEnd
         onEnd = null
         then?.run()
@@ -504,6 +544,8 @@ constructor(
         }
     }
 
+    private fun currentSpeed(): Float = SPEED[OwnGlass.morphSpeed.coerceIn(0, SPEED.size - 1)]
+
     private fun newSpring(holder: FloatValueHolder): SpringAnimation =
         SpringAnimation(holder).apply {
             spring = SpringForce()
@@ -528,6 +570,10 @@ constructor(
         // The drop the panel starts as and ends as, before it's gone
         const val DROP_OUT_DP = 8f
         const val DROP_ALONG_DP = 40f
+        // The bead of glass past the screen's edge that a neck melts out of ([OwnGlassNeck]): how
+        // far past the edge it reaches, and its corners
+        const val BEAD_BEHIND_DP = 40f
+        const val BEAD_RADIUS_DP = 12f
         // Going, the springs aim past where the drop is gone (-1), so they're still moving when it
         // is, and the panel is gone once a side is this many pixels long; a view is never scaled
         // to 0, which isn't safe
@@ -569,7 +615,8 @@ constructor(
  * the screen, is the drop the panel grows out of, such as one inside the camera hole, in place of
  * one against the edge; the edge still says which way is out of it. With [outLeads], the drop
  * drips: Liquid moves it out of the edge first, and along it second, the other way round from a
- * drop against the edge.
+ * drop against the edge. With a [drop], [bead], on the screen, is where a bead of glass stays out
+ * of sight to melt into the panel.
  */
 data class OwnGlassMorphOrigin
 @JvmOverloads
@@ -578,6 +625,7 @@ constructor(
     val along: Float?,
     val drop: RectF? = null,
     val outLeads: Boolean = false,
+    val bead: RectF? = null,
 ) {
 
     companion object {

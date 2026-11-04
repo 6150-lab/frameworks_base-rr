@@ -190,6 +190,12 @@ public class NotificationBackgroundView extends View implements Dumpable,
                 mCornerRadii, drawable.getAlpha());
     }
 
+    /** The blurred background, if it has one: for Catalyxx glass that melts into it. */
+    @Nullable
+    public BackgroundBlurDrawable getBlurDrawable() {
+        return mBackgroundBlurDrawable;
+    }
+
     /**
      * Draws the blurred background. SurfaceFlinger blurs the drawable's whole bounds whatever the
      * canvas clips, so they stop where the background is clipped; glass treats a clipped side as

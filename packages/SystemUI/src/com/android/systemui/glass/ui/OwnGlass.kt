@@ -212,6 +212,12 @@ object OwnGlass {
     val morphsHeadsUp: Boolean
         get() = settings.morphsHeadsUp()
 
+    /**
+     * How close glass starts to reach for other glass now (GlassSettings.MELT), in pixels for a
+     * display of [density]: 0 while glass doesn't melt.
+     */
+    fun meltSize(density: Float): Float = GlassSettings.meltSize(context.contentResolver, density)
+
     /** How panels morph: one of GlassSettings' `MORPH_LIQUID` and `MORPH_SMOOTH`. */
     val morphStyle: Int
         get() = settings.morphStyle
