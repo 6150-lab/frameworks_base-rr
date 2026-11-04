@@ -136,6 +136,8 @@ constructor(
     private var isGrowing = false
     // Whether the next prepare() puts the panel at its full size rather than at the drop
     private var startsFull = false
+    // Whether the spring out of the edge leads, from the spot: a drop that drips
+    private var outLeads = false
     private var onEnd: Runnable? = null
     // Both springs draw each frame; what goes with the panel only hears when it has moved
     private var lastProgress = Float.NaN
@@ -248,12 +250,15 @@ constructor(
         // animation speed comes on top, in the springs themselves.
         val speed = SPEED[OwnGlass.morphSpeed.coerceIn(0, SPEED.size - 1)]
         val stiffnessScale = 1f / (speed * speed)
+        // A drop that drips out of its spot moves out of it first, then along the edge
+        val alongStiffness = if (outLeads) style.outStiffness else style.alongStiffness
+        val alongDamping = if (outLeads) style.outDamping else style.alongDamping
+        val outStiffness = if (outLeads) style.alongStiffness else style.outStiffness
+        val outDamping = if (outLeads) style.alongDamping else style.outDamping
         alongSpring.spring
-            .setStiffness(style.alongStiffness * stiffnessScale)
-            .setDampingRatio(style.alongDamping)
-        outSpring.spring
-            .setStiffness(style.outStiffness * stiffnessScale)
-            .setDampingRatio(style.outDamping)
+            .setStiffness(alongStiffness * stiffnessScale)
+            .setDampingRatio(alongDamping)
+        outSpring.spring.setStiffness(outStiffness * stiffnessScale).setDampingRatio(outDamping)
         alongSpring.animateToFinalPosition(if (isGrowing) 1f else GONE_AIM)
         outSpring.animateToFinalPosition(if (isGrowing) 1f else GONE_AIM)
     }
@@ -279,6 +284,7 @@ constructor(
         full.offset(location[0].toFloat(), location[1].toFloat())
         alongIsY = spot.edge == OwnGlassMorphOrigin.LEFT || spot.edge == OwnGlassMorphOrigin.RIGHT
         edgeIsLow = spot.edge == OwnGlassMorphOrigin.LEFT || spot.edge == OwnGlassMorphOrigin.TOP
+        outLeads = spot.outLeads
         val spotDrop = spot.drop
         if (spotDrop != null) {
             // The spot's own drop, such as one inside the camera hole
@@ -491,11 +497,18 @@ constructor(
  * [BOTTOM] of the screen as it's turned now) and how far [along] it, in pixels: x on the top and
  * bottom edges, y on the sides. A null [along] stands for the panel's own middle. A [drop], on
  * the screen, is the drop the panel grows out of, such as one inside the camera hole, in place of
- * one against the edge; the edge still says which way is out of it.
+ * one against the edge; the edge still says which way is out of it. With [outLeads], the drop
+ * drips: Liquid moves it out of the edge first, and along it second, the other way round from a
+ * drop against the edge.
  */
 data class OwnGlassMorphOrigin
 @JvmOverloads
-constructor(val edge: Int, val along: Float?, val drop: RectF? = null) {
+constructor(
+    val edge: Int,
+    val along: Float?,
+    val drop: RectF? = null,
+    val outLeads: Boolean = false,
+) {
 
     companion object {
         const val LEFT = 0

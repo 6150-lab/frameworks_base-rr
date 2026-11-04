@@ -153,7 +153,8 @@ object OwnGlassHeadsUpMorph {
     private fun newMorph(view: ExpandableView, drop: RectF, target: HeadsUpTarget) =
         OwnGlassMorph(
             view,
-            { OwnGlassMorphOrigin(OwnGlassMorphOrigin.TOP, drop.centerX(), drop) },
+            // It drips down out of the hole, then spreads into the card
+            { OwnGlassMorphOrigin(OwnGlassMorphOrigin.TOP, drop.centerX(), drop, outLeads = true) },
             { Rect(0, 0, view.width, view.actualHeight) },
             null,
             target,
