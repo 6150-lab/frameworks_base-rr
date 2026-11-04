@@ -10,6 +10,7 @@ import android.app.smartspace.SmartspaceConfig
 import android.app.smartspace.SmartspaceManager
 import android.app.smartspace.SmartspaceSession
 import android.app.smartspace.SmartspaceTarget
+import android.app.smartspace.SmartspaceTargetEvent
 import android.app.smartspace.uitemplatedata.HeadToHeadTemplateData
 import android.content.Context
 import android.graphics.Bitmap
@@ -54,6 +55,9 @@ class NowBarScores(
                 it.addOnTargetsAvailableListener(
                     Executor { r -> handler.post(r) }, targetsListener)
                 it.requestSmartspaceUpdate()
+                // Intelligence only fills a surface it has been told is showing.
+                it.notifySmartspaceEvent(
+                    SmartspaceTargetEvent.Builder(SmartspaceTargetEvent.EVENT_UI_SURFACE_SHOWN).build())
             }
         } catch (e: Exception) {
             Log.w(TAG, "No Smartspace session", e)
@@ -63,6 +67,8 @@ class NowBarScores(
     private fun stop() {
         session?.let {
             try {
+                it.notifySmartspaceEvent(
+                    SmartspaceTargetEvent.Builder(SmartspaceTargetEvent.EVENT_UI_SURFACE_HIDDEN).build())
                 it.removeOnTargetsAvailableListener(targetsListener)
                 it.close()
             } catch (e: Exception) {
