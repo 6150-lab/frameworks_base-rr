@@ -18,6 +18,7 @@ package com.android.systemui.qs.tiles;
 
 import static android.net.ConnectivitySettingsManager.PRIVATE_DNS_MODE_OFF;
 import static android.net.ConnectivitySettingsManager.PRIVATE_DNS_MODE_OPPORTUNISTIC;
+import static android.net.ConnectivitySettingsManager.PRIVATE_DNS_MODE_PROVIDER_HOSTNAME;
 
 import android.content.Intent;
 import android.net.ConnectivitySettingsManager;
@@ -25,13 +26,13 @@ import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings;
 import android.service.quicksettings.Tile;
+import android.text.TextUtils;
 import android.widget.Switch;
 
 import androidx.annotation.Nullable;
 
 import com.android.internal.logging.MetricsLogger;
 import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
-import com.android.systemui.Prefs;
 import com.android.systemui.animation.Expandable;
 import com.android.systemui.res.R;
 import com.android.systemui.dagger.qualifiers.Background;
@@ -53,7 +54,6 @@ import javax.inject.Inject;
 public class DnsTile extends QSTileImpl<BooleanState> {
 
     public static final String TILE_SPEC = "dns";
-    private static final String KEY_PREV_MODE = "dns_tile_prev_mode";
 
     @Nullable
     private Icon mIcon = null;
@@ -112,16 +112,18 @@ public class DnsTile extends QSTileImpl<BooleanState> {
 
     @Override
     protected void handleClick(@Nullable Expandable expandable) {
-        // don't toggle if not needed, just refresh state instead
+        // Off, automatic, then the provider picked in Settings when there is one.
         final int mode = ConnectivitySettingsManager.getPrivateDnsMode(mContext);
-        final boolean stateEnabled = mState.value;
-        final boolean isEnabled = mode != PRIVATE_DNS_MODE_OFF;
-        if (stateEnabled && !isEnabled || !stateEnabled && isEnabled) {
-            refreshState();
-            return;
+        final int next;
+        if (mode == PRIVATE_DNS_MODE_OFF) {
+            next = PRIVATE_DNS_MODE_OPPORTUNISTIC;
+        } else if (mode == PRIVATE_DNS_MODE_OPPORTUNISTIC && !TextUtils.isEmpty(
+                ConnectivitySettingsManager.getPrivateDnsHostname(mContext))) {
+            next = PRIVATE_DNS_MODE_PROVIDER_HOSTNAME;
+        } else {
+            next = PRIVATE_DNS_MODE_OFF;
         }
-
-        setPrivateDnsEnabled(!stateEnabled);
+        ConnectivitySettingsManager.setPrivateDnsMode(mContext, next);
     }
 
     @Override
@@ -165,22 +167,5 @@ public class DnsTile extends QSTileImpl<BooleanState> {
         }
         // PRIVATE_DNS_MODE_PROVIDER_HOSTNAME
         return ConnectivitySettingsManager.getPrivateDnsHostname(mContext);
-    }
-
-    private void setPrivateDnsEnabled(boolean enabled) {
-        if (!enabled) {
-            // save current mode for returning
-            // double check it is not off!
-            final int mode = ConnectivitySettingsManager.getPrivateDnsMode(mContext);
-            if (mode == PRIVATE_DNS_MODE_OFF) return;
-            Prefs.putInt(mContext, KEY_PREV_MODE, mode);
-            ConnectivitySettingsManager.setPrivateDnsMode(mContext, PRIVATE_DNS_MODE_OFF);
-            return;
-        }
-        // return to the last state
-        int mode = Prefs.getInt(mContext, KEY_PREV_MODE, PRIVATE_DNS_MODE_OPPORTUNISTIC);
-        // never toggle off to off - use opportunistic
-        if (mode == PRIVATE_DNS_MODE_OFF) mode = PRIVATE_DNS_MODE_OPPORTUNISTIC;
-        ConnectivitySettingsManager.setPrivateDnsMode(mContext, mode);
     }
 }
