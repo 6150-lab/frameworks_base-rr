@@ -8,6 +8,7 @@ package android.util;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Process;
+import android.os.SystemClock;
 
 import dalvik.system.PathClassLoader;
 
@@ -33,6 +34,7 @@ public final class BoostFramework {
 
     private static volatile Handler sHandler;
     private static BoostFramework sInstance;
+    private static volatile long sBoostedUntil;
 
     private final Object mPerf;
     private Method mHint;
@@ -61,6 +63,12 @@ public final class BoostFramework {
     /** Touch, fling, and window animation boost. */
     public static void onInteraction(int durationMs) {
         final int duration = durationMs > 0 ? durationMs : DEFAULT_INTERACTION_MS;
+        // Touches poke every 100 ms; the running hint is renewed once half of it is left.
+        final long now = SystemClock.uptimeMillis();
+        if (sBoostedUntil - now > duration / 2) {
+            return;
+        }
+        sBoostedUntil = now + duration;
         post(() -> instance().hint(VENDOR_HINT_SCROLL_BOOST, duration, SCROLL_TYPE));
     }
 
