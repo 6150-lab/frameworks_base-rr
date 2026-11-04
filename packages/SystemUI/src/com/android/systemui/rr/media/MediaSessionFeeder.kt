@@ -7,7 +7,6 @@ package com.android.systemui.rr.media
 import android.app.WallpaperColors
 import android.content.Context
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.media.MediaMetadata
 import android.media.session.MediaController
@@ -31,7 +30,7 @@ class MediaSessionFeeder @Inject constructor(private val context: Context) : Cor
     private val handler = Handler(Looper.getMainLooper())
     private val colorExecutor = Executors.newSingleThreadExecutor()
     private val controllers = ArrayList<MediaController>()
-    private var lastArt: Bitmap? = null
+    private var lastArtKey: String? = null
     private lateinit var service: SessionService
 
     private val callback = object : MediaController.Callback() {
@@ -80,8 +79,10 @@ class MediaSessionFeeder @Inject constructor(private val context: Context) : Cor
         }
         val art = metadata.getBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART)
             ?: metadata.getBitmap(MediaMetadata.METADATA_KEY_ART)
-        if (art === lastArt) return
-        lastArt = art
+        // Every fetch brings a new Bitmap; the key tells the same cover from a new one.
+        val key = art?.let { MediaArt.key(controller.packageName, metadata, it) }
+        if (key == lastArtKey) return
+        lastArtKey = key
         manager.onAlbumArtChanged(art?.let { BitmapDrawable(context.resources, it) })
         if (art == null) return
         colorExecutor.execute {
@@ -90,7 +91,7 @@ class MediaSessionFeeder @Inject constructor(private val context: Context) : Cor
             } catch (e: RuntimeException) {
                 return@execute
             }
-            handler.post { if (lastArt === art) manager.onMediaColorsChanged(color) }
+            handler.post { if (lastArtKey == key) manager.onMediaColorsChanged(color) }
         }
     }
 }
