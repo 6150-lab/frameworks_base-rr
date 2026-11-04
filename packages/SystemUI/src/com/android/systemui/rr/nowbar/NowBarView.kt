@@ -887,8 +887,10 @@ class NowBarView(
             return
         }
         val out = if (target > index) -width.toFloat() else width.toFloat()
+        // Taken now: the list can change before the animation ends.
+        val next = items[target].key
         row.animate().translationX(out).alpha(0f).setDuration(140L).withEndAction {
-            currentKey = items[target].key
+            currentKey = next
             bind()
             row.translationX = -out
             row.animate().translationX(0f).alpha(1f).setDuration(180L).start()
