@@ -832,14 +832,19 @@ public abstract class AndroidKeyStoreKeyPairGeneratorSpi extends KeyPairGenerato
             String[] packages = null;
             final int requesterUid = Process.myUid();
             // Only attested, standard RSA/EC keys are eligible. Ordinary keys,
-            // StrongBox keys, internal hardware probes and oversized challenges must follow
-            // Keystore, so the app gets the same answer as without TrickyStore.
+            // StrongBox keys, Curve25519 keys (XDH/Ed25519 normalize to EC but a
+            // plain EC software keypair generator cannot express them),
+            // attest-key-rooted chains, internal hardware probes and oversized
+            // challenges must follow Keystore, so the app gets the same answer as
+            // without TrickyStore.
             final boolean eligible = mSpec.getAttestationChallenge() != null
                     && mSpec.getAttestationChallenge().length
                         <= MAX_ATTESTATION_CHALLENGE_SIZE_BYTES
                     && !mSpec.isStrongBoxBacked()
                     && (mKeymasterAlgorithm == KeymasterDefs.KM_ALGORITHM_EC
                         || mKeymasterAlgorithm == KeymasterDefs.KM_ALGORITHM_RSA)
+                    && mAttestKeyDescriptor == null
+                    && !isCurve25519(mEcCurveName)
                     && !"TrickyStoreTeeCheck".equals(mEntryAlias)
                     && !"trickystore_attestation_key".equals(mEntryAlias);
             if (eligible) {
@@ -1415,6 +1420,7 @@ public abstract class AndroidKeyStoreKeyPairGeneratorSpi extends KeyPairGenerato
                 case Tag.ATTESTATION_ID_MANUFACTURER:
                 case Tag.ATTESTATION_ID_MODEL:
                 case Tag.DEVICE_UNIQUE_ATTESTATION:
+                case Tag.INCLUDE_UNIQUE_ID:
                 case Tag.RESET_SINCE_ID_ROTATION:
                 case Tag.KEY_SIZE:
                 case Tag.EC_CURVE:
