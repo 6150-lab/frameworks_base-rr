@@ -57,7 +57,10 @@ object OwnGlassHeadsUpMorph {
         if (!OwnGlass.morphsHeadsUp || view.translation != 0f) {
             return null
         }
-        val cutout = view.rootWindowInsets?.displayCutout ?: return null
+        // The display's own cutout, in the screen's pixels. Not the window's, which comes with
+        // where the window is, and the shade's window has only just come back as a heads-up
+        // pops up: the hole came out over 100 px above where it is
+        val cutout = view.display?.cutout ?: return null
         val top = cutout.boundingRectTop
         if (top.isEmpty) {
             return null
@@ -68,10 +71,6 @@ object OwnGlassHeadsUpMorph {
         if (hole.isEmpty || !RectF(top).contains(hole.centerX(), hole.centerY())) {
             hole.set(top)
         }
-        // The cutout is in the window's pixels
-        val window = IntArray(2)
-        view.rootView.getLocationOnScreen(window)
-        hole.offset(window[0].toFloat(), window[1].toFloat())
         val half = min(hole.width(), hole.height()) * DROP_SCALE / 2f
         return RectF(
             hole.centerX() - half,

@@ -339,19 +339,19 @@ constructor(
                     else screen.bottom - outSize
                 drop.set(middle - alongSize / 2f, y, middle + alongSize / 2f, y + outSize)
             }
+            // The panel can only draw inside its window: where the window doesn't reach the
+            // spot, such as a narrow volume dialog with the keys across the screen, the drop
+            // starts at the window's nearest place to it. A spot's own drop is where it is
+            val root = view.rootView
+            val rootLocation = IntArray(2)
+            root.getLocationOnScreen(rootLocation)
+            val windowLeft = rootLocation[0].toFloat()
+            val windowTop = rootLocation[1].toFloat()
+            drop.offset(
+                fit(drop.left, drop.right, windowLeft, windowLeft + root.width),
+                fit(drop.top, drop.bottom, windowTop, windowTop + root.height),
+            )
         }
-        // The panel can only draw inside its window: where the window doesn't reach the spot,
-        // such as a narrow volume dialog with the keys across the screen, the drop starts at the
-        // window's nearest place to it
-        val root = view.rootView
-        val rootLocation = IntArray(2)
-        root.getLocationOnScreen(rootLocation)
-        val windowLeft = rootLocation[0].toFloat()
-        val windowTop = rootLocation[1].toFloat()
-        drop.offset(
-            fit(drop.left, drop.right, windowLeft, windowLeft + root.width),
-            fit(drop.top, drop.bottom, windowTop, windowTop + root.height),
-        )
         // It sets out from the drop, or from its full size for shrinkFromFull()
         val startAt = if (startsFull) 1f else 0f
         startsFull = false
