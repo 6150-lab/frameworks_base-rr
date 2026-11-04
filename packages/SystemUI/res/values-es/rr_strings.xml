@@ -65,4 +65,192 @@
     <string name="qs_custom_tile_icon">"Icono"</string>
     <string name="qs_custom_tile_width">"Ancho"</string>
     <string name="qs_custom_title">"Personalizar"</string>
+    <string name="rr_power_title">Encendido</string>
+    <string name="rr_power_status">Encendido hace %1$s · %2$s de batería</string>
+    <string name="rr_power_status_uptime">Encendido hace %1$s</string>
+    <string name="rr_power_back">Volver al menú de encendido</string>
+    <string name="rr_shutdown_back_soon">Resurrected Remix vuelve enseguida</string>
+    <string name="global_action_restart_subtitle">Elige cómo se reinicia el teléfono</string>
+    <string name="global_action_restart_system_summary">Reinicia Android. Mantén pulsado para el modo seguro</string>
+    <string name="global_action_restart_recovery_summary">Instala actualizaciones, sideload o borra datos</string>
+    <string name="global_action_restart_bootloader_summary">Fastboot, para flashear imágenes de arranque</string>
+    <string name="global_action_restart_fastboot_summary">Fastboot de espacio de usuario, para particiones del sistema</string>
+    <string name="global_action_restart_download_summary">Modo de descarga, para la herramienta de flasheo del fabricante</string>
+    <string name="volume_ringer_priority_only">Prioridad</string>
+    <string name="tristate_rotation_0">Vertical</string>
+    <string name="tristate_app_launch">Abriendo aplicación</string>
+    <string name="screen_on_time_label">Pantalla <xliff:g id="duration" example="5 hr 12 min">%1$s</xliff:g></string>
+    <string name="quick_launch_video">Vídeo</string>
+    <string name="quick_launch_qr">Escanear QR</string>
+    <string name="now_bar_charging">Cargando · <xliff:g id="level" example="74">%1$d</xliff:g>%%</string>
+    <string name="now_bar_full_in">Completa en <xliff:g id="duration" example="22 min">%1$s</xliff:g></string>
+    <string name="now_bar_charged">Cargado</string>
+    <string name="now_bar_flashlight_on">Linterna encendida</string>
+    <string name="now_bar_buds">Auriculares</string>
+    <string name="now_bar_buds_case">Estuche <xliff:g id="level" example="61">%1$d</xliff:g></string>
+    <string name="now_bar_play">Reproducir</string>
+    <string name="now_bar_pause">Pausar</string>
+    <string name="now_bar_previous">Anterior</string>
+    <string name="now_bar_next">Siguiente</string>
+    <string name="now_bar_hide">Ocultar hasta que termine</string>
+    <string name="now_bar_settings">Ajustes de Now Bar</string>
+    <string name="now_bar_pin">Fijar en la pantalla siempre activa</string>
+    <string name="stage_battery_description">Batería al <xliff:g id="percent" example="74">%1$d</xliff:g> por ciento</string>
+    <string name="stage_alarm_description">Próxima alarma <xliff:g id="time" example="Tue 6:30">%1$s</xliff:g></string>
+    <string name="flatline_playing">REPRODUCIENDO</string>
+    <string name="flatline_call">LLAMADA ENTRANTE</string>
+    <string name="flatline_vitals">Estado</string>
+    <string name="flatline_vitals_preview">74 % · Alarma 6:30</string>
+    <string name="flatline_alarm">Alarma <xliff:g id="time" example="6:30">%1$s</xliff:g></string>
+    <string name="now_bar_unpin">Quitar de la pantalla siempre activa</string>
+    <string name="now_bar_open">Abrir</string>
+    <string name="now_bar_output">Salida</string>
+    <string name="now_bar_close">Cerrar</string>
+    <string name="now_bar_minutes_left">Quedan <xliff:g id="minutes" example="4">%1$d</xliff:g> min</string>
+    <string name="now_bar_minutes"><xliff:g id="minutes" example="12">%1$d</xliff:g> min</string>
+    <string name="now_bar_versus"><xliff:g id="team" example="Lakers">%1$s</xliff:g> vs <xliff:g id="team" example="Celtics">%2$s</xliff:g></string>
+    <string name="charge_report_channel">Informes de carga</string>
+    <string name="charge_report_title">Informe de carga</string>
+    <string name="charge_report_summary">+<xliff:g id="added" example="62">%1$d</xliff:g>%% en <xliff:g id="time" example="31 min">%2$s</xliff:g> · pico <xliff:g id="watts" example="55.0">%3$s</xliff:g> W · máx. <xliff:g id="temp" example="38">%4$s</xliff:g> °C</string>
+    <string name="charge_report_details"><xliff:g id="charger" example="Wired">%1$s</xliff:g> · del <xliff:g id="from" example="12">%2$d</xliff:g>%% al <xliff:g id="to" example="74">%3$d</xliff:g>%% · media <xliff:g id="watts" example="41.3">%4$s</xliff:g> W</string>
+    <string name="charge_report_wired">Por cable</string>
+    <string name="charge_report_wireless">Inalámbrica</string>
+    <string name="charge_report_dock">Base</string>
+    <string name="usb_mode_picker_title">Seleccionar modo USB</string>
+    <string name="usb_mode_photo_transfer">Transferencia de fotos y vídeos</string>
+    <string name="usb_mode_webcam">Cámara web USB</string>
+    <string name="usb_mode_charging_only">Solo carga</string>
+    <string name="usb_charging_status">Carga por USB activada</string>
+    <string name="usb_island_title">USB conectado</string>
+    <string name="usb_island_settings">Ajustes de USB</string>
+    <string name="usb_mode_short_charge">Cargar</string>
+    <string name="keyguard_indication_dash_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Carga Dash (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> hasta completarse)</string>
+    <string name="keyguard_plugged_in_dash_charging"><xliff:g id="percentage">%s</xliff:g> • Carga Dash</string>
+    <string name="keyguard_indication_warp_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Carga Warp (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> hasta completarse)</string>
+    <string name="keyguard_plugged_in_warp_charging"><xliff:g id="percentage">%s</xliff:g> • Carga Warp</string>
+    <string name="keyguard_indication_vooc_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Carga VOOC (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> hasta completarse)</string>
+    <string name="keyguard_plugged_in_vooc_charging"><xliff:g id="percentage">%s</xliff:g> • Carga VOOC</string>
+    <string name="keyguard_indication_turbo_power_time"><xliff:g id="percentage">%2$s</xliff:g> • Carga Turbo (<xliff:g id="charging_time_left" example="4 hours and 2 minutes">%1$s</xliff:g> hasta completarse)</string>
+    <string name="keyguard_plugged_in_turbo_charging"><xliff:g id="percentage">%s</xliff:g> • Carga Turbo</string>
+    <string name="charging_vfx_long_press_to_speed">Mantén pulsado para aumentar la velocidad</string>
+    <string name="charging_vfx_source_wireless">Inalámbrica</string>
+    <string name="charging_vfx_source_dock">Base</string>
+    <string name="charging_vfx_time_to_full">Completa en <xliff:g id="time" example="25 min">%s</xliff:g></string>
+    <string name="qs_media_tile_idle">No se está reproduciendo nada</string>
+    <string name="qs_volume_tile_muted">Silenciado</string>
+    <string name="qs_custom_volume_half">Media</string>
+    <string name="qs_custom_volume_slider">Control deslizante</string>
+    <string name="qs_custom_volume_fill">Relleno</string>
+    <string name="qs_custom_volume_stack">Pila</string>
+    <string name="qs_custom_volume_ring">Tono de llamada</string>
+    <string name="qs_custom_volume_call">Llamada</string>
+    <string name="qs_custom_volume_show_all">Nombre y porcentaje</string>
+    <string name="qs_custom_volume_show_percent">Porcentaje</string>
+    <string name="qs_custom_volume_show_icon">Solo icono</string>
+    <string name="qs_custom_volume_tap">Toca el icono</string>
+    <string name="qs_custom_volume_mute">Silenciar</string>
+    <string name="qs_custom_volume_ticks">Vibración al arrastrar</string>
+    <string name="qs_custom_accent">Acento</string>
+    <string name="qs_custom_add_tile">Añadir un recuadro</string>
+    <string name="qs_custom_all_added">Todos los recuadros están en el panel</string>
+    <string name="qs_custom_all_icons">Todos iconos</string>
+    <string name="qs_custom_all_long">Todos largos</string>
+    <string name="qs_custom_backing">Fondo del icono</string>
+    <string name="qs_custom_blob">Mancha</string>
+    <string name="qs_custom_code_applied">Tema aplicado</string>
+    <string name="qs_custom_code_bad">No hay código de tema para pegar</string>
+    <string name="qs_custom_code_copied">Código de tema copiado</string>
+    <string name="qs_custom_color_amber">Ámbar</string>
+    <string name="qs_custom_color_rose">Rosa</string>
+    <string name="qs_custom_columns">Columnas</string>
+    <string name="qs_custom_copy_code">Copiar código</string>
+    <string name="qs_custom_corners">Esquinas</string>
+    <string name="qs_custom_depth">Profundidad</string>
+    <string name="qs_custom_depth_flat">Plano</string>
+    <string name="qs_custom_depth_raised">En relieve</string>
+    <string name="qs_custom_drop_remove">Suelta aquí para quitar</string>
+    <string name="qs_custom_fill_clear">Borrar</string>
+    <string name="qs_custom_fill_dark">Oscuro</string>
+    <string name="qs_custom_fill_gradient">Degradado</string>
+    <string name="qs_custom_fill_icon">Solo icono</string>
+    <string name="qs_custom_fill_solid">Sólido</string>
+    <string name="qs_custom_fill_surface">Superficie</string>
+    <string name="qs_custom_fill_tint">Tinte</string>
+    <string name="qs_custom_font_caps">Mayúsculas</string>
+    <string name="qs_custom_font_mono">Mono</string>
+    <string name="qs_custom_font_sans">Sans</string>
+    <string name="qs_custom_glow">Brillo al activarse</string>
+    <string name="qs_custom_hide">Ocultar</string>
+    <string name="qs_custom_hint">Toca un recuadro para ver sus opciones · Mantén pulsado para mover · Arrastra la esquina para cambiar el tamaño</string>
+    <string name="qs_custom_label">Etiqueta</string>
+    <string name="qs_custom_label_inside">Dentro</string>
+    <string name="qs_custom_label_under">Debajo</string>
+    <string name="qs_custom_look">Aspecto</string>
+    <string name="qs_custom_media_art">Carátula</string>
+    <string name="qs_custom_media_blocks">Bloques</string>
+    <string name="qs_custom_media_cover">Portada</string>
+    <string name="qs_custom_media_full">Completo</string>
+    <string name="qs_custom_media_glow">Brillo</string>
+    <string name="qs_custom_media_line">Línea</string>
+    <string name="qs_custom_media_look">Aspecto</string>
+    <string name="qs_custom_media_place">Ubicación</string>
+    <string name="qs_custom_media_place_above">Encima de los recuadros</string>
+    <string name="qs_custom_media_place_below">Debajo de los recuadros</string>
+    <string name="qs_custom_media_place_grid">Con los recuadros</string>
+    <string name="qs_custom_media_play">Solo reproducir</string>
+    <string name="qs_custom_media_tall">Alto</string>
+    <string name="qs_custom_media_trio">Anterior, reproducir, siguiente</string>
+    <string name="qs_custom_media_wave">Onda</string>
+    <string name="qs_custom_media_wide">Ancho</string>
+    <string name="qs_custom_mix_footer">Botones del pie</string>
+    <string name="qs_custom_mix_paint">Colores de los recuadros</string>
+    <string name="qs_custom_mix_slider">Control deslizante</string>
+    <string name="qs_custom_mixed">Mixto</string>
+    <string name="qs_custom_my_theme_name">Mi tema %1$d</string>
+    <string name="qs_custom_my_themes">Mis temas (mantén pulsado para eliminar)</string>
+    <string name="qs_custom_off_fill">Recuadros desactivados</string>
+    <string name="qs_custom_on_fill">Recuadros activados</string>
+    <string name="qs_custom_paste_code">Pegar código</string>
+    <string name="qs_custom_pill">Píldora</string>
+    <string name="qs_custom_reset">Restablecer este tema</string>
+    <string name="qs_custom_reset_tiles">Restablecer recuadros</string>
+    <string name="qs_custom_rows">Filas por página</string>
+    <string name="qs_custom_same_as_panel">Igual que el panel</string>
+    <string name="qs_custom_save">Guardar como mi tema</string>
+    <string name="qs_custom_scroll">Desplazar en vez de usar páginas</string>
+    <string name="qs_custom_second_line">Segunda línea</string>
+    <string name="qs_custom_show">Mostrar</string>
+    <string name="qs_custom_sizes">Tamaños de los recuadros</string>
+    <string name="qs_custom_slider_by_player">Junto al reproductor</string>
+    <string name="qs_custom_slider_look">Aspecto</string>
+    <string name="qs_custom_slider_place">Ubicación</string>
+    <string name="qs_custom_slider_top">Arriba</string>
+    <string name="qs_custom_slider_under">Bajo los recuadros</string>
+    <string name="qs_custom_spacing">Espaciado</string>
+    <string name="qs_custom_start_from">Empezar desde</string>
+    <string name="qs_custom_tab_add">Añadir</string>
+    <string name="qs_custom_tab_color">Color</string>
+    <string name="qs_custom_tab_mix">Mezcla</string>
+    <string name="qs_custom_tab_slider">Control deslizante</string>
+    <string name="qs_custom_tab_tiles">Recuadros</string>
+    <string name="qs_custom_theme_blueprint">Blueprint</string>
+    <string name="qs_custom_theme_cards">Tarjetas</string>
+    <string name="qs_custom_theme_circles">Círculos</string>
+    <string name="qs_custom_theme_classic">Clásico</string>
+    <string name="qs_custom_theme_compact">Compacto</string>
+    <string name="qs_custom_theme_duo">Duo</string>
+    <string name="qs_custom_theme_glass">Cristal</string>
+    <string name="qs_custom_theme_neon">Neón</string>
+    <string name="qs_custom_theme_remix">Remix</string>
+    <string name="qs_custom_theme_shapes">Formas</string>
+    <string name="qs_custom_theme_soft">Suave</string>
+    <string name="qs_custom_theme_stock">Original</string>
+    <string name="qs_custom_tile_color">Color al activarse</string>
+    <string name="qs_custom_tile_height">Altura</string>
+    <string name="qs_custom_tile_height_dp">Altura del recuadro</string>
+    <string name="qs_look_label">Aspecto</string>
+    <string name="qs_look_none">Toca para el siguiente aspecto</string>
+    <string name="quick_settings_clear_voice_label">Clear Voice</string>
+    <string name="accessibility_quick_settings_clear_voice_on">Clear Voice activado.</string>
+    <string name="accessibility_quick_settings_clear_voice_off">Clear Voice desactivado.</string>
 </resources>

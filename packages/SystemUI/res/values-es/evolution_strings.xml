@@ -2,4 +2,9 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="weather_condition_clouds">"Nublado"</string>
     <string name="weather_condition_wind">Vientos fuertes</string>
+    <string name="weather_condition_rain">Lluvioso</string>
+    <string name="weather_condition_clear">Cielo despejado</string>
+    <string name="weather_condition_storm">Tormentoso</string>
+    <string name="weather_condition_snow">Nevado</string>
+    <string name="weather_condition_mist">Neblina</string>
 </resources>
