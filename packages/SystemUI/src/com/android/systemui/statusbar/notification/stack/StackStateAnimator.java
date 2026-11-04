@@ -596,7 +596,7 @@ public class StackStateAnimator {
                 // Catalyxx glass's morph: a heads-up that drips out of the camera hole grows where
                 // it shows, instead of sliding down from above
                 final RectF drop = event.headsUpFromBottom || event.headsUpHasStatusBarChip
-                        ? null : OwnGlassHeadsUpMorph.dropFor(changingView);
+                        ? null : OwnGlassHeadsUpMorph.dropFor(changingView, mHostLayout);
                 if (drop == null) {
                     mTmpState.setYTranslation(getHeadsUpYTranslationStart(
                                     event.headsUpFromBottom, event.headsUpHasStatusBarChip),
@@ -720,7 +720,7 @@ public class StackStateAnimator {
                 // where it is while it does, instead of sliding up. Not one that was tapped
                 final RectF drop = event.animationType == ANIMATION_TYPE_HEADS_UP_DISAPPEAR
                         && !event.headsUpFromBottom && !event.headsUpHasStatusBarChip
-                        ? OwnGlassHeadsUpMorph.dropFor(changingView) : null;
+                        ? OwnGlassHeadsUpMorph.dropFor(changingView, mHostLayout) : null;
                 if (changingView.getParent() == null) {
                     // This notification was actually removed, so we need to add it
                     // transiently

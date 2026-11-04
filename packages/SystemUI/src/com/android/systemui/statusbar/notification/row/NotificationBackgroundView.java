@@ -222,8 +222,18 @@ public class NotificationBackgroundView extends View implements Dumpable,
                     joinedSides |= BackgroundBlurDrawable.GLASS_SIDE_BOTTOM;
                 }
             }
+            // Appearing and going, the notification is clipped to a shrinking, rounded outline
+            // that takes the background away with it: the glass goes with it too, or it stays on
+            // the screen, blank, after the notification's content has gone
+            if (getParent() instanceof ExpandableOutlineView row && row.hasCustomOutline()) {
+                final Rect outline = row.getOutlineRect();
+                left = Math.max(left, outline.left - getLeft());
+                top = Math.max(top, outline.top - getTop());
+                right = Math.min(right, outline.right - getLeft());
+                bottom = Math.min(bottom, outline.bottom - getTop());
+            }
         }
-        if (bottom <= top) {
+        if (bottom <= top || right <= left) {
             return;
         }
         final float topRadius =
@@ -289,6 +299,17 @@ public class NotificationBackgroundView extends View implements Dumpable,
             view = parent instanceof View ? (View) parent : null;
         }
         mBackgroundBlurDrawable.setAlpha(Math.round(alpha * 255));
+    }
+
+    /**
+     * The notification's appear or disappear outline has moved, or gone: the blurred background,
+     * which follows it, is drawn again. The notification redrawing itself doesn't draw this view
+     * again.
+     */
+    public void onRowOutlineChanged() {
+        if (mBackgroundBlurDrawable != null) {
+            invalidate();
+        }
     }
 
     /** Follows the alpha before each frame while there's a blurred background on screen. */

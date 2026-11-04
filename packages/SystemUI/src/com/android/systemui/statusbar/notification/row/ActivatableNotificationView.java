@@ -699,7 +699,11 @@ public abstract class ActivatableNotificationView extends ExpandableOutlineView 
         mAppearAnimationTranslation = (1.0f - interpolatedFraction) * mAnimationTranslationY;
         final float animatingHeight = fullHeight * interpolatedFraction;
 
-        if (mTargetPoint != null) {
+        if (OwnGlassHeadsUpMorph.isMorphing(this)) {
+            // Catalyxx glass's morph out of the camera hole shapes the notification itself, in
+            // place of this clip
+            setOutlineRect(0, 0, fullWidth, fullHeight);
+        } else if (mTargetPoint != null) {
             int width = getWidth();
             float fraction = 1 - mAppearAnimationFraction;
             setOutlineRect(
@@ -724,6 +728,10 @@ public abstract class ActivatableNotificationView extends ExpandableOutlineView 
                         /* bottom= */ animatingHeight
                 );
             }
+        }
+        // Catalyxx glass: the blurred background follows the outline
+        if (mBackgroundNormal != null) {
+            mBackgroundNormal.onRowOutlineChanged();
         }
     }
 
@@ -862,6 +870,9 @@ public abstract class ActivatableNotificationView extends ExpandableOutlineView 
                 setContentAlpha(1.0f);
                 mAppearAnimationFraction = -1;
                 setOutlineRect(null);
+                if (mBackgroundNormal != null) {
+                    mBackgroundNormal.onRowOutlineChanged();
+                }
             }
             invalidate();
         }

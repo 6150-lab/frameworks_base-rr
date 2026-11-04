@@ -49,18 +49,17 @@ object OwnGlassHeadsUpMorph {
     /**
      * The drop heads-up [view] drips out of now, on the screen: inside the camera hole at the top
      * of the screen. Null where the morph is off, there's no hole at the top, or someone is
-     * sliding the notification aside.
+     * sliding the notification aside. [host], the notification stack, is on the screen when the
+     * view is not: a notification that's just been removed, whose heads-up goes.
      */
     @JvmStatic
-    fun dropFor(view: ExpandableView): RectF? {
+    fun dropFor(view: ExpandableView, host: View): RectF? {
         OwnGlass.start(view.context)
         if (!OwnGlass.morphsHeadsUp || view.translation != 0f) {
             return null
         }
-        // The display's own cutout, in the screen's pixels. Not the window's, which comes with
-        // where the window is, and the shade's window has only just come back as a heads-up
-        // pops up: the hole came out over 100 px above where it is
-        val cutout = view.display?.cutout ?: return null
+        // The display's own cutout, in the screen's pixels
+        val cutout = (view.display ?: host.display)?.cutout ?: return null
         val top = cutout.boundingRectTop
         if (top.isEmpty) {
             return null
@@ -130,6 +129,10 @@ object OwnGlassHeadsUpMorph {
         touched[view] = target
         morph.shrinkFromFull()
     }
+
+    /** Whether a morph is shaping [view] now, or keeping it gone until Android's animation ends. */
+    @JvmStatic
+    fun isMorphing(view: View): Boolean = morphs.containsKey(view)
 
     /** Puts [view] back as it was, unmorphed, stopping any morph on it. */
     @JvmStatic
