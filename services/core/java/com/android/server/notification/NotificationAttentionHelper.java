@@ -556,9 +556,9 @@ public final class NotificationAttentionHelper {
                     vibration = mVibratorHelper.createFallbackVibration(insistent);
                 }
                 if (vibration != null) {
-                    // Haptic Remix: the pattern the user gave this app, if any.
-                    final VibrationEffect remix = RemixHaptics.effect(mContext,
-                            RemixHaptics.PREFIX_APP + record.getSbn().getPackageName(),
+                    // Haptic Remix: the pattern the user gave the sender or this app, if any.
+                    final VibrationEffect remix = RemixHaptics.forNotification(mContext,
+                            record.getSbn().getPackageName(), record.getNotification(),
                             (record.getFlags() & Notification.FLAG_INSISTENT) != 0);
                     if (remix != null) vibration = remix;
                 }
