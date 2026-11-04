@@ -24,7 +24,9 @@ object OwnGlassNotificationMorph {
     private const val LIQUID_CLOSE_STIFFNESS = 400f
     private const val LIQUID_CLOSE_DAMPING = 0.78f
     private const val SMOOTH_STIFFNESS = 380f
-    private const val SMOOTH_DAMPING = 1f
+    // Just under 1, which overshoots by a hair's breadth only: PhysicsPropertyAnimator takes a
+    // spring at exactly 1 for one whose bounce it has already taken out, and skips it to the end
+    private const val SMOOTH_DAMPING = 0.99f
 
     // How much longer the morph takes at GlassSettings.MORPH_SLOW, _NORMAL and _FAST
     private val SPEED = floatArrayOf(1.5f, 1f, 0.7f)
