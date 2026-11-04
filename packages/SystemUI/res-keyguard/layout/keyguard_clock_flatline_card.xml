@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: The Resurrected Remix Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<!-- Flatline Vitals: a frosted monitor card with a readout row, the time, the date and the line on a grid. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/clock_frame"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+    <LinearLayout
+        android:id="@+id/flatline_card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="4dp"
+        android:background="@drawable/rr_flatline_card"
+        android:orientation="vertical"
+        android:paddingHorizontal="18dp"
+        android:paddingTop="14dp"
+        android:paddingBottom="12dp">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:alpha="0.7"
+                android:fontFamily="monospace"
+                android:letterSpacing="0.12"
+                android:singleLine="true"
+                android:text="@string/flatline_vitals"
+                android:textAllCaps="true"
+                android:textColor="@android:color/white"
+                android:textSize="11dp" />
+            <com.android.systemui.clocks.FlatlineVitalsView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:alpha="0.7"
+                android:fontFamily="monospace"
+                android:gravity="end"
+                android:letterSpacing="0.12"
+                android:singleLine="true"
+                android:textColor="@android:color/white"
+                android:textSize="11dp" />
+        </LinearLayout>
+        <TextClock
+            android:id="@+id/time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:format12Hour="h:mm"
+            android:format24Hour="HH:mm"
+            android:fontFamily="sans-serif-light"
+            android:gravity="start"
+            android:includeFontPadding="false"
+            android:letterSpacing="-0.04"
+            android:singleLine="true"
+            android:textColor="@android:color/white"
+            android:textSize="70dp" />
+        <TextClock
+            android:id="@+id/date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:alpha="0.8"
+            android:format12Hour="EEE, MMM d"
+            android:format24Hour="EEE, MMM d"
+            android:fontFamily="@*android:string/config_clockFontFamily"
+            android:gravity="start"
+            android:includeFontPadding="false"
+            android:singleLine="true"
+            android:textColor="@android:color/white"
+            android:textSize="15dp" />
+        <com.android.systemui.clocks.FlatlineClockView
+            android:id="@+id/flatline"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:layout_marginTop="8dp"
+            app:flatlineGrid="true"
+            app:flatlineReadout="false" />
+    </LinearLayout>
+</LinearLayout>

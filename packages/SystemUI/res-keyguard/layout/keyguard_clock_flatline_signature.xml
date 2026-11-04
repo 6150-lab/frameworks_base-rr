@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: The Resurrected Remix Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<!-- Flatline Signature: the time on the left, the line running from its last digit off the right edge. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/clock_frame"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingStart="10dp">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+        <TextClock
+            android:id="@+id/time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:format12Hour="h:mm"
+            android:format24Hour="HH:mm"
+            android:fontFamily="sans-serif-light"
+            android:gravity="start"
+            android:includeFontPadding="false"
+            android:letterSpacing="-0.04"
+            android:singleLine="true"
+            android:textColor="@android:color/white"
+            android:textSize="66dp" />
+        <com.android.systemui.clocks.FlatlineClockView
+            android:id="@+id/flatline"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="2dp"
+            android:layout_weight="1"
+            app:flatlineReadout="false" />
+    </LinearLayout>
+    <TextClock
+        android:id="@+id/date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:alpha="0.8"
+        android:format12Hour="EEEE, MMMM d"
+        android:format24Hour="EEEE, MMMM d"
+        android:fontFamily="@*android:string/config_clockFontFamily"
+        android:gravity="start"
+        android:includeFontPadding="false"
+        android:singleLine="true"
+        android:textColor="@android:color/white"
+        android:textSize="15dp" />
+</LinearLayout>

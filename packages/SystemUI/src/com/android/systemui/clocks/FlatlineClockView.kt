@@ -47,6 +47,9 @@ class FlatlineClockView @JvmOverloads constructor(
         letterSpacing = 0.12f
     }
     private val path = Path()
+    /** A faint monitor grid behind the line, and whether the readout line is drawn. */
+    private val grid: Boolean
+    private val showReadout: Boolean
     private var color = Color.WHITE
     private var dozing = false
     private var playing = false
@@ -55,6 +58,13 @@ class FlatlineClockView @JvmOverloads constructor(
     /** Uptime when the last notification spike began, 0 for none. */
     private var spikeAt = 0L
     private var nextScan = 0L
+
+    init {
+        val a = context.obtainStyledAttributes(attrs, R.styleable.FlatlineClockView)
+        grid = a.getBoolean(R.styleable.FlatlineClockView_flatlineGrid, false)
+        showReadout = a.getBoolean(R.styleable.FlatlineClockView_flatlineReadout, true)
+        a.recycle()
+    }
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
@@ -109,6 +119,18 @@ class FlatlineClockView @JvmOverloads constructor(
         val scanning = live && !playing && !calling && !spike && now >= nextScan &&
             now < nextScan + SCAN_MS
         val beating = preview || playing || calling
+
+        if (grid && !dozing) {
+            trace.strokeWidth = 1f
+            trace.color = ColorUtils.setAlphaComponent(color, 0x16)
+            val step = 24f * density
+            var gx = step
+            while (gx < w) {
+                canvas.drawLine(gx, 0f, gx, h, trace)
+                gx += step
+            }
+            for (f in GRID_ROWS) canvas.drawLine(0f, h * f, w, h * f, trace)
+        }
 
         // The resting line.
         trace.strokeWidth = 1.2f * density
@@ -180,7 +202,20 @@ class FlatlineClockView @JvmOverloads constructor(
             canvas.drawCircle(headX, headY, 2.4f * density, fill)
         }
 
-        // The readout line under the trace.
+        if (showReadout) drawReadout(canvas, w, h, preview)
+
+        // Next frame: smooth while something moves, else sleep until the next scan.
+        when {
+            beating || spike || scanning -> postInvalidateDelayed(FRAME_MS)
+            live -> {
+                if (now >= nextScan + SCAN_MS) nextScan = now + SCAN_EVERY
+                postInvalidateDelayed(max(16L, nextScan - now))
+            }
+        }
+    }
+
+    /** The readout line under the trace: what the line is doing, and the song or caller. */
+    private fun drawReadout(canvas: Canvas, w: Float, h: Float, preview: Boolean) {
         text.color = ColorUtils.setAlphaComponent(color, 0x99)
         val ty = h - 3f * density
         text.textAlign = Paint.Align.LEFT
@@ -197,15 +232,6 @@ class FlatlineClockView @JvmOverloads constructor(
             val fitted = android.text.TextUtils.ellipsize(right.uppercase(), android.text.TextPaint(text),
                 w * 0.55f, android.text.TextUtils.TruncateAt.END)
             canvas.drawText(fitted.toString(), w - 2f * density, ty, text)
-        }
-
-        // Next frame: smooth while something moves, else sleep until the next scan.
-        when {
-            beating || spike || scanning -> postInvalidateDelayed(FRAME_MS)
-            live -> {
-                if (now >= nextScan + SCAN_MS) nextScan = now + SCAN_EVERY
-                postInvalidateDelayed(max(16L, nextScan - now))
-            }
         }
     }
 
@@ -236,6 +262,7 @@ class FlatlineClockView @JvmOverloads constructor(
         private const val SCAN_MS = 1400L
         private const val SCAN_EVERY = 5000L
         private val GLOW = listOf(9f to 0x1E, 4f to 0x50, 1.8f to 0xFF)
+        private val GRID_ROWS = floatArrayOf(0.25f, 0.5f, 0.75f)
         private val attached: MutableSet<FlatlineClockView> =
             Collections.newSetFromMap(WeakHashMap())
 
