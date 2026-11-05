@@ -314,8 +314,9 @@ public final class GlassSettings {
     /**
      * Catalyxx Launcher's dock, the row of favorites under the home screen: it sits on glass
      * shaped as {@link #DOCK_SHAPE} says. It keeps a fixed light, as it shows whenever the home
-     * screen does. Launcher3's InvariantDeviceProfile reads this key, {@link #ENABLED} and
-     * {@link #DOCK_SHAPE} by name, to make room for the glass.
+     * screen does. Off by default, unlike the other places: it adds the most work to each frame of
+     * a moving home screen. Launcher3's InvariantDeviceProfile reads this key, {@link #ENABLED},
+     * {@link #DOCK_SHAPE} and {@link #PLACE_NAVBAR} by name, to make room for the glass.
      */
     public static final String PLACE_DOCK = "catalyxx_glass_dock";
 
@@ -539,7 +540,8 @@ public final class GlassSettings {
 
     /** Whether glass is on for {@code place}, one of the {@code PLACE_} keys. */
     public static boolean isOn(ContentResolver resolver, String place) {
-        return isEnabled(resolver) && Settings.Global.getInt(resolver, place, 1) == 1;
+        return isEnabled(resolver)
+                && Settings.Global.getInt(resolver, place, PLACE_DOCK.equals(place) ? 0 : 1) == 1;
     }
 
     /**
