@@ -513,9 +513,8 @@ public class EdgeBackGestureHandler {
         mDisplayBackGestureHandlerFactory = displayBackGestureHandlerFactory;
         mDesktopState = desktopState;
 
-        int defaultLauncher = SystemProperties.getInt("persist.sys.default_launcher", 0);
-        String[] launcherComponents = context.getResources().getStringArray(com.android.internal.R.array.config_launcherComponents);
-        ComponentName recentsComponentName = ComponentName.unflattenFromString(launcherComponents[defaultLauncher]);
+        ComponentName recentsComponentName = ComponentName.unflattenFromString(
+                com.android.internal.util.rr.Utils.getRecentsComponent(context.getResources()));
         if (recentsComponentName != null) {
             String recentsPackageName = recentsComponentName.getPackageName();
             PackageManager manager = context.getPackageManager();

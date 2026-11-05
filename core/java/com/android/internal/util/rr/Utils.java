@@ -130,6 +130,14 @@ public class Utils {
         return needsNav;
     }
 
+    /** The recents component of the launcher QuickSwitch selected, the first one by default. */
+    public static String getRecentsComponent(android.content.res.Resources res) {
+        String[] components =
+                res.getStringArray(com.android.internal.R.array.config_launcherComponents);
+        int selected = SystemProperties.getInt("persist.sys.default_launcher", 0);
+        return components[selected >= 0 && selected < components.length ? selected : 0];
+    }
+
     public static void restartSystemUI() {
         final IStatusBarService mBarService = IStatusBarService.Stub.asInterface(
                 ServiceManager.getService(Context.STATUS_BAR_SERVICE));

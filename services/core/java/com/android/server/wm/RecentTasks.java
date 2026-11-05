@@ -420,8 +420,7 @@ class RecentTasks {
      * any dependent services (like SystemUI) is started.
      */
     void loadRecentsComponent(Resources res) {
-        int defaultLauncher = android.os.SystemProperties.getInt("persist.sys.default_launcher", 0);
-        final String rawRecentsComponent = res.getStringArray(com.android.internal.R.array.config_launcherComponents)[defaultLauncher];
+        final String rawRecentsComponent = com.android.internal.util.rr.Utils.getRecentsComponent(res);
         if (TextUtils.isEmpty(rawRecentsComponent)) {
             return;
         }

@@ -2379,8 +2379,10 @@ public class PackageManagerService implements PackageSender, TestUtilityService 
             mRetailDemoPackage = getRetailDemoPackageName();
             mOverlayConfigSignaturePackage = ensureSystemPackageName(computer,
                     mInjector.getSystemConfig().getOverlayConfigSignaturePackage());
+            // Recents permissions go to the launcher QuickSwitch selected; it needs a system restart.
             mRecentsPackage = ensureSystemPackageName(computer,
-                    getPackageFromComponentString(R.string.config_recentsComponentName));
+                    ComponentName.unflattenFromString(com.android.internal.util.rr.Utils
+                            .getRecentsComponent(mContext.getResources())).getPackageName());
             mAmbientContextDetectionPackage = ensureSystemPackageName(computer,
                     getPackageFromComponentString(
                             R.string.config_defaultAmbientContextDetectionService));
