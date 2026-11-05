@@ -282,6 +282,12 @@ public final class GlassSettings {
     /** The volume dialog. */
     public static final String PLACE_VOLUME = "catalyxx_glass_volume";
 
+    /**
+     * 1 (the default) gives the volume dialog a frosted middle whatever {@link #STYLE} says, like
+     * glass with text on it. 0 leaves it to {@link #STYLE}.
+     */
+    public static final String VOLUME_FROSTED = "catalyxx_glass_volume_frosted";
+
     /** The power menu. */
     public static final String PLACE_POWER_MENU = "catalyxx_glass_power_menu";
 
@@ -297,7 +303,8 @@ public final class GlassSettings {
     /**
      * The navigation bar, which Catalyxx Launcher draws: its buttons or the gesture handle sit
      * on glass, shaped as {@link #NAVBAR_SHAPE} says. It keeps a fixed light, as it shows nearly
-     * all the time.
+     * all the time. Off by default, like {@link #PLACE_DOCK}: it's on screen in every app, so it
+     * adds work to every frame.
      */
     public static final String PLACE_NAVBAR = "catalyxx_glass_navbar";
 
@@ -438,8 +445,8 @@ public final class GlassSettings {
         TILT, TILT_AMOUNT, ADAPTIVE, SMOKE, SMOKE_COLOR, SWITCH_POINT, TOUCH_GLOW,
         TOUCH_GLOW_COLOR, TOUCH_GLOW_SIZE, SQUISH, TAP_BUZZ, SCROLL_FADE, SELECTOR,
         SELECTOR_MAGNIFY, STRETCH, SOLID_IN_BATTERY_SAVER, MUSIC_PLAYER, PLACE_SHADE,
-        PLACE_NOTIFICATIONS, PLACE_LOCKSCREEN, PLACE_VOLUME, PLACE_POWER_MENU, PLACE_DIALOGS,
-        POWER_MENU_BLUR_BEHIND, PLACE_NAVBAR, NAVBAR_SHAPE, PLACE_DOCK, DOCK_SHAPE,
+        PLACE_NOTIFICATIONS, PLACE_LOCKSCREEN, PLACE_VOLUME, VOLUME_FROSTED, PLACE_POWER_MENU,
+        PLACE_DIALOGS, POWER_MENU_BLUR_BEHIND, PLACE_NAVBAR, NAVBAR_SHAPE, PLACE_DOCK, DOCK_SHAPE,
         PLACE_FOLDERS, PLACE_APP_DRAWER, MORPH, MORPH_STYLE, MORPH_SPEED, MORPH_VOLUME,
         MORPH_POWER_MENU, MORPH_TILES, MORPH_NOTIFICATIONS, MORPH_HEADS_UP, MELT, MELT_REACH,
     };
@@ -540,8 +547,9 @@ public final class GlassSettings {
 
     /** Whether glass is on for {@code place}, one of the {@code PLACE_} keys. */
     public static boolean isOn(ContentResolver resolver, String place) {
+        final boolean startsOff = PLACE_DOCK.equals(place) || PLACE_NAVBAR.equals(place);
         return isEnabled(resolver)
-                && Settings.Global.getInt(resolver, place, PLACE_DOCK.equals(place) ? 0 : 1) == 1;
+                && Settings.Global.getInt(resolver, place, startsOff ? 0 : 1) == 1;
     }
 
     /**
@@ -659,11 +667,14 @@ public final class GlassSettings {
         final int style = Settings.Global.getInt(resolver, STYLE, DEFAULT_STYLE);
         final int smoke = Settings.Global.getInt(resolver, SMOKE, DEFAULT_SMOKE);
         // Glass with text on it gets a frosted middle whatever the style, and more smoke over
-        // light content, so the text on it reads
+        // light content, so the text on it reads. The volume dialog's sliders read better that
+        // way too, unless it's asked not to.
         final boolean carriesText = PLACE_DIALOGS.equals(place)
                 || PLACE_POWER_MENU.equals(place) || PLACE_SHADE.equals(place)
                 || PLACE_NOTIFICATIONS.equals(place) || PLACE_FOLDERS.equals(place)
-                || PLACE_APP_DRAWER.equals(place);
+                || PLACE_APP_DRAWER.equals(place)
+                || (PLACE_VOLUME.equals(place)
+                        && Settings.Global.getInt(resolver, VOLUME_FROSTED, 1) == 1);
         return look(context,
                 carriesText && style == STYLE_CLEAR ? STYLE_FROSTED : style,
                 Settings.Global.getInt(resolver, BEND, DEFAULT_BEND),
