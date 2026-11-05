@@ -68,7 +68,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.approachLayout
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onLayoutRectChanged
 import androidx.compose.ui.layout.onPlaced
@@ -725,10 +724,26 @@ constructor(
             viewModel.quickQuickSettingsViewModel.squishinessViewModel.squishiness
                 .collectAsStateWithLifecycle()
 
+        val lookahead = remember { object { var seen = false } }
         Column(modifier = modifier.sysuiResTag(ResIdTags.quickQsPanel)) {
             Box(
                 modifier =
                     Modifier.fillMaxWidth()
+                        // NPVC and QuickSettingsController take this height as the QS minimum, so
+                        // report the settled (lookahead) size: the placed size grows while the
+                        // shared tiles fly between QQS and QS, and a minimum that follows the drag
+                        // clamps the fling that should settle it. The lookahead size is also the
+                        // height without squishiness.
+                        .layout { measurable, constraints ->
+                            val placeable = measurable.measure(constraints)
+                            if (isLookingAhead) {
+                                lookahead.seen = true
+                                viewModel.qqsHeight = placeable.height
+                            } else if (!lookahead.seen && squishiness == 1f) {
+                                viewModel.qqsHeight = placeable.height
+                            }
+                            layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+                        }
                         .onPlaced { coordinates ->
                             val (leftFromRoot, topFromRoot) = coordinates.positionInRoot().round()
                             qqsPositionOnRoot.set(
@@ -737,19 +752,6 @@ constructor(
                                 leftFromRoot + coordinates.size.width,
                                 topFromRoot + coordinates.size.height,
                             )
-                            if (squishiness == 1f) {
-                                viewModel.qqsHeight = coordinates.size.height
-                            }
-                        }
-                        // Use an approach layout to determien the height without squishiness, as
-                        // that's the value that NPVC and QuickSettingsController care about
-                        // (measured height).
-                        .approachLayout(isMeasurementApproachInProgress = { squishiness < 1f }) {
-                            measurable,
-                            constraints ->
-                            viewModel.qqsHeight = lookaheadSize.height
-                            val placeable = measurable.measure(constraints)
-                            layout(placeable.width, placeable.height) { placeable.place(0, 0) }
                         }
                         .padding(top = { qqsPadding }, bottom = { bottomPadding })
             ) {
