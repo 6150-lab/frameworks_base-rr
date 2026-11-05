@@ -141,7 +141,9 @@ constructor(
         instance = this
         val observer = object : ContentObserver(handler) {
             override fun onChange(selfChange: Boolean) {
+                val liveApps = settings.liveApps
                 settings.read()
+                if (settings.liveApps != liveApps) readNotifications()
                 scores.setSource(if (settings.enabled) settings.scores else NowBarScores.SOURCE_OFF)
                 publish()
             }
@@ -334,13 +336,19 @@ constructor(
     ) = onNotificationRemoved(sbn, rankingMap)
 
     override fun onNotificationsInitialized() {
+        readNotifications()
+        publish()
+    }
+
+    /** Classifies what is posted now: at start, and when the Live Updates app list changes. */
+    private fun readNotifications() {
         val active = try {
             notificationListener.activeNotifications
         } catch (e: RuntimeException) {
             null
-        }
-        active?.forEach { sbn -> notificationItem(sbn)?.let { notificationItems[sbn.key] = it } }
-        publish()
+        } ?: return
+        notificationItems.clear()
+        active.forEach { sbn -> notificationItem(sbn)?.let { notificationItems[sbn.key] = it } }
     }
 
     override fun onNotificationRankingUpdate(rankingMap: RankingMap) {}
