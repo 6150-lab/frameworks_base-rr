@@ -260,6 +260,7 @@ import com.android.server.resources.ResourcesManagerService;
 import com.android.server.restrictions.RestrictionsManagerService;
 import com.android.server.role.RoleServicePlatformHelper;
 import com.android.server.rollback.RollbackManagerService;
+import com.android.server.rr.QuickSwitchService;
 import com.android.server.rotationresolver.RotationResolverManagerService;
 import com.android.server.search.SearchManagerService;
 import com.android.server.searchui.SearchUiManagerService;
@@ -3405,6 +3406,10 @@ public final class SystemServer implements Dumpable {
 
         t.traceBegin("HealthConnectManagerService");
         mSystemServiceManager.startService(HEALTHCONNECT_MANAGER_SERVICE_CLASS);
+        t.traceEnd();
+
+        t.traceBegin("QuickSwitchService");
+        mSystemServiceManager.startService(QuickSwitchService.class);
         t.traceEnd();
 
         if (mPackageManager.hasSystemFeature(PackageManager.FEATURE_DEVICE_LOCK)) {

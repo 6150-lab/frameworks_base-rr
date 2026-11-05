@@ -166,7 +166,7 @@ import com.android.server.utils.WatchedSparseBooleanArray;
 import com.android.server.utils.WatchedSparseIntArray;
 import com.android.server.wm.ActivityTaskManagerInternal;
 
-import org.rising.server.QuickSwitchService;
+import com.android.server.rr.QuickSwitchService;
 
 import libcore.util.EmptyArray;
 

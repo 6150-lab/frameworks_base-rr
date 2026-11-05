@@ -27,7 +27,7 @@ import android.util.Slog;
 import com.android.internal.util.CollectionUtils;
 import com.android.server.FgThread;
 
-import org.rising.server.QuickSwitchService;
+import com.android.server.rr.QuickSwitchService;
 
 import java.util.concurrent.Executor;
 import java.util.function.Consumer;

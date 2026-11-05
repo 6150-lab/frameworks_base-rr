@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.rising.server;
+package com.android.server.rr;
 
 import android.annotation.NonNull;
 import android.app.role.RoleManager;

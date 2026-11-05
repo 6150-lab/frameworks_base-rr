@@ -38,7 +38,7 @@ import android.util.AtomicFile;
 import android.util.Slog;
 import android.util.Xml;
 
-import org.rising.server.QuickSwitchService;
+import com.android.server.rr.QuickSwitchService;
 
 import com.android.internal.R;
 import com.android.internal.util.CollectionUtils;
