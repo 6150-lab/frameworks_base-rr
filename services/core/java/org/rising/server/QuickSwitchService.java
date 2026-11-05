@@ -202,7 +202,8 @@ public final class QuickSwitchService extends SystemService {
     }
 
     public static boolean shouldHide(int userId, String packageName) {
-        if (packageName == null) {
+        // Every getApplicationInfo() lands here: only launchers are worth a call into the role.
+        if (packageName == null || !managesPackage(packageName)) {
             return false;
         }
         if (packageName.equals(getCurrentHomeRoleHolder(userId))) {
