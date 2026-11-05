@@ -54,8 +54,7 @@ public final class QuickSwitchService extends SystemService {
 
     private static final String[] FALLBACK_LAUNCHER_PACKAGES = {
             "com.android.launcher3",
-            "com.google.android.apps.nexuslauncher",
-            "app.lawnchair"
+            "com.google.android.apps.nexuslauncher"
     };
 
     private final Context mContext;
@@ -236,7 +235,7 @@ public final class QuickSwitchService extends SystemService {
                 sLastDefaultLauncher = defaultLauncher;
                 List<String> disabledDefaultLaunchers = new ArrayList<>();
                 for (int i = 0; i < sLauncherPackages.size(); i++) {
-                    if (i != defaultLauncher && !(i == 0 && defaultLauncher == 2)) {
+                    if (i != defaultLauncher) {
                         disabledDefaultLaunchers.add(sLauncherPackages.get(i));
                     }
                 }
@@ -259,11 +258,7 @@ public final class QuickSwitchService extends SystemService {
 
     private boolean shouldEnablePackage(String packageName, int defaultLauncher) {
         synchronized (sLock) {
-            String selected = sLauncherPackages.get(defaultLauncher);
-            if (packageName.equals(selected)) {
-                return true;
-            }
-            return LAUNCHER3_PACKAGE.equals(packageName) && defaultLauncher == 2;
+            return packageName.equals(sLauncherPackages.get(defaultLauncher));
         }
     }
 
