@@ -554,10 +554,16 @@ public class VibratorManagerService extends IVibratorManagerService.Stub {
             @Nullable VibrationAttributes attrs, String reason, IBinder token) {
         Trace.traceBegin(TRACE_TAG_VIBRATOR, "vibrate");
         try {
-            // Haptic Remix: an alarm or timer buzzes with the user's alarm pattern.
+            // Haptic Remix: an alarm or timer buzzes with the user's alarm pattern. The pattern
+            // is read as the system: the caller can't look up the current user.
             if (attrs != null && attrs.getUsage() == VibrationAttributes.USAGE_ALARM) {
-                final VibrationEffect remix =
-                        RemixHaptics.effect(mContext, RemixHaptics.TARGET_ALARM, true);
+                final long ident = Binder.clearCallingIdentity();
+                final VibrationEffect remix;
+                try {
+                    remix = RemixHaptics.effect(mContext, RemixHaptics.TARGET_ALARM, true);
+                } finally {
+                    Binder.restoreCallingIdentity(ident);
+                }
                 if (remix != null) effect = CombinedVibration.createParallel(remix);
             }
             vibrateWithPermissionCheck(uid, deviceId, opPkg, effect, attrs, reason, token);
