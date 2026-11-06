@@ -1580,15 +1580,23 @@ public class GlassClockView extends View {
                 return mix(backdrop.eval(q).rgb, dimColor, dimAmount);
             }
 
+            // The glass's outline: the digits, less the corners the bevel rounds off, so the
+            // outline and the rounded surface are the same shape. Past the bevel's edge there's
+            // no surface left to draw, only the rim's light, which would fill those corners.
+            float outlineAt(float2 q) {
+                float rounded = (bevelMap.eval(q).a - 0.5) * 2.5066 * bevel + 0.5;
+                return min(glyphs.eval(q).a, clamp(rounded, 0.0, 1.0));
+            }
+
             float shadowAt(float2 q) {
                 if (shadow <= 0.0) {
                     return 0.0;
                 }
-                return shadow * shadowMap.eval(q - shadowDrop).a * (1.0 - glyphs.eval(q).a);
+                return shadow * shadowMap.eval(q - shadowDrop).a * (1.0 - outlineAt(q));
             }
 
             half4 main(float2 p) {
-                float cover = glyphs.eval(p).a;
+                float cover = outlineAt(p);
                 if (cover <= 0.0) {
                     // Outside the digits: only their shadow, on what's behind.
                     return half4(0.0, 0.0, 0.0, half(mode > 1.5 ? 0.0 : shadowAt(p)));
