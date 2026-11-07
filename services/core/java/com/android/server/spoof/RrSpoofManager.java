@@ -148,6 +148,7 @@ public class RrSpoofManager implements IRrSpoofManager {
     // the config getters below return null, the refresh never starts and GMS is
     // left alone. Set once by enableSpoofing() and persisted in ACTIVATED_KEY.
     private volatile boolean mActivated;
+    private volatile boolean mTrickyStoreOn = true;
     private TaskStackListener mTaskListener;
     private final Runnable mRefreshAfterClear = this::refreshNow;
 
@@ -185,6 +186,10 @@ public class RrSpoofManager implements IRrSpoofManager {
                 if (uri == null) return;
                 final String last = uri.getLastPathSegment();
                 if (last == null) return;
+                if (TRICKYSTORE_ENABLED_KEY.equals(last)) {
+                    mTrickyStoreOn = readTrickyStoreOn();
+                    return;
+                }
                 refreshKey(last);
                 if (Settings.Secure.SPOOF_PIF_CONFIG.equals(last)) {
                     onPifConfigChanged();
@@ -196,6 +201,9 @@ public class RrSpoofManager implements IRrSpoofManager {
             mResolver.registerContentObserver(
                     Settings.Secure.getUriFor(key), false, mObserver, UserHandle.USER_ALL);
         }
+        mResolver.registerContentObserver(Settings.System.getUriFor(TRICKYSTORE_ENABLED_KEY),
+                false, mObserver, UserHandle.USER_ALL);
+        mTrickyStoreOn = readTrickyStoreOn();
 
         mActivated = Settings.Secure.getIntForUser(
                 mResolver, ACTIVATED_KEY, 0, UserHandle.USER_SYSTEM) != 0;
@@ -946,6 +954,11 @@ public class RrSpoofManager implements IRrSpoofManager {
                 : Character.toUpperCase(s.charAt(0)) + s.substring(1);
     }
 
+    private boolean readTrickyStoreOn() {
+        return Settings.System.getIntForUser(
+                mResolver, TRICKYSTORE_ENABLED_KEY, 1, UserHandle.USER_SYSTEM) != 0;
+    }
+
     private String getCached(String key) {
         return mCache.get(key);
     }
@@ -964,19 +977,19 @@ public class RrSpoofManager implements IRrSpoofManager {
 
     @Override
     public String getTrickyStoreTarget() {
-        if (!mActivated) return null;
+        if (!mActivated || !mTrickyStoreOn) return null;
         return getCached(Settings.Secure.SPOOF_TRICKYSTORE_TARGET);
     }
 
     @Override
     public String getTrickyStoreKeyBox() {
-        if (!mActivated) return null;
+        if (!mActivated || !mTrickyStoreOn) return null;
         return getCached(Settings.Secure.SPOOF_TRICKYSTORE_KEYBOX);
     }
 
     @Override
     public String getTrickyStorePatch() {
-        if (!mActivated) return null;
+        if (!mActivated || !mTrickyStoreOn) return null;
         return getCached(Settings.Secure.SPOOF_TRICKYSTORE_PATCH);
     }
 }
