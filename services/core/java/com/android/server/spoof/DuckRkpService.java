@@ -82,9 +82,11 @@ import co.nstant.in.cbor.model.UnicodeString;
  * {@code STATUS_FAILED} rejection, and every KeyMint 2 device, uses the legacy
  * issuer: AIDL {@code generateCertificateRequest}, then Qualcomm command
  * {@code 0x311e} through the {@code rr-rkp-v1} vendor helper. OneKeyMint
- * returns {@code STATUS_INVALID_MAC} for the zero-HBK test MAC; that also
- * tries the same hardware V1 issuer and does not post a software CSR. The
- * posted CSR splices the TA DeviceInfo and ProtectedData bytes.
+ * returns {@code STATUS_INVALID_MAC} for the zero-HBK test MAC. That tries
+ * command {@code 0x3122} through the vendor helper, then {@code 0x3125} when
+ * the first command returns an empty body, then the same hardware V1 issuer,
+ * and does not post a software CSR. The posted CSR splices the TA DeviceInfo
+ * and ProtectedData bytes.
  */
 public final class DuckRkpService {
     private static final String TAG = "DuckRkp";
@@ -109,6 +111,7 @@ public final class DuckRkpService {
             "Device Key Seed".getBytes(StandardCharsets.UTF_8);
     private static final String NATIVE_SOCKET = "rr_rkp_v1";
     private static final int NATIVE_LIMIT = 0xa000;
+    private static final int NATIVE_V2_OPCODE = 0x31220002;
 
     private static DuckRkpService sInstance;
 
@@ -324,7 +327,16 @@ public final class DuckRkpService {
                         || e.detail != IRemotelyProvisionedComponent.STATUS_INVALID_MAC) {
                     throw e;
                 }
-                Slog.w(TAG, "KeyMint rejected the V2 test MAC; trying hardware V1");
+                Slog.w(TAG, "KeyMint rejected the V2 test MAC; trying native V2");
+                try {
+                    final byte[] csr = signNativeV2(coseKey, challenge);
+                    Slog.i(TAG, "Native V2 returned a CSR");
+                    acceptV2Csr(keyPair, csr, challenge);
+                    return;
+                } catch (DuckRkpException nativeFailure) {
+                    Slog.w(TAG, "Native V2 failed (" + nativeFailure.code + "/"
+                            + nativeFailure.detail + "); trying hardware V1");
+                }
                 runProvisionV1(hal, keyPair, maced, coseKey, fingerprint,
                         info.supportedEekCurve);
                 return;
@@ -469,7 +481,8 @@ public final class DuckRkpService {
             csrBytes = hal.generateCertificateRequestV2(new MacedPublicKey[] { mpk }, challenge);
         } catch (ServiceSpecificException e) {
             // STATUS_FAILED is the HAL's report of TEE INCOMPATIBLE_KEY_FORMAT.
-            // The caller retries with the legacy issuer. Any other code stands.
+            // The caller retries with the legacy issuer. STATUS_INVALID_MAC is
+            // rethrown as hal_rejected so the caller can try command 0x3122.
             if (e.errorCode == IRemotelyProvisionedComponent.STATUS_FAILED) {
                 throw e;
             }
@@ -477,6 +490,11 @@ public final class DuckRkpService {
         } catch (UnsupportedOperationException e) {
             throw new DuckRkpException("hal_unsupported", 0);
         }
+        acceptV2Csr(keyPair, csrBytes, challenge);
+    }
+
+    /** Posts one AuthenticatedRequest array. The fingerprint map is appended. */
+    private void acceptV2Csr(KeyPair keyPair, byte[] csrBytes, byte[] challenge) throws Exception {
         if (csrBytes == null || csrBytes.length == 0) {
             throw new DuckRkpException("hal_rejected", 0);
         }
@@ -561,6 +579,38 @@ public final class DuckRkpService {
             throw new DuckRkpException("hal_rejected", 0);
         }
         return new V1Evidence(mac, deviceInfo.deviceInfo, protectedData.protectedData);
+    }
+
+    private static byte[] signNativeV2(byte[] coseKey, byte[] challenge) throws Exception {
+        try (LocalSocket client = new LocalSocket()) {
+            client.connect(new LocalSocketAddress(
+                    NATIVE_SOCKET, LocalSocketAddress.Namespace.RESERVED));
+            client.setSoTimeout(20_000);
+            final DataOutputStream out = new DataOutputStream(client.getOutputStream());
+            out.writeInt(NATIVE_V2_OPCODE);
+            writeBlob(out, challenge);
+            writeBlob(out, coseKey);
+            out.flush();
+            final DataInputStream in = new DataInputStream(client.getInputStream());
+            final int status = in.readInt();
+            if (status != 0) {
+                final int detail = in.readInt();
+                final String message = new String(readBlob(in), StandardCharsets.UTF_8);
+                Slog.w(TAG, "Native V2 failed (" + status + "/" + detail + "): " + message);
+                throw new DuckRkpException(status == 3 ? "native_unavailable" : "native_rejected",
+                        detail);
+            }
+            final byte[] csr = readBlob(in);
+            if (csr.length == 0 || (csr[0] & 0xe0) != 0x80) {
+                throw new DuckRkpException("native_rejected", 0);
+            }
+            return csr;
+        } catch (DuckRkpException e) {
+            throw e;
+        } catch (IOException e) {
+            Slog.w(TAG, "Native V2 socket unavailable", e);
+            throw new DuckRkpException("native_unavailable", 0);
+        }
     }
 
     private static V1Evidence signNativeV1(byte[] coseKey, EekMaterial eek) throws Exception {
