@@ -473,13 +473,6 @@ public final class CertificateHacker {
         }
     }
 
-    private static boolean isAllZero(byte[] value) {
-        for (byte b : value) {
-            if (b != 0) return false;
-        }
-        return true;
-    }
-
     public static void storeLeafAlgorithm(String alias, int uid, String algorithm) {
         sLeafAlgorithms.put(alias + "_" + uid, algorithm);
     }
