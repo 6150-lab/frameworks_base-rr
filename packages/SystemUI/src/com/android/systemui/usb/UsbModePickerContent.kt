@@ -53,6 +53,7 @@ import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -91,11 +92,19 @@ fun UsbModePickerContent(
         dialog.blurInteractor!!.isBlurCurrentlySupported.collectAsStateWithLifecycle()
     // Liquid Glass: blur the card's own region, so the glass lens lights the card.
     val glass = isDialogBlurEnabled() && isBlurSupported
+    val density = LocalDensity.current
     val blur = remember {
         dialog.window!!.decorView.getViewRootImpl().createBackgroundBlurDrawable()
     }
-    if (!glass) {
-        SideEffect { blur.setBlurRadius(0) }
+    // Before the draw pass: the window copies its blur regions before drawing, and the island
+    // draws a single frame, so radii set while drawing would never reach SurfaceFlinger.
+    SideEffect {
+        if (glass) {
+            blur.setBlurRadius(with(density) { blurRadius.roundToPx() })
+            blur.setCornerRadius(with(density) { radius.toPx() })
+        } else {
+            blur.setBlurRadius(0)
+        }
     }
     LaunchedEffect(Unit) {
         delay(AUTO_HIDE_MS)
@@ -109,8 +118,6 @@ fun UsbModePickerContent(
             .then(
                 if (glass) {
                     Modifier.drawBehind {
-                        blur.setBlurRadius(blurRadius.roundToPx())
-                        blur.setCornerRadius(radius.toPx())
                         drawIntoCanvas { canvas ->
                             blur.setBounds(0, 0, size.width.toInt(), size.height.toInt())
                             blur.draw(canvas.nativeCanvas)
