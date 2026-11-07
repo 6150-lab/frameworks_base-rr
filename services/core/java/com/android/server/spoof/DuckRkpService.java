@@ -83,10 +83,11 @@ import co.nstant.in.cbor.model.UnicodeString;
  * issuer: AIDL {@code generateCertificateRequest}, then Qualcomm command
  * {@code 0x311e} through the {@code rr-rkp-v1} vendor helper. OneKeyMint
  * returns {@code STATUS_INVALID_MAC} for the zero-HBK test MAC. That tries
- * command {@code 0x3122} through the vendor helper, then {@code 0x3125} when
- * the first command returns an empty body, then the same hardware V1 issuer,
- * and does not post a software CSR. The posted CSR splices the TA DeviceInfo
- * and ProtectedData bytes.
+ * commands {@code 0x3125} and {@code 0x3122} through the vendor helper, each
+ * on a fresh session, then the hardware V1 issuer. The helper sends
+ * {@code 0x311e} and {@code 0x3124} through KeymasterUtils' shared buffer.
+ * This rejection does not post a software CSR. The posted CSR splices the TA
+ * DeviceInfo and ProtectedData bytes.
  */
 public final class DuckRkpService {
     private static final String TAG = "DuckRkp";
@@ -482,7 +483,7 @@ public final class DuckRkpService {
         } catch (ServiceSpecificException e) {
             // STATUS_FAILED is the HAL's report of TEE INCOMPATIBLE_KEY_FORMAT.
             // The caller retries with the legacy issuer. STATUS_INVALID_MAC is
-            // rethrown as hal_rejected so the caller can try command 0x3122.
+            // rethrown as hal_rejected so the caller can try the native helper.
             if (e.errorCode == IRemotelyProvisionedComponent.STATUS_FAILED) {
                 throw e;
             }
