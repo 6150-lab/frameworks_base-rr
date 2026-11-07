@@ -41,6 +41,8 @@ public final class RemixHaptics {
     public static final String TARGET_FINGERPRINT = "fingerprint";
     public static final String PREFIX_APP = "app:";
     public static final String PREFIX_NUMBER = "number:";
+    /** An app's edge light color, "#RRGGBB", beside its "app:" pattern. */
+    public static final String PREFIX_APP_COLOR = "appcolor:";
 
     /** Longer than any ringtone's loop; patterns past this are cut. */
     private static final long MAX_TOTAL_MS = 30_000;
@@ -119,13 +121,27 @@ public final class RemixHaptics {
         }
     }
 
-    /** The edge light color the user gave this message's sender, or 0 for none. */
-    public static int senderColor(Context context, Notification n) {
+    /**
+     * The edge light color for a notification from [pkg]: the color the user gave its sender,
+     * else the app's, or 0 for none.
+     */
+    public static int edgeColor(Context context, String pkg, Notification n) {
         synchronized (sLock) {
             load(context);
             String[] who = sender(n);
             Contact contact = contactFor(context, who[0], who[1]);
-            return contact != null ? contact.color : 0;
+            if (contact != null && contact.color != 0) return contact.color;
+            return parseColor(sAssign.get(PREFIX_APP_COLOR + pkg));
+        }
+    }
+
+    /** "#RRGGBB" as an opaque color, or 0 when it is not one. */
+    private static int parseColor(String color) {
+        if (color == null || !color.startsWith("#")) return 0;
+        try {
+            return Color.parseColor(color) | 0xFF000000;
+        } catch (IllegalArgumentException e) {
+            return 0;
         }
     }
 
@@ -243,16 +259,8 @@ public final class RemixHaptics {
                     JSONObject contact = contacts.getJSONObject(i);
                     String number = contact.optString("number");
                     if (number.isEmpty()) continue;
-                    String color = contact.optString("color");
-                    int argb = 0;
-                    if (color.startsWith("#")) {
-                        try {
-                            argb = Color.parseColor(color) | 0xFF000000;
-                        } catch (IllegalArgumentException e) {
-                            // Not a color; the accent then.
-                        }
-                    }
-                    sContacts.add(new Contact(contact.optString("name"), number, argb));
+                    sContacts.add(new Contact(contact.optString("name"), number,
+                            parseColor(contact.optString("color"))));
                 }
             } catch (Exception e) {
                 sAssign.clear();

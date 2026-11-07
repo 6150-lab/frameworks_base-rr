@@ -65,8 +65,8 @@ constructor(
     private var lastNotificationTime: Long = 0L
     private val deduplicationWindowMs = 3000L
     private var lastNotifColor: Int = Utils.getColorAccentDefaultColor(context)
-    /** The color Haptic Remix gives the sender of the message being shown, or 0. */
-    private var senderColor = 0
+    /** The color Haptic Remix gives the notification being shown (its sender's or app's), or 0. */
+    private var remixColor = 0
 
     init {
         INSTANCE = this
@@ -99,7 +99,7 @@ constructor(
     fun getEdgeLightView(): FrameLayout = edgeLightView
 
     private fun getColor(): Int =
-        if (senderColor != 0) senderColor else when (currentSettings.colorMode) {
+        if (remixColor != 0) remixColor else when (currentSettings.colorMode) {
             COLOR_MODE_ACCENT -> Utils.getColorAccentDefaultColor(context)
             COLOR_MODE_CUSTOM -> currentSettings.customColor
             COLOR_MODE_WALLPAPER -> wallpaperManager.getWallpaperColors(WallpaperManager.FLAG_SYSTEM)
@@ -131,9 +131,9 @@ constructor(
 
     override fun onNotificationPosted(sbn: StatusBarNotification, rankingMap: RankingMap) {
         if (!currentSettings.isEnabled || !isDozing) return
-        // A contact with an edge color of their own lights it in every color mode.
-        senderColor = RemixHaptics.senderColor(context, sbn.notification)
-        if (senderColor != 0 || currentSettings.colorMode != COLOR_MODE_NOTIFICATION) {
+        // A contact or app with an edge color of its own lights it in every color mode.
+        remixColor = RemixHaptics.edgeColor(context, sbn.packageName, sbn.notification)
+        if (remixColor != 0 || currentSettings.colorMode != COLOR_MODE_NOTIFICATION) {
             edgeLightView.paintColor = getColor()
             return
         }
@@ -181,7 +181,7 @@ constructor(
     }
 
     private fun setPulsing(pulsing: Boolean) {
-        if (!pulsing) senderColor = 0
+        if (!pulsing) remixColor = 0
         if (!currentSettings.isEnabled || !pulsing || !isDozing) return
         if (Settings.System.getIntForUser(context.contentResolver, KEY_NOTIFICATIONS, 1,
                 UserHandle.USER_CURRENT) == 0) return
