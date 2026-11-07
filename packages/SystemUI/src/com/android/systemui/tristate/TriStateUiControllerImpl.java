@@ -35,6 +35,7 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.Icon;
 import android.hardware.display.DisplayManagerGlobal;
 import android.media.AudioManager;
 import android.os.Bundle;
@@ -104,10 +105,13 @@ public class TriStateUiControllerImpl implements TriStateUiController,
     private static final int MODE_ROTATION_90 = 642;
     private static final int MODE_ROTATION_270 = 643;
     private static final int MODE_APP_LAUNCH = 650;
+    private static final int MODE_LABEL = 660;
 
     private static final String EXTRA_SLIDER_POSITION = "position";
     private static final String EXTRA_SLIDER_POSITION_VALUE = "position_value";
     private static final String EXTRA_SLIDER_PACKAGE = "package";
+    private static final String EXTRA_SLIDER_LABEL = "label";
+    private static final String EXTRA_SLIDER_ICON = "icon";
 
     private static final int TRI_STATE_UI_POSITION_LEFT = 0;
     private static final int TRI_STATE_UI_POSITION_RIGHT = 1;
@@ -181,6 +185,8 @@ public class TriStateUiControllerImpl implements TriStateUiController,
     private ColorStateList mTriStateIconTint;
     private TextView mTriStateText;
     private String mPositionPackage;
+    private CharSequence mPositionLabel;
+    private Icon mPositionIcon;
     private int mTriStateMode = -1;
     private int mPosition = -1;
     private int mPositionValue = -1;
@@ -208,6 +214,8 @@ public class TriStateUiControllerImpl implements TriStateUiController,
                 mPosition = extras.getInt(EXTRA_SLIDER_POSITION);
                 mPositionValue = extras.getInt(EXTRA_SLIDER_POSITION_VALUE);
                 mPositionPackage = extras.getString(EXTRA_SLIDER_PACKAGE);
+                mPositionLabel = extras.getCharSequence(EXTRA_SLIDER_LABEL);
+                mPositionIcon = extras.getParcelable(EXTRA_SLIDER_ICON, Icon.class);
                 mHandler.sendEmptyMessage(MSG_DIALOG_DISMISS);
                 mHandler.sendEmptyMessage(MSG_STATE_CHANGE);
                 mSliderPositionChanged = true;
@@ -607,6 +615,14 @@ public class TriStateUiControllerImpl implements TriStateUiController,
                             mTriStateText.setText(appLabel != null ? appLabel
                                     : res.getString(R.string.tristate_app_launch));
                         }
+                    } else if (mTriStateMode == MODE_LABEL) {
+                        if (mTriStateIcon != null && mPositionIcon != null) {
+                            mTriStateIcon.setImageTintList(mTriStateIconTint);
+                            mTriStateIcon.setImageIcon(mPositionIcon);
+                        }
+                        if (mTriStateText != null && mPositionLabel != null) {
+                            mTriStateText.setText(mPositionLabel);
+                        }
                     } else {
                     if (mTriStateIcon != null && iconId != 0) {
                         mTriStateIcon.setImageTintList(mTriStateIconTint);
@@ -681,7 +697,7 @@ public class TriStateUiControllerImpl implements TriStateUiController,
         // position, so force a layout refresh to pick up the new position
         // and package
         if (mIntentActionSupported && (mPositionValue != mTriStateMode
-                || mPositionValue == MODE_APP_LAUNCH)) {
+                || mPositionValue == MODE_APP_LAUNCH || mPositionValue == MODE_LABEL)) {
             mTriStateMode = mPositionValue;
             updateTriStateLayout();
             if (mListener != null) {
