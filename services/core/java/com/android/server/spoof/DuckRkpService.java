@@ -93,7 +93,6 @@ public final class DuckRkpService {
     private static final String TAG = "DuckRkp";
     private static final String KEYBOX_SOURCE_DUCK = "duck_rkp";
     private static final String KEYBOX_SOURCE_USER = "user";
-    private static final String KEYBOX_SOURCE_OFFICIAL = "official";
     private static final String SETTINGS_PACKAGE = "com.android.settings";
     private static final String SERVER = "https://remoteprovisioning.googleapis.com/v1";
     private static final String EXPIRES_AT_KEY = "spoof_duck_rkp_expires_at";
@@ -1069,10 +1068,15 @@ public final class DuckRkpService {
                 Settings.Secure.SPOOF_DUCK_RKP_ENABLED, 0, UserHandle.USER_SYSTEM) == 1;
     }
 
+    /**
+     * Only a keybox the user imported blocks device RKP. An official keybox was
+     * fetched in the background and is replaced, not protected. Treating it as
+     * imported made device RKP impossible to turn on.
+     */
     private boolean isImported() {
         final String source = Settings.Secure.getStringForUser(mContext.getContentResolver(),
                 Settings.Secure.SPOOF_TRICKYSTORE_KEYBOX_SOURCE, UserHandle.USER_SYSTEM);
-        return KEYBOX_SOURCE_USER.equals(source) || KEYBOX_SOURCE_OFFICIAL.equals(source);
+        return KEYBOX_SOURCE_USER.equals(source);
     }
 
     private boolean hasStoredKeybox() {
