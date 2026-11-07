@@ -832,8 +832,11 @@ public abstract class AndroidKeyStoreKeyPairGeneratorSpi extends KeyPairGenerato
             String[] packages = null;
             final int requesterUid = Process.myUid();
             // Only attested, standard RSA/EC keys are eligible. Ordinary keys,
-            // StrongBox keys and internal hardware probes must follow Keystore.
+            // StrongBox keys, internal hardware probes and oversized challenges must follow
+            // Keystore, so the app gets the same answer as without TrickyStore.
             final boolean eligible = mSpec.getAttestationChallenge() != null
+                    && mSpec.getAttestationChallenge().length
+                        <= MAX_ATTESTATION_CHALLENGE_SIZE_BYTES
                     && !mSpec.isStrongBoxBacked()
                     && (mKeymasterAlgorithm == KeymasterDefs.KM_ALGORITHM_EC
                         || mKeymasterAlgorithm == KeymasterDefs.KM_ALGORITHM_RSA)
