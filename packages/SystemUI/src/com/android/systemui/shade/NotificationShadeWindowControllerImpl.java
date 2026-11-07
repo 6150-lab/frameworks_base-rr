@@ -109,6 +109,7 @@ public class NotificationShadeWindowControllerImpl
 
     private static final String TAG = "NotificationShadeWindowController";
     private static final int MAX_STATE_CHANGES_BUFFER_SIZE = 100;
+    private static final String KEYGUARD_MAX_REFRESH_RATE = "keyguard_max_refresh_rate";
 
     private final Context mContext;
     private final WindowRootViewComponent.Factory mWindowRootViewComponentFactory;
@@ -121,7 +122,8 @@ public class NotificationShadeWindowControllerImpl
     private final LayoutParams mLpChanged;
     private final long mLockScreenDisplayTimeout;
     private final float mKeyguardPreferredRefreshRate; // takes precedence over max
-    private final float mKeyguardMaxRefreshRate;
+    private final int mKeyguardMaxRefreshRateDefault;
+    private float mKeyguardMaxRefreshRate;
     private final KeyguardViewMediator mKeyguardViewMediator;
     private final KeyguardBypassController mKeyguardBypassController;
     private final Executor mBackgroundExecutor;
@@ -232,8 +234,9 @@ public class NotificationShadeWindowControllerImpl
         // Running on the highest frame rate available can be expensive.
         // Let's specify a preferred refresh rate, and allow higher FPS only when we
         // know that we're not falsing (because we unlocked.)
-        mKeyguardMaxRefreshRate =
+        mKeyguardMaxRefreshRateDefault =
                 context.getResources().getInteger(R.integer.config_keyguardMaxRefreshRate);
+        updateKeyguardMaxRefreshRate();
         mTopUiController = topUiController;
         mKeyguardSurfaceBehindInteractor = keyguardSurfaceBehindInteractor;
 
@@ -300,6 +303,11 @@ public class NotificationShadeWindowControllerImpl
         if (listener != null && mScrimsVisibilityListener != listener) {
             mScrimsVisibilityListener = listener;
         }
+    }
+
+    private void updateKeyguardMaxRefreshRate() {
+        mKeyguardMaxRefreshRate = Settings.System.getInt(mContext.getContentResolver(),
+                KEYGUARD_MAX_REFRESH_RATE, mKeyguardMaxRefreshRateDefault);
     }
 
     private boolean shouldEnableKeyguardScreenRotation() {
@@ -502,6 +510,8 @@ public class NotificationShadeWindowControllerImpl
             }
             Trace.setCounter(
                     "display_max_refresh_rate", (long) mLpChanged.preferredMaxDisplayRefreshRate);
+        } else {
+            mLpChanged.preferredMaxDisplayRefreshRate = 0;
         }
 
         if (state.bouncerShowing) {
@@ -1222,6 +1232,9 @@ public class NotificationShadeWindowControllerImpl
             context.getContentResolver().registerContentObserver(
                     LineageSettings.System.getUriFor(LineageSettings.System.LOCKSCREEN_ROTATION),
                     false, this);
+            context.getContentResolver().registerContentObserver(
+                    Settings.System.getUriFor(KEYGUARD_MAX_REFRESH_RATE),
+                    false, this);
         }
 
         public void unobserve(Context context) {
@@ -1230,6 +1243,7 @@ public class NotificationShadeWindowControllerImpl
 
         @Override
         public void onChange(boolean selfChange) {
+            updateKeyguardMaxRefreshRate();
             // update the state
             apply(mCurrentState);
         }
