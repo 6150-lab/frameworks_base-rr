@@ -81,8 +81,10 @@ import co.nstant.in.cbor.model.UnicodeString;
  * {@link IRemotelyProvisionedComponent#generateCertificateRequestV2}. A
  * {@code STATUS_FAILED} rejection, and every KeyMint 2 device, uses the legacy
  * issuer: AIDL {@code generateCertificateRequest}, then Qualcomm command
- * {@code 0x311e} through the {@code rr-rkp-v1} vendor helper. The posted CSR
- * splices the TA DeviceInfo and ProtectedData bytes.
+ * {@code 0x311e} through the {@code rr-rkp-v1} vendor helper. OneKeyMint
+ * returns {@code STATUS_INVALID_MAC} for the zero-HBK test MAC; that also
+ * tries the same hardware V1 issuer and does not post a software CSR. The
+ * posted CSR splices the TA DeviceInfo and ProtectedData bytes.
  */
 public final class DuckRkpService {
     private static final String TAG = "DuckRkp";
@@ -313,6 +315,19 @@ public final class DuckRkpService {
                     throw new DuckRkpException("hal_rejected", e.errorCode);
                 }
                 Slog.w(TAG, "KeyMint rejected the V2 CSR (" + e.errorCode + "); trying V1");
+            } catch (DuckRkpException e) {
+                // OneKeyMint verifies the MacedPublicKey against the device key.
+                // Code 2 is that check failing, not a TEE format error. Try the
+                // hardware V1 issuer and stop there. The zero-seed CSR is not
+                // a fallback for this rejection.
+                if (!"hal_rejected".equals(e.code)
+                        || e.detail != IRemotelyProvisionedComponent.STATUS_INVALID_MAC) {
+                    throw e;
+                }
+                Slog.w(TAG, "KeyMint rejected the V2 test MAC; trying hardware V1");
+                runProvisionV1(hal, keyPair, maced, coseKey, fingerprint,
+                        info.supportedEekCurve);
+                return;
             }
         }
         try {
