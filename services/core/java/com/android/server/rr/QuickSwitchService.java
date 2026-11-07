@@ -266,13 +266,6 @@ public final class QuickSwitchService extends SystemService {
     private void updateStateForUser(int userId) {
         ensureLauncherPackages();
 
-        String roleHolder = getCurrentHomeRoleHolder(userId);
-        if (roleHolder != null && !managesPackage(roleHolder)) {
-            Slog.i(TAG, "HOME role held by unmanaged launcher " + roleHolder
-                    + "; leaving launcher enabled-state untouched for user " + userId);
-            return;
-        }
-
         int defaultLauncher = getDefaultLauncherIndex();
         String selected;
         List<String> packages;

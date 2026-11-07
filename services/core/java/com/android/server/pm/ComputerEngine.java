@@ -995,18 +995,22 @@ public class ComputerEngine implements Computer {
         return null;
     }
 
-    private static boolean shouldHideQuickSwitchLauncher(String packageName, int userId,
-            long flags) {
+    private boolean shouldHideQuickSwitchLauncher(String packageName, int userId,
+            long flags, int callingUid) {
         if ((flags & (PackageManager.MATCH_DISABLED_COMPONENTS
                 | PackageManager.MATCH_UNINSTALLED_PACKAGES)) != 0) {
             return false;
         }
-        return QuickSwitchService.shouldHide(userId, packageName);
+        if (!QuickSwitchService.shouldHide(userId, packageName)) {
+            return false;
+        }
+        final PackageStateInternal ps = mSettings.getPackage(packageName);
+        return ps == null || !UserHandle.isSameApp(callingUid, ps.getAppId());
     }
 
     public final ApplicationInfo getApplicationInfo(String packageName,
             @PackageManager.ApplicationInfoFlagsBits long flags, int userId) {
-        if (shouldHideQuickSwitchLauncher(packageName, userId, flags))
+        if (shouldHideQuickSwitchLauncher(packageName, userId, flags, Binder.getCallingUid()))
             return null;
         return getApplicationInfoInternal(packageName, flags, Binder.getCallingUid(), userId);
     }
@@ -1021,7 +1025,7 @@ public class ComputerEngine implements Computer {
             @PackageManager.ApplicationInfoFlagsBits long flags,
             int filterCallingUid, int userId) {
         if (!mUserManager.exists(userId)) return null;
-        if (shouldHideQuickSwitchLauncher(packageName, userId, flags))
+        if (shouldHideQuickSwitchLauncher(packageName, userId, flags, filterCallingUid))
             return null;
         flags = updateFlagsForApplication(flags, userId);
 
@@ -1685,7 +1689,7 @@ public class ComputerEngine implements Computer {
 
     public final PackageInfo getPackageInfo(String packageName,
             @PackageManager.PackageInfoFlagsBits long flags, int userId) {
-        if (shouldHideQuickSwitchLauncher(packageName, userId, flags))
+        if (shouldHideQuickSwitchLauncher(packageName, userId, flags, Binder.getCallingUid()))
             return null;
         return getPackageInfoInternal(packageName, PackageManager.VERSION_CODE_HIGHEST,
                 flags, Binder.getCallingUid(), userId);
