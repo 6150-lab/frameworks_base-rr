@@ -8,8 +8,8 @@ import android.content.Context
 import android.view.View
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
-import com.android.systemui.broadcast.BroadcastDispatcher
 import com.android.systemui.keyguard.domain.interactor.KeyguardBlueprintInteractor
+import com.android.systemui.keyguard.domain.interactor.KeyguardInteractor
 import com.android.systemui.keyguard.shared.model.KeyguardSection
 import com.android.systemui.keyguard.ui.view.layout.blueprints.transitions.IntraBlueprintTransition
 import com.android.systemui.plugins.ActivityStarter
@@ -30,14 +30,15 @@ constructor(
     private val repository: NowBarRepository,
     private val statusBarStateController: StatusBarStateController,
     private val activityStarter: ActivityStarter,
-    private val broadcastDispatcher: BroadcastDispatcher,
+    private val keyguardInteractor: KeyguardInteractor,
     private val keyguardBlueprintInteractor: Lazy<KeyguardBlueprintInteractor>,
 ) : KeyguardSection() {
 
     override fun addViews(constraintLayout: ConstraintLayout) {
         if (constraintLayout.findViewById<View>(R.id.now_bar) != null) return
         val view = NowBarView(
-            context, repository, statusBarStateController, activityStarter, broadcastDispatcher
+            context, repository, statusBarStateController, activityStarter,
+            keyguardInteractor.dozeTimeTick,
         ) {
             keyguardBlueprintInteractor
                 .get()

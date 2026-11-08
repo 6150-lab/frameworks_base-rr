@@ -5,10 +5,8 @@
 package com.android.systemui.rr.nowbar
 
 import android.app.PendingIntent
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.content.res.ColorStateList
 import android.graphics.Canvas
 import android.graphics.Color
@@ -34,14 +32,17 @@ import android.widget.LinearLayout
 import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.core.graphics.ColorUtils
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import com.android.internal.graphics.drawable.BackgroundBlurDrawable
-import com.android.systemui.broadcast.BroadcastDispatcher
+import com.android.systemui.lifecycle.repeatWhenAttached
 import com.android.systemui.plugins.ActivityStarter
 import com.android.systemui.plugins.statusbar.StatusBarStateController
 import com.android.systemui.res.R
 import com.android.systemui.shared.system.RrGlass
 import com.android.systemui.statusbar.StatusBarState
 import java.util.function.Consumer
+import kotlinx.coroutines.flow.Flow
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
@@ -57,7 +58,8 @@ class NowBarView(
     private val repository: NowBarRepository,
     private val statusBarStateController: StatusBarStateController,
     private val activityStarter: ActivityStarter,
-    private val broadcastDispatcher: BroadcastDispatcher,
+    /** The always-on display's minute tick, a wakeup alarm, unlike ACTION_TIME_TICK. */
+    private val dozeTimeTick: Flow<Long>,
     private val onLayoutChanged: () -> Unit,
 ) : FrameLayout(context), NowBarRepository.Listener, StatusBarStateController.StateListener {
 
@@ -133,15 +135,13 @@ class NowBarView(
         showMenu()
     }
 
-    private val timeTick = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            if (!dozing) return
-            // A few pixels each minute against burn-in.
-            burnIn = (burnIn + 1) % 8
-            translationX = dp(BURN_IN_STEPS_X[burnIn])
-            translationY = dp(BURN_IN_STEPS_Y[burnIn])
-            bind()
-        }
+    private fun onDozeTimeTick() {
+        if (!dozing) return
+        // A few pixels each minute against burn-in.
+        burnIn = (burnIn + 1) % 8
+        translationX = dp(BURN_IN_STEPS_X[burnIn])
+        translationY = dp(BURN_IN_STEPS_Y[burnIn])
+        bind()
     }
 
     private val compact get() = look.height < COMPACT_BELOW
@@ -185,6 +185,14 @@ class NowBarView(
         buildTexts()
         buildScore()
         layoutForLook()
+
+        // ACTION_TIME_TICK is a non-wakeup alarm, so it stalls while the always-on display
+        // sleeps; follow the tick that redraws the AOD clock instead.
+        repeatWhenAttached {
+            repeatOnLifecycle(Lifecycle.State.CREATED) {
+                dozeTimeTick.collect { onDozeTimeTick() }
+            }
+        }
     }
 
     private fun buildMusic() {
@@ -339,7 +347,6 @@ class NowBarView(
         dozing = statusBarStateController.isDozing
         rootAlpha = (parent as? View)?.alpha ?: 1f
         statusBarStateController.addCallback(this)
-        broadcastDispatcher.registerReceiver(timeTick, IntentFilter(Intent.ACTION_TIME_TICK))
         context.getSystemService(WindowManager::class.java)
             ?.addCrossWindowBlurEnabledListener(context.mainExecutor, blurListener)
         repository.addListener(this)
@@ -349,7 +356,6 @@ class NowBarView(
         super.onDetachedFromWindow()
         repository.removeListener(this)
         statusBarStateController.removeCallback(this)
-        broadcastDispatcher.unregisterReceiver(timeTick)
         context.getSystemService(WindowManager::class.java)
             ?.removeCrossWindowBlurEnabledListener(blurListener)
         setGlass(false)
@@ -653,15 +659,21 @@ class NowBarView(
             title.visibility = VISIBLE
             when {
                 item.chronometerBase != 0L -> {
-                    // Minutes only on the always-on display; the time tick refreshes it.
-                    val minutes =
-                        (abs(item.chronometerBase - System.currentTimeMillis()) / 60000L).toInt()
-                    title.text = context.getString(
+                    // One line of minutes on the always-on display, refreshed by the doze tick:
+                    // "Mom · 3 min". The first minute of a call shows just the name, not "0 min";
+                    // a countdown rounds up so it never reads "0 min left" before it ends.
+                    val ms = abs(item.chronometerBase - System.currentTimeMillis())
+                    val minutes = (if (item.countDown) (ms + 59_999L) else ms) / 60_000L
+                    val time = if (minutes == 0L && !item.countDown) null else context.getString(
                         if (item.countDown) R.string.now_bar_minutes_left
                         else R.string.now_bar_minutes,
-                        minutes,
+                        minutes.toInt(),
                     )
-                    subtitle.text = item.title
+                    val name = item.title.takeIf { it.isNotEmpty() }
+                        ?: item.text?.takeIf { it.isNotEmpty() }
+                    title.text = listOfNotNull(name, time).joinToString(" · ")
+                        .ifEmpty { context.getString(R.string.now_bar_minutes, 0) }
+                    subtitle.text = null
                 }
                 item.type == NowBarType.MUSIC -> {
                     title.text = listOfNotNull(item.title.takeIf { it.isNotEmpty() }, item.text)
