@@ -43,6 +43,16 @@ public class FontController {
 
     private static final String DEFAULT_FONT_ROOT = "google-sans-flex";
 
+    /**
+     * The family FontRrCustomOverlay names. No system font has it: the font is the file Remixer
+     * imported, which Settings may write and every app may read.
+     */
+    public static final String CUSTOM_FAMILY = "rr-custom";
+    public static final String CUSTOM_FONT_PATH = "/data/misc/user/0/fonts/custom.ttf";
+
+    private volatile Typeface sCustomTypeface;
+    private volatile boolean sCustomLoaded;
+
     private static final String[] DEFAULT_FONT_FALLBACKS = {
             "google-sans-flex",
             "google-sans",
@@ -202,6 +212,10 @@ public class FontController {
     private Typeface resolveDefaultTypeface() {
         // First try to resolve the currently active custom font directly
         String currentFont = getCurrentFont();
+        if (CUSTOM_FAMILY.equals(currentFont)) {
+            Typeface custom = customTypeface();
+            if (custom != null) return custom;
+        }
         if (currentFont != null && !currentFont.isEmpty()) {
             Typeface tf = Typeface.getSystemDefaultTypeface(currentFont);
             if (tf != null && tf != Typeface.DEFAULT) {
@@ -221,10 +235,33 @@ public class FontController {
         return Typeface.DEFAULT;
     }
 
+    /** The imported font, read once per process and again after each configuration change. */
+    private Typeface customTypeface() {
+        if (sCustomLoaded) return sCustomTypeface;
+        synchronized (this) {
+            if (sCustomLoaded) return sCustomTypeface;
+            sCustomTypeface = null;
+            try {
+                java.io.File file = new java.io.File(CUSTOM_FONT_PATH);
+                if (file.isFile()) {
+                    // Builder.build() returns null for a file that is not a font.
+                    sCustomTypeface = new Typeface.Builder(file).build();
+                }
+            } catch (Exception e) {
+                logger("customTypeface failed: " + e.getMessage());
+            }
+            if (sCustomTypeface == null) logger("customTypeface: no usable " + CUSTOM_FONT_PATH);
+            sCustomLoaded = true;
+            return sCustomTypeface;
+        }
+    }
+
     private void handleOnConfiguration(Resources res) {
         sResources = res;
         String pkgName = getCurrentPackageName();
         if (pkgName == null || EXCLUDED_APPS.contains(pkgName)) return;
+        // A re-import toggles the overlay, so this is where a new file gets picked up.
+        sCustomLoaded = false;
         logger("handleOnConfiguration: Changing default font to: " + Typeface.getFontName());
         Typeface.changeFont();
     }
