@@ -3576,6 +3576,16 @@ public class NotificationStackScrollLayout
         setLaunchingNotification(params != null);
         updateLaunchedNotificationClipPath();
         requestChildrenUpdate();
+        invalidateGlassInShade();
+    }
+
+    /** Catalyxx glass in the open shade follows the opening app's cover (getGlassLaunchCover()). */
+    private void invalidateGlassInShade() {
+        for (int i = 0; i < getChildCount(); i++) {
+            if (getChildAt(i) instanceof ActivatableNotificationView row && row.isGlassInShade()) {
+                row.invalidateGlassBackground();
+            }
+        }
     }
 
     private void updateAnimationState(boolean running, View child) {
@@ -6736,6 +6746,27 @@ public class NotificationStackScrollLayout
         }
         return true;
     }
+
+    /**
+     * Catalyxx glass in the open shade while a notification opens its app: the part of the screen
+     * the app covers now, in this view's coordinates. False while none is opening. The opening app
+     * is drawn over the shade, so glass under it can go; by the end it covers the screen and all
+     * the glass has gone before the app moves back under the shade, where the shade's last frame
+     * would otherwise show the glass over the app for a frame.
+     */
+    public boolean getGlassLaunchCover(RectF cover) {
+        if (!mLaunchingNotification || mLaunchAnimationParams == null) {
+            return false;
+        }
+        getLocationOnScreen(mGlassLocation);
+        cover.set(mLaunchAnimationParams.getLeft() - mGlassLocation[0],
+                mLaunchAnimationParams.getTop() - mGlassLocation[1],
+                mLaunchAnimationParams.getRight() - mGlassLocation[0],
+                mLaunchAnimationParams.getBottom() - mGlassLocation[1]);
+        return true;
+    }
+
+    private final int[] mGlassLocation = new int[2];
 
     /**
      * Set rounded rect clipping bounds on this view.

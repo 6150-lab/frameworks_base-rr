@@ -411,6 +411,13 @@ public abstract class ActivatableNotificationView extends ExpandableOutlineView 
         return mGlassOn && !mOnKeyguard && !isGlassOverContent();
     }
 
+    /** The glass is drawn again, for a change in where the list lets it show. */
+    public void invalidateGlassBackground() {
+        if (mBackgroundNormal != null) {
+            mBackgroundNormal.invalidate();
+        }
+    }
+
     protected boolean usesTransparentBackground() {
         return (mIsBlurSupported || mGlassOn) && notificationRowTransparency()
                 && (!mOnKeyguard || lockscreenBlurForNotifications() || mGlassOn);

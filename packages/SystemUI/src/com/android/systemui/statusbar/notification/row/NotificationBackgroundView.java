@@ -95,6 +95,7 @@ public class NotificationBackgroundView extends View implements Dumpable,
     private static final float GLASS_SLIVER_DP = 32f;
     private final RectF mGlassClip = new RectF();
     private final RectF mGlassCutOut = new RectF();
+    private final RectF mGlassCover = new RectF();
     private float mGlassClipAlpha = 1f;
     // The alpha of this view and every view above it, from updateBlurAlpha()
     private float mBlurViewAlpha = 1f;
@@ -283,6 +284,18 @@ public class NotificationBackgroundView extends View implements Dumpable,
             right = Math.min(right, (int) Math.floor(mGlassClip.right));
             final float sliver = GLASS_SLIVER_DP * getResources().getDisplayMetrics().density;
             clipAlpha = Math.max(0f, Math.min(1f, (bottom - top) / sliver));
+        }
+        if (!mExpandAnimationRunning && getParent() instanceof ActivatableNotificationView row
+                && row.isGlassInShade()
+                && row.getParent() instanceof NotificationStackScrollLayout list
+                && list.getGlassLaunchCover(mGlassCover)) {
+            // Another notification is opening its app, drawn over the shade: glass the app covers
+            // goes, so none is left when the app moves back under the shade at the end
+            mGlassCover.offset(-(row.getX() + getX()), -(row.getY() + getY()));
+            if (mGlassCover.contains(left, top, right, bottom)) {
+                clipAlpha = 0f;
+                bottom = top;
+            }
         }
         if (mGlassClipAlpha != clipAlpha) {
             mGlassClipAlpha = clipAlpha;
