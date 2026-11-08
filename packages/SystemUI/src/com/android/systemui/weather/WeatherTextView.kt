@@ -30,7 +30,16 @@ class WeatherTextView @JvmOverloads constructor(
 
     private val mWeatherViewController: WeatherViewController
 
+    /** A view that shows and hides with the weather, like a separator before it. */
+    private val linkedViewId: Int
+    private var linkedView: View? = null
+
     init {
+        val a = context.obtainStyledAttributes(attrs, R.styleable.WeatherTextView)
+        val part = a.getInt(R.styleable.WeatherTextView_weatherText, WeatherViewController.PART_FULL)
+        linkedViewId = a.getResourceId(R.styleable.WeatherTextView_weatherLinkedView, View.NO_ID)
+        a.recycle()
+
         visibility = View.GONE
 
         val stubIcon = android.widget.ImageView(context)
@@ -41,11 +50,28 @@ class WeatherTextView @JvmOverloads constructor(
             weatherTemp = this,
             weatherInfoView = this,
             isCustomClock = isCustomClock,
+            part = part,
         )
+    }
+
+    override fun setVisibility(visibility: Int) {
+        super.setVisibility(visibility)
+        linked()?.visibility = visibility
+    }
+
+    /** The linked view, looked up in the face; the picker's previews are never attached. */
+    private fun linked(): View? {
+        // TextView sets its visibility before this class has read its attributes.
+        if (linkedViewId <= 0) return null
+        linkedView?.let { return it }
+        var root: View = this
+        while (true) root = root.parent as? View ?: break
+        return root.findViewById<View?>(linkedViewId)?.also { linkedView = it }
     }
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
+        linked()?.visibility = visibility
         mWeatherViewController.init()
     }
 

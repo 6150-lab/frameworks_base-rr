@@ -236,6 +236,21 @@
         <attr name="tickMark" format="reference" />
         <attr name="seekBarChangeMagnitude" format="integer" />
     </declare-styleable>
+    <declare-styleable name="WeatherTextView">
+        <!-- Which part of the weather the text shows. -->
+        <attr name="weatherText" format="enum">
+            <enum name="full" value="0" />
+            <enum name="temp" value="1" />
+            <enum name="degrees" value="2" />
+            <enum name="temp_condition" value="3" />
+            <enum name="degrees_condition" value="4" />
+            <enum name="detail" value="5" />
+            <enum name="words" value="6" />
+        </attr>
+        <!-- A view that shows and hides with the weather, like a separator before it. -->
+        <attr name="weatherLinkedView" format="reference" />
+    </declare-styleable>
+
     <declare-styleable name="FlatlineClockView">
         <!-- Faint monitor grid behind the line. -->
         <attr name="flatlineGrid" format="boolean" />
