@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/clock_frame"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -84,5 +85,29 @@
             android:textAllCaps="true"
             android:textColor="@android:color/white"
             android:textSize="12sp" />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+            <com.android.systemui.weather.WeatherImageView
+                android:id="@+id/weather_image"
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:visibility="gone" />
+            <com.android.systemui.weather.WeatherTextView
+                android:id="@+id/weather_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:fontFamily="@*android:string/config_clockFontFamily"
+                android:singleLine="true"
+                android:textAllCaps="true"
+                android:textColor="@android:color/white"
+                android:textSize="12sp"
+                android:visibility="gone"
+                app:weatherText="temp_condition" />
+        </LinearLayout>
     </LinearLayout>
 </LinearLayout>

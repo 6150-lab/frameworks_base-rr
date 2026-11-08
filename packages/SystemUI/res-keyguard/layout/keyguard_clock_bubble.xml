@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/clock_frame"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -85,6 +86,37 @@
                 android:textColor="@android:color/system_accent2_50"
                 android:textSize="20sp" />
 
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/weather_bubble"
+            android:layout_width="84dp"
+            android:layout_height="84dp"
+            android:layout_marginStart="14dp"
+            android:layout_marginTop="262dp"
+            android:background="@drawable/clock_bubble_4"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:visibility="gone">
+            <com.android.systemui.weather.WeatherImageView
+                android:id="@+id/weather_image"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:tint="@android:color/system_accent1_900"
+                android:visibility="gone" />
+            <com.android.systemui.weather.WeatherTextView
+                android:id="@+id/weather_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:fontFamily="@font/general_sans"
+                android:includeFontPadding="false"
+                android:singleLine="true"
+                android:textColor="@android:color/system_accent1_900"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:visibility="gone"
+                app:weatherLinkedView="@id/weather_bubble"
+                app:weatherText="degrees" />
         </LinearLayout>
     </FrameLayout>
 </LinearLayout>

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/clock_frame"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -7,11 +8,41 @@
     android:gravity="center">
 
     <!-- Analog Clock Custom View -->
-    <com.android.systemui.clocks.AnalogClockView
-        android:id="@+id/analog_clock"
+    <!-- The weather sits in the dial above the 6, like a watch complication. -->
+    <FrameLayout
         android:layout_width="280dp"
         android:layout_height="280dp"
-        android:layout_gravity="center"/>
+        android:layout_gravity="center">
+        <com.android.systemui.clocks.AnalogClockView
+            android:id="@+id/analog_clock"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|center_horizontal"
+            android:layout_marginTop="176dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+            <com.android.systemui.weather.WeatherImageView
+                android:id="@+id/weather_image"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:visibility="gone" />
+            <com.android.systemui.weather.WeatherTextView
+                android:id="@+id/weather_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:fontFamily="sans-serif-medium"
+                android:includeFontPadding="false"
+                android:singleLine="true"
+                android:textColor="@android:color/white"
+                android:textSize="18dp"
+                android:visibility="gone"
+                app:weatherText="degrees" />
+        </LinearLayout>
+    </FrameLayout>
 
     <TextClock
         android:id="@+id/date"
