@@ -32,8 +32,11 @@ import android.animation.ValueAnimator;
 import android.annotation.IntDef;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.database.ContentObserver;
 import android.graphics.Color;
 import android.os.Handler;
+import android.os.Looper;
+import android.provider.Settings;
 import android.util.Log;
 import android.util.MathUtils;
 import android.util.Pair;
@@ -288,6 +291,12 @@ public class ScrimController implements ViewTreeObserver.OnPreDrawListener, Dump
     private boolean mScreenOn;
     private boolean mTransparentScrimBackground;
 
+    // Catalyxx single tone panel (Lab > Quick settings): the pulled-down panel gets one even shade,
+    // without the notifications scrim's darker area behind the notifications. Off by default.
+    private static final String SINGLE_TONE_KEY = "catalyxx_shade_single_tone";
+    private boolean mSingleTone;
+    private ContentObserver mSingleToneObserver;
+
     // Scrim blanking callbacks
     private Runnable mPendingFrameCallback;
     private Runnable mBlankingTransitionRunnable;
@@ -311,6 +320,7 @@ public class ScrimController implements ViewTreeObserver.OnPreDrawListener, Dump
                 mScrimInFront.setViewAlpha(mInFrontAlpha);
 
                 mNotificationsAlpha = alphas.getNotificationsAlpha();
+                applySingleTone();
                 mNotificationsScrim.setViewAlpha(mNotificationsAlpha);
 
                 mBehindAlpha = alphas.getBehindAlpha();
@@ -475,6 +485,18 @@ public class ScrimController implements ViewTreeObserver.OnPreDrawListener, Dump
 
         mTransparentScrimBackground = notificationsScrim.getResources()
                 .getBoolean(R.bool.notification_scrim_transparent);
+        if (mSingleToneObserver == null) {
+            mSingleToneObserver = new ContentObserver(new Handler(Looper.getMainLooper())) {
+                @Override
+                public void onChange(boolean selfChange) {
+                    readSingleTone();
+                    applyAndDispatchState();
+                }
+            };
+            mContext.getContentResolver().registerContentObserver(
+                    Settings.Global.getUriFor(SINGLE_TONE_KEY), false, mSingleToneObserver);
+        }
+        readSingleTone();
         updateScrims();
         mKeyguardUpdateMonitor.registerCallback(mKeyguardVisibilityCallback);
 
@@ -1050,6 +1072,7 @@ public class ScrimController implements ViewTreeObserver.OnPreDrawListener, Dump
                 mBehindAlpha = 0.0f;
                 mNotificationsAlpha = 0.0f;
             }
+            applySingleTone();
             return;
         }
 
@@ -1167,7 +1190,24 @@ public class ScrimController implements ViewTreeObserver.OnPreDrawListener, Dump
             mAnimatingPanelExpansionOnUnlock = false;
         }
 
+        applySingleTone();
         assertAlphasValid();
+    }
+
+    private void readSingleTone() {
+        mSingleTone = Settings.Global.getInt(
+                mContext.getContentResolver(), SINGLE_TONE_KEY, 0) == 1;
+    }
+
+    /**
+     * Single tone: the notifications scrim stays hidden, so the panel is the behind scrim alone,
+     * top to bottom. Not when QS clips the scrims: then the notifications scrim is the panel's
+     * only background and the behind scrim draws black.
+     */
+    private void applySingleTone() {
+        if (mSingleTone && !mClipsQsScrim) {
+            mNotificationsAlpha = 0f;
+        }
     }
 
     private void assertAlphasValid() {
@@ -1340,6 +1380,7 @@ public class ScrimController implements ViewTreeObserver.OnPreDrawListener, Dump
             mBehindAlpha = 0;
             mNotificationsAlpha = 0;
         }
+        applySingleTone();
 
         setScrimAlpha(mScrimInFront, mInFrontAlpha);
         setScrimAlpha(mScrimBehind, mBehindAlpha);
@@ -1708,6 +1749,7 @@ public class ScrimController implements ViewTreeObserver.OnPreDrawListener, Dump
         pw.print("  state: ");
         pw.println(mState);
         pw.println("    mClipQsScrim = " + mState.mClipQsScrim);
+        pw.println("    catalyxxSingleTone = " + mSingleTone);
 
         pw.print("  frontScrim:");
         pw.print(" viewAlpha=");
