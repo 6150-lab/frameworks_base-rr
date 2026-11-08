@@ -324,8 +324,7 @@
                     android:textColor="#ff0000"
                     android:singleLine="true"
                     android:textAllCaps="true"
-                    android:textSize="16sp"
-                    app:weatherText="@string/clock_ide_weather_data_unavailable" />
+                    android:textSize="16sp" />
 
                 <TextView
                     android:layout_width="wrap_content"
