@@ -13,10 +13,12 @@ import android.graphics.Typeface
 import android.util.AttributeSet
 import android.view.View
 import androidx.core.graphics.ColorUtils
+import com.android.internal.util.android.OmniJawsClient
 import com.android.systemui.res.R
 import com.android.systemui.rr.nowbar.NowBarItem
 import com.android.systemui.rr.nowbar.NowBarRepository
 import com.android.systemui.rr.nowbar.NowBarType
+import com.android.systemui.weather.WeatherViewController
 import java.util.Collections
 import java.util.WeakHashMap
 import kotlin.math.max
@@ -53,6 +55,12 @@ class FlatlineClockView @JvmOverloads constructor(
     private var playing = false
     private var calling = false
     private var readout: String? = null
+    /** City and condition for the idle readout, null while clock face weather is off. */
+    private var weather: String? = null
+    private val weatherObserver = object : OmniJawsClient.OmniJawsObserver {
+        override fun weatherUpdated() = updateWeather()
+        override fun weatherError(errorReason: Int) = updateWeather()
+    }
     /** Uptime when the last notification spike began, 0 for none. */
     private var spikeAt = 0L
     private var nextScan = 0L
@@ -68,12 +76,17 @@ class FlatlineClockView @JvmOverloads constructor(
         super.onAttachedToWindow()
         attached.add(this)
         NowBarRepository.instance?.addListener(this)
+        if (showReadout) {
+            OmniJawsClient.get().addObserver(context, weatherObserver)
+            updateWeather()
+        }
         nextScan = now() + SCAN_EVERY
         invalidate()
     }
 
     override fun onDetachedFromWindow() {
         NowBarRepository.instance?.removeListener(this)
+        if (showReadout) OmniJawsClient.get().removeObserver(context, weatherObserver)
         attached.remove(this)
         super.onDetachedFromWindow()
     }
@@ -102,6 +115,13 @@ class FlatlineClockView @JvmOverloads constructor(
     fun setDozing(dozing: Boolean) {
         if (this.dozing == dozing) return
         this.dozing = dozing
+        // Picks up the weather switches when the screen wakes.
+        if (!dozing && showReadout && isAttachedToWindow) updateWeather()
+        invalidate()
+    }
+
+    private fun updateWeather() {
+        weather = WeatherViewController.customClockDetail(context)
         invalidate()
     }
 
@@ -224,7 +244,9 @@ class FlatlineClockView @JvmOverloads constructor(
                 else -> context.getString(R.string.flatline_idle)
             }, 2f * density, ty, text,
         )
-        val right = readout ?: if (preview) context.getString(R.string.flatline_preview) else ""
+        // Idle, the right side shows the weather.
+        val right = readout
+            ?: if (preview) context.getString(R.string.flatline_preview) else weather ?: ""
         if (right.isNotEmpty()) {
             text.textAlign = Paint.Align.RIGHT
             val fitted = android.text.TextUtils.ellipsize(right.uppercase(), android.text.TextPaint(text),
