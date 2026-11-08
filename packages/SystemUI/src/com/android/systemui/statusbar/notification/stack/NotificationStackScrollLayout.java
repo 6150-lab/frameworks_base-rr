@@ -6715,6 +6715,29 @@ public class NotificationStackScrollLayout
     }
 
     /**
+     * Catalyxx glass in the open shade: where notifications are clipped now, in this view's
+     * coordinates, and what's cut out of that (empty for nothing). False while nothing clips them.
+     * SurfaceFlinger's glass doesn't see the canvas's clip, so a notification's glass stops at
+     * this itself.
+     */
+    public boolean getGlassClip(RectF clip, RectF cutOut) {
+        if (!mShouldUseRoundedRectClipping) {
+            return false;
+        }
+        clip.set(mRoundedRectClippingLeft,
+                mRoundedRectClippingTop + mRoundedRectClippingYTranslation,
+                mRoundedRectClippingRight,
+                mRoundedRectClippingBottom + mRoundedRectClippingYTranslation);
+        cutOut.setEmpty();
+        final ShadeScrimShape negative = mScrollViewFields.negativeClippingShape;
+        if (mShouldUseNegativeRoundedRectClipping && negative != null) {
+            final ShadeScrimBounds bounds = negative.getBounds();
+            cutOut.set(bounds.getLeft(), bounds.getTop(), bounds.getRight(), bounds.getBottom());
+        }
+        return true;
+    }
+
+    /**
      * Set rounded rect clipping bounds on this view.
      */
     public void setRoundedClippingBounds(int left, int top, int right, int bottom, int topRadius,

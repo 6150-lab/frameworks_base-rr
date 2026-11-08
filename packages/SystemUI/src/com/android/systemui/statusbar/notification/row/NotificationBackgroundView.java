@@ -27,6 +27,7 @@ import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.LayerDrawable;
@@ -51,6 +52,7 @@ import com.android.systemui.glass.ui.OwnGlass;
 import com.android.systemui.glass.ui.OwnGlassViewRim;
 import com.android.systemui.res.R;
 import com.android.systemui.statusbar.notification.shared.NotificationAddXOnHoverToDismiss;
+import com.android.systemui.statusbar.notification.stack.NotificationStackScrollLayout;
 import com.android.systemui.util.Assert;
 import com.android.systemui.util.DrawableDumpKt;
 
@@ -88,6 +90,14 @@ public class NotificationBackgroundView extends View implements Dumpable,
     private final int convexR = 9;
     private final int concaveR = 22;
     private BackgroundBlurDrawable mBackgroundBlurDrawable;
+    // Catalyxx glass in the open shade: where the notification list clips this notification, and
+    // the alpha a sliver of it left at the clip's edge fades to (drawBlur())
+    private static final float GLASS_SLIVER_DP = 32f;
+    private final RectF mGlassClip = new RectF();
+    private final RectF mGlassCutOut = new RectF();
+    private float mGlassClipAlpha = 1f;
+    // The alpha of this view and every view above it, from updateBlurAlpha()
+    private float mBlurViewAlpha = 1f;
     @VisibleForTesting
     protected View.OnAttachStateChangeListener mOnAttachStateChangeListener;
 
@@ -239,6 +249,45 @@ public class NotificationBackgroundView extends View implements Dumpable,
                 bottom = Math.min(bottom, outline.bottom - getTop());
             }
         }
+        float clipAlpha = 1f;
+        if (!mExpandAnimationRunning && getParent() instanceof ActivatableNotificationView row
+                && row.isGlassInShade()
+                && row.getParent() instanceof NotificationStackScrollLayout list
+                && list.getGlassClip(mGlassClip, mGlassCutOut)) {
+            // In the open shade the list clips its notifications: under the shade's header, as
+            // the shade opens and around what it cuts out. SurfaceFlinger's glass doesn't see that
+            // clip, so it stops there itself, square, and a sliver too thin to carry anything
+            // fades out.
+            final float dx = row.getX() + getX();
+            final float dy = row.getY() + getY();
+            mGlassClip.offset(-dx, -dy);
+            if (!mGlassCutOut.isEmpty()) {
+                mGlassCutOut.offset(-dx, -dy);
+                if (mGlassCutOut.left < right && mGlassCutOut.right > left) {
+                    if (mGlassCutOut.top <= top && mGlassCutOut.bottom > top) {
+                        mGlassClip.top = Math.max(mGlassClip.top, mGlassCutOut.bottom);
+                    } else if (mGlassCutOut.bottom >= bottom && mGlassCutOut.top < bottom) {
+                        mGlassClip.bottom = Math.min(mGlassClip.bottom, mGlassCutOut.top);
+                    }
+                }
+            }
+            if (mGlassClip.top > top) {
+                top = (int) Math.ceil(mGlassClip.top);
+                joinedSides |= BackgroundBlurDrawable.GLASS_SIDE_TOP;
+            }
+            if (mGlassClip.bottom < bottom) {
+                bottom = (int) Math.floor(mGlassClip.bottom);
+                joinedSides |= BackgroundBlurDrawable.GLASS_SIDE_BOTTOM;
+            }
+            left = Math.max(left, (int) Math.ceil(mGlassClip.left));
+            right = Math.min(right, (int) Math.floor(mGlassClip.right));
+            final float sliver = GLASS_SLIVER_DP * getResources().getDisplayMetrics().density;
+            clipAlpha = Math.max(0f, Math.min(1f, (bottom - top) / sliver));
+        }
+        if (mGlassClipAlpha != clipAlpha) {
+            mGlassClipAlpha = clipAlpha;
+            applyBlurAlpha();
+        }
         if (bottom <= top || right <= left) {
             return;
         }
@@ -304,7 +353,13 @@ public class NotificationBackgroundView extends View implements Dumpable,
             final ViewParent parent = view.getParent();
             view = parent instanceof View ? (View) parent : null;
         }
-        mBackgroundBlurDrawable.setAlpha(Math.round(alpha * 255));
+        mBlurViewAlpha = alpha;
+        applyBlurAlpha();
+    }
+
+    /** The blurred background's alpha: the views' times what the shade's clip leaves of it. */
+    private void applyBlurAlpha() {
+        mBackgroundBlurDrawable.setAlpha(Math.round(mBlurViewAlpha * mGlassClipAlpha * 255));
     }
 
     /**

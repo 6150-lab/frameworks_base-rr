@@ -137,8 +137,8 @@ public abstract class ActivatableNotificationView extends ExpandableOutlineView 
      */
     protected boolean mOnKeyguard;
     protected boolean mIsBlurSupported;
-    // Catalyxx glass on notifications (OwnGlass): see-through in the shade, and real glass where
-    // the notification sits over the lock screen or an app, see usesBlurredBackground()
+    // Catalyxx glass on notifications (OwnGlass): real glass wherever the notification sits, on the
+    // lock screen, over an app and in the open shade, see usesBlurredBackground()
     private boolean mGlassOn;
     private int mGlassVersion = -1;
     private final Runnable mGlassListener = this::onGlassChanged;
@@ -400,7 +400,15 @@ public abstract class ActivatableNotificationView extends ExpandableOutlineView 
     protected boolean usesBlurredBackground() {
         return usesTransparentBackground()
                 && (lockscreenBlurForNotifications()
-                        || (mGlassOn && (mOnKeyguard || isGlassOverContent())));
+                        || mGlassOn);
+    }
+
+    /**
+     * Whether this notification's Catalyxx glass sits in the open shade, where the notification
+     * list clips it (NotificationBackgroundView), rather than on the lock screen or over an app.
+     */
+    public boolean isGlassInShade() {
+        return mGlassOn && !mOnKeyguard && !isGlassOverContent();
     }
 
     protected boolean usesTransparentBackground() {
@@ -414,8 +422,8 @@ public abstract class ActivatableNotificationView extends ExpandableOutlineView 
     }
 
     /**
-     * Whether this notification sits over an app, as a heads-up, instead of in the shade. There
-     * its Catalyxx glass blurs what's behind it itself, as it does on the lock screen.
+     * Whether this notification sits over an app, as a heads-up, instead of in the shade. Nothing
+     * clips its Catalyxx glass there, as on the lock screen.
      */
     protected boolean isGlassOverContent() {
         return false;
