@@ -63,8 +63,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.android.compose.theme.LocalAndroidColorScheme
 import com.android.internal.graphics.ColorUtils
+import com.android.internal.util.catalyxx.GlassSettings
 import com.android.systemui.res.R
-import com.android.systemui.shared.system.RrGlass.isDialogBlurEnabled
+import com.android.systemui.shared.system.BlurUtils.isVolumeAndPowerBlurEnabled
 import com.android.systemui.statusbar.phone.SystemUIDialog
 import kotlinx.coroutines.delay
 
@@ -90,8 +91,32 @@ fun UsbModePickerContent(
     val blurRadius = dimensionResource(R.dimen.bottomsheet_blur_radius)
     val isBlurSupported by
         dialog.blurInteractor!!.isBlurCurrentlySupported.collectAsStateWithLifecycle()
-    // Liquid Glass: blur the card's own region, so the glass lens lights the card.
-    val glass = isDialogBlurEnabled() && isBlurSupported
+    // Liquid Glass: the card is glass with the menus and dialogs. It blurs its own region, and
+    // with a curved rim the glass brings its own color.
+    val isBlurEnabled = remember {
+        isVolumeAndPowerBlurEnabled(dialog.context, GlassSettings.PLACE_DIALOGS)
+    }
+    val glass = isBlurEnabled && isBlurSupported
+    val androidBlurColor =
+        ColorUtils.compositeColors(
+            LocalAndroidColorScheme.current.surfaceEffect0.toArgb(),
+            LocalAndroidColorScheme.current.surfaceEffect2.toArgb(),
+        )
+    val glassLook =
+        remember(androidBlurColor, glass) {
+            if (glass) {
+                GlassSettings.look(dialog.context, GlassSettings.PLACE_DIALOGS, androidBlurColor)
+            } else {
+                null
+            }
+        }
+    val glassColor =
+        remember(androidBlurColor) {
+            GlassSettings.tintColor(dialog.context, GlassSettings.PLACE_DIALOGS, androidBlurColor)
+        }
+    val glassBlurScale = remember {
+        GlassSettings.blurScale(dialog.context.contentResolver, GlassSettings.PLACE_DIALOGS)
+    }
     val density = LocalDensity.current
     val blur = remember {
         dialog.window!!.decorView.getViewRootImpl().createBackgroundBlurDrawable()
@@ -100,8 +125,14 @@ fun UsbModePickerContent(
     // draws a single frame, so radii set while drawing would never reach SurfaceFlinger.
     SideEffect {
         if (glass) {
-            blur.setBlurRadius(with(density) { blurRadius.roundToPx() })
+            blur.setBlurRadius(
+                GlassSettings.scaleBlurRadius(
+                    with(density) { blurRadius.roundToPx() },
+                    glassBlurScale,
+                )
+            )
             blur.setCornerRadius(with(density) { radius.toPx() })
+            blur.setGlass(glassLook)
         } else {
             blur.setBlurRadius(0)
         }
@@ -129,13 +160,10 @@ fun UsbModePickerContent(
             )
             .clip(RoundedCornerShape(radius))
             .background(
-                if (glass) {
-                    Color(
-                        ColorUtils.compositeColors(
-                            LocalAndroidColorScheme.current.surfaceEffect0.toArgb(),
-                            LocalAndroidColorScheme.current.surfaceEffect2.toArgb(),
-                        )
-                    )
+                if (glassLook != null) {
+                    Color.Transparent
+                } else if (glass) {
+                    Color(glassColor)
                 } else {
                     colors.surfaceContainer
                 }

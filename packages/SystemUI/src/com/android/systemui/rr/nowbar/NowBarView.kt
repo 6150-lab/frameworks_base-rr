@@ -35,11 +35,11 @@ import androidx.core.graphics.ColorUtils
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import com.android.internal.graphics.drawable.BackgroundBlurDrawable
+import com.android.internal.util.catalyxx.GlassSettings
 import com.android.systemui.lifecycle.repeatWhenAttached
 import com.android.systemui.plugins.ActivityStarter
 import com.android.systemui.plugins.statusbar.StatusBarStateController
 import com.android.systemui.res.R
-import com.android.systemui.shared.system.RrGlass
 import com.android.systemui.statusbar.StatusBarState
 import java.util.function.Consumer
 import kotlinx.coroutines.flow.Flow
@@ -504,7 +504,9 @@ class NowBarView(
     }
 
     private fun paintCapsule(colors: IntArray?) {
-        val glass = look.glass && !dozing && blurEnabled && RrGlass.isLockscreenBlurEnabled()
+        val glass =
+            look.glass && !dozing && blurEnabled &&
+                GlassSettings.isOn(context.contentResolver, GlassSettings.PLACE_LOCKSCREEN)
         setGlass(glass)
         val fill = when {
             dozing -> Color.BLACK
@@ -540,9 +542,21 @@ class NowBarView(
             ColorUtils.blendARGB(fill, Color.WHITE, 0.08f), 0xC0))
     }
 
-    /** The same blur the lock screen shortcuts sit on; SurfaceFlinger draws Frosted or Liquid. */
+    /**
+     * The same glass the lock screen shortcuts sit on: Liquid Glass's blur and, where the material
+     * has one, its curved rim. The capsule keeps its own fill over it.
+     */
     private fun setGlass(on: Boolean) {
         val drawable = if (on) blurDrawable() else null
+        drawable?.setBlurRadius(
+            GlassSettings.scaleBlurRadius(
+                resources.getDimensionPixelSize(R.dimen.keyguard_shortcuts_blur_radius),
+                GlassSettings.blurScale(context.contentResolver, GlassSettings.PLACE_LOCKSCREEN),
+            )
+        )
+        drawable?.setGlass(
+            GlassSettings.look(context, GlassSettings.PLACE_LOCKSCREEN, Color.TRANSPARENT)
+        )
         blur?.setVisible(drawable != null, false)
         if ((drawable != null) != (capsule.background is LayerDrawable)) {
             capsule.background =
@@ -553,7 +567,6 @@ class NowBarView(
     private fun blurDrawable(): BackgroundBlurDrawable? {
         blur?.let { return it }
         val made = viewRootImpl?.createBackgroundBlurDrawable() ?: return null
-        made.setBlurRadius(resources.getDimensionPixelSize(R.dimen.keyguard_shortcuts_blur_radius))
         made.setCornerRadius(radius)
         blur = made
         updateBlurAlpha()
