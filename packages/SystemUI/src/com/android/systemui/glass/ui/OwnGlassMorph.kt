@@ -7,7 +7,6 @@ package com.android.systemui.glass.ui
 
 import android.graphics.Rect
 import android.graphics.RectF
-import android.provider.Settings
 import android.view.Surface
 import android.view.View
 import android.view.ViewTreeObserver
@@ -671,7 +670,7 @@ constructor(
         }
 
         private fun override(view: View, key: String): Float? {
-            val y = Settings.Global.getInt(view.context.contentResolver, key, -1)
+            val y = GlassSettings.getInt(view.context.contentResolver, key, -1)
             return if (y >= 0) y.toFloat() else null
         }
 

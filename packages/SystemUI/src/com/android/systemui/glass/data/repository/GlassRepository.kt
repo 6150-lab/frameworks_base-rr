@@ -13,7 +13,7 @@ import com.android.systemui.dagger.SysUISingleton
 import com.android.systemui.dagger.qualifiers.Application
 import com.android.systemui.dagger.qualifiers.Background
 import com.android.systemui.util.kotlin.emitOnStart
-import com.android.systemui.util.settings.GlobalSettings
+import com.android.systemui.util.settings.SystemSettings
 import com.android.systemui.util.settings.SettingsProxyExt.observerFlow
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
@@ -35,12 +35,12 @@ import kotlinx.coroutines.flow.stateIn
 class GlassRepository
 @Inject
 constructor(
-    private val globalSettings: GlobalSettings,
+    private val settings: SystemSettings,
     @Application applicationScope: CoroutineScope,
     @Background backgroundDispatcher: CoroutineDispatcher,
 ) {
     private val state: StateFlow<GlassState> =
-        globalSettings
+        settings
             .observerFlow(*GlassSettings.KEYS)
             .emitOnStart()
             .map { readState() }
@@ -68,50 +68,60 @@ constructor(
     fun currentRim(place: String): GlassRim? = state.value.rim(place)
 
     private fun readState(): GlassState {
+        // RR: the material says whether glass is on, its style and the color it starts with
+        val material = settings.getInt(GlassSettings.MATERIAL, GlassSettings.DEFAULT_MATERIAL)
         val tint =
             GlassTint(
-                color = globalSettings.getInt(GlassSettings.COLOR, GlassSettings.COLOR_FROSTED),
-                tint = globalSettings.getInt(GlassSettings.TINT, GlassSettings.DEFAULT_TINT),
+                color =
+                    GlassSettings.color(
+                        material,
+                        settings.getInt(GlassSettings.COLOR, GlassSettings.COLOR_UNSET),
+                    ),
+                tint = settings.getInt(GlassSettings.TINT, GlassSettings.DEFAULT_TINT),
             )
         return GlassState(
-            enabled = globalSettings.getInt(GlassSettings.ENABLED, 0) == 1,
+            enabled = GlassSettings.isEnabled(material),
             strength =
-                globalSettings.getInt(
+                settings.getInt(
                     GlassSettings.BLUR_STRENGTH,
                     GlassSettings.DEFAULT_BLUR_STRENGTH,
                 ),
             tint = tint,
             rim =
                 GlassRim(
-                    style = globalSettings.getInt(GlassSettings.STYLE, GlassSettings.DEFAULT_STYLE),
-                    bend = globalSettings.getInt(GlassSettings.BEND, GlassSettings.DEFAULT_BEND),
+                    style =
+                        GlassSettings.style(
+                            material,
+                            settings.getInt(GlassSettings.STYLE, GlassSettings.DEFAULT_STYLE),
+                        ),
+                    bend = settings.getInt(GlassSettings.BEND, GlassSettings.DEFAULT_BEND),
                     width =
-                        globalSettings.getInt(
+                        settings.getInt(
                             GlassSettings.RIM_WIDTH,
                             GlassSettings.DEFAULT_RIM_WIDTH,
                         ),
                     light =
-                        globalSettings.getInt(
+                        settings.getInt(
                             GlassSettings.RIM_LIGHT,
                             GlassSettings.DEFAULT_RIM_LIGHT,
                         ),
                     rainbow =
-                        globalSettings.getInt(GlassSettings.RAINBOW, GlassSettings.DEFAULT_RAINBOW),
+                        settings.getInt(GlassSettings.RAINBOW, GlassSettings.DEFAULT_RAINBOW),
                     shadow =
-                        globalSettings.getInt(GlassSettings.SHADOW, GlassSettings.DEFAULT_SHADOW),
+                        settings.getInt(GlassSettings.SHADOW, GlassSettings.DEFAULT_SHADOW),
                     tint = tint,
-                    adaptive = globalSettings.getInt(GlassSettings.ADAPTIVE, 1),
-                    smoke = globalSettings.getInt(GlassSettings.SMOKE, GlassSettings.DEFAULT_SMOKE),
+                    adaptive = settings.getInt(GlassSettings.ADAPTIVE, 1),
+                    smoke = settings.getInt(GlassSettings.SMOKE, GlassSettings.DEFAULT_SMOKE),
                     smokeColor =
-                        globalSettings.getInt(GlassSettings.SMOKE_COLOR, GlassSettings.SMOKE_BLACK),
+                        settings.getInt(GlassSettings.SMOKE_COLOR, GlassSettings.SMOKE_BLACK),
                     switchPoint =
-                        globalSettings.getInt(
+                        settings.getInt(
                             GlassSettings.SWITCH_POINT,
                             GlassSettings.DEFAULT_SWITCH_POINT,
                         ),
                 ),
             placesOff =
-                GlassSettings.PLACES.filterTo(HashSet()) { globalSettings.getInt(it, 1) == 0 },
+                GlassSettings.PLACES.filterTo(HashSet()) { settings.getInt(it, 1) == 0 },
         )
     }
 

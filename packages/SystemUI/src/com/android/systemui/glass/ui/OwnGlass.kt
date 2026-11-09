@@ -10,7 +10,6 @@ import android.database.ContentObserver
 import android.graphics.Color
 import android.os.Handler
 import android.os.Looper
-import android.provider.Settings
 import android.util.ArraySet
 import android.view.HapticFeedbackConstants
 import android.view.View
@@ -78,9 +77,7 @@ object OwnGlass {
                     changed()
                 }
             }
-        GlassSettings.KEYS.forEach {
-            resolver.registerContentObserver(Settings.Global.getUriFor(it), false, observer)
-        }
+        GlassSettings.observe(resolver, observer, *GlassSettings.KEYS)
         settings = readSettings()
 
         // Glass is solid wherever the system's blur is off, such as in Battery Saver. The window
@@ -281,16 +278,16 @@ object OwnGlass {
 
     private fun readSettings(): Values {
         val resolver = context.contentResolver
-        fun get(key: String, default: Int) = Settings.Global.getInt(resolver, key, default)
+        fun get(key: String, default: Int) = GlassSettings.getInt(resolver, key, default)
         return Values(
-            enabled = get(GlassSettings.ENABLED, 0) == 1,
+            enabled = GlassSettings.isEnabled(resolver),
             placesOff = GlassSettings.PLACES.filterTo(HashSet()) { get(it, 1) == 0 },
-            style = get(GlassSettings.STYLE, GlassSettings.DEFAULT_STYLE),
+            style = GlassSettings.style(resolver),
             bend = get(GlassSettings.BEND, GlassSettings.DEFAULT_BEND),
             rimWidth = get(GlassSettings.RIM_WIDTH, GlassSettings.DEFAULT_RIM_WIDTH),
             rimLight = get(GlassSettings.RIM_LIGHT, GlassSettings.DEFAULT_RIM_LIGHT),
             rainbow = get(GlassSettings.RAINBOW, GlassSettings.DEFAULT_RAINBOW),
-            color = get(GlassSettings.COLOR, GlassSettings.COLOR_FROSTED),
+            color = GlassSettings.color(resolver),
             tint = get(GlassSettings.TINT, GlassSettings.DEFAULT_TINT),
             touchGlow = get(GlassSettings.TOUCH_GLOW, 1) == 1,
             glowColor = get(GlassSettings.TOUCH_GLOW_COLOR, GlassSettings.GLOW_WHITE),

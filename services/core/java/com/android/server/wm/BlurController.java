@@ -20,6 +20,7 @@ import static android.os.PowerManager.THERMAL_STATUS_SEVERE;
 import static android.view.CrossWindowBlurListeners.CROSS_WINDOW_BLUR_SUPPORTED;
 
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -50,6 +51,8 @@ final class BlurController {
     private boolean mInPowerSaveMode;
     // Catalyxx glass with 'Solid in Battery Saver' off keeps blur on in Battery Saver
     private boolean mGlassKeepsBlurInPowerSave;
+    // RR: the Solid material turns blur off
+    private boolean mGlassSolid;
     private boolean mDisabledByThermal;
     private boolean mBlurDisabledSetting;
     private boolean mTunnelModeEnabled = false;
@@ -99,18 +102,13 @@ final class BlurController {
             @Override
             public void onChange(boolean selfChange) {
                 super.onChange(selfChange);
-                mGlassKeepsBlurInPowerSave =
-                        GlassSettings.keepsBlurInBatterySaver(mContext.getContentResolver());
+                readGlass(mContext.getContentResolver());
                 updateBlurEnabled();
             }
         };
-        for (String key : new String[] {
-                GlassSettings.ENABLED, GlassSettings.SOLID_IN_BATTERY_SAVER}) {
-            context.getContentResolver().registerContentObserver(
-                    Settings.Global.getUriFor(key), false, glassObserver);
-        }
-        mGlassKeepsBlurInPowerSave =
-                GlassSettings.keepsBlurInBatterySaver(context.getContentResolver());
+        GlassSettings.observe(context.getContentResolver(), glassObserver,
+                GlassSettings.MATERIAL, GlassSettings.SOLID_IN_BATTERY_SAVER);
+        readGlass(context.getContentResolver());
 
         powerManager.addThermalStatusListener((status) -> {
             mDisabledByThermal = status >= THERMAL_STATUS_SEVERE;
@@ -138,9 +136,15 @@ final class BlurController {
         return mBlurEnabled;
     }
 
+    private void readGlass(ContentResolver resolver) {
+        mGlassSolid = GlassSettings.isSolid(resolver);
+        mGlassKeepsBlurInPowerSave = GlassSettings.keepsBlurInBatterySaver(resolver);
+    }
+
     private void updateBlurEnabled() {
         synchronized (mLock) {
             final boolean newEnabled = CROSS_WINDOW_BLUR_SUPPORTED && !mBlurDisabledSetting
+                    && !mGlassSolid
                     && (!mInPowerSaveMode || mGlassKeepsBlurInPowerSave)
                     && !mTunnelModeEnabled && !mDisabledByThermal;
             if (mBlurEnabled == newEnabled) {

@@ -401,10 +401,7 @@ public class GlassClockView extends View {
         mAttached = true;
         final Context context = getContext();
         final ContentResolver resolver = context.getContentResolver();
-        for (String key : GlassSettings.CLOCK_KEYS) {
-            resolver.registerContentObserver(Settings.Global.getUriFor(key), false,
-                    mLookObserver);
-        }
+        GlassSettings.observe(resolver, mLookObserver, GlassSettings.CLOCK_KEYS);
         final Uri timeFormat = Settings.System.getUriFor(Settings.System.TIME_12_24);
         try {
             // SystemUI shows whichever user is current
@@ -1178,7 +1175,7 @@ public class GlassClockView extends View {
         }
 
         private static int get(ContentResolver resolver, String key, int def) {
-            return Settings.Global.getInt(resolver, key, def);
+            return GlassSettings.getInt(resolver, key, def);
         }
 
         private static int clamp(int value, int min, int max) {

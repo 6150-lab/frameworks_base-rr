@@ -11,7 +11,6 @@ import android.graphics.Color
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.LayerDrawable
-import android.provider.Settings
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewRootImpl
@@ -258,7 +257,7 @@ private constructor(
                 return stock
             }
             val isSmooth =
-                Settings.Global.getInt(
+                GlassSettings.getInt(
                     resolver,
                     GlassSettings.MORPH_STYLE,
                     GlassSettings.DEFAULT_MORPH_STYLE,
@@ -273,7 +272,7 @@ private constructor(
             // A spring takes as much longer as one over the square root of its stiffness
             val speed =
                 SPEED[
-                    Settings.Global.getInt(
+                    GlassSettings.getInt(
                             resolver,
                             GlassSettings.MORPH_SPEED,
                             GlassSettings.DEFAULT_MORPH_SPEED,
