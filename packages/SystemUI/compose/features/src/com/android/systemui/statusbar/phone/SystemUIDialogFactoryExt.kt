@@ -78,7 +78,7 @@ import com.android.internal.graphics.ColorUtils
 import com.android.internal.graphics.drawable.BackgroundBlurDrawable
 import com.android.systemui.keyboard.shortcut.ui.composable.hasCompactWindowSize
 import com.android.systemui.res.R
-import com.android.systemui.shared.system.RrGlass.isDialogBlurEnabled
+import com.android.systemui.shared.system.BlurUtils.isVolumeAndPowerBlurEnabled
 import kotlin.math.roundToInt
 
 /**
@@ -203,7 +203,7 @@ fun SystemUIDialogFactory.createBottomSheet(
                 val radius = dimensionResource(R.dimen.bottom_sheet_corner_radius)
                 val isBlurSupported by
                     dialog.blurInteractor!!.isBlurCurrentlySupported.collectAsStateWithLifecycle()
-                val isBlurEnabled = isDialogBlurEnabled()
+                val isBlurEnabled = isVolumeAndPowerBlurEnabled()
                 val backgroundBlurModifier =
                     if (isBlurEnabled) {
                         val bottomsheetBlurRadius =

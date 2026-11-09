@@ -33,7 +33,7 @@ import com.android.app.tracing.coroutines.launchTraced as launch
 import com.android.internal.graphics.drawable.BackgroundBlurDrawable
 import com.android.systemui.Dependency
 import com.android.systemui.Flags
-import com.android.systemui.shared.system.RrGlass.isLockscreenBlurEnabled
+import com.android.systemui.Flags.enableLockscreenBlur
 import com.android.systemui.biometrics.UdfpsIconDrawable
 import com.android.systemui.common.ui.view.TouchHandlingView
 import com.android.systemui.keyguard.ui.view.DeviceEntryIconView
@@ -56,7 +56,6 @@ import kotlinx.coroutines.DisposableHandle
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.SharingStarted
 import android.provider.Settings
@@ -324,7 +323,7 @@ object DeviceEntryIconViewBinder {
         disposables +=
             bgView.repeatWhenAttached(mainImmediateDispatcher) {
                 repeatOnLifecycle(Lifecycle.State.CREATED) {
-                    if (isLockscreenBlurEnabled()) {
+                    if (enableLockscreenBlur()) {
                         bgView.background =
                             bgView.viewRootImpl.createBackgroundBlurDrawable().apply {
                                 setBlurRadius(
@@ -339,21 +338,18 @@ object DeviceEntryIconViewBinder {
                             bgView.removeOnLayoutChangeListener(layoutChangeListener)
                         }
 
-                        launch("$TAG#blurVisible") {
-                            combine(
-                                    windowRootViewBlurInteractor.isBlurCurrentlySupported,
-                                    bgViewModel.blurVisible,
-                                ) { isSupported, keyguardUp ->
-                                    isSupported && keyguardUp
-                                }
-                                .collect { bgView.background?.setVisible(it, false) }
+                        launch("$TAG#windowRootViewBlurInteractor.isBlurCurrentlySupported") {
+                            windowRootViewBlurInteractor.isBlurCurrentlySupported.collect {
+                                isSupported ->
+                                bgView.background?.setVisible(isSupported, false)
+                            }
                         }
                     }
 
                     launch("$TAG#bgViewModel.alpha") {
                         bgViewModel.alpha.collect { alpha ->
                             bgView.alpha = alpha
-                            if (isLockscreenBlurEnabled()) {
+                            if (enableLockscreenBlur()) {
                                 bgView.background?.alpha = (255 * alpha).toInt()
                             }
                         }

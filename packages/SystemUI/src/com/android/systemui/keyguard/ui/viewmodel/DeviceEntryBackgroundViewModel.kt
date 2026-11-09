@@ -19,7 +19,7 @@ package com.android.systemui.keyguard.ui.viewmodel
 
 import android.content.Context
 import com.android.settingslib.Utils
-import com.android.systemui.shared.system.RrGlass.isLockscreenBlurEnabled
+import com.android.systemui.Flags.enableLockscreenBlur
 import com.android.systemui.common.shared.colors.SurfaceEffectColors
 import com.android.systemui.common.ui.domain.interactor.ConfigurationInteractor
 import com.android.systemui.dagger.SysUISingleton
@@ -79,7 +79,7 @@ constructor(
     val color: Flow<Int> =
         deviceEntryIconViewModel.useBackgroundProtection.flatMapLatest { useBackground ->
             if (useBackground) {
-                if (!isLockscreenBlurEnabled()) {
+                if (!enableLockscreenBlur()) {
                     configurationInteractor.onAnyConfigurationChange
                         .map {
                             Utils.getColorAttrDefaultColor(
@@ -113,17 +113,6 @@ constructor(
                 flowOf(0)
             }
         }
-    /**
-     * Whether the glass behind the icon may blur. The window draws that blur, so it outlives the
-     * icon once the keyguard fades away; it only shows while the keyguard is up.
-     */
-    val blurVisible: Flow<Boolean> =
-        keyguardTransitionInteractor.startedKeyguardTransitionStep.map { step ->
-            step.to != KeyguardState.GONE &&
-                step.to != KeyguardState.OCCLUDED &&
-                step.to != KeyguardState.DREAMING
-        }
-
     val alpha: Flow<Float> =
         deviceEntryIconViewModel.useBackgroundProtection.flatMapLatest { useBackground ->
             if (useBackground) {
