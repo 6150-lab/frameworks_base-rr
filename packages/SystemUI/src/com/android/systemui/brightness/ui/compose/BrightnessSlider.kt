@@ -117,7 +117,6 @@ import com.android.systemui.qs.panels.shared.model.QsGlass
 import com.android.systemui.qs.panels.ui.compose.glassy
 import com.android.systemui.qs.panels.ui.compose.infinitegrid.glassAlphas
 import com.android.systemui.qs.panels.ui.compose.infinitegrid.liquidRim
-import com.android.systemui.qs.panels.ui.compose.infinitegrid.rimStrength
 import com.android.systemui.qs.panels.ui.compose.qsSliderStyle
 import com.android.systemui.qs.panels.ui.compose.qsStyleSliderColors
 import com.android.systemui.qs.panels.ui.compose.qsStyleSliderDimensions
@@ -357,10 +356,7 @@ fun BrightnessSlider(
                         }
                         .height(dimensions.trackHeight)
                         .thenIf(glass == QsGlass.LIQUID && dimensions.trackHeight >= 20.dp) {
-                            Modifier.liquidRim(
-                                RoundedCornerShape(SliderTrackRoundedCorner),
-                                tune.rimStrength,
-                            )
+                            Modifier.liquidRim(RoundedCornerShape(SliderTrackRoundedCorner))
                         }
                         .drawWithContent {
                             drawContent()
@@ -485,7 +481,7 @@ private fun drawAutoBrightnessButton(
             .size(52.dp)
             .clip(CircleShape)
             .background(fill)
-            .thenIf(glass == QsGlass.LIQUID) { Modifier.liquidRim(CircleShape, tune.rimStrength) }
+            .thenIf(glass == QsGlass.LIQUID) { Modifier.liquidRim(CircleShape) }
     ) {
         Icon(
             painter = painterResource(painterRes),

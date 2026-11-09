@@ -6,6 +6,7 @@
 package com.android.systemui.qs.panels.shared.model
 
 import androidx.compose.runtime.staticCompositionLocalOf
+import com.android.internal.util.catalyxx.GlassSettings
 
 /** Quick settings look, picked in Remixer and stored in Settings.System [SETTING]. */
 enum class QsStyle(val value: Int) {
@@ -65,18 +66,12 @@ val LocalQsMediaTileSize = staticCompositionLocalOf { QsMediaTileSize.SQUARE }
 enum class QsGlass {
     SOLID,
     FROSTED,
-    LIQUID;
-
-    companion object {
-        const val SETTING_QS = "rr_glass_qs"
-        const val SETTING_MATERIAL = "rr_glass_material"
-        const val SETTING_TINT = "rr_glass_tint"
-        const val SETTING_REFRACTION = "rr_glass_refraction"
-    }
+    LIQUID,
 }
 
 val LocalQsGlass = staticCompositionLocalOf { QsGlass.SOLID }
 
-data class QsGlassTune(val tint: Float = 0f, val refraction: Float = .6f)
+/** How much of its color the glass shows, 0 to 1 (GlassSettings.TINT). */
+data class QsGlassTune(val tint: Float = GlassSettings.DEFAULT_TINT / 100f)
 
 val LocalQsGlassTune = staticCompositionLocalOf { QsGlassTune() }

@@ -270,10 +270,7 @@ fun ContentScope.Tile(
                 paint == QsStyle.SOFT && tweaks.depth != QsTileDepth.FLAT ->
                     Modifier.softInset(active, tileShape)
                 else -> Modifier
-            }.then(
-                if (glass == QsGlass.LIQUID) Modifier.liquidRim(tileShape, tune.rimStrength)
-                else Modifier
-            )
+            }
         val levelModifier =
             if (volume != null) volumeLevelModifier(volume, tweaks, iconOnly, rows) else Modifier
         val animatedColor by animateColorAsState(colors.background, label = "QSTileBackgroundColor")

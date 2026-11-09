@@ -48,7 +48,6 @@ import com.android.systemui.qs.panels.ui.compose.infinitegrid.SoftSurface
 import com.android.systemui.qs.panels.ui.compose.infinitegrid.glassAlphas
 import com.android.systemui.qs.panels.ui.compose.infinitegrid.inkOn
 import com.android.systemui.qs.panels.ui.compose.infinitegrid.liquidRim
-import com.android.systemui.qs.panels.ui.compose.infinitegrid.rimStrength
 
 /** Media card look for the QS style: a plain card with the artwork as a thumbnail. */
 internal data class MediaCardLook(
@@ -350,7 +349,7 @@ internal fun StyledCardBackground(look: MediaCardLook, modifier: Modifier = Modi
                 .let { if (look.border != null) it.border(look.borderWidth, look.border, shape) else it }
                 .let { if (look.bevel) it.bevel(shape) else it }
                 .let {
-                    if (glass == QsGlass.LIQUID) it.liquidRim(shape, tune.rimStrength) else it
+                    if (glass == QsGlass.LIQUID) it.liquidRim(shape) else it
                 }
     )
 }

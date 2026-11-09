@@ -40,7 +40,6 @@ import com.android.systemui.qs.panels.shared.model.QsStyle
 import com.android.systemui.qs.panels.ui.compose.infinitegrid.glassAlphas
 import com.android.systemui.qs.panels.ui.compose.infinitegrid.inkOn
 import com.android.systemui.qs.panels.ui.compose.infinitegrid.liquidRim
-import com.android.systemui.qs.panels.ui.compose.infinitegrid.rimStrength
 import com.android.systemui.res.R
 
 fun SliderColors.glassy(glass: QsGlass, tune: QsGlassTune): SliderColors {
@@ -194,7 +193,7 @@ fun QsStyleSliderFrame(style: QsStyle, content: @Composable () -> Unit) {
     val glass = LocalQsGlass.current
     val tune = LocalQsGlassTune.current
     val see = glassAlphas(glass, tune)?.first ?: 1f
-    val rim = if (glass == QsGlass.LIQUID) tune.rimStrength else 0f
+    val rim = glass == QsGlass.LIQUID
     val tone = LocalQsTweaks.current.accent?.let { Color(it) }
     when (style) {
         QsStyle.REMIX -> {
@@ -214,7 +213,7 @@ fun QsStyleSliderFrame(style: QsStyle, content: @Composable () -> Unit) {
                             shape,
                             alpha = see,
                         )
-                        .liquidRim(shape, rim)
+                        .then(if (rim) Modifier.liquidRim(shape) else Modifier)
                         .padding(horizontal = 14.dp, vertical = 14.dp)
             ) {
                 content()
@@ -258,7 +257,7 @@ fun QsStyleSliderFrame(style: QsStyle, content: @Composable () -> Unit) {
                     modifier =
                         Modifier.size(52.dp)
                             .background(fill.copy(alpha = fill.alpha * see), segment)
-                            .liquidRim(segment, rim),
+                            .then(if (rim) Modifier.liquidRim(segment) else Modifier),
                 ) {
                     Image(
                         painter = painterResource(R.drawable.ic_brightness_full),

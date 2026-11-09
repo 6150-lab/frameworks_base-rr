@@ -80,6 +80,8 @@ import com.android.compose.theme.LocalAndroidColorScheme
 import com.android.systemui.common.shared.model.Icon
 import com.android.systemui.qs.panels.shared.model.LocalQsStyle
 import com.android.systemui.qs.panels.shared.model.LocalQsTweaks
+import com.android.internal.util.catalyxx.GlassSettings
+import com.android.systemui.glass.ui.compose.ownGlassRim
 import com.android.systemui.qs.panels.shared.model.QsGlass
 import com.android.systemui.qs.panels.shared.model.QsGlassTune
 import com.android.systemui.qs.panels.shared.model.QsIconBacking
@@ -678,38 +680,9 @@ internal fun glassAlphas(glass: QsGlass, tune: QsGlassTune): Pair<Float, Float>?
         QsGlass.LIQUID -> lerp(.72f, .94f, tune.tint) to lerp(.24f, .7f, tune.tint)
     }
 
-internal val QsGlassTune.rimStrength: Float
-    get() = refraction / .6f
-
-/** Liquid Glass: a lit rim and a soft sheen, where light catches the glass. */
-internal fun Modifier.liquidRim(shape: Shape, strength: Float = 1f): Modifier {
-    if (strength <= 0f) return this
-    fun white(alpha: Float) = Color.White.copy(alpha = (alpha * strength).coerceAtMost(1f))
-    return drawWithCache {
-        val outline = shape.createOutline(size, layoutDirection, this)
-        val rim =
-            Brush.linearGradient(
-                0f to white(.6f),
-                .45f to white(.06f),
-                1f to white(.24f),
-                start = Offset.Zero,
-                end = Offset(size.width, size.height),
-            )
-        val sheen =
-            Brush.radialGradient(
-                listOf(white(.14f), Color.Transparent),
-                center = Offset(size.width * .2f, 0f),
-                radius = maxOf(size.width, size.height) * .8f,
-            )
-        // The tile clips to its shape, so half the stroke shows.
-        val stroke = Stroke(width = 2.dp.toPx())
-        onDrawWithContent {
-            drawOutline(outline, sheen)
-            drawContent()
-            drawOutline(outline, rim, style = stroke)
-        }
-    }
-}
+/** Liquid Glass: the lit rim of the system's glass, which follows the phone's tilt. */
+internal fun Modifier.liquidRim(shape: Shape): Modifier =
+    ownGlassRim(GlassSettings.PLACE_SHADE, shape)
 
 /** Remix: on tiles fill with an accent gradient. */
 @Composable

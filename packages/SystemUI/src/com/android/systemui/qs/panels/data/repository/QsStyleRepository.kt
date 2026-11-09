@@ -7,6 +7,7 @@ package com.android.systemui.qs.panels.data.repository
 
 import com.android.systemui.dagger.SysUISingleton
 import com.android.systemui.dagger.qualifiers.Background
+import com.android.internal.util.catalyxx.GlassSettings
 import com.android.systemui.qs.panels.shared.model.QsGlass
 import com.android.systemui.qs.panels.shared.model.QsGlassTune
 import com.android.systemui.qs.panels.shared.model.QsMediaTileSize
@@ -78,26 +79,23 @@ constructor(
     /** Liquid Glass on the tiles; opaque while blur is off (Solid, Battery Saver, heat). */
     val glass: StateFlow<QsGlass> =
         combine(
-                systemSettings.intSetting(QsGlass.SETTING_QS, 1),
-                systemSettings.intSetting(QsGlass.SETTING_MATERIAL, 1),
+                systemSettings.intSetting(GlassSettings.PLACE_SHADE, 1),
+                systemSettings.intSetting(GlassSettings.MATERIAL, GlassSettings.DEFAULT_MATERIAL),
                 blurInteractor.isBlurCurrentlySupported,
             ) { qs, material, blur ->
                 when {
                     qs == 0 || !blur -> QsGlass.SOLID
-                    material == 2 -> QsGlass.LIQUID
-                    material == 1 -> QsGlass.FROSTED
+                    material == GlassSettings.MATERIAL_LIQUID -> QsGlass.LIQUID
+                    material == GlassSettings.MATERIAL_FROSTED -> QsGlass.FROSTED
                     else -> QsGlass.SOLID
                 }
             }
             .stateIn(scope, SharingStarted.Eagerly, QsGlass.SOLID)
 
     val glassTune: StateFlow<QsGlassTune> =
-        combine(
-                systemSettings.intSetting(QsGlass.SETTING_TINT, 0),
-                systemSettings.intSetting(QsGlass.SETTING_REFRACTION, 60),
-            ) { tint, refraction ->
-                QsGlassTune(tint.coerceIn(0, 100) / 100f, refraction.coerceIn(0, 100) / 100f)
-            }
+        systemSettings
+            .intSetting(GlassSettings.TINT, GlassSettings.DEFAULT_TINT)
+            .map { QsGlassTune(it.coerceIn(0, 100) / 100f) }
             .stateIn(scope, SharingStarted.Eagerly, QsGlassTune())
 
     init {
