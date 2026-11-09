@@ -18,6 +18,11 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.os.Handler
 import android.util.Log
+import android.view.View
+import android.view.ViewGroup
+import android.widget.FrameLayout
+import android.widget.ImageView
+import android.widget.TextView
 import com.android.systemui.res.R
 import java.util.concurrent.Executor
 
@@ -89,8 +94,10 @@ class NowBarScores(
 
     private fun glanceItem(target: SmartspaceTarget): NowBarItem? {
         if (target.featureType != SmartspaceTarget.FEATURE_SPORTS) return null
+        // Every card comes twice; the copy for the always-on display has no logos.
+        if (target.smartspaceTargetId.endsWith(AOD_SUFFIX)) return null
         val h2h = target.templateData as? HeadToHeadTemplateData
-        val score = (if (h2h != null) headToHead(target, h2h) else extrasScore(target))
+        val score = (if (h2h != null) headToHead(target, h2h) else extrasScore(target) ?: cardScore(target))
             ?: return null
         val action = target.headerAction ?: target.baseAction
         return item("glance:${target.smartspaceTargetId}", score, action?.let(::intentOf))
@@ -125,6 +132,46 @@ class NowBarScores(
                 extras.getString("matchTimeSummary") ?: action.subtitle)
         }
         return null
+    }
+
+    /**
+     * Intelligence sends the Pixel card as RemoteViews with empty actions and no template.
+     * Read it the way the eye does: league, first team (logo with its abbreviation as the
+     * description), its score, the clock, the other score, second team. No scores before
+     * kick-off.
+     */
+    private fun cardScore(target: SmartspaceTarget): NowBarScore? {
+        val views = target.remoteViews ?: return null
+        val root = try {
+            views.apply(context, FrameLayout(context))
+        } catch (e: Exception) {
+            Log.w(TAG, "Card would not inflate", e)
+            return null
+        }
+        val texts = ArrayList<String>()
+        val logos = LinkedHashMap<String, Drawable>()
+        fun walk(view: View) {
+            if (view.visibility != View.VISIBLE) return
+            when (view) {
+                is TextView -> view.text?.toString()?.trim()?.takeIf { it.isNotEmpty() }?.let(texts::add)
+                is ImageView -> {
+                    val team = view.contentDescription?.toString()?.trim()
+                    val logo = view.drawable
+                    if (!team.isNullOrEmpty() && logo != null) logos.putIfAbsent(team, logo)
+                }
+                is ViewGroup -> for (i in 0 until view.childCount) walk(view.getChildAt(i))
+            }
+        }
+        walk(root)
+        if (DEBUG) Log.d(TAG, "Card texts=$texts logos=${logos.keys}")
+        val teams = logos.keys.toList()
+        val scores = texts.filter(SCORE::matches)
+        if (teams.size != 2 || (scores.size != 0 && scores.size != 2)) return null
+        val league = texts.firstOrNull()?.takeIf { it !in teams && !SCORE.matches(it) }
+        val status = texts.filterNot { it in teams || SCORE.matches(it) || it == league }
+            .joinToString(" · ").ifEmpty { league ?: "" }
+        return score(teams[0], teams[1], scores.getOrElse(0) { "" }, scores.getOrElse(1) { "" },
+            logos[teams[0]], logos[teams[1]], status)
     }
 
     private fun intentOf(action: SmartspaceAction): PendingIntent? =
@@ -173,7 +220,9 @@ class NowBarScores(
         const val SOURCE_GLANCE = 1
 
         private const val TAG = "NowBarScores"
+        private val DEBUG = Log.isLoggable(TAG, Log.DEBUG)
         private const val UI_SURFACE = "lockscreen"
+        private const val AOD_SUFFIX = "_aod"
         private val NAME_SCORE = Regex("""^(\D{2,40}?)\s+(\d{1,3})$""")
         private val SCORE = Regex("""^\d{1,3}$""")
     }
