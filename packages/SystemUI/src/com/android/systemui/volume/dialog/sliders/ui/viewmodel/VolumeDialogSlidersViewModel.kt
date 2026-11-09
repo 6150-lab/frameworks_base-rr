@@ -49,10 +49,9 @@ constructor(
     // Use horizontal volume dialog if the audio tile details view is enabled
     val isVolumeDialogVertical = !expandedAudioTileDetailsFeatureInteractor.isDialogHorizontal()
 
-    // Show blur if the flag or Catalyxx glass is enabled and the volume dialog is vertical
-    val showBlur =
-        isVolumeAndPowerBlurEnabled(applicationContext, GlassSettings.PLACE_VOLUME) &&
-            isVolumeDialogVertical
+    // Show blur if the flag or Catalyxx glass is enabled. RR's dialog lies across the top of the
+    // screen unless a look stands it up, and it's glass either way.
+    val showBlur = isVolumeAndPowerBlurEnabled(applicationContext, GlassSettings.PLACE_VOLUME)
 
     /** What Catalyxx glass multiplies the sliders' blur radius by. */
     val blurRadiusScale =

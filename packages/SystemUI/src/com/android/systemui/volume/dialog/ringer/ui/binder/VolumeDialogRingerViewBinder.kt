@@ -166,8 +166,9 @@ constructor(
 
         volumeDialogBackgroundView.updateBackground()
         ringerBackgroundView.updateBackground()
-        if (viewModel.showBlur) {
-            // Catalyxx glass: the drawer's glass carries on into the dialog's below it
+        if (viewModel.showBlur && viewModel.isVolumeDialogVertical) {
+            // Catalyxx glass: the drawer's glass carries on into the dialog's below it. Lying
+            // across the top of the screen, the drawer is a piece of its own beside the dialog.
             ((ringerBackgroundView.background as LayerDrawable).getDrawable(0)
                     as BackgroundBlurDrawable)
                 .setGlassJoinedSides(BackgroundBlurDrawable.GLASS_SIDE_BOTTOM)
@@ -243,7 +244,13 @@ constructor(
                                 bottomDefaultRadius,
                             )
                             // Catalyxx glass: the ringer drawer's glass carries on into this
-                            blurDrawable.setGlassJoinedSides(BackgroundBlurDrawable.GLASS_SIDE_TOP)
+                            blurDrawable.setGlassJoinedSides(
+                                if (viewModel.isVolumeDialogVertical) {
+                                    BackgroundBlurDrawable.GLASS_SIDE_TOP
+                                } else {
+                                    0
+                                }
+                            )
                             (layers.getDrawable(1) as GradientDrawable).cornerRadii =
                                 bottomCornerRadii
                         } else {
