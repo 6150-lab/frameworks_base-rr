@@ -17,17 +17,12 @@
 package com.android.systemui.window.data.repository
 
 import android.app.ActivityManager
-import android.content.Context
-import android.database.ContentObserver
 import android.os.SystemProperties
-import android.os.UserHandle
-import android.provider.Settings
 import android.view.CrossWindowBlurListeners
 import com.android.systemui.common.coroutine.ChannelExt.trySendWithFailureLogging
 import com.android.systemui.dagger.SysUISingleton
 import com.android.systemui.dagger.qualifiers.Application
 import com.android.systemui.dagger.qualifiers.Main
-import com.android.systemui.shared.system.RrGlass
 import com.android.systemui.utils.coroutines.flow.conflatedCallbackFlow
 import com.android.systemui.window.data.repository.WindowRootViewBlurRepository.Companion.isDisableBlurSysPropSet
 import java.util.concurrent.Executor
@@ -75,7 +70,6 @@ constructor(
     crossWindowBlurListeners: CrossWindowBlurListeners,
     @Main private val executor: Executor,
     @Application private val scope: CoroutineScope,
-    @Application private val context: Context,
 ) : WindowRootViewBlurRepository {
 
     override val trackingShadeMotion = MutableStateFlow(false)
@@ -94,34 +88,17 @@ constructor(
                             "unable to send blur enabled/disable state change",
                         )
                     }
-                // Liquid Glass can turn the shade's blur off on its own.
-                val glassObserver =
-                    object : ContentObserver(null) {
-                        override fun onChange(selfChange: Boolean) {
-                            sendUpdate.accept(crossWindowBlurListeners.isCrossWindowBlurEnabled)
-                        }
-                    }
                 crossWindowBlurListeners.addListener(executor, sendUpdate)
-                context.contentResolver.registerContentObserver(
-                    Settings.System.getUriFor(RrGlass.QS),
-                    false,
-                    glassObserver,
-                    UserHandle.USER_ALL,
-                )
                 sendUpdate.accept(crossWindowBlurListeners.isCrossWindowBlurEnabled)
 
-                awaitClose {
-                    crossWindowBlurListeners.removeListener(sendUpdate)
-                    context.contentResolver.unregisterContentObserver(glassObserver)
-                }
+                awaitClose { crossWindowBlurListeners.removeListener(sendUpdate) }
             } // stateIn because this is backed by a binder call.
             .stateIn(scope, SharingStarted.Eagerly, false)
 
     override var blurAppliedListener: BlurAppliedListener? = null
 
     private fun isBlurAllowed(): Boolean {
-        return ActivityManager.isHighEndGfx() && !isDisableBlurSysPropSet() &&
-            RrGlass.isOn(RrGlass.QS)
+        return ActivityManager.isHighEndGfx() && !isDisableBlurSysPropSet()
     }
 
     companion object {

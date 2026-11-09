@@ -171,8 +171,6 @@ public class ThemeOverlayController implements CoreStartable, Dumpable {
     private double mShadeGamma = 1.0;
     // RR: Remixer accent saturation, percent of the accent palettes' chroma, 0 to SATURATION_MAX
     private static final String ACCENT_SATURATION = "rr_accent_saturation";
-    // Read by SurfaceFlinger (through system_server) for Liquid Glass accent tint.
-    private static final String GLASS_ACCENT_COLOR = "rr_glass_accent_color";
     private static final int SATURATION_MAX = 200;
     private double mSaturation = 1.0;
     // Theme variant: Vibrant, Tonal, Expressive, etc
@@ -749,10 +747,6 @@ public class ThemeOverlayController implements CoreStartable, Dumpable {
             mLightColorScheme = new ColorScheme(color, false /* isDark */, mThemeStyle, mContrast);
         }
         mColorScheme = isNightMode() ? mDarkColorScheme : mLightColorScheme;
-        final int glassAccent = mDarkColorScheme.getAccent1().getS500() & 0xFFFFFF;
-        final int glassUser = mUserTracker.getUserId();
-        mBgExecutor.execute(() -> Settings.System.putIntForUser(mContext.getContentResolver(),
-                GLASS_ACCENT_COLOR, glassAccent, glassUser));
         int shade = mSecureSettings.getIntForUser(ACCENT_SHADE, 0, mUserTracker.getUserId());
         mShadeGamma = Math.pow(2, -Math.max(-SHADE_MAX, Math.min(SHADE_MAX, shade)) * SHADE_STEP);
         int saturation = mSecureSettings.getIntForUser(ACCENT_SATURATION, 100,
