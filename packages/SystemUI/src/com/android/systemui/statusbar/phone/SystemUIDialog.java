@@ -19,6 +19,7 @@ package com.android.systemui.statusbar.phone;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -41,12 +42,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StyleRes;
 
+import com.android.internal.util.catalyxx.GlassSettings;
 import com.android.systemui.Dependency;
 import com.android.systemui.animation.DialogTransitionAnimator;
 import com.android.systemui.broadcast.BroadcastDispatcher;
 import com.android.systemui.dagger.qualifiers.Application;
 import com.android.systemui.res.R;
-import com.android.systemui.shared.system.RrGlass;
 import com.android.systemui.util.DialogKt;
 import com.android.systemui.window.domain.interactor.WindowRootViewBlurInteractor;
 
@@ -296,10 +297,14 @@ public class SystemUIDialog extends AlertDialog {
         WindowManager.LayoutParams attrs = getWindow().getAttributes();
         attrs.setTitle(getClass().getSimpleName());
         // Liquid Glass: blur what's behind the dialog; window manager drops it while blur is off.
-        if (RrGlass.isOn(RrGlass.MENUS)) {
+        // With a curved rim the screen behind stays sharp, for the rim to bend.
+        final ContentResolver resolver = context.getContentResolver();
+        if (GlassSettings.isOn(resolver, GlassSettings.PLACE_DIALOGS)
+                && !GlassSettings.hasRim(resolver, GlassSettings.PLACE_DIALOGS)) {
             attrs.flags |= WindowManager.LayoutParams.FLAG_BLUR_BEHIND;
-            attrs.setBlurBehindRadius(context.getResources().getDimensionPixelSize(
-                    R.dimen.bottomsheet_blur_radius));
+            attrs.setBlurBehindRadius(GlassSettings.scaleBlurRadius(
+                    context.getResources().getDimensionPixelSize(R.dimen.bottomsheet_blur_radius),
+                    GlassSettings.blurScale(resolver, GlassSettings.PLACE_DIALOGS)));
         }
         getWindow().setAttributes(attrs);
         mLastNightMode = context.getResources().getConfiguration().uiMode
