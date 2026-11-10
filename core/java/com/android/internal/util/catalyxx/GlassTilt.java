@@ -66,8 +66,12 @@ public final class GlassTilt {
     private static final double UPRIGHT = 0.6;
     // How quickly the light catches up with the phone, in seconds
     private static final double FOLLOW_TIME = 0.08;
-    // The smallest turn of the light worth drawing again, in radians (about 0.3 degrees)
-    private static final double MIN_TURN = 0.005;
+    // The smallest turn of the light worth drawing again, in radians (about 0.7 degrees): a hand
+    // holding the phone still shakes it less than that, so a still screen isn't drawn again
+    private static final double MIN_TURN = 0.012;
+    // The light is sent at most this often (ms): each time, all glass on screen is drawn again,
+    // and the sensor reads 50 times a second
+    private static final long MIN_SEND_INTERVAL = 30;
     // While awake it sends the light at least this often (ms), even when it's still, so it hears
     // soon when the glass is gone...
     private static final long CHECK_INTERVAL = 500;
@@ -366,7 +370,8 @@ public final class GlassTilt {
             mHasAngle = true;
         }
         mLastEventNanos = event.timestamp;
-        if (!mHasSent || Math.abs(wrap(mAngle - mSentAngle)) >= MIN_TURN) {
+        if (!mHasSent || (Math.abs(wrap(mAngle - mSentAngle)) >= MIN_TURN
+                && SystemClock.uptimeMillis() - mSentAt >= MIN_SEND_INTERVAL)) {
             send(mAngle);
         }
     }
