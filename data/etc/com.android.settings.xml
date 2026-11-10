@@ -69,6 +69,7 @@
         <permission name="android.permission.LIST_ENABLED_CREDENTIAL_PROVIDERS" />
         <permission name="android.permission.SATELLITE_COMMUNICATION" />
         <permission name="android.permission.READ_SYSTEM_GRAMMATICAL_GENDER" />
+        <permission name="android.permission.READ_WALLPAPER_INTERNAL"/>
         <permission name="android.permission.SET_BIOMETRIC_DIALOG_ADVANCED" />
         <permission name="android.permission.MANAGE_SAFETY_CENTER" />
         <permission name="android.permission.CONTROL_SIM_AUTO_PIN_MANAGEMENT"/>
