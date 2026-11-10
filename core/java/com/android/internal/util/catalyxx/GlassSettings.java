@@ -302,10 +302,17 @@ public final class GlassSettings {
     /** The hours above the minutes, both bigger. */
     public static final int CLOCK_STACKED = 1;
 
+    /**
+     * 1 (the default) keeps the digits readable over any wallpaper: the glass turns milky over a
+     * dark or mid-tone one, which clear glass all but vanishes into, and smokes more over a light
+     * one. 0 leaves the glass as {@link #CLOCK_STYLE} says.
+     */
+    public static final String CLOCK_READABLE = "rr_glass_clock_readable";
+
     /** Every Glass clock key. Only the clock watches them, so they aren't in {@link #KEYS}. */
     public static final String[] CLOCK_KEYS = {
         CLOCK_STYLE, CLOCK_DEPTH, CLOCK_BEND, CLOCK_LIGHT, CLOCK_RAINBOW, CLOCK_SHADOW,
-        CLOCK_WEIGHT, CLOCK_ROUNDNESS, CLOCK_WIDTH, CLOCK_LAYOUT,
+        CLOCK_WEIGHT, CLOCK_ROUNDNESS, CLOCK_WIDTH, CLOCK_LAYOUT, CLOCK_READABLE,
     };
 
     // Places glass can show. Each is on by default once glass is on; 0 turns it off there.

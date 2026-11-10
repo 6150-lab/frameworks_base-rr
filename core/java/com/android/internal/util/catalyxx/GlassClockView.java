@@ -1085,6 +1085,7 @@ public class GlassClockView extends View {
         shader.setFloatUniform("dimColor", Color.red(mDimColor) / 255f,
                 Color.green(mDimColor) / 255f, Color.blue(mDimColor) / 255f);
         shader.setFloatUniform("dimAmount", mDimAmount);
+        shader.setFloatUniform("readable", look.readable ? 1f : 0f);
         shader.setFloatUniform("mode", mode);
     }
 
@@ -1147,6 +1148,7 @@ public class GlassClockView extends View {
         final int roundness;
         final int width;
         final int layout;
+        final boolean readable;
 
         private Look(ContentResolver resolver) {
             style = clamp(get(resolver, GlassSettings.CLOCK_STYLE,
@@ -1173,6 +1175,7 @@ public class GlassClockView extends View {
             layout = get(resolver, GlassSettings.CLOCK_LAYOUT,
                     GlassSettings.DEFAULT_CLOCK_LAYOUT) == GlassSettings.CLOCK_STACKED
                             ? GlassSettings.CLOCK_STACKED : GlassSettings.CLOCK_ONE_LINE;
+            readable = get(resolver, GlassSettings.CLOCK_READABLE, 1) == 1;
         }
 
         static Look read(ContentResolver resolver) {
@@ -1596,6 +1599,8 @@ public class GlassClockView extends View {
             // and how much of it covers.
             uniform float3 dimColor;
             uniform float dimAmount;
+            // 1 to keep the digits readable over any wallpaper, else 0.
+            uniform float readable;
             // 0: the backdrop is known (an image wallpaper). 1: it isn't (a live wallpaper), so
             // the glass is milky and lets the real one show through. 2: always-on display: no
             // backdrop, only the light on the glass's edges.
@@ -1683,17 +1688,20 @@ public class GlassClockView extends View {
                 color = mix(color, soft, frost * (1.0 - smoothstep(0.0, 0.8, steep)));
                 // The shadow the digits cast, bent in by the edge.
                 color *= 1.0 - shadowAt(p + offset);
-                color = color + (1.0 - color) * lift;
+                float backdropLight = dot(mix(backdropSoft.eval(p).rgb, dimColor, dimAmount),
+                                          float3(0.2126, 0.7152, 0.0722));
+                // Kept readable, the glass turns milky over a dark or mid-tone wallpaper, which
+                // it would all but vanish into.
+                float milky = readable * 0.32 * (1.0 - smoothstep(0.45, 0.65, backdropLight));
+                color = color + (1.0 - color) * (lift + milky);
                 color = mix(color, tint.rgb, tint.a);
                 color *= 1.0 + 0.6 * shading;
 
                 // Over a light wallpaper a bright line can't be seen: the glass smokes a
-                // little, more at its edges, and the line gives way to a thin dark one, so the
-                // time stays readable.
-                float backdropLight = dot(mix(backdropSoft.eval(p).rgb, dimColor, dimAmount),
-                                          float3(0.2126, 0.7152, 0.0722));
+                // little, more at its edges and more when it's kept readable, and the line
+                // gives way to a thin dark one, so the time stays readable.
                 float overLight = smoothstep(0.5, 0.8, backdropLight);
-                color *= 1.0 - overLight * (0.12 + 0.28 * steep);
+                color *= 1.0 - overLight * (0.12 + 0.28 * steep + 0.2 * readable);
                 light *= 1.0 - 0.7 * overLight;
                 color = 1.0 - (1.0 - color) * (1.0 - min(light, 1.0));
                 color *= 1.0 - 0.45 * rimLight * overLight * line;
