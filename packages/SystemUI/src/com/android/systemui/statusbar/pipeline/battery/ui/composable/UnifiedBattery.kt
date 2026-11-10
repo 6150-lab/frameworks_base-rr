@@ -31,6 +31,8 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -81,6 +83,7 @@ import com.android.systemui.statusbar.pipeline.battery.shared.ui.BatteryGlyph
 import com.android.systemui.statusbar.pipeline.battery.shared.ui.PathSpec
 import com.android.systemui.statusbar.pipeline.battery.ui.viewmodel.BatteryViewModel
 import kotlin.math.ceil
+import kotlin.math.floor
 import kotlin.math.roundToInt
 
 /**
@@ -557,19 +560,9 @@ fun NeonRingBattery(
     val saver = Color(0xFFFFB02E)
     val textMeasurer = rememberTextMeasurer()
     val charging = attr is BatteryGlyph.Bolt || attr is BatteryGlyph.Defend
-    val transition = rememberInfiniteTransition(label = "neonRing")
-    val spin by transition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(tween(1600, easing = LinearEasing)),
-        label = "spark",
-    )
-    val pulse by transition.animateFloat(
-        initialValue = 1f,
-        targetValue = 0.4f,
-        animationSpec = infiniteRepeatable(tween(900), RepeatMode.Reverse),
-        label = "pulse",
-    )
+    // Each runs only while it shows
+    val spin = if (charging && prefs.spark) neonRingSpin() else null
+    val pulse = if (!charging && (levelProvider() ?: 100) < 10) neonRingPulse() else null
     Canvas(modifier = modifier, contentDescription = contentDescription) {
         val level = levelProvider()
         val colors = colorsProvider()
@@ -589,7 +582,7 @@ fun NeonRingBattery(
                 else -> accent
             }
         }
-        val alpha = if (!charging && level != null && level < 10) pulse else 1f
+        val alpha = pulse?.value ?: 1f
         val track = if (lightBar) colors.attribution.copy(alpha = 0.28f) else colors.backgroundOnly
         drawCircle(track, radius, center, style = Stroke(stroke))
         if (level != null && level > 0) {
@@ -604,14 +597,52 @@ fun NeonRingBattery(
         if (showLevelProvider() && level != null) {
             drawRingLevel(textMeasurer, level, colors.attribution, size.height - stroke * 4.4f)
         }
-        if (charging && prefs.spark) {
-            val a = Math.toRadians((spin - 90f).toDouble())
+        if (spin != null) {
+            val a = Math.toRadians((spin.value - 90f).toDouble())
             drawCircle(if (lightBar) colors.attribution else Color.White, stroke * 0.75f,
                 Offset(center.x + radius * kotlin.math.cos(a).toFloat(),
                     center.y + radius * kotlin.math.sin(a).toFloat()))
         }
     }
 }
+
+/**
+ * Where the neon ring's spark is around the ring, in degrees. It moves in steps, 30 a second:
+ * every new value draws the status bar again, and with it whatever glass is on screen, which on
+ * every frame was most of what the phone drew while it charged.
+ */
+@Composable
+private fun neonRingSpin(): State<Float> {
+    val spin =
+        rememberInfiniteTransition(label = "neonRingSpark")
+            .animateFloat(
+                initialValue = 0f,
+                targetValue = 360f,
+                animationSpec = infiniteRepeatable(tween(1600, easing = LinearEasing)),
+                label = "spark",
+            )
+    return remember(spin) { derivedStateOf { floor(spin.value / SPARK_STEP) * SPARK_STEP } }
+}
+
+/** How bright the neon ring is as it pulses on a low battery, in steps like the spark. */
+@Composable
+private fun neonRingPulse(): State<Float> {
+    val pulse =
+        rememberInfiniteTransition(label = "neonRingPulse")
+            .animateFloat(
+                initialValue = 1f,
+                targetValue = 0.4f,
+                animationSpec = infiniteRepeatable(tween(900), RepeatMode.Reverse),
+                label = "pulse",
+            )
+    return remember(pulse) {
+        derivedStateOf { (pulse.value * PULSE_STEPS).roundToInt() / PULSE_STEPS }
+    }
+}
+
+// 48 steps to a turn of 1.6 s: 30 a second
+private const val SPARK_STEP = 7.5f
+private const val PULSE_STEPS = 24f
 
 /** RR: the circle styles draw larger than the stock body so the level fits inside. */
 const val CIRCLE_BATTERY_SCALE = 1.35f
