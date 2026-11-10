@@ -9,6 +9,8 @@ import android.content.ContentValues
 import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.HardwareRenderer
+import android.graphics.RenderNode
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
@@ -110,19 +112,27 @@ class ClockFacePreviewProvider : ContentProvider() {
                 root.layout(0, 0, width, height)
             }
             // The Glass clock prepares its digits off the main thread, too late for a picture.
+            var glass = false
             for (view in live) {
-                if (view is GlassClockView) view.prepareNow()
+                if (view is GlassClockView) {
+                    view.prepareNow()
+                    glass = true
+                }
             }
             // Single-line text scrolls itself into view on pre-draw, which views outside a
             // window never get; centered faces drew their time off to the side.
             preDraw(root)
             val scale = outWidth.toFloat() / width
-            val bitmap = Bitmap.createBitmap(
-                outWidth, (height * scale).toInt().coerceAtLeast(1), Bitmap.Config.ARGB_8888
-            )
-            val canvas = Canvas(bitmap)
-            canvas.scale(scale, scale)
-            root.draw(canvas)
+            val outHeight = (height * scale).toInt().coerceAtLeast(1)
+            // Glass is drawn by a shader, which only the GPU runs: a bitmap's own canvas leaves
+            // the Glass clock plain white digits.
+            val bitmap =
+                (if (glass) drawWithGpu(root, outWidth, outHeight, scale) else null)
+                    ?: Bitmap.createBitmap(outWidth, outHeight, Bitmap.Config.ARGB_8888).also {
+                        val canvas = Canvas(it)
+                        canvas.scale(scale, scale)
+                        root.draw(canvas)
+                    }
             return ByteArrayOutputStream().use { out ->
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
                 bitmap.recycle()
@@ -140,6 +150,23 @@ class ClockFacePreviewProvider : ContentProvider() {
             }
         }
     }
+
+    /** [root] as the GPU draws it, with its pixels read back for the PNG; null if it can't. */
+    private fun drawWithGpu(root: View, width: Int, height: Int, scale: Float): Bitmap? =
+        try {
+            val node = RenderNode("ClockFacePreview")
+            node.setPosition(0, 0, width, height)
+            val canvas = node.beginRecording(width, height)
+            canvas.scale(scale, scale)
+            root.draw(canvas)
+            node.endRecording()
+            val drawn = HardwareRenderer.createHardwareBitmap(node, width, height)
+            node.discardDisplayList()
+            drawn?.copy(Bitmap.Config.ARGB_8888, false).also { drawn?.recycle() }
+        } catch (e: RuntimeException) {
+            Log.w(TAG, "Couldn't draw the face with the GPU", e)
+            null
+        }
 
     private fun preDraw(view: View) {
         if (view is TextView) view.onPreDraw()
