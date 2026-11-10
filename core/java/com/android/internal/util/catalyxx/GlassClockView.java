@@ -950,16 +950,44 @@ public class GlassClockView extends View {
     }
 
     /** Prepares the digits for the current time, size and look, on the worker. */
-    private void requestMasks() {
+    /**
+     * RR: builds the digits now, on this thread, for a picture of the clock drawn off screen, as
+     * Remixer's clock face picker takes. Call it once the clock is laid out. The picture shows
+     * plain digits, as a canvas without hardware acceleration draws them.
+     */
+    public void prepareNow() {
+        final MaskSpec spec = maskSpec();
+        if (spec == null) {
+            return;
+        }
+        // Digits still being prepared are older than these
+        ++mMaskGeneration;
+        if (mMasks != null) {
+            mMasks.recycle();
+        }
+        mMasks = Masks.render(spec);
+        mInputsSet = false;
+    }
+
+    /** What the digits are drawn from now, or null until the clock is laid out. */
+    @Nullable
+    private MaskSpec maskSpec() {
         final int width = getWidth();
         final int height = getHeight();
         if (width == 0 || height == 0 || mTextSize <= 0 || mLaidOutWidth != width) {
-            return;
+            return null;
         }
-        final MaskSpec spec = new MaskSpec(mLines.clone(), mTypeface,
+        return new MaskSpec(mLines.clone(), mTypeface,
                 mLook.variation(mTextSize, mDensity), mTextSize, width, height, mMaskScale,
                 PAD_V * mTextSize - mDigitTop, mDigitHeight + LINE_GAP * mTextSize,
                 DEPTH_SIGMA[mLook.depth] * mTextSize, SHADOW_SIGMA * mTextSize);
+    }
+
+    private void requestMasks() {
+        final MaskSpec spec = maskSpec();
+        if (spec == null) {
+            return;
+        }
         final int generation = ++mMaskGeneration;
         sWorker.execute(() -> {
             final Masks masks;

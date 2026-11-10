@@ -24,6 +24,7 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.FrameLayout
 import android.widget.TextView
+import com.android.internal.util.catalyxx.GlassClockView
 import com.android.systemui.res.R
 import com.android.systemui.weather.WeatherImageView
 import com.android.systemui.weather.WeatherTextView
@@ -108,6 +109,10 @@ class ClockFacePreviewProvider : ContentProvider() {
                 )
                 root.layout(0, 0, width, height)
             }
+            // The Glass clock prepares its digits off the main thread, too late for a picture.
+            for (view in live) {
+                if (view is GlassClockView) view.prepareNow()
+            }
             // Single-line text scrolls itself into view on pre-draw, which views outside a
             // window never get; centered faces drew their time off to the side.
             preDraw(root)
@@ -145,7 +150,7 @@ class ClockFacePreviewProvider : ContentProvider() {
 
     private fun collectLiveViews(view: View, out: MutableList<View>) {
         if (view is WeatherTextView || view is WeatherImageView ||
-                view is AnalogClockView || view is WordClockView) {
+                view is AnalogClockView || view is WordClockView || view is GlassClockView) {
             out.add(view)
         }
         if (view is ViewGroup) {
