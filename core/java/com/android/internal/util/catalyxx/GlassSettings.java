@@ -531,8 +531,8 @@ public final class GlassSettings {
     private static final float TEXT_SMOKE_SCALE = 1.35f;
 
     // What a place's blur radius is multiplied by at the lowest and highest strength
-    private static final float MIN_BLUR_SCALE = 0.2f;
-    private static final float MAX_BLUR_SCALE = 2f;
+    private static final float MIN_BLUR_SCALE = 0.1f;
+    private static final float MAX_BLUR_SCALE = 3f;
 
     private GlassSettings() {}
 
@@ -638,15 +638,18 @@ public final class GlassSettings {
 
     /**
      * What glass multiplies a blur radius by at {@code strength}: 1 at the default 50, falling
-     * to 0.2 at 0 and rising to 2 at 100.
+     * to 0.1 at 0 and rising to 3 at 100. Each step multiplies it by the same amount, as a blur
+     * looks as much stronger from 10 to 20 pixels as from 40 to 80: on a straight line most of
+     * the slider's upper half showed nothing.
      */
     public static float blurScale(int strength) {
         final int s = Math.max(MIN_BLUR_STRENGTH, Math.min(MAX_BLUR_STRENGTH, strength));
         if (s <= DEFAULT_BLUR_STRENGTH) {
-            return MIN_BLUR_SCALE + (1f - MIN_BLUR_SCALE) * s / DEFAULT_BLUR_STRENGTH;
+            return (float) Math.pow(MIN_BLUR_SCALE,
+                    1f - s / (float) DEFAULT_BLUR_STRENGTH);
         }
-        return 1f + (MAX_BLUR_SCALE - 1f) * (s - DEFAULT_BLUR_STRENGTH)
-                / (MAX_BLUR_STRENGTH - DEFAULT_BLUR_STRENGTH);
+        return (float) Math.pow(MAX_BLUR_SCALE, (s - DEFAULT_BLUR_STRENGTH)
+                / (float) (MAX_BLUR_STRENGTH - DEFAULT_BLUR_STRENGTH));
     }
 
     /** What glass multiplies {@code place}'s blur radius by now: 1 while glass is off there. */
