@@ -93,9 +93,15 @@ constructor(
             .stateIn(scope, SharingStarted.Eagerly, QsGlass.SOLID)
 
     val glassTune: StateFlow<QsGlassTune> =
-        systemSettings
-            .intSetting(GlassSettings.TINT, GlassSettings.DEFAULT_TINT)
-            .map { QsGlassTune(it.coerceIn(0, 100) / 100f) }
+        combine(
+                systemSettings.intSetting(GlassSettings.TINT, GlassSettings.DEFAULT_TINT),
+                systemSettings.intSetting(
+                    GlassSettings.EDGE_STYLE,
+                    GlassSettings.DEFAULT_EDGE_STYLE,
+                ),
+            ) { tint, edge ->
+                QsGlassTune(tint.coerceIn(0, 100) / 100f, edge != GlassSettings.EDGE_CATALYXX)
+            }
             .stateIn(scope, SharingStarted.Eagerly, QsGlassTune())
 
     init {

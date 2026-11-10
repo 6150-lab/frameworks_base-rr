@@ -213,7 +213,7 @@ fun QsStyleSliderFrame(style: QsStyle, content: @Composable () -> Unit) {
                             shape,
                             alpha = see,
                         )
-                        .then(if (rim) Modifier.liquidRim(shape) else Modifier)
+                        .then(if (rim) Modifier.liquidRim(shape, tune.sheen) else Modifier)
                         .padding(horizontal = 14.dp, vertical = 14.dp)
             ) {
                 content()
@@ -257,7 +257,7 @@ fun QsStyleSliderFrame(style: QsStyle, content: @Composable () -> Unit) {
                     modifier =
                         Modifier.size(52.dp)
                             .background(fill.copy(alpha = fill.alpha * see), segment)
-                            .then(if (rim) Modifier.liquidRim(segment) else Modifier),
+                            .then(if (rim) Modifier.liquidRim(segment, tune.sheen) else Modifier),
                 ) {
                     Image(
                         painter = painterResource(R.drawable.ic_brightness_full),

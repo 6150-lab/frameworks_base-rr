@@ -71,7 +71,13 @@ enum class QsGlass {
 
 val LocalQsGlass = staticCompositionLocalOf { QsGlass.SOLID }
 
-/** How much of its color the glass shows, 0 to 1 (GlassSettings.TINT). */
-data class QsGlassTune(val tint: Float = GlassSettings.DEFAULT_TINT / 100f)
+/**
+ * How much of its color the glass shows, 0 to 1 (GlassSettings.TINT), and whether Liquid glass has
+ * RR's sheen: it does in the RR edge style (GlassSettings.EDGE_STYLE).
+ */
+data class QsGlassTune(
+    val tint: Float = GlassSettings.DEFAULT_TINT / 100f,
+    val sheen: Boolean = GlassSettings.DEFAULT_EDGE_STYLE == GlassSettings.EDGE_RR,
+)
 
 val LocalQsGlassTune = staticCompositionLocalOf { QsGlassTune() }

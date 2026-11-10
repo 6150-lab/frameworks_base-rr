@@ -356,7 +356,10 @@ fun BrightnessSlider(
                         }
                         .height(dimensions.trackHeight)
                         .thenIf(glass == QsGlass.LIQUID && dimensions.trackHeight >= 20.dp) {
-                            Modifier.liquidRim(RoundedCornerShape(SliderTrackRoundedCorner))
+                            Modifier.liquidRim(
+                                RoundedCornerShape(SliderTrackRoundedCorner),
+                                tune.sheen,
+                            )
                         }
                         .drawWithContent {
                             drawContent()
@@ -481,7 +484,7 @@ private fun drawAutoBrightnessButton(
             .size(52.dp)
             .clip(CircleShape)
             .background(fill)
-            .thenIf(glass == QsGlass.LIQUID) { Modifier.liquidRim(CircleShape) }
+            .thenIf(glass == QsGlass.LIQUID) { Modifier.liquidRim(CircleShape, tune.sheen) }
     ) {
         Icon(
             painter = painterResource(painterRes),

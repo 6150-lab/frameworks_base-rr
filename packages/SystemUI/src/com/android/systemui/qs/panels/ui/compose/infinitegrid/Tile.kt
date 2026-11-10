@@ -335,7 +335,10 @@ fun ContentScope.Tile(
                 shape = tileShape,
                 squishiness = squishiness,
                 hapticsViewModel = hapticsViewModel,
-                glassRim = Modifier.ownGlassRim(GlassSettings.PLACE_SHADE, tileShape, glassTouch),
+                glassRim =
+                    (if (glass == QsGlass.LIQUID && tune.sheen) Modifier.liquidSheen(tileShape)
+                        else Modifier)
+                        .ownGlassRim(GlassSettings.PLACE_SHADE, tileShape, glassTouch),
                 modifier =
                     modifier
                         .then(surfaceRevealModifier)

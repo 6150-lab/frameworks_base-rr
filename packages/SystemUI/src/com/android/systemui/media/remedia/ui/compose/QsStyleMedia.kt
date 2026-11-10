@@ -349,7 +349,7 @@ internal fun StyledCardBackground(look: MediaCardLook, modifier: Modifier = Modi
                 .let { if (look.border != null) it.border(look.borderWidth, look.border, shape) else it }
                 .let { if (look.bevel) it.bevel(shape) else it }
                 .let {
-                    if (glass == QsGlass.LIQUID) it.liquidRim(shape) else it
+                    if (glass == QsGlass.LIQUID) it.liquidRim(shape, tune.sheen) else it
                 }
     )
 }

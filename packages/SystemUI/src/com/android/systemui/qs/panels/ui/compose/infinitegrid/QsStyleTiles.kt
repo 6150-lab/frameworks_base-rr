@@ -680,9 +680,27 @@ internal fun glassAlphas(glass: QsGlass, tune: QsGlassTune): Pair<Float, Float>?
         QsGlass.LIQUID -> lerp(.72f, .94f, tune.tint) to lerp(.24f, .7f, tune.tint)
     }
 
-/** Liquid Glass: the lit rim of the system's glass, which follows the phone's tilt. */
-internal fun Modifier.liquidRim(shape: Shape): Modifier =
-    ownGlassRim(GlassSettings.PLACE_SHADE, shape)
+/**
+ * Liquid Glass: the lit rim of the system's glass, which follows the phone's tilt, over RR's
+ * sheen with [sheen].
+ */
+internal fun Modifier.liquidRim(shape: Shape, sheen: Boolean = false): Modifier =
+    (if (sheen) liquidSheen(shape) else this).ownGlassRim(GlassSettings.PLACE_SHADE, shape)
+
+/** RR's glass: a soft sheen from the top left, where light catches it, under what's on it. */
+internal fun Modifier.liquidSheen(shape: Shape): Modifier = drawWithCache {
+    val outline = shape.createOutline(size, layoutDirection, this)
+    val sheen =
+        Brush.radialGradient(
+            listOf(Color.White.copy(alpha = .14f), Color.Transparent),
+            center = Offset(size.width * .2f, 0f),
+            radius = maxOf(size.width, size.height) * .8f,
+        )
+    onDrawWithContent {
+        drawOutline(outline, sheen)
+        drawContent()
+    }
+}
 
 /** Remix: on tiles fill with an accent gradient. */
 @Composable
