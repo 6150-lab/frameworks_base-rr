@@ -65,6 +65,8 @@ public final class BackgroundBlurDrawable extends Drawable {
     public static final int GLASS_SIDE_BOTTOM = 1 << 3;
     // Sent with the joined sides for setGlassFixedLight(): BlurRegion::kGlassFixedLight
     private static final int GLASS_FIXED_LIGHT = 1 << 4;
+    // Sent with the joined sides for a look with RR's lens edge: BlurRegion::kGlassLensEdge
+    private static final int GLASS_LENS_EDGE = 1 << 5;
 
     private final Aggregator mAggregator;
     private final RenderNode mRenderNode;
@@ -632,9 +634,10 @@ public final class BackgroundBlurDrawable extends Drawable {
             cornerRadiusBRY = drawable.mCornerRadiusBRY;
             rect = drawable.mRect;
             glassLook = drawable.mGlassLook;
-            // SurfaceFlinger takes the fixed light with the joined sides
+            // SurfaceFlinger takes the fixed light and the lens edge with the joined sides
             glassJoinedSides = drawable.mGlassJoinedSides
-                    | (drawable.mGlassFixedLight ? GLASS_FIXED_LIGHT : 0);
+                    | (drawable.mGlassFixedLight ? GLASS_FIXED_LIGHT : 0)
+                    | (glassLook != null && glassLook.lensEdge ? GLASS_LENS_EDGE : 0);
             glassMelt = drawable.mGlassMelt;
         }
 

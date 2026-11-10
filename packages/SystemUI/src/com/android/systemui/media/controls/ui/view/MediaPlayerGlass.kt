@@ -295,6 +295,7 @@ class MediaPlayerGlass(private val albumView: ImageView, private val effectViews
                 max(Color.alpha(look.tintOverLight), TINT_ALPHA_OVER_LIGHT),
             ),
             look.adaptPoint,
+            look.lensEdge,
         )
 
     /**

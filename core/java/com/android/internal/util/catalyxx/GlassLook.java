@@ -46,8 +46,16 @@ public final class GlassLook {
      */
     public final float adaptPoint;
 
+    /**
+     * RR's lens edge ({@link GlassSettings#EDGE_RR}): a frosted middle keeps a clear rim, which
+     * bends what's under the glass out to its edge, and what shows through is a little richer in
+     * color.
+     */
+    public final boolean lensEdge;
+
     public GlassLook(float rimWidth, float bend, float frost, float rimLight, float dispersion,
-            float shadow, int tintOverDark, int tintOverLight, float adaptPoint) {
+            float shadow, int tintOverDark, int tintOverLight, float adaptPoint,
+            boolean lensEdge) {
         this.rimWidth = rimWidth;
         this.bend = bend;
         this.frost = frost;
@@ -57,12 +65,13 @@ public final class GlassLook {
         this.tintOverDark = tintOverDark;
         this.tintOverLight = tintOverLight;
         this.adaptPoint = adaptPoint;
+        this.lensEdge = lensEdge;
     }
 
     /** This look with no shadow. */
     public GlassLook withoutShadow() {
         return new GlassLook(rimWidth, bend, frost, rimLight, dispersion, /* shadow= */ 0f,
-                tintOverDark, tintOverLight, adaptPoint);
+                tintOverDark, tintOverLight, adaptPoint, lensEdge);
     }
 
     @Override
@@ -77,7 +86,8 @@ public final class GlassLook {
         return rimWidth == other.rimWidth && bend == other.bend && frost == other.frost
                 && rimLight == other.rimLight && dispersion == other.dispersion
                 && shadow == other.shadow && tintOverDark == other.tintOverDark
-                && tintOverLight == other.tintOverLight && adaptPoint == other.adaptPoint;
+                && tintOverLight == other.tintOverLight && adaptPoint == other.adaptPoint
+                && lensEdge == other.lensEdge;
     }
 
     @Override
@@ -91,6 +101,7 @@ public final class GlassLook {
         result = 31 * result + tintOverDark;
         result = 31 * result + tintOverLight;
         result = 31 * result + Float.hashCode(adaptPoint);
+        result = 31 * result + Boolean.hashCode(lensEdge);
         return result;
     }
 
@@ -100,6 +111,6 @@ public final class GlassLook {
                 + ", rimLight=" + rimLight + ", dispersion=" + dispersion + ", shadow=" + shadow
                 + ", tintOverDark=#" + Integer.toHexString(tintOverDark)
                 + ", tintOverLight=#" + Integer.toHexString(tintOverLight)
-                + ", adaptPoint=" + adaptPoint + "}";
+                + ", adaptPoint=" + adaptPoint + ", lensEdge=" + lensEdge + "}";
     }
 }

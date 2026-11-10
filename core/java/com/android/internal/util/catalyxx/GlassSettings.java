@@ -90,6 +90,22 @@ public final class GlassSettings {
     /** The same rim around a frosted middle. */
     public static final int STYLE_FROSTED = 2;
 
+    /**
+     * How the edge of Liquid glass with a frosted middle is drawn: {@link #EDGE_RR} (the
+     * default) or {@link #EDGE_CATALYXX}. Clear glass looks the same in both.
+     */
+    public static final String EDGE_STYLE = "rr_glass_edge_style";
+
+    /**
+     * RR's lens edge: the rim stays clear around the frosted middle and bends what's under the
+     * glass out to its edge, and what shows through is a little richer in color. Glass in a
+     * window that blurs all that's behind it, such as a notification in the open shade, has
+     * nothing sharp to bend there, so it's frosted to the edge.
+     */
+    public static final int EDGE_RR = 0;
+    /** Catalyxx's: the frost goes right up to the edge, under a thin lit rim. */
+    public static final int EDGE_CATALYXX = 1;
+
     /** How far the rim reaches past the edge to bend in what's there, from 0 (flat) to 100. */
     public static final String BEND = "rr_glass_refraction";
 
@@ -422,7 +438,8 @@ public final class GlassSettings {
 
     /** Every glass key but the Glass clock's ({@link #CLOCK_KEYS}), for watching them at once. */
     public static final String[] KEYS = {
-        ENABLED, BLUR_STRENGTH, COLOR, TINT, STYLE, BEND, RIM_WIDTH, RIM_LIGHT, RAINBOW, SHADOW,
+        ENABLED, BLUR_STRENGTH, COLOR, TINT, STYLE, EDGE_STYLE, BEND, RIM_WIDTH, RIM_LIGHT,
+        RAINBOW, SHADOW,
         TILT, TILT_AMOUNT, ADAPTIVE, SMOKE, SMOKE_COLOR, SWITCH_POINT, TOUCH_GLOW,
         TOUCH_GLOW_COLOR, TOUCH_GLOW_SIZE, SQUISH, TAP_BUZZ, SCROLL_FADE, SELECTOR,
         SELECTOR_MAGNIFY, STRETCH, SOLID_IN_BATTERY_SAVER, MUSIC_PLAYER, PLACE_SHADE,
@@ -442,6 +459,7 @@ public final class GlassSettings {
     public static final int DEFAULT_TINT = 20;
 
     public static final int DEFAULT_STYLE = STYLE_CLEAR;
+    public static final int DEFAULT_EDGE_STYLE = EDGE_RR;
 
     // BEND, RIM_LIGHT, RAINBOW and SHADOW all run from 0 to 100
     public static final int MIN_PERCENT = 0;
@@ -705,6 +723,7 @@ public final class GlassSettings {
                         && getInt(resolver, VOLUME_FROSTED, 1) == 1);
         return look(context,
                 carriesText && style == STYLE_CLEAR ? STYLE_FROSTED : style,
+                getInt(resolver, EDGE_STYLE, DEFAULT_EDGE_STYLE),
                 getInt(resolver, BEND, DEFAULT_BEND),
                 getInt(resolver, RIM_WIDTH, DEFAULT_RIM_WIDTH),
                 getInt(resolver, RIM_LIGHT, DEFAULT_RIM_LIGHT),
@@ -718,16 +737,16 @@ public final class GlassSettings {
     }
 
     /**
-     * The look of glass with these {@link #STYLE}, {@link #BEND}, {@link #RIM_WIDTH},
-     * {@link #RIM_LIGHT}, {@link #RAINBOW}, {@link #SHADOW}, {@link #SMOKE},
+     * The look of glass with these {@link #STYLE}, {@link #EDGE_STYLE}, {@link #BEND},
+     * {@link #RIM_WIDTH}, {@link #RIM_LIGHT}, {@link #RAINBOW}, {@link #SHADOW}, {@link #SMOKE},
      * {@link #SMOKE_COLOR}, {@link #ADAPTIVE} and {@link #SWITCH_POINT} settings, and
      * {@code tint} as its ARGB color over dark content (see {@link #tintColor}); sizes in pixels
      * for {@code context}'s display, null for {@link #STYLE_FLAT}.
      */
     @Nullable
-    public static GlassLook look(Context context, int style, int bend, int rimWidth,
-            int rimLight, int rainbow, int shadow, int tint, int smoke, int smokeColor,
-            int adaptive, int switchPoint) {
+    public static GlassLook look(Context context, int style, int edgeStyle, int bend,
+            int rimWidth, int rimLight, int rainbow, int shadow, int tint, int smoke,
+            int smokeColor, int adaptive, int switchPoint) {
         if (style == STYLE_FLAT) {
             return null;
         }
@@ -745,7 +764,8 @@ public final class GlassSettings {
                 MAX_SHADOW * fraction(shadow),
                 tint,
                 (Math.round(fraction(smoke) * 255) << 24) | (smokeRgb & 0xffffff),
-                adaptive == 1 ? point / 100f : 0f);
+                adaptive == 1 ? point / 100f : 0f,
+                style == STYLE_FROSTED && edgeStyle != EDGE_CATALYXX);
     }
 
     /**

@@ -94,6 +94,11 @@ constructor(
                             material,
                             settings.getInt(GlassSettings.STYLE, GlassSettings.DEFAULT_STYLE),
                         ),
+                    edge =
+                        settings.getInt(
+                            GlassSettings.EDGE_STYLE,
+                            GlassSettings.DEFAULT_EDGE_STYLE,
+                        ),
                     bend = settings.getInt(GlassSettings.BEND, GlassSettings.DEFAULT_BEND),
                     width =
                         settings.getInt(
@@ -153,6 +158,7 @@ constructor(
                     rim =
                         GlassRim(
                             style = GlassSettings.DEFAULT_STYLE,
+                            edge = GlassSettings.DEFAULT_EDGE_STYLE,
                             bend = GlassSettings.DEFAULT_BEND,
                             width = GlassSettings.DEFAULT_RIM_WIDTH,
                             light = GlassSettings.DEFAULT_RIM_LIGHT,
@@ -180,13 +186,15 @@ data class GlassTint(val color: Int, val tint: Int) {
 }
 
 /**
- * What glass with a curved rim is drawn from: [GlassSettings.STYLE], [GlassSettings.BEND],
+ * What glass with a curved rim is drawn from: [GlassSettings.STYLE], [GlassSettings.EDGE_STYLE]
+ * ([edge]), [GlassSettings.BEND],
  * [GlassSettings.RIM_WIDTH], [GlassSettings.RIM_LIGHT], [GlassSettings.RAINBOW],
  * [GlassSettings.SHADOW], its color ([tint]), [GlassSettings.ADAPTIVE], [GlassSettings.SMOKE],
  * [GlassSettings.SMOKE_COLOR] and [GlassSettings.SWITCH_POINT].
  */
 data class GlassRim(
     val style: Int,
+    val edge: Int,
     val bend: Int,
     val width: Int,
     val light: Int,
@@ -208,6 +216,7 @@ data class GlassRim(
         GlassSettings.look(
             context,
             style,
+            edge,
             bend,
             width,
             light,
