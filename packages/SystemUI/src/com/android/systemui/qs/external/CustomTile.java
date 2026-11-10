@@ -432,6 +432,7 @@ public class CustomTile extends QSTileImpl<State> implements TileChangeListener,
                 startActivityAndCollapse(mTile.getActivityLaunchForClick());
             } else {
                 mService.onClick(mToken);
+                mServiceManager.onClickQueued();
             }
         } catch (RemoteException e) {
             // Called through wrapper, won't happen here.
