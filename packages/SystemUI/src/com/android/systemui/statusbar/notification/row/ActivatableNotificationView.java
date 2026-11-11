@@ -444,9 +444,17 @@ public abstract class ActivatableNotificationView extends ExpandableOutlineView 
             return;
         }
         mGlassVersion = version;
+        final boolean wasGlassOn = mGlassOn;
         mGlassOn = OwnGlass.INSTANCE.isOn(GlassSettings.PLACE_NOTIFICATIONS);
         updateBackgroundTint();
         mBackgroundNormal.updateGlass();
+        if (wasGlassOn != mGlassOn) {
+            onGlassOnChanged();
+        }
+    }
+
+    /** Catalyxx glass on notifications was switched on or off (isGlassOn()). */
+    protected void onGlassOnChanged() {
     }
 
     @Override

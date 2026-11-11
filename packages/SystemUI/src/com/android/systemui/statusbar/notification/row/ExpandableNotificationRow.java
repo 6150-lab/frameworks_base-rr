@@ -4004,11 +4004,18 @@ public class ExpandableNotificationRow extends ActivatableNotificationView
             // possible because collapsed Bundles don't preview their children unlike summaries.
             // It is important that backgrounds don't overlap during expansion since
             // notificationRowTransparency() introduced transparency.
-            mShowNoBackground = true;
+            // Catalyxx glass: the bundle is one piece of glass instead, its own background,
+            // behind its header and its children alike (who then show none), rather than the
+            // header's opaque color
+            mShowNoBackground = !isGlassOn();
             mChildrenContainer.updateHeaderForExpansion(mShowNoBackground);
         } else if (mIsSummaryWithChildren) {
-            mShowNoBackground = !mShowGroupBackgroundWhenExpanded && isGroupExpanded()
-                    && !isGroupExpansionChanging() && !isUserSwipingToExpandRow();
+            // Catalyxx glass: an expanded group stays one piece of glass, the summary's
+            // background, as when it's collapsed, rather than an opaque header over each child's
+            // own background
+            mShowNoBackground = !mShowGroupBackgroundWhenExpanded && !isGlassOn()
+                    && isGroupExpanded() && !isGroupExpansionChanging()
+                    && !isUserSwipingToExpandRow();
             mChildrenContainer.updateHeaderForExpansion(mShowNoBackground);
             List<ExpandableNotificationRow> children = mChildrenContainer.getAttachedChildren();
             for (int i = 0; i < children.size(); i++) {
@@ -4034,6 +4041,20 @@ public class ExpandableNotificationRow extends ActivatableNotificationView
         }
         updateOutline();
         updateBackground();
+    }
+
+    @Override
+    protected void onGlassOnChanged() {
+        super.onGlassOnChanged();
+        // Which of a group's backgrounds show depends on Catalyxx glass
+        if (mIsSummaryWithChildren) {
+            updateBackgroundForGroupState();
+            final List<ExpandableNotificationRow> children =
+                    mChildrenContainer.getAttachedChildren();
+            for (int i = 0; i < children.size(); i++) {
+                children.get(i).updateBackgroundForGroupState();
+            }
+        }
     }
 
     @Override
