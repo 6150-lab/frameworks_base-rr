@@ -615,7 +615,9 @@ public class RrSpoofManager implements IRrSpoofManager {
         if (KEYBOX_SOURCE_USER.equals(source) || isDuckManaged(source)) {
             // user or Duck RKP manages this keybox — never overwrite it
             if (!KEYBOX_SOURCE_USER.equals(source)) {
-                DuckRkpService.get(mContext).renewIfDue();
+                DuckRkpService duck = DuckRkpService.get(mContext);
+                duck.generateIfMissing();
+                duck.renewIfDue();
             }
             return;
         }

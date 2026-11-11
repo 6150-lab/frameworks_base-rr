@@ -142,6 +142,7 @@ public final class DuckRkpService {
             return new Bundle();
         }
         final boolean available = isHalAvailable();
+        final boolean online = hasInternet();
         final Bundle state = new Bundle();
         synchronized (mLock) {
             final boolean enabled = isEnabled();
@@ -161,11 +162,22 @@ public final class DuckRkpService {
             state.putLong("expires_at", expiresAt);
             state.putLong("revision", Settings.Secure.getLongForUser(
                     mContext.getContentResolver(), REVISION_KEY, 0L, UserHandle.USER_SYSTEM));
+            final String error = Settings.Secure.getStringForUser(
+                    mContext.getContentResolver(), ERROR_KEY, UserHandle.USER_SYSTEM);
+            final int detail = Settings.Secure.getIntForUser(
+                    mContext.getContentResolver(), DETAIL_KEY, 0, UserHandle.USER_SYSTEM);
+            final long madeAt = Settings.Secure.getLongForUser(
+                    mContext.getContentResolver(), MADE_AT_KEY, 0L, UserHandle.USER_SYSTEM);
+            final boolean retryable = isAutoRetryable(error, detail);
             state.putLong("retry_after_ms", mRetryAfterMs);
-            state.putString("error", Settings.Secure.getStringForUser(
-                    mContext.getContentResolver(), ERROR_KEY, UserHandle.USER_SYSTEM));
-            state.putInt("detail", Settings.Secure.getIntForUser(
-                    mContext.getContentResolver(), DETAIL_KEY, 0, UserHandle.USER_SYSTEM));
+            state.putLong("renew_at", renewalTime(expiresAt, madeAt));
+            state.putLong("next_automatic_at", 0L);
+            state.putBoolean("automatic_paused",
+                    error != null && !error.isEmpty() && !retryable);
+            state.putBoolean("waiting_for_network", enabled && !imported && !mBusy
+                    && !active && retryable && !online);
+            state.putString("error", error);
+            state.putInt("detail", detail);
         }
         return state;
     }
@@ -186,6 +198,9 @@ public final class DuckRkpService {
                         KEYBOX_SOURCE_DUCK, UserHandle.USER_SYSTEM);
             }
             bumpRevision();
+            if (enabled) {
+                generateIfMissing();
+            }
         } finally {
             Binder.restoreCallingIdentity(ident);
         }
@@ -211,6 +226,40 @@ public final class DuckRkpService {
             mRetryAfterMs = 0;
             persistError(null, 0);
         }
+        startProvision(false);
+    }
+
+    /**
+     * From enable and the hourly refresh: create a keybox when device RKP is on
+     * and nothing is stored. A firmware rejection stays paused until Generate is
+     * tapped. Transient failures wait out the same six-hour gap as a renewal.
+     */
+    void generateIfMissing() {
+        if (!isSupported() || !isEnabled() || isImported() || hasStoredKeybox()) {
+            return;
+        }
+        final String error = Settings.Secure.getStringForUser(mContext.getContentResolver(),
+                ERROR_KEY, UserHandle.USER_SYSTEM);
+        final int detail = Settings.Secure.getIntForUser(mContext.getContentResolver(),
+                DETAIL_KEY, 0, UserHandle.USER_SYSTEM);
+        if (!isAutoRetryable(error, detail)) {
+            return;
+        }
+        final long now = System.currentTimeMillis();
+        if (now - secureLong(LAST_RENEWAL_KEY) < RENEW_RETRY_MS || !hasInternet()) {
+            return;
+        }
+        synchronized (mLock) {
+            if (mBusy) {
+                return;
+            }
+            mBusy = true;
+            mStage = "fetching";
+            mRetryAfterMs = 0;
+        }
+        Settings.Secure.putLongForUser(mContext.getContentResolver(), LAST_RENEWAL_KEY, now,
+                UserHandle.USER_SYSTEM);
+        Slog.i(TAG, "Generating a keybox");
         startProvision(false);
     }
 
@@ -240,6 +289,35 @@ public final class DuckRkpService {
                 UserHandle.USER_SYSTEM);
         Slog.i(TAG, "Renewing the keybox");
         startProvision(true);
+    }
+
+    /** Same due time renewIfDue uses: a week after creation, and always three days before expiry. */
+    private static long renewalTime(long expiresAt, long madeAt) {
+        if (expiresAt <= 0) {
+            return 0L;
+        }
+        long dueAt = expiresAt - RENEW_MARGIN_MS;
+        if (madeAt > 0) {
+            dueAt = Math.min(dueAt, madeAt + RENEW_AGE_MS);
+        }
+        return dueAt;
+    }
+
+    /**
+     * Failures that are worth another automatic attempt. A CSR the firmware
+     * rejected, or a chain that failed validation, stays paused.
+     */
+    private static boolean isAutoRetryable(String error, int detail) {
+        if (error == null || error.isEmpty() || "canceled".equals(error)) {
+            return true;
+        }
+        if ("network_error".equals(error) || "hal_unavailable".equals(error)
+                || "native_unavailable".equals(error) || "native_transport".equals(error)
+                || "timeout".equals(error) || "native_timeout".equals(error)) {
+            return true;
+        }
+        return "http_error".equals(error)
+                && (detail == 408 || detail == 429 || (detail >= 500 && detail <= 599));
     }
 
     private long secureLong(String key) {
