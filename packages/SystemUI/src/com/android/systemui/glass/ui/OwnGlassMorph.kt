@@ -443,7 +443,10 @@ constructor(
         val alpha =
             if (isGrowing) smooth(FADE_IN_FROM, FADE_IN_TO, grown)
             else smooth(FADE_OUT_TO, FADE_OUT_FROM, grown)
-        target.apply(view, shape, full, now, alpha)
+        // Never quite 0 while it moves: a window with nothing to draw sends no new frame, and
+        // the glass's new place only reaches SurfaceFlinger with one, so the glass stood still
+        // while the content was faded out and then jumped, as a slideshow
+        target.apply(view, shape, full, now, max(alpha, MOVING_ALPHA))
         val out = o.coerceIn(0f, 1f)
         if (out != lastProgress) {
             lastProgress = out
@@ -585,6 +588,9 @@ constructor(
         const val FADE_IN_TO = 0.8f
         const val FADE_OUT_FROM = 0.9f
         const val FADE_OUT_TO = 0.55f
+        // The content's alpha while it's faded out and the glass still moves: too little to see,
+        // enough for the window to draw every frame
+        const val MOVING_ALPHA = 1f / 255f
 
         // Liquid: along the edge first, past full size by about 6%, then out of it, past by
         // about 5%: a thin drop that swells and wobbles once. Going back, out of the edge a
