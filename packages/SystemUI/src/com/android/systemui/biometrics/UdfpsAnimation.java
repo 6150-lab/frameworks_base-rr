@@ -32,6 +32,7 @@ import android.graphics.Point;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
 import android.hardware.fingerprint.FingerprintSensorPropertiesInternal;
+import android.os.Handler;
 import android.os.UserHandle;
 import android.provider.Settings;
 import android.util.AttributeSet;
@@ -74,6 +75,8 @@ public class UdfpsAnimation extends ImageView {
     private final FingerprintSensorPropertiesInternal mProps;
 
     private boolean mAnimationAdded = false;
+    private int mStyle = -1;
+    private final Handler mBgHandler;
 
     private final KeyguardStateController.Callback keyguardStateCallback = new KeyguardStateController.Callback() {
         @Override
@@ -106,6 +109,7 @@ public class UdfpsAnimation extends ImageView {
         mWindowManager = windowManager;
 
         mKeyguardStateController = Dependency.get(KeyguardStateController.class);
+        mBgHandler = new Handler(Dependency.get(Dependency.BG_LOOPER));
 
         float scaleFactor = getDisplayFactor();
 
@@ -144,22 +148,30 @@ public class UdfpsAnimation extends ImageView {
     }
 
     private void updateAnimationStyle() {
-        int value = Settings.System.getIntForUser(mContext.getContentResolver(),
+        final int value = Settings.System.getIntForUser(mContext.getContentResolver(),
                 Settings.System.UDFPS_ANIM_STYLE, 0, UserHandle.USER_CURRENT);
-        mContext.getMainExecutor().execute(() -> {
-            updateAnimationStyle(value);
+        if (value == mStyle) {
+            return;
+        }
+        mStyle = value;
+        mBgHandler.post(() -> {
+            final Drawable bgDrawable = value == 0 ? null : getBgDrawable(value);
+            mContext.getMainExecutor().execute(() -> {
+                if (value == mStyle) {
+                    updateAnimationStyle(bgDrawable);
+                }
+            });
         });
     }
 
-    private void updateAnimationStyle(int styleIdx) {
+    private void updateAnimationStyle(Drawable bgDrawable) {
         setBackground(null);
         if (recognizingAnim != null) {
             recognizingAnim.stop();
             clearAnimation();
             recognizingAnim = null;
         }
-        Drawable bgDrawable = getBgDrawable(styleIdx);
-        if (styleIdx != 0 && bgDrawable != null) {
+        if (bgDrawable != null) {
             setBackground(bgDrawable);
             recognizingAnim = bgDrawable instanceof AnimationDrawable ? (AnimationDrawable) bgDrawable : null;
         }
