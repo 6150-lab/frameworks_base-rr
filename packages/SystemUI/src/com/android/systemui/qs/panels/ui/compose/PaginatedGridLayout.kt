@@ -157,36 +157,49 @@ constructor(
              * layout extends to the sides, but the content is as if there was no padding. That
              * way, the clipping bounds of the HorizontalPager extend beyond the tiles in each page.
              */
-            HorizontalPager(
-                state = pagerState,
-                modifier =
-                    Modifier.sysuiResTag("qs_pager")
-                        .padding(horizontal = { -contentPaddingValue.roundToPx() })
-                        .nestedScroll(nestedScrollConnection)
-                        .then(
-                            if (preview != null) {
-                                Modifier.onGloballyPositioned { preview.pager = it.boundsInRoot() }
-                            } else {
-                                Modifier
-                            }
-                        ),
-                contentPadding = contentPadding,
-                pageSpacing = if (pages.size > 1) InterPageSpacing else 0.dp,
-                beyondViewportPageCount = 1,
-                verticalAlignment = Alignment.Top,
-            ) { index ->
-                val page = pages[index]
-                val previewPage =
-                    if (preview != null) QsPreviewPage(index == pages.lastIndex, rows) else null
+            if (pages.size == 1 && preview == null) {
+                with(delegateGridLayout) {
+                    TileGrid(
+                        tiles = pages[0],
+                        modifier = Modifier.fillMaxWidth(),
+                        listening = listening,
+                        enableRevealEffect = false,
+                    )
+                }
+            } else {
+                HorizontalPager(
+                    state = pagerState,
+                    modifier =
+                        Modifier.sysuiResTag("qs_pager")
+                            .padding(horizontal = { -contentPaddingValue.roundToPx() })
+                            .nestedScroll(nestedScrollConnection)
+                            .then(
+                                if (preview != null) {
+                                    Modifier.onGloballyPositioned {
+                                        preview.pager = it.boundsInRoot()
+                                    }
+                                } else {
+                                    Modifier
+                                }
+                            ),
+                    contentPadding = contentPadding,
+                    pageSpacing = if (pages.size > 1) InterPageSpacing else 0.dp,
+                    beyondViewportPageCount = 1,
+                    verticalAlignment = Alignment.Top,
+                ) { index ->
+                    val page = pages[index]
+                    val previewPage =
+                        if (preview != null) QsPreviewPage(index == pages.lastIndex, rows) else null
 
-                CompositionLocalProvider(LocalQsPreviewPage provides previewPage) {
-                    with(delegateGridLayout) {
-                        TileGrid(
-                            tiles = page,
-                            modifier = Modifier,
-                            listening = listening,
-                            enableRevealEffect = false,
-                        )
+                    CompositionLocalProvider(LocalQsPreviewPage provides previewPage) {
+                        with(delegateGridLayout) {
+                            TileGrid(
+                                tiles = page,
+                                modifier = Modifier,
+                                listening = listening,
+                                enableRevealEffect = false,
+                            )
+                        }
                     }
                 }
             }
