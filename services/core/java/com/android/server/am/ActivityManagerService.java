@@ -21300,11 +21300,17 @@ public class ActivityManagerService extends IActivityManager.Stub
 
     @Override
     public void setThreeFingersSwipeActive(boolean active) {
+        if (Binder.getCallingUid() != Process.SYSTEM_UID) {
+            throw new SecurityException("Only the OS may call setThreeFingersSwipeActive()");
+        }
         mThreeFingersSwipeEnabled = active;
     }
 
     @Override
     public void setThreeGestureStateActive(boolean active) {
+        if (Binder.getCallingUid() != Process.SYSTEM_UID) {
+            throw new SecurityException("Only the OS may call setThreeGestureStateActive()");
+        }
         mThreeFingerGestureActive = active;
     }
 }
