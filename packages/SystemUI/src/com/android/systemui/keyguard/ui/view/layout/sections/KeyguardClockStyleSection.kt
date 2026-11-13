@@ -24,6 +24,7 @@ import androidx.constraintlayout.widget.Barrier
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import com.android.systemui.clocks.ClockStyle
+import com.android.systemui.keyguard.domain.interactor.KeyguardInteractor
 import com.android.systemui.keyguard.shared.model.KeyguardSection
 import com.android.systemui.res.R
 import com.android.systemui.util.settings.SecureSettings
@@ -34,6 +35,7 @@ class KeyguardClockStyleSection
 constructor(
     private val context: Context,
     private val secureSettings: SecureSettings,
+    private val keyguardInteractor: KeyguardInteractor,
 ) : KeyguardSection() {
     
     private var clockStyleView: ClockStyle? = null
@@ -66,6 +68,7 @@ constructor(
                 ConstraintLayout.LayoutParams.WRAP_CONTENT
             )
             visibility = View.VISIBLE
+            followDozeTimeTick(keyguardInteractor.dozeTimeTick)
         }
         
         clockStyleView?.let { constraintLayout.addView(it) }

@@ -22,6 +22,8 @@ import android.view.ViewGroup
 import androidx.constraintlayout.widget.Barrier
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
+import com.android.systemui.clocks.AODStyle
+import com.android.systemui.keyguard.domain.interactor.KeyguardInteractor
 import com.android.systemui.keyguard.shared.model.KeyguardSection
 import com.android.systemui.res.R
 import javax.inject.Inject
@@ -30,6 +32,7 @@ class AODStyleSection
 @Inject
 constructor(
     private val context: Context,
+    private val keyguardInteractor: KeyguardInteractor,
 ) : KeyguardSection() {
     
     private var aodStyleView: View? = null
@@ -51,6 +54,7 @@ constructor(
                 ConstraintLayout.LayoutParams.MATCH_PARENT,
                 ConstraintLayout.LayoutParams.WRAP_CONTENT
             )
+            (this as? AODStyle)?.followDozeTimeTick(keyguardInteractor.dozeTimeTick)
         }
         
         constraintLayout.addView(aodStyleView)

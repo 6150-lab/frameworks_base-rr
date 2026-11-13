@@ -41,12 +41,16 @@ import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextClock
 import android.widget.TextView
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import com.android.internal.util.catalyxx.GlassClockView
 import com.android.systemui.Dependency
+import com.android.systemui.lifecycle.repeatWhenAttached
 import com.android.systemui.media.MediaSessionManager
 import com.android.systemui.plugins.statusbar.StatusBarStateController
 import com.android.systemui.res.R
 import com.android.systemui.tuner.TunerService
+import kotlinx.coroutines.flow.Flow
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
@@ -136,20 +140,6 @@ class ClockStyle @JvmOverloads constructor(
         }
     }
 
-    private val burnInProtectionRunnable = object : Runnable {
-        override fun run() {
-            if (!isDozing) return
-            currentShiftX = random.nextInt(BURN_IN_PROTECTION_MAX_SHIFT * 2) - BURN_IN_PROTECTION_MAX_SHIFT
-            currentShiftY = random.nextInt(BURN_IN_PROTECTION_MAX_SHIFT * 2) - BURN_IN_PROTECTION_MAX_SHIFT
-            currentClockView?.apply {
-                translationX = currentShiftX.toFloat()
-                translationY = currentShiftY.toFloat()
-            }
-            invalidate()
-            handler.postDelayed(this, BURN_IN_PROTECTION_INTERVAL)
-        }
-    }
-
     private val statusBarStateListener = object : StatusBarStateController.StateListener {
         override fun onStateChanged(newState: Int) {}
 
@@ -196,7 +186,6 @@ class ClockStyle @JvmOverloads constructor(
         if (isDozing) {
             applyClockAlpha()
             applyClockColors()
-            startBurnInProtection()
             startAodTick()
         }
 
@@ -219,7 +208,6 @@ class ClockStyle @JvmOverloads constructor(
         statusBarStateController.removeCallback(statusBarStateListener)
         tunerService.removeTunable(this)
         runCatching { MediaSessionManager.get().removeListener(mediaDataListener) }
-        handler.removeCallbacks(burnInProtectionRunnable)
         handler.removeCallbacks(aodTickRunnable)
         currentClockView?.animate()?.cancel()
         cancelWobbleAnimation()
@@ -325,7 +313,6 @@ class ClockStyle @JvmOverloads constructor(
         applyClockAlpha()
         applyClockColors()
         if (dozing) {
-            startBurnInProtection()
             startAodTick()
         } else {
             stopBurnInProtection()
@@ -355,15 +342,26 @@ class ClockStyle @JvmOverloads constructor(
         handler.removeCallbacks(aodTickRunnable)
     }
 
-    private fun startBurnInProtection() {
-        if (clockStyle == 0) return
-        handler.removeCallbacks(burnInProtectionRunnable)
-        handler.postDelayed(burnInProtectionRunnable, BURN_IN_PROTECTION_INTERVAL)
+    fun followDozeTimeTick(tick: Flow<Long>) {
+        repeatWhenAttached {
+            repeatOnLifecycle(Lifecycle.State.CREATED) {
+                tick.collect { shiftForBurnIn() }
+            }
+        }
+    }
+
+    private fun shiftForBurnIn() {
+        if (!isDozing || clockStyle == 0) return
+        currentShiftX = random.nextInt(BURN_IN_PROTECTION_MAX_SHIFT * 2) - BURN_IN_PROTECTION_MAX_SHIFT
+        currentShiftY = random.nextInt(BURN_IN_PROTECTION_MAX_SHIFT * 2) - BURN_IN_PROTECTION_MAX_SHIFT
+        currentClockView?.apply {
+            translationX = currentShiftX.toFloat()
+            translationY = currentShiftY.toFloat()
+        }
     }
 
     private fun stopBurnInProtection() {
         if (clockStyle == 0) return
-        handler.removeCallbacks(burnInProtectionRunnable)
         currentClockView?.apply {
             translationX = 0f
             translationY = 0f
@@ -1121,7 +1119,6 @@ class ClockStyle @JvmOverloads constructor(
         private const val AOD_UPDATE_INTERVAL_MILLIS = 60_000L
         private const val UPDATE_INTERVAL_MILLIS = 15_000L
 
-        private const val BURN_IN_PROTECTION_INTERVAL = 10_000L
         private const val BURN_IN_PROTECTION_MAX_SHIFT = 4
 
         private const val AOD_SCALE_DOWN = 0.85f

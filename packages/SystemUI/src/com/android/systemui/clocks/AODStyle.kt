@@ -20,18 +20,20 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.Drawable
-import android.os.Handler
-import android.os.Looper
 import android.util.AttributeSet
 import android.view.View
 import android.widget.ImageView
 import android.widget.RelativeLayout
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import com.android.settingslib.drawable.CircleFramedDrawable
 import com.android.systemui.Dependency
+import com.android.systemui.lifecycle.repeatWhenAttached
 import com.android.systemui.plugins.statusbar.StatusBarStateController
 import com.android.systemui.res.R
 import com.android.systemui.tuner.TunerService
 import java.io.ByteArrayOutputStream
+import kotlinx.coroutines.flow.Flow
 
 class AODStyle @JvmOverloads constructor(
     context: Context,
@@ -41,7 +43,6 @@ class AODStyle @JvmOverloads constructor(
     private val tunerService: TunerService = Dependency.get(TunerService::class.java)
     private val statusBarStateController: StatusBarStateController =
         Dependency.get(StatusBarStateController::class.java)
-    private val handler = Handler(Looper.getMainLooper())
     private val random = java.util.Random()
 
     private var aodImageView: ImageView? = null
@@ -55,20 +56,6 @@ class AODStyle @JvmOverloads constructor(
     private var currentShiftX = 0
     private var currentShiftY = 0
 
-    private val burnInProtectionRunnable = object : Runnable {
-        override fun run() {
-            if (!isDozing) return
-            currentShiftX = random.nextInt(BURN_IN_PROTECTION_MAX_SHIFT * 2) - BURN_IN_PROTECTION_MAX_SHIFT
-            currentShiftY = random.nextInt(BURN_IN_PROTECTION_MAX_SHIFT * 2) - BURN_IN_PROTECTION_MAX_SHIFT
-            aodImageView?.apply {
-                translationX = currentShiftX.toFloat()
-                translationY = currentShiftY.toFloat()
-            }
-            invalidate()
-            handler.postDelayed(this, BURN_IN_PROTECTION_INTERVAL)
-        }
-    }
-
     private val statusBarStateListener = object : StatusBarStateController.StateListener {
         override fun onStateChanged(newState: Int) {}
 
@@ -76,11 +63,7 @@ class AODStyle @JvmOverloads constructor(
             if (isDozing == dozing) return
             isDozing = dozing
             updateAodImageView()
-            if (isDozing) {
-                startBurnInProtection()
-            } else {
-                stopBurnInProtection()
-            }
+            if (!isDozing) stopBurnInProtection()
         }
     }
 
@@ -105,7 +88,6 @@ class AODStyle @JvmOverloads constructor(
         super.onDetachedFromWindow()
         statusBarStateController.removeCallback(statusBarStateListener)
         tunerService.removeTunable(this)
-        handler.removeCallbacks(burnInProtectionRunnable)
         aodImageView?.apply {
             animate().cancel()
             setImageDrawable(null)
@@ -134,13 +116,24 @@ class AODStyle @JvmOverloads constructor(
         }
     }
 
-    private fun startBurnInProtection() {
-        handler.removeCallbacks(burnInProtectionRunnable)
-        handler.postDelayed(burnInProtectionRunnable, BURN_IN_PROTECTION_INTERVAL)
+    fun followDozeTimeTick(tick: Flow<Long>) {
+        repeatWhenAttached {
+            repeatOnLifecycle(Lifecycle.State.CREATED) {
+                tick.collect { shiftForBurnIn() }
+            }
+        }
+    }
+
+    private fun shiftForBurnIn() {
+        val imageView = aodImageView ?: return
+        if (!isDozing || imageView.visibility != View.VISIBLE) return
+        currentShiftX = random.nextInt(BURN_IN_PROTECTION_MAX_SHIFT * 2) - BURN_IN_PROTECTION_MAX_SHIFT
+        currentShiftY = random.nextInt(BURN_IN_PROTECTION_MAX_SHIFT * 2) - BURN_IN_PROTECTION_MAX_SHIFT
+        imageView.translationX = currentShiftX.toFloat()
+        imageView.translationY = currentShiftY.toFloat()
     }
 
     private fun stopBurnInProtection() {
-        handler.removeCallbacks(burnInProtectionRunnable)
         aodImageView?.apply {
             translationX = 0f
             translationY = 0f
@@ -162,7 +155,6 @@ class AODStyle @JvmOverloads constructor(
                 .scaleX(1f)
                 .scaleY(1f)
                 .setDuration(500)
-                .withEndAction { startBurnInProtection() }
                 .start()
         } else {
             imageView.animate()
@@ -214,7 +206,6 @@ class AODStyle @JvmOverloads constructor(
         private const val CUSTOM_AOD_IMAGE_URI_KEY = "system:custom_aod_image_uri"
         private const val CUSTOM_AOD_IMAGE_ENABLED_KEY = "system:custom_aod_image_enabled"
 
-        private const val BURN_IN_PROTECTION_INTERVAL = 10_000L
         private const val BURN_IN_PROTECTION_MAX_SHIFT = 4
     }
 }
