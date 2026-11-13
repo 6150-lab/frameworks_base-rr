@@ -32,11 +32,8 @@ import android.animation.ValueAnimator;
 import android.annotation.IntDef;
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.database.ContentObserver;
 import android.graphics.Color;
 import android.os.Handler;
-import android.os.Looper;
-import android.provider.Settings;
 import android.util.Log;
 import android.util.MathUtils;
 import android.util.Pair;
@@ -54,6 +51,7 @@ import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.colorextraction.ColorExtractor.GradientColors;
 import com.android.internal.graphics.ColorUtils;
 import com.android.internal.util.ContrastColorUtil;
+import com.android.internal.util.catalyxx.GlassSettings;
 import com.android.internal.util.function.TriConsumer;
 import com.android.keyguard.BouncerPanelExpansionCalculator;
 import com.android.keyguard.KeyguardUpdateMonitor;
@@ -66,6 +64,7 @@ import com.android.systemui.bouncer.ui.BouncerColors;
 import com.android.systemui.dagger.SysUISingleton;
 import com.android.systemui.dagger.qualifiers.Main;
 import com.android.systemui.dock.DockManager;
+import com.android.systemui.glass.ui.OwnGlass;
 import com.android.systemui.keyguard.KeyguardUnlockAnimationController;
 import com.android.systemui.keyguard.domain.interactor.KeyguardInteractor;
 import com.android.systemui.keyguard.domain.interactor.KeyguardTransitionInteractor;
@@ -291,11 +290,10 @@ public class ScrimController implements ViewTreeObserver.OnPreDrawListener, Dump
     private boolean mScreenOn;
     private boolean mTransparentScrimBackground;
 
-    // Catalyxx single tone panel (Lab > Quick settings): the pulled-down panel gets one even shade,
-    // without the notifications scrim's darker area behind the notifications. Off by default.
-    private static final String SINGLE_TONE_KEY = "catalyxx_shade_single_tone";
+    // Catalyxx single tone panel: the pulled-down panel gets one even shade,
+    // without the notifications scrim's darker area behind the notifications.
     private boolean mSingleTone;
-    private ContentObserver mSingleToneObserver;
+    private final Runnable mSingleToneUpdater = this::updateSingleTone;
 
     // Scrim blanking callbacks
     private Runnable mPendingFrameCallback;
@@ -485,18 +483,8 @@ public class ScrimController implements ViewTreeObserver.OnPreDrawListener, Dump
 
         mTransparentScrimBackground = notificationsScrim.getResources()
                 .getBoolean(R.bool.notification_scrim_transparent);
-        if (mSingleToneObserver == null) {
-            mSingleToneObserver = new ContentObserver(new Handler(Looper.getMainLooper())) {
-                @Override
-                public void onChange(boolean selfChange) {
-                    readSingleTone();
-                    applyAndDispatchState();
-                }
-            };
-            mContext.getContentResolver().registerContentObserver(
-                    Settings.Global.getUriFor(SINGLE_TONE_KEY), false, mSingleToneObserver);
-        }
-        readSingleTone();
+        mSingleTone = OwnGlass.INSTANCE.isOn(GlassSettings.PLACE_NOTIFICATIONS);
+        OwnGlass.INSTANCE.addListener(mSingleToneUpdater);
         updateScrims();
         mKeyguardUpdateMonitor.registerCallback(mKeyguardVisibilityCallback);
 
@@ -1194,9 +1182,12 @@ public class ScrimController implements ViewTreeObserver.OnPreDrawListener, Dump
         assertAlphasValid();
     }
 
-    private void readSingleTone() {
-        mSingleTone = Settings.Global.getInt(
-                mContext.getContentResolver(), SINGLE_TONE_KEY, 0) == 1;
+    private void updateSingleTone() {
+        final boolean singleTone = OwnGlass.INSTANCE.isOn(GlassSettings.PLACE_NOTIFICATIONS);
+        if (mSingleTone != singleTone) {
+            mSingleTone = singleTone;
+            applyAndDispatchState();
+        }
     }
 
     /**
