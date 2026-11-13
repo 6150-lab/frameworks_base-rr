@@ -63,7 +63,7 @@ import java.util.concurrent.TimeUnit;
  * <p>No detection happens here or anywhere else on such a device. Waking the app on a timer means
  * it also listens to empty rooms, which a real always-on model would have skipped. The gate below
  * is what keeps that bounded: it is user consent, and nothing listens without it. The timer also
- * slows down with the screen off and sits out battery saver.
+ * sits out screen off and battery saver.
  *
  * <p>That consent is read here, from the Secure setting, because this is what owns the
  * microphone. It used to arrive as a system property written by the app that renders the
@@ -81,10 +81,8 @@ class SoftwareMusicHal implements ISoundTriggerHal {
     private static final String GATE_SETTING = "now_playing_enabled";
 
     private static final String POLL_INTERVAL_PROP = "sys.now_playing.poll_ms";
-    private static final int DEFAULT_POLL_INTERVAL_MILLIS = 30_000;
+    private static final int DEFAULT_POLL_INTERVAL_MILLIS = 120_000;
     private static final int MIN_POLL_INTERVAL_MILLIS = 10_000;
-    /** Screen off, the phone is pocketed or parked: this much rarer still catches a song. */
-    private static final int SCREEN_OFF_INTERVAL_FACTOR = 3;
 
     /** Kept clear of the vendor's handle space, which counts up from zero. */
     private static final int HANDLE_BASE = 0x10000000;
@@ -141,10 +139,13 @@ class SoftwareMusicHal implements ISoundTriggerHal {
     }
 
     private int pollIntervalMillis() {
-        final int base = Math.max(MIN_POLL_INTERVAL_MILLIS,
+        return Math.max(MIN_POLL_INTERVAL_MILLIS,
                 SystemProperties.getInt(POLL_INTERVAL_PROP, DEFAULT_POLL_INTERVAL_MILLIS));
+    }
+
+    private boolean isScreenOff() {
         final PowerManager pm = mContext.getSystemService(PowerManager.class);
-        return pm != null && !pm.isInteractive() ? base * SCREEN_OFF_INTERVAL_FACTOR : base;
+        return pm != null && !pm.isInteractive();
     }
 
     private boolean isPowerSaving() {
@@ -316,6 +317,7 @@ class SoftwareMusicHal implements ISoundTriggerHal {
     private void trigger(int modelHandle) {
         final boolean playing = isPhonePlaying();
         final boolean saving = isPowerSaving();
+        final boolean screenOff = isScreenOff();
         final ModelCallback callback;
         final boolean captureRequested;
         synchronized (mLock) {
@@ -327,7 +329,7 @@ class SoftwareMusicHal implements ISoundTriggerHal {
             callback = model.callback;
             captureRequested = model.captureRequested;
             mLastTriggerElapsed = SystemClock.elapsedRealtime();
-            if (playing || saving) {
+            if (playing || saving || screenOff) {
                 // The mic would only hear the phone's own speaker; in battery saver this is the
                 // background work the user asked to stop. Look again next interval.
                 scheduleLocked(modelHandle, model);
@@ -390,16 +392,24 @@ class SoftwareMusicHal implements ISoundTriggerHal {
         mScreenReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                // Back on the screen-on cadence without sitting out a screen-off interval.
+                final boolean on = Intent.ACTION_SCREEN_ON.equals(intent.getAction());
                 synchronized (mLock) {
+                    if (on) {
+                        mLastTriggerElapsed = SystemClock.elapsedRealtime();
+                    }
                     for (Map.Entry<Integer, Model> entry : mModels.entrySet()) {
-                        scheduleLocked(entry.getKey(), entry.getValue());
+                        if (on) {
+                            scheduleLocked(entry.getKey(), entry.getValue());
+                        } else {
+                            cancelLocked(entry.getValue());
+                        }
                     }
                 }
             }
         };
-        mContext.registerReceiver(mScreenReceiver, new IntentFilter(Intent.ACTION_SCREEN_ON),
-                Context.RECEIVER_NOT_EXPORTED);
+        final IntentFilter screenFilter = new IntentFilter(Intent.ACTION_SCREEN_ON);
+        screenFilter.addAction(Intent.ACTION_SCREEN_OFF);
+        mContext.registerReceiver(mScreenReceiver, screenFilter, Context.RECEIVER_NOT_EXPORTED);
     }
 
     @GuardedBy("mLock")
