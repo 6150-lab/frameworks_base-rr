@@ -447,6 +447,7 @@ public class Clock extends TextView implements
     public void setQsHeader(boolean qsHeader) {
         mIsQsHeader = qsHeader;
         updateClockSize();
+        if (mRrStyle != 0) applyRrStyle();
     }
 
     /** The QS header re-applied its text appearance: keep that as the stock size. */
@@ -527,7 +528,7 @@ public class Clock extends TextView implements
             setTypeface(Typeface.DEFAULT);
             applyBoldClockStyle();
         }
-        final boolean stacked = mRrStyle == RR_STYLE_STACKED;
+        final boolean stacked = mRrStyle == RR_STYLE_STACKED && !mIsQsHeader;
         setSingleLine(!stacked);
         if (stacked) {
             setMaxLines(2);
@@ -591,6 +592,7 @@ public class Clock extends TextView implements
                 }
                 break;
             case RR_STYLE_STACKED:
+                if (mIsQsHeader) break;
                 final CharSequence date = DateFormat.format("EEE d", mCalendar);
                 final int start = text.length() + 1;
                 text.append('\n').append(date);
