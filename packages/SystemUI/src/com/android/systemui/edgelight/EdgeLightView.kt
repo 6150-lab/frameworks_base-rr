@@ -95,6 +95,11 @@ class EdgeLightView(context: Context) : FrameLayout(context) {
     private var rainbowAnimator: ValueAnimator? = null
     private var effectAnimator: ValueAnimator? = null
     private var rainbowRotation: Float = 0f
+    private val rainbowMatrix = Matrix()
+    private var rainbowShader: Shader? = null
+    private var rainbowShaderWidth = 0
+    private var rainbowShaderHeight = 0
+    private var rainbowShaderRounded = false
     private var effectProgress: Float = 0f
 
     private val sparkles = mutableListOf<Sparkle>()
@@ -201,11 +206,15 @@ class EdgeLightView(context: Context) : FrameLayout(context) {
                 override fun onAnimationEnd(animation: Animator) {
                     visible = false
                     pulseAnimator = null
+                    stopRainbowAnimation()
+                    stopEffectAnimation()
                 }
 
                 override fun onAnimationCancel(animation: Animator) {
                     visible = false
                     pulseAnimator = null
+                    stopRainbowAnimation()
+                    stopEffectAnimation()
                 }
             })
             repeatCount = 0
@@ -664,22 +673,27 @@ class EdgeLightView(context: Context) : FrameLayout(context) {
     }
 
     private fun _updateRainbowGradient() {
-        edgePaint.shader = when (edgeStyle) {
-            STYLE_ROUNDED -> {
-                val matrix = Matrix()
-                matrix.postRotate(rainbowRotation, width / 2f, height / 2f)
-                SweepGradient(width / 2f, height / 2f, RAINBOW, null).also {
-                    it.setLocalMatrix(matrix)
-                }
-            }
-            else -> {
-                val offset = (rainbowRotation / 360f) * height
-                LinearGradient(
-                    0f, -offset, 0f, height.toFloat() - offset,
-                    RAINBOW, null, Shader.TileMode.REPEAT
-                )
-            }
+        val rounded = edgeStyle == STYLE_ROUNDED
+        val shader = rainbowShader?.takeIf {
+            rainbowShaderWidth == width && rainbowShaderHeight == height &&
+                rainbowShaderRounded == rounded
+        } ?: (if (rounded) {
+            SweepGradient(width / 2f, height / 2f, RAINBOW, null)
+        } else {
+            LinearGradient(0f, 0f, 0f, height.toFloat(), RAINBOW, null, Shader.TileMode.REPEAT)
+        }).also {
+            rainbowShader = it
+            rainbowShaderWidth = width
+            rainbowShaderHeight = height
+            rainbowShaderRounded = rounded
         }
+        if (rounded) {
+            rainbowMatrix.setRotate(rainbowRotation, width / 2f, height / 2f)
+        } else {
+            rainbowMatrix.setTranslate(0f, -(rainbowRotation / 360f) * height)
+        }
+        shader.setLocalMatrix(rainbowMatrix)
+        edgePaint.shader = shader
     }
 
     private fun startRainbowAnimation() {

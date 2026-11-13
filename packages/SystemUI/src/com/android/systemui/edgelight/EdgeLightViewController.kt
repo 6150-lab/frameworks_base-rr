@@ -181,8 +181,12 @@ constructor(
     }
 
     private fun setPulsing(pulsing: Boolean) {
-        if (!pulsing) remixColor = 0
-        if (!currentSettings.isEnabled || !pulsing || !isDozing) return
+        if (!pulsing) {
+            remixColor = 0
+            stop()
+            return
+        }
+        if (!currentSettings.isEnabled || !isDozing) return
         if (Settings.System.getIntForUser(context.contentResolver, KEY_NOTIFICATIONS, 1,
                 UserHandle.USER_CURRENT) == 0) return
         edgeLightView.apply {
