@@ -72,6 +72,7 @@ class FaceUnlockImageView @JvmOverloads constructor(
             }
             mDozing = dozing
             if (mDozing) {
+                cancelAllAnimations()
                 visibility = View.GONE
             }
         }
@@ -80,6 +81,9 @@ class FaceUnlockImageView @JvmOverloads constructor(
     init {
         visibility = View.GONE
         updateFaceIconState()
+        chain(startAnimation, scanningAnimation)
+        chain(failureShakeAnimation, dismissAnimation)
+        chain(successAnimation, dismissAnimation)
     }
 
     override fun onAttachedToWindow() {
@@ -93,6 +97,7 @@ class FaceUnlockImageView @JvmOverloads constructor(
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
         statusBarStateController.removeCallback(statusBarStateListener)
+        cancelAllAnimations()
     }
 
     fun updateColor() {
@@ -174,38 +179,43 @@ class FaceUnlockImageView @JvmOverloads constructor(
     }
 
     private fun handleAnimationForState(state: State) {
+        cancelAllAnimations()
         if (mDozing) {
             visibility = View.GONE
             return
         }
-        cancelAllAnimations()
         if (state == State.SCANNING) {
             visibility = View.VISIBLE
         }
         when (state) {
-            State.SCANNING -> startAnimationChain(startAnimation, scanningAnimation)
+            State.SCANNING -> startAnimation.start()
             State.NOT_VERIFIED -> {
-                startAnimationChain(failureShakeAnimation, dismissAnimation)
+                failureShakeAnimation.start()
                 vibrate(VibrationEffect.EFFECT_DOUBLE_CLICK)
             }
             State.SUCCESS -> {
-                startAnimationChain(successAnimation, dismissAnimation)
+                successAnimation.start()
                 vibrate(VibrationEffect.EFFECT_CLICK)
             }
             State.HIDDEN -> dismissAnimation.start()
         }
     }
 
-    private fun startAnimationChain(first: ObjectAnimator, next: ObjectAnimator) {
-        first.startWithEndAction { next.start() }
-    }
+    private fun chain(first: ObjectAnimator, next: ObjectAnimator) {
+        first.addListener(object : AnimatorListenerAdapter() {
+            private var cancelled = false
 
-    private fun ObjectAnimator.startWithEndAction(endAction: () -> Unit) {
-        addListener(object : AnimatorListenerAdapter() {
+            override fun onAnimationStart(animation: Animator) {
+                cancelled = false
+            }
+
+            override fun onAnimationCancel(animation: Animator) {
+                cancelled = true
+            }
+
             override fun onAnimationEnd(animation: Animator) {
-                endAction()
+                if (!cancelled) next.start()
             }
         })
-        start()
     }
 }
