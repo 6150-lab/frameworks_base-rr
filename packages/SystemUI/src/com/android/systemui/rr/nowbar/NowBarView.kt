@@ -201,7 +201,7 @@ class NowBarView(
         songTitle.typeface = medium
         songTitle.isSingleLine = true
         songTitle.ellipsize = TextUtils.TruncateAt.MARQUEE
-        songTitle.marqueeRepeatLimit = -1
+        songTitle.marqueeRepeatLimit = 2
         songTitle.isHorizontalFadingEdgeEnabled = true
         songTitle.setFadingEdgeLength(dp(10f).toInt())
         songTitle.isSelected = true
@@ -613,7 +613,10 @@ class NowBarView(
         } else {
             listOfNotNull(item.title.takeIf { it.isNotEmpty() }, item.text).joinToString(" · ")
         }
-        if (songTitle.text.toString() != line) songTitle.text = line
+        if (songTitle.text.toString() != line) {
+            songTitle.text = line
+            wave.poke()
+        }
         songArtist.text = item.text
         songArtist.visibility = if (twoLines) VISIBLE else GONE
 
@@ -836,6 +839,7 @@ class NowBarView(
     }
 
     private fun startGesture(ev: MotionEvent, hold: Boolean) {
+        wave.poke()
         downX = ev.x
         downY = ev.y
         dragging = false

@@ -11,6 +11,7 @@ import android.graphics.LinearGradient
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.Shader
+import android.os.SystemClock
 import android.view.MotionEvent
 import android.view.View
 import android.view.animation.LinearInterpolator
@@ -29,13 +30,12 @@ class NowBarWaveView(context: Context) : View(context) {
     private var shadedWidth = -1
     private val path = Path()
     private var phase = 0f
-    private val animator = ValueAnimator.ofFloat(0f, 1f).apply {
-        duration = 1200L
-        repeatCount = ValueAnimator.INFINITE
-        interpolator = LinearInterpolator()
-        addUpdateListener {
-            phase = it.animatedValue as Float
+    private var movingUntil = 0L
+    private val tick = object : Runnable {
+        override fun run() {
+            phase = (phase + FRAME_MS.toFloat() / PERIOD_MS) % 1f
             invalidate()
+            if (SystemClock.uptimeMillis() < movingUntil) postDelayed(this, FRAME_MS)
         }
     }
 
@@ -57,30 +57,35 @@ class NowBarWaveView(context: Context) : View(context) {
 
     var running = false
         set(value) {
+            if (field == value) return
             field = value
-            updateAnimator()
+            poke()
         }
+
+    fun poke() {
+        movingUntil = SystemClock.uptimeMillis() + MOVING_MS
+        updateTick()
+    }
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        updateAnimator()
+        updateTick()
     }
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-        animator.cancel()
+        removeCallbacks(tick)
     }
 
     override fun onVisibilityAggregated(isVisible: Boolean) {
         super.onVisibilityAggregated(isVisible)
-        updateAnimator()
+        if (isVisible) poke() else updateTick()
     }
 
-    private fun updateAnimator() {
-        if (running && isAttachedToWindow && isShown) {
-            if (!animator.isStarted) animator.start()
-        } else {
-            animator.cancel()
+    private fun updateTick() {
+        removeCallbacks(tick)
+        if (running && isAttachedToWindow && isShown && SystemClock.uptimeMillis() < movingUntil) {
+            postDelayed(tick, FRAME_MS)
         }
     }
 
@@ -116,6 +121,9 @@ class NowBarWaveView(context: Context) : View(context) {
 
     companion object {
         const val WAVELENGTH = 14f
+        private const val FRAME_MS = 33L
+        private const val PERIOD_MS = 1200L
+        private const val MOVING_MS = 10_000L
 
         /** A sine wave from [start] to [end] around [mid], shifted by [phase] of a wavelength. */
         fun wave(path: Path, start: Float, end: Float, mid: Float, amplitude: Float,
