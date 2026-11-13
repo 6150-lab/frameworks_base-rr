@@ -19,20 +19,14 @@ package com.android.systemui.statusbar.pipeline.battery.ui.composable
 import android.graphics.Rect
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
 import androidx.compose.runtime.collectAsState
 import com.android.systemui.rr.battery.NeonRingPrefs
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -83,8 +77,8 @@ import com.android.systemui.statusbar.pipeline.battery.shared.ui.BatteryGlyph
 import com.android.systemui.statusbar.pipeline.battery.shared.ui.PathSpec
 import com.android.systemui.statusbar.pipeline.battery.ui.viewmodel.BatteryViewModel
 import kotlin.math.ceil
-import kotlin.math.floor
 import kotlin.math.roundToInt
+import kotlinx.coroutines.delay
 
 /**
  * Draws a battery directly on to a [Canvas]. The canvas is scaled to fill its container, and the
@@ -613,36 +607,31 @@ fun NeonRingBattery(
  */
 @Composable
 private fun neonRingSpin(): State<Float> {
-    val spin =
-        rememberInfiniteTransition(label = "neonRingSpark")
-            .animateFloat(
-                initialValue = 0f,
-                targetValue = 360f,
-                animationSpec = infiniteRepeatable(tween(1600, easing = LinearEasing)),
-                label = "spark",
-            )
-    return remember(spin) { derivedStateOf { floor(spin.value / SPARK_STEP) * SPARK_STEP } }
+    val spin = remember { mutableFloatStateOf(0f) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(33)
+            spin.floatValue = (spin.floatValue + SPARK_STEP) % 360f
+        }
+    }
+    return spin
 }
 
-/** How bright the neon ring is as it pulses on a low battery, in steps like the spark. */
+/** How bright the neon ring is as it pulses on a low battery, a step a second. */
 @Composable
 private fun neonRingPulse(): State<Float> {
-    val pulse =
-        rememberInfiniteTransition(label = "neonRingPulse")
-            .animateFloat(
-                initialValue = 1f,
-                targetValue = 0.4f,
-                animationSpec = infiniteRepeatable(tween(900), RepeatMode.Reverse),
-                label = "pulse",
-            )
-    return remember(pulse) {
-        derivedStateOf { (pulse.value * PULSE_STEPS).roundToInt() / PULSE_STEPS }
+    val pulse = remember { mutableFloatStateOf(1f) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(1000)
+            pulse.floatValue = if (pulse.floatValue == 1f) 0.4f else 1f
+        }
     }
+    return pulse
 }
 
 // 48 steps to a turn of 1.6 s: 30 a second
 private const val SPARK_STEP = 7.5f
-private const val PULSE_STEPS = 24f
 
 /** RR: the circle styles draw larger than the stock body so the level fits inside. */
 const val CIRCLE_BATTERY_SCALE = 1.35f
