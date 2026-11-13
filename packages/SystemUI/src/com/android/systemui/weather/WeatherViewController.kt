@@ -16,8 +16,11 @@
 package com.android.systemui.weather
 
 import android.content.Context
+import android.database.ContentObserver
 import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
+import android.os.Handler
+import android.os.Looper
 import android.os.UserHandle
 import android.provider.Settings
 import android.view.View
@@ -31,6 +34,7 @@ import com.android.systemui.plugins.statusbar.StatusBarStateController
 import com.android.systemui.res.R
 
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.*
 
 class WeatherViewController(
@@ -58,16 +62,20 @@ class WeatherViewController(
         }
     }
 
-    private val weatherSettingsFlow = flow {
-        var previousSettings: WeatherSettings? = null
-        while (true) {
-            val currentSettings = getWeatherSettings()
-            if (currentSettings != previousSettings) {
-                emit(currentSettings)
-                previousSettings = currentSettings
+    private val weatherSettingsFlow = callbackFlow {
+        val resolver = context.contentResolver
+        val observer = object : ContentObserver(Handler(Looper.getMainLooper())) {
+            override fun onChange(selfChange: Boolean) {
+                trySend(getWeatherSettings())
             }
-            delay(5000)
         }
+        listOf(LOCKSCREEN_WEATHER_ENABLED, LOCKSCREEN_WEATHER_LOCATION, LOCKSCREEN_WEATHER_TEXT,
+            LOCKSCREEN_WEATHER_WIND_INFO, LOCKSCREEN_WEATHER_HUMIDITY_INFO)
+            .map(Settings.System::getUriFor)
+            .plus(Settings.Secure.getUriFor(CUSTOM_CLOCK_WEATHER))
+            .forEach { resolver.registerContentObserver(it, false, observer, UserHandle.USER_ALL) }
+        trySend(getWeatherSettings())
+        awaitClose { resolver.unregisterContentObserver(observer) }
     }.stateIn(scope, SharingStarted.Eagerly, getWeatherSettings())
 
     fun init() {
