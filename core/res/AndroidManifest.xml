@@ -11149,6 +11149,10 @@
                  android:permission="android.permission.BIND_JOB_SERVICE" >
         </service>
 
+        <service android:name="com.android.server.spoof.RrSpoofRefreshJob"
+                 android:permission="android.permission.BIND_JOB_SERVICE" >
+        </service>
+
         <service android:name="com.android.server.people.data.DataMaintenanceService"
                  android:permission="android.permission.BIND_JOB_SERVICE" >
         </service>

@@ -67,10 +67,10 @@ public class RrSpoofManager implements IRrSpoofManager {
             Settings.Secure.SPOOF_TRICKYSTORE_PATCH,
     };
 
-    private static final long REFRESH_INTERVAL_MS = TimeUnit.HOURS.toMillis(1);
-    // A fresh install has no keybox or PIF config yet, so don't make it wait a
-    // full hour for the first pass. Retry a few times in case the network isn't
-    // up yet, then fall back to the hourly schedule.
+    private static final long REFRESH_INTERVAL_MS = TimeUnit.HOURS.toMillis(6);
+    // A fresh install has no keybox or PIF config yet, so don't make it wait for
+    // the periodic job. Retry a few times in case the network isn't up yet, then
+    // leave it to the job.
     private static final long BOOTSTRAP_INITIAL_DELAY_MS = TimeUnit.MINUTES.toMillis(2);
     private static final long BOOTSTRAP_RETRY_MS = TimeUnit.MINUTES.toMillis(10);
     private static final int BOOTSTRAP_MAX_RETRIES = 6;
@@ -79,6 +79,7 @@ public class RrSpoofManager implements IRrSpoofManager {
     // rest of a multi-key reset a moment to land, then refresh straight away
     // rather than leaving the device without a fingerprint until the next tick.
     private static final long REFRESH_AFTER_CLEAR_DELAY_MS = TimeUnit.SECONDS.toMillis(5);
+    private static final long GMS_RESTART_DELAY_MS = TimeUnit.SECONDS.toMillis(60);
     // Spoofing stays off until the user opens Settings for the first time after
     // setup. The flag is persisted, so later boots start spoofing straight away;
     // a clean flash wipes /data and the flag with it.
@@ -151,6 +152,7 @@ public class RrSpoofManager implements IRrSpoofManager {
     private volatile boolean mTrickyStoreOn = true;
     private TaskStackListener mTaskListener;
     private final Runnable mRefreshAfterClear = this::refreshNow;
+    private final Runnable mRestartGms = this::stopGmsFamily;
 
     private final Map<String, String> mCache = new ConcurrentHashMap<>();
     private final HandlerThread mHandlerThread;
@@ -239,8 +241,14 @@ public class RrSpoofManager implements IRrSpoofManager {
     }
 
     private void scheduleFirstRefresh() {
-        mHandler.postDelayed(this::performScheduledRefresh,
-                isBootstrapPending() ? BOOTSTRAP_INITIAL_DELAY_MS : REFRESH_INTERVAL_MS);
+        try {
+            RrSpoofRefreshJob.schedule(mContext, REFRESH_INTERVAL_MS);
+        } catch (RuntimeException e) {
+            Log.e(TAG, "Failed to schedule the refresh job", e);
+        }
+        if (isBootstrapPending()) {
+            mHandler.postDelayed(this::performBootstrapRefresh, BOOTSTRAP_INITIAL_DELAY_MS);
+        }
     }
 
     /**
@@ -317,7 +325,7 @@ public class RrSpoofManager implements IRrSpoofManager {
      * bionic stops serving the old device identity for the overridden reads, and
      * stop the GMS family so it stops running on the old fingerprint, then
      * refresh shortly after so the device isn't left without a fingerprint until
-     * the next hourly tick. A non-empty config is staged as it stands, so a
+     * the next refresh. A non-empty config is staged as it stands, so a
      * manual import or a Remixer edit reaches bionic the same way a refresh does.
      */
     private void onPifConfigChanged() {
@@ -415,21 +423,27 @@ public class RrSpoofManager implements IRrSpoofManager {
     }
 
     /**
-     * Native equivalent of AlwaysStrong's hourly background service: refreshes
-     * the Pixel fingerprint and the official keybox without requiring the
-     * Settings app to be opened. Each network step runs under a hard deadline
-     * so a stalled connection can't stop future ticks from firing. Runs hourly,
-     * or sooner while a fresh install is still missing its keybox or PIF config.
+     * Native equivalent of AlwaysStrong's background service: refreshes the
+     * Pixel fingerprint and the official keybox without requiring the Settings
+     * app to be opened. Each network step runs under a hard deadline so a
+     * stalled connection can't stop future refreshes. {@link RrSpoofRefreshJob}
+     * runs it every few hours while the device is idle; this runs it sooner
+     * while a fresh install is still missing its keybox or PIF config.
      */
-    private void performScheduledRefresh() {
+    private void performBootstrapRefresh() {
         if (!mActivated) return;
         refreshNow();
-        long delay = REFRESH_INTERVAL_MS;
         if (isBootstrapPending() && mBootstrapRetries < BOOTSTRAP_MAX_RETRIES) {
             mBootstrapRetries++;
-            delay = BOOTSTRAP_RETRY_MS;
+            mHandler.postDelayed(this::performBootstrapRefresh, BOOTSTRAP_RETRY_MS);
         }
-        mHandler.postDelayed(this::performScheduledRefresh, delay);
+    }
+
+    void refreshFromJob(Runnable done) {
+        mHandler.post(() -> {
+            refreshNow();
+            done.run();
+        });
     }
 
     /**
@@ -468,7 +482,7 @@ public class RrSpoofManager implements IRrSpoofManager {
         return s == null || s.trim().isEmpty();
     }
 
-    /** One fingerprint + keybox pass, without touching the hourly schedule. */
+    /** One fingerprint + keybox pass, without touching the schedule. */
     private void refreshNow() {
         if (!mActivated) return;
         // Keybox first: it is one small request, while the fingerprint crawl is
@@ -489,7 +503,7 @@ public class RrSpoofManager implements IRrSpoofManager {
      * Runs [task] on a background executor with a hard wall-clock deadline, so
      * a stalled DNS/connect (not always caught by URLConnection's own timeouts)
      * can't wedge the shared HandlerThread that drives PACKAGE_ADDED handling
-     * and the hourly reschedule.
+     * and the bootstrap retries.
      */
     private <T> T runBounded(ExecutorService pool, Callable<T> task) throws Exception {
         Future<T> future = pool.submit(task);
@@ -530,13 +544,20 @@ public class RrSpoofManager implements IRrSpoofManager {
                 : PixelDeviceRepository.getDaysUntilExpiry(canaryMonth, releaseDate);
         if (daysLeft != null && daysLeft > REFETCH_WINDOW_DAYS) return;
 
-        PixelDeviceRepository.PixelProfile matched = runBounded(mFingerprintExecutor, () -> {
-            List<PixelDeviceRepository.PixelProfile> profiles =
-                    PixelDeviceRepository.getProfiles(mContext, true);
-            String defaultCodename = PixelDeviceRepository.getDefaultPifCodename(profiles);
-            return PixelDeviceRepository.getProfileByCodename(mContext, defaultCodename, false);
-        });
+        PixelDeviceRepository.PixelProfile matched;
+        try {
+            matched = runBounded(mFingerprintExecutor, () -> {
+                List<PixelDeviceRepository.PixelProfile> profiles =
+                        PixelDeviceRepository.getProfiles(mContext, true);
+                String defaultCodename = PixelDeviceRepository.getDefaultPifCodename(profiles);
+                return PixelDeviceRepository.getProfileByCodename(mContext, defaultCodename, false);
+            });
+        } catch (Exception e) {
+            noteFetchFailed(existing);
+            throw e;
+        }
         if (matched == null || !PixelDeviceRepository.isValidFingerprint(matched.fingerprint)) {
+            noteFetchFailed(existing);
             return;
         }
         if (matched.fingerprint.equals(existing.optString("FINGERPRINT", ""))) {
@@ -594,6 +615,12 @@ public class RrSpoofManager implements IRrSpoofManager {
         killGmsFamily();
 
         Log.i(TAG, "Auto-refreshed Pixel fingerprint: " + matched.model);
+    }
+
+    private void noteFetchFailed(JSONObject existing) {
+        if (existing.optString("FINGERPRINT", "").isEmpty()) return;
+        Settings.Secure.putLongForUser(
+                mResolver, LAST_AUTO_FETCH_KEY, System.currentTimeMillis(), UserHandle.USER_SYSTEM);
     }
 
     /**
@@ -707,6 +734,11 @@ public class RrSpoofManager implements IRrSpoofManager {
             Log.i(TAG, "Spoofing not activated, skipping GMS restart");
             return;
         }
+        mHandler.removeCallbacks(mRestartGms);
+        mHandler.postDelayed(mRestartGms, GMS_RESTART_DELAY_MS);
+    }
+
+    private void stopGmsFamily() {
         try {
             ActivityManager am = mContext.getSystemService(ActivityManager.class);
             for (String pkg : GMS_FAMILY) {
