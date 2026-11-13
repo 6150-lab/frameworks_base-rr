@@ -19,6 +19,7 @@ import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Parcel;
+import android.os.PowerManager;
 import android.os.Process;
 import android.os.RemoteException;
 import android.os.ServiceManager;
@@ -69,8 +70,7 @@ public final class GlassTilt {
     // The smallest turn of the light worth drawing again, in radians (about 0.7 degrees): a hand
     // holding the phone still shakes it less than that, so a still screen isn't drawn again
     private static final double MIN_TURN = 0.012;
-    // The light is sent at most this often (ms): each time, all glass on screen is drawn again,
-    // and the sensor reads 50 times a second
+    // The light is sent at most this often (ms): each time, all glass on screen is drawn again
     private static final long MIN_SEND_INTERVAL = 30;
     // While awake it sends the light at least this often (ms), even when it's still, so it hears
     // soon when the glass is gone...
@@ -297,7 +297,7 @@ public final class GlassTilt {
         mGoneSince = -1;
         mHasAngle = false;
         mSensorManager.registerListener(mSensorListener, mGravity,
-                SensorManager.SENSOR_DELAY_GAME, mHandler);
+                SensorManager.SENSOR_DELAY_UI, 100_000, mHandler);
         mHandler.sendEmptyMessageDelayed(MSG_CHECK, CHECK_INTERVAL);
     }
 
@@ -333,7 +333,7 @@ public final class GlassTilt {
         mAmount = amount;
         if (SystemClock.uptimeMillis() - mSentAt >= CHECK_INTERVAL) {
             // A still phone gives no new light to send: ask whether the glass is still there
-            send(mHasAngle ? mAngle : USUAL_ANGLE);
+            send(mHasSent ? mSentAngle : USUAL_ANGLE);
         }
         if (mAwake) {
             mHandler.sendEmptyMessageDelayed(MSG_CHECK, CHECK_INTERVAL);
@@ -342,12 +342,16 @@ public final class GlassTilt {
 
     /**
      * How far the light follows the phone, see {@link GlassSettings#tiltAmount}, and 0 too while
-     * animations are off (Remove animations).
+     * animations are off (Remove animations) or in Battery Saver.
      */
     private float tiltAmount() {
         final ContentResolver resolver = mContext.getContentResolver();
         if (Settings.Global.getFloat(resolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f)
                 == 0f) {
+            return 0f;
+        }
+        final PowerManager power = mContext.getSystemService(PowerManager.class);
+        if (power != null && power.isPowerSaveMode()) {
             return 0f;
         }
         return GlassSettings.tiltAmount(resolver);
