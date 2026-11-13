@@ -282,6 +282,8 @@ public class NotificationBackgroundView extends View implements Dumpable,
             }
             left = Math.max(left, (int) Math.ceil(mGlassClip.left));
             right = Math.min(right, (int) Math.floor(mGlassClip.right));
+        }
+        if (mBlurIsGlass && !mExpandAnimationRunning) {
             final float sliver = GLASS_SLIVER_DP * getResources().getDisplayMetrics().density;
             clipAlpha = Math.max(0f, Math.min(1f, (bottom - top) / sliver));
         }
