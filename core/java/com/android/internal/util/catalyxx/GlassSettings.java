@@ -135,7 +135,8 @@ public final class GlassSettings {
 
     /**
      * 1 (the default) lets glass with a curved rim turn smoky where what's behind it is light, so
-     * what sits on it stays readable; 0 keeps its color everywhere.
+     * what sits on it stays readable; 0 keeps its color everywhere, but for glass off the lock
+     * screen in the dark theme, whose white text an app's light page would swallow.
      */
     public static final String ADAPTIVE = "rr_glass_adaptive";
 
@@ -731,6 +732,9 @@ public final class GlassSettings {
                 || PLACE_NOTIFICATIONS.equals(place)
                 || (PLACE_VOLUME.equals(place)
                         && getInt(resolver, VOLUME_FROSTED, 1) == 1);
+        final boolean adapts = getInt(resolver, ADAPTIVE, 1) == 1
+                || (!PLACE_LOCKSCREEN.equals(place)
+                        && context.getResources().getConfiguration().isNightModeActive());
         return look(context,
                 carriesText && style == STYLE_CLEAR ? STYLE_FROSTED : style,
                 getInt(resolver, EDGE_STYLE, DEFAULT_EDGE_STYLE),
@@ -742,7 +746,7 @@ public final class GlassSettings {
                 tintColor(context, place, androidColor),
                 carriesText ? Math.min(MAX_PERCENT, Math.round(smoke * TEXT_SMOKE_SCALE)) : smoke,
                 getInt(resolver, SMOKE_COLOR, SMOKE_BLACK),
-                getInt(resolver, ADAPTIVE, 1),
+                adapts ? 1 : 0,
                 getInt(resolver, SWITCH_POINT, DEFAULT_SWITCH_POINT));
     }
 
