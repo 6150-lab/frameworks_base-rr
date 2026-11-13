@@ -17,11 +17,13 @@ import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.os.Handler
+import android.os.Parcel
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.RemoteViews
 import android.widget.TextView
 import com.android.systemui.res.R
 import java.util.concurrent.Executor
@@ -30,6 +32,7 @@ import java.util.concurrent.Executor
 class NowBarScores(
     private val context: Context,
     private val handler: Handler,
+    private val bgExecutor: Executor,
     private val onChanged: () -> Unit,
 ) {
     var items: List<NowBarItem> = emptyList()
@@ -37,11 +40,17 @@ class NowBarScores(
 
     private var source = SOURCE_OFF
     private var session: SmartspaceSession? = null
+    private var shown = false
+    private val cards = HashMap<String, Pair<Int, NowBarScore?>>()
 
     private val targetsListener = SmartspaceSession.OnTargetsAvailableListener { targets ->
-        if (source != SOURCE_GLANCE) return@OnTargetsAvailableListener
+        if (source != SOURCE_GLANCE || !shown) return@OnTargetsAvailableListener
+        val from = session ?: return@OnTargetsAvailableListener
         Log.i(TAG, "At a Glance sent " + targets.joinToString { "${it.featureType}:${it.smartspaceTargetId}" })
-        set(targets.mapNotNull(::glanceItem))
+        bgExecutor.execute {
+            val list = read(targets)
+            handler.post { if (session === from) set(list) }
+        }
     }
 
     fun setSource(value: Int) {
@@ -49,6 +58,23 @@ class NowBarScores(
         stop()
         source = value
         if (value == SOURCE_GLANCE) startGlance()
+    }
+
+    fun setShown(value: Boolean) {
+        if (value == shown) return
+        shown = value
+        session?.let(::notifyShown)
+    }
+
+    private fun notifyShown(session: SmartspaceSession) {
+        try {
+            session.notifySmartspaceEvent(SmartspaceTargetEvent.Builder(
+                if (shown) SmartspaceTargetEvent.EVENT_UI_SURFACE_SHOWN
+                else SmartspaceTargetEvent.EVENT_UI_SURFACE_HIDDEN).build())
+            if (shown) session.requestSmartspaceUpdate()
+        } catch (e: Exception) {
+            Log.w(TAG, "Smartspace session gone", e)
+        }
     }
 
     private fun startGlance() {
@@ -59,10 +85,8 @@ class NowBarScores(
             ).also {
                 it.addOnTargetsAvailableListener(
                     Executor { r -> handler.post(r) }, targetsListener)
-                it.requestSmartspaceUpdate()
                 // Intelligence only fills a surface it has been told is showing.
-                it.notifySmartspaceEvent(
-                    SmartspaceTargetEvent.Builder(SmartspaceTargetEvent.EVENT_UI_SURFACE_SHOWN).build())
+                if (shown) notifyShown(it)
             }
         } catch (e: Exception) {
             Log.w(TAG, "No Smartspace session", e)
@@ -91,6 +115,12 @@ class NowBarScores(
     }
 
     // At a Glance
+
+    private fun read(targets: List<SmartspaceTarget>): List<NowBarItem> {
+        val list = targets.mapNotNull(::glanceItem)
+        cards.keys.retainAll(targets.map { it.smartspaceTargetId }.toSet())
+        return list
+    }
 
     private fun glanceItem(target: SmartspaceTarget): NowBarItem? {
         if (target.featureType != SmartspaceTarget.FEATURE_SPORTS) return null
@@ -134,14 +164,34 @@ class NowBarScores(
         return null
     }
 
+    private fun cardScore(target: SmartspaceTarget): NowBarScore? {
+        val views = target.remoteViews ?: return null
+        val id = target.smartspaceTargetId
+        val hash = hashOf(views)
+        cards[id]?.let { (last, score) -> if (hash != null && hash == last) return score }
+        return readCard(views).also { if (hash != null) cards[id] = hash to it }
+    }
+
+    private fun hashOf(views: RemoteViews): Int? {
+        val parcel = Parcel.obtain()
+        return try {
+            parcel.pushAllowFds(false)
+            views.writeToParcel(parcel, 0)
+            parcel.marshall().contentHashCode()
+        } catch (e: RuntimeException) {
+            null
+        } finally {
+            parcel.recycle()
+        }
+    }
+
     /**
      * Intelligence sends the Pixel card as RemoteViews with empty actions and no template.
      * Read it the way the eye does: league, first team (logo with its abbreviation as the
      * description), its score, the clock, the other score, second team. No scores before
      * kick-off.
      */
-    private fun cardScore(target: SmartspaceTarget): NowBarScore? {
-        val views = target.remoteViews ?: return null
+    private fun readCard(views: RemoteViews): NowBarScore? {
         val root = try {
             views.apply(context, FrameLayout(context))
         } catch (e: Exception) {

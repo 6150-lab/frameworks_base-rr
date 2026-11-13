@@ -32,6 +32,7 @@ import com.android.systemui.clocks.FlatlineChipDrawable
 import com.android.systemui.clocks.FlatlineClockView
 import com.android.systemui.dagger.SysUISingleton
 import com.android.systemui.dagger.qualifiers.Background
+import com.android.systemui.keyguard.WakefulnessLifecycle
 import com.android.systemui.plugins.ActivityStarter
 import com.android.systemui.res.R
 import com.android.systemui.rr.media.MediaArt
@@ -41,6 +42,7 @@ import com.android.settingslib.bluetooth.BluetoothUtils
 import com.android.systemui.statusbar.policy.BatteryController
 import com.android.systemui.statusbar.policy.BluetoothController
 import com.android.systemui.statusbar.policy.FlashlightController
+import com.android.systemui.statusbar.policy.KeyguardStateController
 import java.io.PrintWriter
 import java.util.concurrent.Executor
 import javax.inject.Inject
@@ -59,6 +61,8 @@ constructor(
     private val batteryController: BatteryController,
     private val flashlightController: FlashlightController,
     private val bluetoothController: BluetoothController,
+    private val keyguardStateController: KeyguardStateController,
+    private val wakefulnessLifecycle: WakefulnessLifecycle,
     @Background private val bgExecutor: Executor,
     val activityStarter: ActivityStarter,
 ) : CoreStartable, NotificationListener.NotificationHandler {
@@ -90,7 +94,7 @@ constructor(
     private var budsItems: List<NowBarItem> = emptyList()
     private var flashlightItem: NowBarItem? = null
     private lateinit var sessionManager: MediaSessionManager
-    private val scores = NowBarScores(context, handler) { publish() }
+    private val scores = NowBarScores(context, handler, bgExecutor) { publish() }
 
     private val sessionsListener =
         MediaSessionManager.OnActiveSessionsChangedListener { sessions ->
@@ -161,7 +165,22 @@ constructor(
         flashlightController.addCallback(flashlightListener)
         bluetoothController.addCallback(bluetoothCallback)
         updateBuds()
+        keyguardStateController.addCallback(object : KeyguardStateController.Callback {
+            override fun onKeyguardShowingChanged() = updateScoresShown()
+        })
+        wakefulnessLifecycle.addObserver(object : WakefulnessLifecycle.Observer {
+            override fun onStartedWakingUp() = updateScoresShown()
+            override fun onStartedGoingToSleep() = updateScoresShown()
+        })
+        updateScoresShown()
         scores.setSource(if (settings.enabled) settings.scores else NowBarScores.SOURCE_OFF)
+    }
+
+    private fun updateScoresShown() {
+        val awake = wakefulnessLifecycle.wakefulness == WakefulnessLifecycle.WAKEFULNESS_WAKING ||
+            wakefulnessLifecycle.wakefulness == WakefulnessLifecycle.WAKEFULNESS_AWAKE
+        scores.setShown(
+            awake && keyguardStateController.isShowing && !keyguardStateController.isOccluded)
     }
 
     override fun dump(pw: PrintWriter, args: Array<out String>) {
