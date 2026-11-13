@@ -117,7 +117,7 @@ public class AutomaticBrightnessController {
      * Dropping those samples prevents auto-brightness collapses while residual floors
      * ({@code mMinDarkening}) only block small wobbles.
      *
-     * <p>Gated by {@code persist.alpha.drop_fusion_hard_zero} (default true). Not related to
+     * <p>Gated by {@code persist.alpha.drop_fusion_hard_zero} (default false). Not related to
      * the fullscreen video pin/floor path.
      */
     private static final String PROP_DROP_FUSION_HARD_ZERO =
@@ -129,6 +129,10 @@ public class AutomaticBrightnessController {
      * Allows real progressive darkening once ambient is already low.
      */
     private static final float FUSION_HARD_ZERO_MIN_AMBIENT = 2.0f;
+    private static final int FUSION_HARD_ZERO_STREAK_SAMPLES = 3;
+    private static final long FUSION_HARD_ZERO_STREAK_MILLIS = 1500;
+    private int mHardZeroCount;
+    private long mHardZeroSince;
 
     private static final int MSG_UPDATE_AMBIENT_LUX = 1;
     private static final int MSG_BRIGHTNESS_ADJUSTMENT_SAMPLE = 2;
@@ -789,6 +793,7 @@ public class AutomaticBrightnessController {
             mRawScreenAutoBrightness = PowerManager.BRIGHTNESS_INVALID_FLOAT;
             mPreThresholdBrightness = PowerManager.BRIGHTNESS_INVALID_FLOAT;
             mRecentLightSamples = 0;
+            mHardZeroCount = 0;
             mAmbientLightRingBuffer.clear();
             mCurrentLightSensorRate = -1;
             mHandler.removeMessages(MSG_UPDATE_AMBIENT_LUX);
@@ -802,7 +807,7 @@ public class AutomaticBrightnessController {
         Trace.traceCounter(Trace.TRACE_TAG_POWER, "ALS", (int) lux);
         mHandler.removeMessages(MSG_UPDATE_AMBIENT_LUX);
 
-        if (shouldDropFusionHardZero(lux)) {
+        if (shouldDropFusionHardZero(time, lux)) {
             // Do not push into the ring buffer — a hard-0 poisons both the weighted ambient
             // estimate and the darkening-transition timer (every sample below threshold
             // extends the "ready to darken" window).
@@ -818,10 +823,22 @@ public class AutomaticBrightnessController {
         updateAmbientLux(time);
     }
 
+    private boolean shouldDropFusionHardZero(long time, float lux) {
+        if (!isFusionHardZero(lux)) {
+            mHardZeroCount = 0;
+            return false;
+        }
+        if (mHardZeroCount++ == 0) {
+            mHardZeroSince = time;
+        }
+        return mHardZeroCount < FUSION_HARD_ZERO_STREAK_SAMPLES
+                && time - mHardZeroSince < FUSION_HARD_ZERO_STREAK_MILLIS;
+    }
+
     /**
-     * @return true if this sample is a fusion over-sub hard-zero that must not affect ambient.
+     * @return true if this sample looks like a fusion over-sub hard-zero.
      */
-    private boolean shouldDropFusionHardZero(float lux) {
+    private boolean isFusionHardZero(float lux) {
         if (!isDropFusionHardZeroEnabled()) {
             return false;
         }
@@ -838,7 +855,7 @@ public class AutomaticBrightnessController {
     }
 
     private static boolean isDropFusionHardZeroEnabled() {
-        return SystemProperties.getBoolean(PROP_DROP_FUSION_HARD_ZERO, true);
+        return SystemProperties.getBoolean(PROP_DROP_FUSION_HARD_ZERO, false);
     }
 
     private void applyLightSensorMeasurement(long time, float lux) {
