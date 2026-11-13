@@ -492,6 +492,7 @@ public class RrSpoofManager implements IRrSpoofManager {
         } catch (Exception e) {
             Log.e(TAG, "Keybox refresh failed", e);
         }
+        if (mTrickyStoreOn) TrickyStoreService.getInstance().checkRevocationIfDue();
         try {
             refreshPixelFingerprintIfStale();
         } catch (Exception e) {
