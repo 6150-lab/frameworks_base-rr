@@ -136,6 +136,21 @@ frame when animating QS <-> QQS transition
             android:paddingTop="@dimen/hover_system_icons_container_padding_top"
             android:paddingBottom="@dimen/hover_system_icons_container_padding_bottom">
 
+            <com.android.systemui.statusbar.ShadeTrafficHolder
+                android:id="@+id/shade_header_traffic_holder"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layoutDirection="ltr"
+                android:paddingEnd="4dp">
+
+                <org.lineageos.internal.statusbar.NetworkTraffic
+                    android:id="@+id/shade_header_traffic"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_vertical" />
+
+            </com.android.systemui.statusbar.ShadeTrafficHolder>
+
             <com.android.systemui.statusbar.phone.StatusIconContainer
                 android:id="@+id/statusIcons"
                 android:layout_width="0dp"

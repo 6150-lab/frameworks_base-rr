@@ -70,6 +70,7 @@ import com.android.systemui.shade.ShadeViewProviderModule.Companion.SHADE_HEADER
 import com.android.systemui.shade.carrier.ShadeCarrierGroup
 import com.android.systemui.shade.carrier.ShadeCarrierGroupController
 import com.android.systemui.shade.data.repository.ShadeDisplaysRepository
+import com.android.systemui.statusbar.ShadeTrafficHolder
 import com.android.systemui.statusbar.phone.StatusBarLocation
 import com.android.systemui.statusbar.phone.StatusIconContainer
 import com.android.systemui.statusbar.phone.StatusOverlayHoverListenerFactory
@@ -90,6 +91,7 @@ import java.io.PrintWriter
 import javax.inject.Inject
 import javax.inject.Named
 import kotlinx.coroutines.flow.MutableStateFlow
+import org.lineageos.internal.statusbar.NetworkTraffic
 
 /**
  * Controller for QS header.
@@ -166,6 +168,8 @@ constructor(
     private val mShadeCarrierGroup: ShadeCarrierGroup = header.requireViewById(R.id.carrier_group)
     private val systemIconsHoverContainer: View =
         header.requireViewById(R.id.hover_system_icons_container)
+    private val trafficHolder: ShadeTrafficHolder =
+        header.requireViewById(R.id.shade_header_traffic_holder)
 
     private var roundedCorners = 0
     private var cutout: DisplayCutout? = null
@@ -355,6 +359,9 @@ constructor(
 
         iconManager = tintedIconManagerFactory.create(iconContainer, StatusBarLocation.QS)
         iconManager.setTint(fgColor, bgColor)
+        header.requireViewById<NetworkTraffic>(R.id.shade_header_traffic)
+            .setViewPosition(NetworkTraffic.POSITION_SHADE_HEADER)
+        trafficHolder.setTint(fgColor)
 
         // Configure the correct margins for the system icon container
         val statusIcons = mView.requireViewById<AlphaOptimizedLinearLayout>(R.id.statusIcons)
@@ -507,6 +514,7 @@ constructor(
             getBgColor(),
         )
         iconManager.setTint(getFgColor(), getBgColor())
+        trafficHolder.setTint(getFgColor())
     }
 
     private fun updateCarrierGroupPadding() {
