@@ -684,7 +684,7 @@ public class QuickSettingsControllerImpl implements QuickSettingsController, Dum
     }
 
     private void setTracking(boolean tracking) {
-        if (tracking && !isTracking()) {
+        if (tracking) {
             mHeightOnTrackingStart = mExpansionHeight;
         }
         mShadeRepository.setLegacyQsTracking(tracking);
