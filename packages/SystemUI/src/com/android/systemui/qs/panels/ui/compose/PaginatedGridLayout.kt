@@ -43,6 +43,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import com.android.compose.animation.scene.ContentScope
 import com.android.compose.modifiers.padding
 import com.android.systemui.common.ui.compose.PagerDots
@@ -60,6 +61,8 @@ import com.android.systemui.qs.panels.ui.viewmodel.TileViewModel
 import com.android.systemui.qs.panels.ui.viewmodel.toolbar.EditModeButtonViewModel
 import com.android.systemui.res.R
 import javax.inject.Inject
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.ensureActive
 
 class PaginatedGridLayout
 @Inject
@@ -121,10 +124,15 @@ constructor(
 
         val selected = preview?.selected
         val reveal = preview?.reveal
-        LaunchedEffect(selected, reveal, pages) {
+        val dragging = preview?.dragging != null
+        LaunchedEffect(selected, reveal, pages, dragging) {
+            if (dragging) return@LaunchedEffect
             val spec = reveal ?: selected
             val page = pages.indexOfFirst { page -> page.any { it.spec == spec } }
-            if (page >= 0) pagerState.animateScrollToPage(page)
+            if (page >= 0) {
+                pagerState.animateScrollToPage(page)
+                if (reveal != null) preview?.reveal = null
+            }
         }
         // A tile held at an edge of the pager asks for the page beside it.
         LaunchedEffect(preview, pagerState) {
@@ -132,7 +140,19 @@ constructor(
             for (direction in flips) {
                 val target =
                     (pagerState.currentPage + direction).coerceIn(0, pagerState.pageCount - 1)
-                if (target != pagerState.currentPage) pagerState.animateScrollToPage(target)
+                if (target != pagerState.currentPage) {
+                    try {
+                        pagerState.animateScrollToPage(target)
+                    } catch (e: CancellationException) {
+                        ensureActive()
+                    }
+                }
+            }
+        }
+        if (preview != null) {
+            DisposableEffect(preview, pagerState) {
+                preview.canFlip = { (pagerState.currentPage + it) in 0 until pagerState.pageCount }
+                onDispose { preview.canFlip = { true } }
             }
         }
 
@@ -187,16 +207,18 @@ constructor(
                     pageSpacing = if (pages.size > 1) InterPageSpacing else 0.dp,
                     beyondViewportPageCount = 1,
                     verticalAlignment = Alignment.Top,
+                    userScrollEnabled = !dragging,
                 ) { index ->
                     val page = pages[index]
                     val previewPage =
                         if (preview != null) QsPreviewPage(index == pages.lastIndex, rows) else null
+                    val lifted = preview?.dragging?.let { spec -> page.any { it.spec == spec } }
 
                     CompositionLocalProvider(LocalQsPreviewPage provides previewPage) {
                         with(delegateGridLayout) {
                             TileGrid(
                                 tiles = page,
-                                modifier = Modifier,
+                                modifier = if (lifted == true) Modifier.zIndex(1f) else Modifier,
                                 listening = listening,
                                 enableRevealEffect = false,
                             )

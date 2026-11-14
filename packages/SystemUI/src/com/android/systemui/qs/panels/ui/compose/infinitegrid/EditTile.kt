@@ -55,9 +55,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -73,6 +76,7 @@ import com.android.systemui.qs.panels.ui.compose.LocalQsPreviewTiles
 import com.android.systemui.qs.panels.ui.compose.QsFitToHeight
 import com.android.systemui.qs.panels.ui.compose.QsPreviewHost
 import com.android.systemui.qs.panels.ui.compose.QsPreviewTiles
+import com.android.systemui.qs.panels.ui.compose.qsPreviewDrag
 import com.android.systemui.qs.panels.ui.viewmodel.EditTileViewModel
 import com.android.systemui.qs.panels.ui.viewmodel.EditTopBarActionViewModel
 import com.android.systemui.qs.panels.ui.viewmodel.InfiniteGridSnapshotViewModel
@@ -114,6 +118,7 @@ fun DefaultEditTileGrid(
     val currentAction by rememberUpdatedState(onEditAction)
     val theme by rememberUpdatedState(LocalQsStyle.current)
     val scope = rememberCoroutineScope()
+    val haptics by rememberUpdatedState(LocalHapticFeedback.current)
     val edge = with(LocalDensity.current) { EdgeFlipWidth.toPx() }
     var topBarBottom by remember { mutableFloatStateOf(0f) }
     var tapped by remember { mutableStateOf<TileSpec?>(null) }
@@ -122,6 +127,8 @@ fun DefaultEditTileGrid(
     val preview = remember {
         QsPreviewTiles().also { p ->
             var edgeJob: Job? = null
+            var edgeDirection = 0
+            var lastPointer = Offset.Unspecified
             var settleJob: Job? = null
             fun settle() {
                 settleJob?.cancel()
@@ -131,6 +138,15 @@ fun DefaultEditTileGrid(
                         delay(SettleMillis)
                         if (p.dragging == null) p.settling = false
                     }
+            }
+            fun retarget() {
+                val moving = p.dragging ?: return
+                val (target, after) = p.targetFor(moving, lastPointer) ?: return
+                val order = p.order.toMutableList()
+                if (!order.remove(moving)) return
+                val at = order.indexOf(target) + (if (after) 1 else 0)
+                order.add(at.coerceIn(0, order.size), moving)
+                if (order != p.order) p.order = order
             }
             p.host =
                 object : QsPreviewHost {
@@ -144,48 +160,53 @@ fun DefaultEditTileGrid(
                     }
 
                     override fun onDragStart(spec: TileSpec) {
-                        tapped = null
                         p.order = currentListState.tileSpecs()
                         p.dragging = spec
                         p.removeArmed = false
+                        haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                         settle()
                     }
 
                     override fun onDragTo(pointer: Offset) {
                         val moving = p.dragging ?: return
+                        lastPointer = pointer
                         p.dragCorner = pointer - p.grab
                         p.removeArmed = pointer.y < topBarBottom
                         val pager = p.pager
                         val direction =
                             when {
-                                pointer.x < pager.left + edge -> -1
-                                pointer.x > pager.right - edge -> 1
+                                p.removeArmed -> 0
+                                pointer.x < pager.left + edge && p.canFlip(-1) -> -1
+                                pointer.x > pager.right - edge && p.canFlip(1) -> 1
                                 else -> 0
                             }
-                        if (direction == 0) {
+                        if (direction != edgeDirection) {
                             edgeJob?.cancel()
-                            edgeJob = null
-                        } else if (edgeJob == null) {
+                            edgeDirection = direction
                             edgeJob =
-                                scope.launch {
-                                    delay(EdgeFlipDelayMillis)
-                                    p.flips.trySend(direction)
-                                    edgeJob = null
+                                if (direction == 0) {
+                                    null
+                                } else {
+                                    scope.launch {
+                                        while (p.canFlip(direction)) {
+                                            delay(EdgeFlipDelayMillis)
+                                            p.flips.trySend(direction)
+                                            delay(EdgeFlipPauseMillis)
+                                            retarget()
+                                        }
+                                    }
                                 }
                         }
-                        if (direction != 0 || p.removeArmed) return
-                        val (target, after) = p.targetFor(moving, pointer) ?: return
-                        val order = p.order.toMutableList()
-                        if (!order.remove(moving)) return
-                        val at = order.indexOf(target) + (if (after) 1 else 0)
-                        order.add(at.coerceIn(0, order.size), moving)
-                        if (order != p.order) p.order = order
+                        val onPage = p.bounds[moving]?.let { pager.contains(it.center) } == true
+                        if ((direction != 0 && onPage) || p.removeArmed) return
+                        retarget()
                     }
 
                     override fun onDragEnd(cancelled: Boolean) {
                         val moving = p.dragging ?: return
                         edgeJob?.cancel()
                         edgeJob = null
+                        edgeDirection = 0
                         val remove = p.removeArmed && !cancelled
                         val order = p.order
                         p.dragging = null
@@ -194,10 +215,15 @@ fun DefaultEditTileGrid(
                         settle()
                         when {
                             remove -> currentAction(EditAction.RemoveTile(moving))
-                            !cancelled && order != currentListState.tileSpecs() ->
+                            cancelled -> p.order = currentListState.tileSpecs()
+                            order != currentListState.tileSpecs() ->
                                 currentAction(EditAction.SetTiles(order))
                         }
-                        if (!remove) tapped = moving
+                        if (remove) {
+                            if (tapped == moving) tapped = null
+                        } else if (tapped != null) {
+                            tapped = moving
+                        }
                     }
 
                     override fun onResize(spec: TileSpec, columns: Int, rows: Int) {
@@ -318,9 +344,14 @@ fun DefaultEditTileGrid(
                 fade.animateTo(1f, tween(ThemeFadeMillis))
             }
         }
+        var area by remember { mutableStateOf<LayoutCoordinates?>(null) }
         CompositionLocalProvider(LocalQsPreviewTiles provides preview) {
             QsFitToHeight(
-                Modifier.fillMaxSize().padding(innerPadding).graphicsLayer { alpha = fade.value },
+                Modifier.fillMaxSize()
+                    .padding(innerPadding)
+                    .graphicsLayer { alpha = fade.value }
+                    .onGloballyPositioned { area = it }
+                    .qsPreviewDrag(preview) { area },
                 panel,
             )
         }
@@ -329,28 +360,30 @@ fun DefaultEditTileGrid(
 
 /**
  * The tile under [pointer] and whether [moving] goes after it. In free space that is the last
- * tile of the row to the start, or of the row above; null when there is nothing to go after.
+ * tile in order that sits before the pointer, or the first tile of the page to go before.
  */
 private fun QsPreviewTiles.targetFor(moving: TileSpec, pointer: Offset): Pair<TileSpec, Boolean>? {
-    val onScreen = bounds.entries.filter { (spec, rect) -> spec != moving && rect.overlaps(pager) }
-    onScreen
+    val onPage =
+        bounds.entries.filter { (spec, rect) -> spec != moving && pager.contains(rect.center) }
+    onPage
         .firstOrNull { it.value.contains(pointer) }
         ?.let {
             return it.key to (pointer.x > it.value.center.x)
         }
-    val beside =
-        onScreen
-            .filter {
-                pointer.y >= it.value.top && pointer.y <= it.value.bottom &&
-                    it.value.right <= pointer.x
-            }
-            .maxByOrNull { it.value.right }
-    val above = beside ?: onScreen.filter { it.value.bottom <= pointer.y }.maxByOrNull { it.value.bottom }
-    return above?.let { it.key to true }
+    onPage
+        .filter { (_, rect) ->
+            rect.bottom <= pointer.y || (rect.top <= pointer.y && rect.right <= pointer.x)
+        }
+        .maxByOrNull { order.indexOf(it.key) }
+        ?.let {
+            return it.key to true
+        }
+    return onPage.minByOrNull { order.indexOf(it.key) }?.let { it.key to false }
 }
 
 private val EdgeFlipWidth = 24.dp
 private const val EdgeFlipDelayMillis = 450L
+private const val EdgeFlipPauseMillis = 500L
 /** How long the tiles keep gliding after a drop or a resize. */
 private const val SettleMillis = 500L
 private const val ThemeFadeMillis = 240

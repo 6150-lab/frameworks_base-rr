@@ -13,8 +13,9 @@ import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
@@ -52,11 +53,13 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.findRootCoordinates
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.layout.positionInParent
@@ -136,7 +139,18 @@ class QsPreviewTiles {
     /** Root bounds of the pager: its edges flip pages, and only tiles inside it are targets. */
     var pager = Rect.Zero
 
+    var handle = Rect.Zero
+
+    var canFlip: (Int) -> Boolean = { true }
+
     fun onTap(spec: TileSpec) = host.onTap(spec)
+
+    fun tileAt(point: Offset): TileSpec? =
+        if (handle.contains(point) || !pager.contains(point)) {
+            null
+        } else {
+            bounds.entries.firstOrNull { it.value.contains(point) }?.key
+        }
 }
 
 val LocalQsPreviewTiles = compositionLocalOf<QsPreviewTiles?> { null }
@@ -182,9 +196,7 @@ fun QsPreviewTile(
 ) {
     val selected = preview.selected == spec
     val dragging = preview.dragging == spec
-    var slot by remember { mutableStateOf(Rect.Zero) }
     var tile by remember { mutableStateOf<LayoutCoordinates?>(null) }
-    var cover by remember { mutableStateOf<LayoutCoordinates?>(null) }
     DisposableEffect(preview, spec) { onDispose { preview.bounds.remove(spec) } }
     val ring = MaterialTheme.colorScheme.onSurface
     val shape = RoundedCornerShape(radius)
@@ -192,55 +204,36 @@ fun QsPreviewTile(
         modifier
             .onGloballyPositioned {
                 tile = it
-                slot = it.boundsInRoot()
-                preview.bounds[spec] = slot
+                preview.bounds[spec] =
+                    it.findRootCoordinates().localBoundingBoxOf(it, clipBounds = false)
             }
-            .graphicsLayer {
-                val corner = preview.dragCorner
-                if (dragging && corner.isSpecified && slot.width > 0f && size.width > 0f) {
-                    // The preview may be scaled down, so a root distance is more pixels here.
-                    val scale = slot.width / size.width
-                    translationX = (corner.x - slot.left) / scale
-                    translationY = (corner.y - slot.top) / scale
-                    scaleX = LiftScale
-                    scaleY = LiftScale
-                    shadowElevation = LiftElevation.toPx()
-                    this.shape = shape
-                } else {
-                    translationX = 0f
-                    translationY = 0f
-                    scaleX = 1f
-                    scaleY = 1f
-                    shadowElevation = 0f
+            .layout { measurable, constraints ->
+                val placeable = measurable.measure(constraints)
+                layout(placeable.width, placeable.height) {
+                    val corner = preview.dragCorner
+                    val here = coordinates
+                    if (dragging && corner.isSpecified && here != null && here.isAttached) {
+                        val at = here.localPositionOf(here.findRootCoordinates(), corner)
+                        placeable.placeWithLayer(0, 0) {
+                            translationX = at.x
+                            translationY = at.y
+                            scaleX = LiftScale
+                            scaleY = LiftScale
+                            shadowElevation = LiftElevation.toPx()
+                            this.shape = shape
+                        }
+                    } else {
+                        placeable.place(0, 0)
+                    }
                 }
             }
             .thenIf(selected && !dragging) { Modifier.border(2.dp, ring, shape) }
     ) {
         content()
         Box(
-            Modifier.matchParentSize()
-                .onGloballyPositioned { cover = it }
-                .pointerInput(preview, spec) {
-                    detectTapGestures(onTap = { preview.host.onTap(spec) })
-                }
-                .pointerInput(preview, spec) {
-                    detectDragGesturesAfterLongPress(
-                        onDragStart = { start ->
-                            val at = cover?.localToRoot(start)
-                            if (at != null) {
-                                preview.grab = at - slot.topLeft
-                                preview.host.onDragStart(spec)
-                                preview.host.onDragTo(at)
-                            }
-                        },
-                        onDrag = { change, _ ->
-                            change.consume()
-                            cover?.let { preview.host.onDragTo(it.localToRoot(change.position)) }
-                        },
-                        onDragEnd = { preview.host.onDragEnd(false) },
-                        onDragCancel = { preview.host.onDragEnd(true) },
-                    )
-                }
+            Modifier.matchParentSize().pointerInput(preview, spec) {
+                detectTapGestures(onTap = { preview.host.onTap(spec) })
+            }
         )
         if (selected && !dragging) {
             ResizeHandle(
@@ -277,6 +270,7 @@ private fun ResizeHandle(
     val ink = MaterialTheme.colorScheme.onPrimary
     val label = stringResource(R.string.qs_custom_resize)
     var handle by remember { mutableStateOf<LayoutCoordinates?>(null) }
+    DisposableEffect(preview) { onDispose { preview.handle = Rect.Zero } }
     Box(
         modifier
             .padding(4.dp)
@@ -284,7 +278,10 @@ private fun ResizeHandle(
             .clip(CircleShape)
             .background(fill)
             .semantics { contentDescription = label }
-            .onGloballyPositioned { handle = it }
+            .onGloballyPositioned {
+                handle = it
+                preview.handle = it.boundsInRoot()
+            }
             .pointerInput(preview, spec, maxColumns) {
                 // Measured from where the tile was when the drag began, so the tile moving or
                 // growing under the finger doesn't feed back into the size.
@@ -333,6 +330,58 @@ private fun ResizeHandle(
             }
     )
 }
+
+fun Modifier.qsPreviewDrag(preview: QsPreviewTiles, area: () -> LayoutCoordinates?): Modifier =
+    pointerInput(preview) {
+        awaitEachGesture {
+            val down = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
+            val start =
+                area()?.takeIf { it.isAttached }?.localToRoot(down.position)
+                    ?: return@awaitEachGesture
+            val spec = preview.tileAt(start) ?: return@awaitEachGesture
+            val slop = viewConfiguration.touchSlop
+            val quit =
+                withTimeoutOrNull(viewConfiguration.longPressTimeoutMillis) {
+                    var over = false
+                    while (!over) {
+                        val change =
+                            awaitPointerEvent(PointerEventPass.Initial).changes.firstOrNull {
+                                it.id == down.id
+                            }
+                        over =
+                            change == null ||
+                                !change.pressed ||
+                                (change.position - down.position).getDistance() > slop
+                    }
+                    true
+                }
+            val slot = preview.bounds[spec]
+            if (quit != null || slot == null) return@awaitEachGesture
+            preview.grab = start - slot.topLeft
+            preview.host.onDragStart(spec)
+            preview.host.onDragTo(start)
+            var dropped = false
+            try {
+                while (!dropped) {
+                    val event = awaitPointerEvent(PointerEventPass.Initial)
+                    val change = event.changes.firstOrNull { it.id == down.id } ?: break
+                    val lifted = !change.pressed && !change.isConsumed
+                    event.changes.forEach { it.consume() }
+                    if (lifted) {
+                        dropped = true
+                    } else if (!change.pressed) {
+                        break
+                    } else {
+                        area()?.takeIf { it.isAttached }?.let {
+                            preview.host.onDragTo(it.localToRoot(change.position))
+                        }
+                    }
+                }
+            } finally {
+                preview.host.onDragEnd(cancelled = !dropped)
+            }
+        }
+    }
 
 /** The dashed plus after the last tile, which opens the tray of tiles to add. */
 @Composable
