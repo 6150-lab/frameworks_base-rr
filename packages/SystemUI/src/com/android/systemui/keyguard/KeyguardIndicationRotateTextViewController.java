@@ -87,6 +87,7 @@ public class KeyguardIndicationRotateTextViewController extends
     private long mLastIndicationSwitch;
 
     private boolean mIsDozing;
+    private boolean mPaused;
 
     public KeyguardIndicationRotateTextViewController(
             KeyguardIndicationTextView view,
@@ -190,7 +191,8 @@ public class KeyguardIndicationRotateTextViewController extends
             if (mShowNextIndicationRunnable != null) {
                 mShowNextIndicationRunnable.runImmediately();
             } else {
-                showIndication(INDICATION_TYPE_NONE);
+                showIndication(mIndicationQueue.isEmpty()
+                        ? INDICATION_TYPE_NONE : mIndicationQueue.get(0));
             }
         }
     }
@@ -303,7 +305,28 @@ public class KeyguardIndicationRotateTextViewController extends
 
     private void scheduleShowNextIndication(long msUntilShowNextMsg) {
         cancelScheduledIndication();
+        if (mPaused) {
+            return;
+        }
         mShowNextIndicationRunnable = new ShowNextIndication(msUntilShowNextMsg);
+    }
+
+    public void setPaused(boolean paused) {
+        if (mPaused == paused) {
+            return;
+        }
+        mPaused = paused;
+        if (paused) {
+            cancelScheduledIndication();
+        } else if (mIsDozing) {
+            return;
+        } else if (mCurrIndicationType == INDICATION_TYPE_NONE) {
+            if (!mIndicationQueue.isEmpty()) {
+                showIndication(mIndicationQueue.get(0));
+            }
+        } else if (mIndicationQueue.size() > 1) {
+            scheduleShowNextIndication(DEFAULT_INDICATION_SHOW_LENGTH);
+        }
     }
 
     private void cancelScheduledIndication() {

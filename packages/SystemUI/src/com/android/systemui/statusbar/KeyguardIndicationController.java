@@ -534,6 +534,7 @@ public class KeyguardIndicationController {
                 mStatusBarStateController,
                 mKeyguardLogger
         );
+        mRotateTextViewController.setPaused(!mVisible);
         updateDeviceEntryIndication(false /* animate */);
         updateOrganizedOwnedDevice();
         if (mBroadcastReceiver == null) {
@@ -1302,6 +1303,9 @@ public class KeyguardIndicationController {
     public void setVisible(boolean visible) {
         mVisible = visible;
         mIndicationArea.setVisibility(visible ? VISIBLE : GONE);
+        if (mRotateTextViewController != null) {
+            mRotateTextViewController.setPaused(!visible);
+        }
         if (visible) {
             // If this is called after an error message was already shown, we should not clear it.
             // Otherwise the error message won't be shown
