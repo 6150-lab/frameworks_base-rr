@@ -53,6 +53,12 @@ fun packTiles(tiles: List<TileCells>, columns: Int): List<TilePlacement> {
     return tiles.map { checkNotNull(grid.place(it, Int.MAX_VALUE)) }
 }
 
+fun List<TilePlacement>.isBeside(index: Int, other: Int): Boolean {
+    val a = getOrNull(minOf(index, other)) ?: return false
+    val b = getOrNull(maxOf(index, other)) ?: return false
+    return a.row == b.row && a.rows == b.rows && a.column + a.columns == b.column
+}
+
 /** Splits [tiles] into pages of [rows] rows. The result holds the tile indexes of each page. */
 fun paginateTiles(tiles: List<TileCells>, columns: Int, rows: Int): List<List<Int>> {
     if (tiles.isEmpty()) return emptyList()

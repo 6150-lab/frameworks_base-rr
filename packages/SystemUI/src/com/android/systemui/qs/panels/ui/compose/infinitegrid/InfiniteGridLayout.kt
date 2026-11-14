@@ -62,6 +62,7 @@ import com.android.systemui.qs.panels.shared.model.QsTweaks
 import com.android.systemui.qs.panels.shared.model.SizedTileImpl
 import com.android.systemui.qs.panels.shared.model.TileCells
 import com.android.systemui.qs.panels.shared.model.TilePlacement
+import com.android.systemui.qs.panels.shared.model.isBeside
 import com.android.systemui.qs.panels.shared.model.cellsOf
 import com.android.systemui.qs.panels.shared.model.packTiles
 import com.android.systemui.qs.panels.ui.compose.EditTileListState
@@ -211,9 +212,8 @@ constructor(
                                     index = index,
                                     column = place.column,
                                     columns = columns,
-                                    isFirstInRow = place.column == 0,
-                                    isLastInRow =
-                                        placements.getOrNull(index + 1)?.row != place.row,
+                                    isFirstInRow = !placements.isBeside(index, index - 1),
+                                    isLastInRow = !placements.isBeside(index, index + 1),
                                 ),
                             detailsViewModel = detailsViewModel,
                             isVisible = listening,

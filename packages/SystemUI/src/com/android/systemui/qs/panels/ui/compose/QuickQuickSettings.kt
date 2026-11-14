@@ -39,6 +39,7 @@ import com.android.systemui.qs.panels.shared.model.LocalQsMediaTileSize
 import com.android.systemui.qs.panels.shared.model.LocalQsTweaks
 import com.android.systemui.qs.panels.shared.model.QsMediaTileSize
 import com.android.systemui.qs.panels.shared.model.SizedTileImpl
+import com.android.systemui.qs.panels.shared.model.isBeside
 import com.android.systemui.qs.panels.ui.compose.infinitegrid.PerTileLook
 import com.android.systemui.qs.panels.ui.compose.infinitegrid.Tile
 import com.android.systemui.qs.panels.ui.compose.infinitegrid.TilePlacementGrid
@@ -122,9 +123,8 @@ fun ContentScope.QuickQuickSettings(
                                     index = index,
                                     column = place.column,
                                     columns = columns,
-                                    isFirstInRow = place.column == 0,
-                                    isLastInRow =
-                                        placements.getOrNull(index + 1)?.row != place.row,
+                                    isFirstInRow = !placements.isBeside(index, index - 1),
+                                    isLastInRow = !placements.isBeside(index, index + 1),
                                 ),
                             tileHapticsViewModelFactory = viewModel.tileHapticsViewModelFactory,
                             // There should be no QuickQuickSettings when the details view is
