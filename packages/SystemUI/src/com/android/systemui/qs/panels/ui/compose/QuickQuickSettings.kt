@@ -25,21 +25,26 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastMap
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.android.compose.animation.scene.ContentScope
 import com.android.systemui.compose.modifiers.sysuiResTag
-import com.android.systemui.grid.ui.compose.VerticalSpannedGrid
 import com.android.systemui.media.remedia.ui.compose.QsMediaTile
 import com.android.systemui.qs.composefragment.ui.GridAnchor
+import com.android.systemui.qs.panels.shared.model.LocalQsMediaTileSize
 import com.android.systemui.qs.panels.shared.model.LocalQsTweaks
 import com.android.systemui.qs.panels.shared.model.QsMediaTileSize
-import com.android.systemui.qs.panels.ui.compose.infinitegrid.Tile
-import com.android.systemui.qs.panels.ui.compose.infinitegrid.tileLook
+import com.android.systemui.qs.panels.shared.model.SizedTileImpl
 import com.android.systemui.qs.panels.ui.compose.infinitegrid.PerTileLook
+import com.android.systemui.qs.panels.ui.compose.infinitegrid.Tile
+import com.android.systemui.qs.panels.ui.compose.infinitegrid.TilePlacementGrid
+import com.android.systemui.qs.panels.ui.compose.infinitegrid.tileLook
 import com.android.systemui.qs.panels.ui.compose.infinitegrid.tileShapeStyle
+import com.android.systemui.qs.panels.ui.compose.infinitegrid.verticalSquish
 import com.android.systemui.qs.panels.ui.viewmodel.BounceableTileViewModel
 import com.android.systemui.qs.panels.ui.viewmodel.QuickQuickSettingsViewModel
 import com.android.systemui.qs.shared.ui.QuickSettings.Elements.toElementKey
@@ -52,56 +57,82 @@ fun ContentScope.QuickQuickSettings(
     listening: () -> Boolean,
 ) {
     val columns = viewModel.columns
-    val sizedTiles = viewModel.tileViewModels
-    val tiles = sizedTiles.fastMap { it.tile }
+    val tweaks = LocalQsTweaks.current
+    val pageRows =
+        if (tweaks.scroll) {
+            Int.MAX_VALUE
+        } else {
+            tweaks.rowsPerPage ?: integerResource(R.integer.quick_settings_paginated_grid_num_rows)
+        }
+    val placedTiles by
+        remember(viewModel, pageRows) { derivedStateOf { viewModel.placedTiles(pageRows) } }
+    val tiles = placedTiles.fastMap { it.tile }
+    val placements = remember(placedTiles) { placedTiles.fastMap { it.place } }
     val squishiness by viewModel.squishinessViewModel.squishiness.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
     val tileHeight = tileLook(tileShapeStyle()).height
-    val spacing = LocalQsTweaks.current.spacing?.dp
+    val columnSpacing = tweaks.spacing?.dp ?: dimensionResource(R.dimen.qs_tile_margin_horizontal)
+    val rowSpacing = tweaks.spacing?.dp ?: dimensionResource(R.dimen.qs_tile_margin_vertical)
+    val mediaTileSize = LocalQsMediaTileSize.current
 
     Box(modifier = modifier) {
         GridAnchor()
 
         val bounceables =
-            remember(sizedTiles) { List(sizedTiles.size) { BounceableTileViewModel() } }
-        val spans by remember(sizedTiles) { derivedStateOf { sizedTiles.fastMap { it.width } } }
-        VerticalSpannedGrid(
+            remember(placedTiles) { List(placedTiles.size) { BounceableTileViewModel() } }
+        TilePlacementGrid(
+            placements = placements,
             columns = columns,
-            columnSpacing = spacing ?: dimensionResource(R.dimen.qs_tile_margin_horizontal),
-            rowSpacing = spacing ?: dimensionResource(R.dimen.qs_tile_margin_vertical),
-            spans = spans,
+            columnSpacing = columnSpacing,
+            rowSpacing = rowSpacing,
+            keys = { placedTiles[it].tile.spec },
             modifier = Modifier.sysuiResTag("qqs_tile_layout"),
-            keys = { sizedTiles[it].tile.spec },
-        ) { spanIndex, column, isFirstInColumn, isLastInColumn ->
-            val it = sizedTiles[spanIndex]
-            Element(it.tile.spec.toElementKey(), Modifier) {
-                if (it.tile.spec.spec == QsMediaTileSize.TILE_SPEC) {
+        ) { index ->
+            val placed = placedTiles[index]
+            val place = placed.place
+            val height = tileHeight * place.rows + rowSpacing * (place.rows - 1)
+            Element(placed.tile.spec.toElementKey(), Modifier) {
+                if (placed.tile.spec.spec == QsMediaTileSize.TILE_SPEC) {
                     QsMediaTile(
                         viewModelFactory = viewModel.mediaViewModelFactory,
-                        size = QsMediaTileSize.WIDE,
-                        modifier = Modifier.fillMaxWidth().height(tileHeight),
+                        size =
+                            when {
+                                !placed.cut -> mediaTileSize
+                                place.rows > 1 && place.columns >= columns -> QsMediaTileSize.FULL
+                                place.rows > 1 -> QsMediaTileSize.SQUARE
+                                place.columns > 1 -> QsMediaTileSize.WIDE
+                                else -> QsMediaTileSize.SMALL
+                            },
+                        modifier =
+                            Modifier.fillMaxWidth()
+                                .clipToBounds()
+                                .verticalSquish { squishiness }
+                                .height(height),
                     )
                 } else {
-                    PerTileLook(it.tile.spec) {
+                    PerTileLook(placed.tile.spec) {
                         Tile(
-                            tile = it.tile,
-                            iconOnly = it.isIcon,
+                            tile = placed.tile,
+                            iconOnly = place.columns == 1,
                             squishiness = { squishiness },
                             coroutineScope = scope,
                             bounceableInfo =
                                 bounceables.bounceableInfo(
-                                    it,
-                                    index = spanIndex,
-                                    column = column,
+                                    SizedTileImpl(placed.tile, place.columns),
+                                    index = index,
+                                    column = place.column,
                                     columns = columns,
-                                    isFirstInRow = isFirstInColumn,
-                                    isLastInRow = isLastInColumn,
+                                    isFirstInRow = place.column == 0,
+                                    isLastInRow =
+                                        placements.getOrNull(index + 1)?.row != place.row,
                                 ),
                             tileHapticsViewModelFactory = viewModel.tileHapticsViewModelFactory,
                             // There should be no QuickQuickSettings when the details view is
                             // enabled.
                             detailsViewModel = null,
                             isVisible = listening,
+                            rows = place.rows,
+                            height = height,
                         )
                     }
                 }

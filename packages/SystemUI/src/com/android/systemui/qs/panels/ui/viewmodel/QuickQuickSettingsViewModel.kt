@@ -31,7 +31,10 @@ import com.android.systemui.qs.panels.shared.model.QsMediaPlace
 import com.android.systemui.qs.panels.shared.model.QsMediaTileSize
 import com.android.systemui.qs.panels.shared.model.cellsOf
 import com.android.systemui.qs.panels.shared.model.SizedTileImpl
-import com.android.systemui.qs.panels.shared.model.splitInRowsSequence
+import com.android.systemui.qs.panels.shared.model.TileCells
+import com.android.systemui.qs.panels.shared.model.TilePlacement
+import com.android.systemui.qs.panels.shared.model.packTiles
+import com.android.systemui.qs.panels.shared.model.paginateTiles
 import com.android.systemui.qs.pipeline.domain.interactor.CurrentTilesInteractor
 import com.android.systemui.qs.pipeline.shared.TileSpec
 import dagger.assisted.AssistedFactory
@@ -85,11 +88,32 @@ constructor(
     private val currentTiles by tilesInteractor.currentTiles.hydratedStateOf()
 
     val tileViewModels by derivedStateOf {
+        placedTiles(Int.MAX_VALUE).map { SizedTileImpl(it.tile, it.place.columns) }
+    }
+
+    /** A tile of the collapsed panel, and whether it lost rows to fit there. */
+    data class PlacedTile(val tile: TileViewModel, val place: TilePlacement, val cut: Boolean)
+
+    /**
+     * The tiles in the first rows of the first QS page of [pageRows] rows, where QS puts them, so
+     * they stay in place while the panel expands.
+     */
+    fun placedTiles(pageRows: Int): List<PlacedTile> {
         val mediaInGrid = tweaks.mediaPlaceIn(style) == QsMediaPlace.GRID
-        currentTiles
-            .filter { mediaInGrid || it.spec.spec != QsMediaTileSize.TILE_SPEC }
-            .map { SizedTileImpl(TileViewModel(it.tile, it.spec, it.expandable), it.spec.width()) }
-            .let { splitInRowsSequence(it, columns).take(rows).toList().flatten() }
+        val shown =
+            currentTiles.filter { mediaInGrid || it.spec.spec != QsMediaTileSize.TILE_SPEC }
+        val cells = shown.map { it.spec.cells() }
+        val page = paginateTiles(cells, columns, pageRows).firstOrNull() ?: return emptyList()
+        val fitted = page.map { cells[it].copy(rows = cells[it].rows.coerceAtMost(rows)) }
+        return packTiles(fitted, columns).mapIndexedNotNull { index, place ->
+            if (place.row + place.rows > rows) return@mapIndexedNotNull null
+            val tile = shown[page[index]]
+            PlacedTile(
+                TileViewModel(tile.tile, tile.spec, tile.expandable),
+                place,
+                cut = place.rows < cells[page[index]].rows,
+            )
+        }
     }
 
     override suspend fun onActivated() {
@@ -104,13 +128,8 @@ constructor(
         fun create(): QuickQuickSettingsViewModel
     }
 
-    // Rows stay one tile tall here, only the width carries over.
-    private fun TileSpec.width(): Int =
-        if (spec == QsMediaTileSize.TILE_SPEC) {
-            columns
-        } else {
-            tweaks.cellsOf(spec, style, largeTiles.contains(this), largeTilesSpan, columns).columns
-        }
+    private fun TileSpec.cells(): TileCells =
+        tweaks.cellsOf(spec, style, largeTiles.contains(this), largeTilesSpan, columns)
 
     companion object {
         /** Behavior of the media carousel in quick quick settings */

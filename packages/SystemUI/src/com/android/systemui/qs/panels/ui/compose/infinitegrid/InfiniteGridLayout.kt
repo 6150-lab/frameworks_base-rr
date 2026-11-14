@@ -355,7 +355,7 @@ private fun TileSpec.isMediaTile() = spec == QsMediaTileSize.TILE_SPEC
  * and a taller tile only stretches the rows it spans when it doesn't fit in them.
  */
 @Composable
-private fun TilePlacementGrid(
+internal fun TilePlacementGrid(
     placements: List<TilePlacement>,
     columns: Int,
     columnSpacing: Dp,
