@@ -396,6 +396,11 @@ public abstract class AppsFilterBase implements AppsFilterSnapshot {
         if (callingAppId < Process.FIRST_APPLICATION_UID) {
             return false;
         }
+        final PackageStateInternal target =
+                snapshot.getPackageStateInternal(targetPackageName, Process.SYSTEM_UID);
+        if (target != null && target.getAppId() == callingAppId) {
+            return false;
+        }
         final Pair<PackageStateInternal, SharedUserApi> p =
                 snapshot.getPackageOrSharedUser(callingAppId);
         final Object callingSetting = p == null ? null
