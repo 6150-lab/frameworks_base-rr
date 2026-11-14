@@ -39,6 +39,8 @@ constructor(
 
     var inFirstPage by inFirstPageViewModel::inFirstPage
 
+    var isPagerMoving by inFirstPageViewModel::isPagerMoving
+
     val showArrowsInPagerDots by
         pointerDeviceInteractor.isAnyPointerDeviceConnected.hydratedStateOf(initialValue = false)
 

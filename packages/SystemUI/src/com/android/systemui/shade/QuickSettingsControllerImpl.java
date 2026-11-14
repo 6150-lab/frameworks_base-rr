@@ -1921,7 +1921,7 @@ public class QuickSettingsControllerImpl implements QuickSettingsController, Dum
                         == MotionEvent.CLASSIFICATION_AMBIGUOUS_GESTURE
                         ? mTouchSlop * mSlopMultiplier
                         : mTouchSlop;
-                if ((h > touchSlop || (h < -touchSlop && getExpanded()))
+                if ((h >= touchSlop || (h <= -touchSlop && getExpanded()))
                         && Math.abs(h) > Math.abs(x - mInitialTouchX)
                         && shouldQuickSettingsIntercept(
                         mInitialTouchX, mInitialTouchY, h, event)) {

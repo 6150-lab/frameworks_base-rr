@@ -368,6 +368,9 @@ constructor(
     private val inFirstPage: Boolean
         get() = inFirstPageViewModel.inFirstPage
 
+    val isPagerMoving: Boolean
+        get() = inFirstPageViewModel.isPagerMoving()
+
     private val mediaSuddenlyAppearingInLandscape: Boolean
         get() = !qqsMediaInRow && qsMediaInRow
 

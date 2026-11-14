@@ -32,6 +32,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
@@ -115,6 +116,10 @@ constructor(
             // Used to track if this is currently in the first page or not, for animations
             LaunchedEffect(key1 = pagerState) {
                 snapshotFlow { pagerState.currentPage == 0 }.collect { viewModel.inFirstPage = it }
+            }
+            DisposableEffect(pagerState) {
+                viewModel.isPagerMoving = { pagerState.isScrollInProgress }
+                onDispose { viewModel.isPagerMoving = { false } }
             }
         }
 

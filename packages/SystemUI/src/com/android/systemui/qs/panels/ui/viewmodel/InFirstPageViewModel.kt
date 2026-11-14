@@ -27,4 +27,7 @@ import javax.inject.Inject
 @SysUISingleton
 class InFirstPageViewModel @Inject constructor(inFirstPageInteractor: InFirstPageInteractor) {
     var inFirstPage by inFirstPageInteractor::inFirstPage
+
+    /** Whether the pager is moving, under a finger or on its own. Asked on touch down. */
+    var isPagerMoving: () -> Boolean = { false }
 }
