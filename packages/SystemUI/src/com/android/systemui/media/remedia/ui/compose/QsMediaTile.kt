@@ -253,6 +253,7 @@ private fun WideContent(
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val art = (maxHeight - 16.dp).coerceIn(28.dp, 44.dp)
         val play = (maxHeight - 12.dp).coerceIn(32.dp, 40.dp)
+        val skip = parts.skipButtons && maxWidth >= 240.dp
         Row(
             modifier = Modifier.fillMaxSize().padding(start = 10.dp, end = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -260,9 +261,9 @@ private fun WideContent(
         ) {
             if (parts.art) ArtThumbnail(card?.background, look.artShape, art)
             Titles(card, look, idle, Modifier.weight(1f))
-            if (parts.skipButtons) Secondary(card?.navigation?.left, look, 34.dp)
+            if (skip) Secondary(card?.navigation?.left, look, 34.dp)
             PlayPause(card?.playPauseAction, look, play)
-            if (parts.skipButtons) Secondary(card?.navigation?.right, look, 34.dp)
+            if (skip) Secondary(card?.navigation?.right, look, 34.dp)
         }
     }
 }
