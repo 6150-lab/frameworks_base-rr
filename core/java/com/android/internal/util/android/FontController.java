@@ -18,13 +18,18 @@ import android.app.ActivityThread;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Typeface;
+import android.system.ErrnoException;
+import android.system.Os;
+import android.system.StructStat;
 import android.util.ArrayMap;
 import android.util.Log;
 import android.text.TextUtils;
 import com.android.internal.R;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.Set;
@@ -52,6 +57,8 @@ public class FontController {
 
     private volatile Typeface sCustomTypeface;
     private volatile boolean sCustomLoaded;
+    private long sCustomFileId = -1;
+    private final List<Typeface> sRetiredCustomTypefaces = new ArrayList<>();
 
     private static final String[] DEFAULT_FONT_FALLBACKS = {
             "google-sans-flex",
@@ -241,6 +248,7 @@ public class FontController {
         synchronized (this) {
             if (sCustomLoaded) return sCustomTypeface;
             sCustomTypeface = null;
+            sCustomFileId = customFileId();
             try {
                 java.io.File file = new java.io.File(CUSTOM_FONT_PATH);
                 if (file.isFile()) {
@@ -256,12 +264,26 @@ public class FontController {
         }
     }
 
+    private static long customFileId() {
+        try {
+            StructStat st = Os.stat(CUSTOM_FONT_PATH);
+            return st.st_ino * 1000003L + st.st_mtime;
+        } catch (ErrnoException e) {
+            return -1;
+        }
+    }
+
     private void handleOnConfiguration(Resources res) {
         sResources = res;
         String pkgName = getCurrentPackageName();
         if (pkgName == null || EXCLUDED_APPS.contains(pkgName)) return;
         // A re-import toggles the overlay, so this is where a new file gets picked up.
-        sCustomLoaded = false;
+        synchronized (this) {
+            if (sCustomLoaded && customFileId() != sCustomFileId) {
+                if (sCustomTypeface != null) sRetiredCustomTypefaces.add(sCustomTypeface);
+                sCustomLoaded = false;
+            }
+        }
         logger("handleOnConfiguration: Changing default font to: " + Typeface.getFontName());
         Typeface.changeFont();
     }
