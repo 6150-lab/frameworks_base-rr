@@ -91,27 +91,27 @@ constructor(
         placedTiles(Int.MAX_VALUE).map { SizedTileImpl(it.tile, it.place.columns) }
     }
 
-    /** A tile of the collapsed panel, and whether it lost rows to fit there. */
     data class PlacedTile(val tile: TileViewModel, val place: TilePlacement, val cut: Boolean)
 
-    /**
-     * The tiles in the first rows of the first QS page of [pageRows] rows, where QS puts them, so
-     * they stay in place while the panel expands.
-     */
     fun placedTiles(pageRows: Int): List<PlacedTile> {
         val mediaInGrid = tweaks.mediaPlaceIn(style) == QsMediaPlace.GRID
         val shown =
             currentTiles.filter { mediaInGrid || it.spec.spec != QsMediaTileSize.TILE_SPEC }
         val cells = shown.map { it.spec.cells() }
         val page = paginateTiles(cells, columns, pageRows).firstOrNull() ?: return emptyList()
-        val fitted = page.map { cells[it].copy(rows = cells[it].rows.coerceAtMost(rows)) }
-        return packTiles(fitted, columns).mapIndexedNotNull { index, place ->
-            if (place.row + place.rows > rows) return@mapIndexedNotNull null
+        var pageCells = page.map { cells[it] }
+        val first = pageCells.firstOrNull() ?: return emptyList()
+        if (rows > 1 && page.size > 1 && first.columns >= columns && first.rows >= rows) {
+            pageCells = listOf(first.copy(rows = 1)) + pageCells.drop(1)
+        }
+        return packTiles(pageCells, columns).mapIndexedNotNull { index, place ->
+            if (place.row >= rows) return@mapIndexedNotNull null
             val tile = shown[page[index]]
+            val kept = place.rows.coerceAtMost(rows - place.row)
             PlacedTile(
                 TileViewModel(tile.tile, tile.spec, tile.expandable),
-                place,
-                cut = place.rows < cells[page[index]].rows,
+                place.copy(rows = kept),
+                cut = kept < cells[page[index]].rows,
             )
         }
     }
