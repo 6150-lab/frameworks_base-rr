@@ -32,7 +32,10 @@ import kotlin.math.roundToInt
  * using squishiness. If a parent of this node needs to determine unsquished height, they should
  * also use an approachLayout tracking the squishiness.
  */
-fun Modifier.verticalSquish(squishiness: () -> Float): Modifier {
+fun Modifier.verticalSquish(squishiness: () -> Float): Modifier =
+    verticalSquish(gaps = { 0 }, squishiness = squishiness)
+
+fun Modifier.verticalSquish(gaps: () -> Int, squishiness: () -> Float): Modifier {
     return approachLayout(
         isMeasurementApproachInProgress = { squishiness() < 1 },
         approachMeasure = { measurable, constraints ->
@@ -48,7 +51,9 @@ fun Modifier.verticalSquish(squishiness: () -> Float): Modifier {
             val expectedHeight = lookaheadSize.height
 
             val placeable = measurable.measure(lookaheadConstraints)
-            val squishedHeight = (expectedHeight * squishinessValue).roundToInt()
+            val fixed = gaps().coerceIn(0, expectedHeight)
+            val squishedHeight =
+                ((expectedHeight - fixed) * squishinessValue).roundToInt() + fixed
             // Center the content by moving it UP (squishedHeight < actualHeight)
             val scroll = (squishedHeight - expectedHeight) / 2
 

@@ -329,11 +329,16 @@ fun ContentScope.Tile(
             modifier = modifier,
             enabled = Flags.enableQsTileTooltips(),
         ) { modifier ->
+            val squishGaps =
+                with(LocalDensity.current) {
+                    ((height ?: look.height) - look.height * rows).roundToPx()
+                }
             TileExpandable(
                 expandable = expandable,
                 color = { animatedColor },
                 shape = tileShape,
                 squishiness = squishiness,
+                squishGaps = { squishGaps },
                 hapticsViewModel = hapticsViewModel,
                 glassRim =
                     (if (glass == QsGlass.LIQUID && tune.sheen) Modifier.liquidSheen(tileShape)
@@ -590,6 +595,7 @@ private fun TileExpandable(
     hapticsViewModel: TileHapticsViewModel?,
     modifier: Modifier = Modifier,
     glassRim: Modifier = Modifier,
+    squishGaps: () -> Int = { 0 },
     content: @Composable (Expandable) -> Unit,
 ) {
     Expandable(
@@ -599,7 +605,7 @@ private fun TileExpandable(
             modifier
                 .clip(shape)
                 .motionTestValues { squishiness() exportAs TileMotionTestKeys.Squishness }
-                .verticalSquish(squishiness)
+                .verticalSquish(squishGaps, squishiness)
                 .then(glassRim),
         useModifierBasedImplementation = true,
     ) {

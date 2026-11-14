@@ -60,6 +60,7 @@ import com.android.systemui.qs.panels.shared.model.LocalQsTweaks
 import com.android.systemui.qs.panels.shared.model.QsMediaArt
 import com.android.systemui.qs.panels.shared.model.QsMediaButtons
 import com.android.systemui.qs.panels.shared.model.QsMediaTileSize
+import com.android.systemui.qs.panels.ui.compose.infinitegrid.verticalSquish
 import com.android.systemui.res.R
 import kotlin.math.PI
 import kotlin.math.roundToInt
@@ -72,6 +73,8 @@ fun QsMediaTile(
     viewModelFactory: MediaViewModel.Factory,
     size: QsMediaTileSize,
     modifier: Modifier = Modifier,
+    squishGaps: () -> Int = { 0 },
+    squishiness: () -> Float = { 1f },
 ) {
     val context = LocalContext.current
     val viewModel: MediaViewModel =
@@ -97,9 +100,10 @@ fun QsMediaTile(
         val shape = RoundedCornerShape(look.radius)
         Box(
             modifier =
-                modifier.clip(shape).semantics {
-                    contentDescription = card?.contentDescription ?: idle
-                }
+                Modifier.clip(shape)
+                    .verticalSquish(squishGaps, squishiness)
+                    .then(modifier)
+                    .semantics { contentDescription = card?.contentDescription ?: idle }
         ) {
             if (cover) {
                 CoverBackground(card?.background, Modifier.matchParentSize())

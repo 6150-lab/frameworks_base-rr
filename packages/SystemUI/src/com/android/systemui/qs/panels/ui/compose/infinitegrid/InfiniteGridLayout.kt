@@ -30,7 +30,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
@@ -62,8 +61,8 @@ import com.android.systemui.qs.panels.shared.model.QsTweaks
 import com.android.systemui.qs.panels.shared.model.SizedTileImpl
 import com.android.systemui.qs.panels.shared.model.TileCells
 import com.android.systemui.qs.panels.shared.model.TilePlacement
-import com.android.systemui.qs.panels.shared.model.isBeside
 import com.android.systemui.qs.panels.shared.model.cellsOf
+import com.android.systemui.qs.panels.shared.model.isBeside
 import com.android.systemui.qs.panels.shared.model.packTiles
 import com.android.systemui.qs.panels.ui.compose.EditTileListState
 import com.android.systemui.qs.panels.ui.compose.LocalQsPreviewTiles
@@ -153,6 +152,7 @@ constructor(
         val columnSpacing =
             tweaks.spacing?.dp ?: dimensionResource(R.dimen.qs_tile_margin_horizontal)
         val rowSpacing = tweaks.spacing?.dp ?: dimensionResource(R.dimen.qs_tile_margin_vertical)
+        val rowGap = with(LocalDensity.current) { rowSpacing.roundToPx() }
         // One cell with its gap, for the resize handle to snap to.
         val (cellWidth, rowHeight) =
             with(LocalDensity.current) {
@@ -192,11 +192,9 @@ constructor(
                     QsMediaTile(
                         viewModelFactory = mediaViewModelFactory,
                         size = mediaTileSize,
-                        modifier =
-                            Modifier.fillMaxWidth()
-                                .clipToBounds()
-                                .verticalSquish { squishiness }
-                                .height(height),
+                        modifier = Modifier.fillMaxWidth().height(height),
+                        squishGaps = { rowGap * (place.rows - 1) },
+                        squishiness = { squishiness },
                     )
                 } else {
                     PerTileLook(tile.spec) {
