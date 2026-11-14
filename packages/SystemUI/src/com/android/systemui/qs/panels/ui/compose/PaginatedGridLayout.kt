@@ -117,10 +117,6 @@ constructor(
             LaunchedEffect(key1 = pagerState) {
                 snapshotFlow { pagerState.currentPage == 0 }.collect { viewModel.inFirstPage = it }
             }
-            DisposableEffect(pagerState) {
-                viewModel.isPagerMoving = { pagerState.isScrollInProgress }
-                onDispose { viewModel.isPagerMoving = { false } }
-            }
         }
 
         val selected = preview?.selected

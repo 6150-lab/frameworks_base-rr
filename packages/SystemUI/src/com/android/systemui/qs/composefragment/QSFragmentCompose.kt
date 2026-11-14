@@ -281,7 +281,6 @@ constructor(
                 viewModel::emitMotionEventForFalsingSwipeNested,
                 qsClippingTableLogBuffer,
                 backgroundDispatcher,
-                isPagerMoving = { viewModel.isPagerMoving },
                 isInBottomReservedArea = { x, y ->
                     viewModel.isEditing &&
                         bottomBarPositionInRoot.contains(IntOffset(x.toInt(), y.toInt()))
@@ -874,7 +873,13 @@ constructor(
                                     )
                                 }
                                 .onSizeChanged { viewModel.qsScrollHeight = it.height }
-                                .verticalScroll(scrollState)
+                                .verticalScroll(
+                                    scrollState,
+                                    enabled =
+                                        scrollState.canScrollForward ||
+                                            scrollState.canScrollBackward ||
+                                            viewModel.isEditing,
+                                )
                                 .padding(bottom = 8.dp)
                                 .sysuiResTag(ResIdTags.qsScroll)
                     ) {
@@ -1301,7 +1306,6 @@ private class FrameLayoutTouchPassthrough(
     private val emitMotionEventForFalsing: () -> Unit,
     private val logBuffer: TableLogBuffer,
     private val backgroundDispatcher: CoroutineDispatcher,
-    private val isPagerMoving: () -> Boolean,
     private val isInBottomReservedArea: (Float, Float) -> Boolean,
 ) : FrameLayout(context) {
 
@@ -1422,12 +1426,36 @@ private class FrameLayoutTouchPassthrough(
     var downX = 0f
     var preventingIntercept = false
 
-    // A pager that is still moving on touch down starts dragging at once, without slop, and takes
-    // vertical moves too. Its requests to keep the touch wait until the finger goes sideways.
-    private var pagerGrab = false
+    private var lastX = 0f
+    private var lastY = 0f
+    private var moving = false
+    private var heldClaim = false
+
+    private fun isSidewaysOrDown(xDiff: Float, yDiff: Float): Boolean {
+        val sideways = Math.abs(xDiff) >= touchSlop && Math.abs(xDiff) >= Math.abs(yDiff)
+        val down = yDiff >= touchSlop && yDiff > Math.abs(xDiff)
+        return sideways || down
+    }
+
+    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+        moving = ev.actionMasked == MotionEvent.ACTION_MOVE
+        lastX = ev.x
+        lastY = ev.y
+        try {
+            return super.dispatchTouchEvent(ev)
+        } finally {
+            moving = false
+        }
+    }
 
     override fun requestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {
-        if (disallowIntercept && pagerGrab && !preventingIntercept) {
+        if (
+            disallowIntercept &&
+                moving &&
+                !preventingIntercept &&
+                !isSidewaysOrDown(lastX - downX, lastY - downY)
+        ) {
+            heldClaim = true
             return
         }
         super.requestDisallowInterceptTouchEvent(disallowIntercept)
@@ -1476,7 +1504,7 @@ private class FrameLayoutTouchPassthrough(
                     preventingIntercept = true
                     parent?.requestDisallowInterceptTouchEvent(true)
                 }
-                pagerGrab = isPagerMoving()
+                heldClaim = false
                 downY = ev.y
                 downX = ev.x
             }
@@ -1486,8 +1514,9 @@ private class FrameLayoutTouchPassthrough(
                 val x = ev.x
                 val yDiff = y - downY
                 val xDiff = x - downX
-                if (Math.abs(xDiff) > touchSlop && Math.abs(xDiff) >= Math.abs(yDiff)) {
-                    pagerGrab = false
+                if (heldClaim && isSidewaysOrDown(xDiff, yDiff)) {
+                    heldClaim = false
+                    super.requestDisallowInterceptTouchEvent(true)
                 }
                 val collapsing = yDiff <= -touchSlop && !canScrollQs.forward()
                 val vertical = Math.abs(xDiff) < Math.abs(yDiff)
