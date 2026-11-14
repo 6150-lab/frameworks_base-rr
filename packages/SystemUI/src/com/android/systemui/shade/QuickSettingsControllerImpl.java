@@ -217,6 +217,7 @@ public class QuickSettingsControllerImpl implements QuickSettingsController, Dum
     private boolean mLastShadeFlingWasExpanding;
 
     private float mInitialHeightOnTouch;
+    private float mHeightOnTrackingStart;
     private float mInitialTouchX;
     private float mInitialTouchY;
     /** whether current touch Y delta is above falsing threshold */
@@ -683,6 +684,9 @@ public class QuickSettingsControllerImpl implements QuickSettingsController, Dum
     }
 
     private void setTracking(boolean tracking) {
+        if (tracking && !isTracking()) {
+            mHeightOnTrackingStart = mExpansionHeight;
+        }
         mShadeRepository.setLegacyQsTracking(tracking);
     }
 
@@ -2083,7 +2087,8 @@ public class QuickSettingsControllerImpl implements QuickSettingsController, Dum
     private void flingQsWithCurrentVelocity(float y, boolean isCancelMotionEvent) {
         float vel = getCurrentVelocity();
         // TODO (b/265193930): remove dependency on NPVC
-        boolean expandsQs = mPanelViewControllerLazy.get().flingExpandsQs(vel);
+        boolean expandsQs = mPanelViewControllerLazy.get().flingExpandsQs(vel,
+                mExpansionHeight - mHeightOnTrackingStart, mFalsingThreshold);
         if (expandsQs) {
             if (mFalsingManager.isUnlockingDisabled() || isQsFalseTouch()) {
                 expandsQs = false;

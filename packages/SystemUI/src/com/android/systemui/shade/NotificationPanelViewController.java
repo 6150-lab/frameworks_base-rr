@@ -1598,8 +1598,15 @@ public final class NotificationPanelViewController implements
         }
     }
 
-    boolean flingExpandsQs(float vel) {
+    /**
+     * @param dragged how far the drag moved QS, positive when it grew
+     * @param committed the distance after which a slow release follows the drag
+     */
+    boolean flingExpandsQs(float vel, float dragged, float committed) {
         if (Math.abs(vel) < mFlingAnimationUtils.getMinVelocityPxPerSecond()) {
+            if (Math.abs(dragged) >= committed) {
+                return dragged > 0;
+            }
             return mQsController.computeExpansionFraction() > 0.5f;
         } else {
             return vel > 0;
