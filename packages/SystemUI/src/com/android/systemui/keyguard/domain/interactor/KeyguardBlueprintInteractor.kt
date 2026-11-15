@@ -29,6 +29,7 @@ import com.android.systemui.keyguard.ui.view.layout.blueprints.DefaultKeyguardBl
 import com.android.systemui.keyguard.ui.view.layout.blueprints.SplitShadeKeyguardBlueprint
 import com.android.systemui.keyguard.ui.view.layout.blueprints.transitions.IntraBlueprintTransition.Config
 import com.android.systemui.keyguard.ui.view.layout.blueprints.transitions.IntraBlueprintTransition.Type
+import com.android.systemui.keyguard.ui.view.layout.sections.KeyguardSliceViewSection
 import com.android.systemui.keyguard.ui.view.layout.sections.SmartspaceSection
 import com.android.systemui.scene.shared.flag.SceneContainerFlag
 import com.android.systemui.shade.ShadeDisplayAware
@@ -37,6 +38,7 @@ import com.android.systemui.shade.shared.model.ShadeMode
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 
@@ -50,6 +52,7 @@ constructor(
     @ShadeDisplayAware private val configurationInteractor: ConfigurationInteractor,
     private val fingerprintPropertyInteractor: FingerprintPropertyInteractor,
     private val smartspaceSection: SmartspaceSection,
+    private val keyguardSmartspaceInteractor: KeyguardSmartspaceInteractor,
 ) : CoreStartable {
     /** The current blueprint for the lockscreen. */
     val blueprint: StateFlow<KeyguardBlueprint> = keyguardBlueprintRepository.blueprint
@@ -82,6 +85,16 @@ constructor(
                 Config(Type.NoTransition, rebuildSections = listOf(smartspaceSection))
             configurationInteractor.onAnyConfigurationChange.collect {
                 refreshBlueprint(refreshConfig)
+            }
+        }
+        applicationScope.launch {
+            // The At a Glance switch swaps smartspace and the slice date in place.
+            keyguardSmartspaceInteractor.isWeatherEnabled.drop(1).collect {
+                val sections =
+                    blueprint.value.sections.filter {
+                        it is SmartspaceSection || it is KeyguardSliceViewSection
+                    }
+                refreshBlueprint(Config(Type.NoTransition, rebuildSections = sections))
             }
         }
     }

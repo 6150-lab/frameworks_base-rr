@@ -78,6 +78,10 @@ constructor(
 
     override fun onRebuildEnd() {
         smartspaceController.suppressDisconnects = false
+        // At a Glance was switched off: nothing is left to feed, so end the session.
+        if (smartspaceView == null && dateView == null && dateViewLargeClock == null) {
+            smartspaceController.disconnect()
+        }
     }
 
     override fun addViews(constraintLayout: ConstraintLayout) {
@@ -297,8 +301,7 @@ constructor(
     }
 
     override fun removeViews(constraintLayout: ConstraintLayout) {
-        if (!keyguardSmartspaceViewModel.isSmartspaceEnabled) return
-
+        // No enabled check: the At a Glance switch may already be off for views added under it.
         // The viewTreeObserver listener need to be removed before the view is detached, because the
         // viewTreeObserver is reset when the view is detached. See [View::getViewTreeObserver].
         smartspaceView?.viewTreeObserver?.removeOnGlobalLayoutListener(smartspaceVisibilityListener)
@@ -312,8 +315,12 @@ constructor(
             }
         }
         keyguardUnlockAnimationController.lockscreenSmartspace = null
+        smartspaceView = null
+        dateView = null
+        dateViewLargeClock = null
 
         disposableHandle?.dispose()
+        disposableHandle = null
     }
 
     private fun updateVisibility(constraintSet: ConstraintSet, isLargeClockVisible: Boolean) {

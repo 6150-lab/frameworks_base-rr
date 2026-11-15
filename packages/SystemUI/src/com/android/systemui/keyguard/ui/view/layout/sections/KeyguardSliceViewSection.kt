@@ -154,5 +154,12 @@ constructor(
         }
     }
 
-    override fun removeViews(constraintLayout: ConstraintLayout) {}
+    // Kept across rebuilds (Lineage), but dropped once At a Glance takes its place.
+    override fun removeViews(constraintLayout: ConstraintLayout) {
+        if (!shown || !smartspaceController.isEnabled) return
+        disposableHandle?.dispose()
+        disposableHandle = null
+        constraintLayout.removeView(R.id.keyguard_slice_view)
+        shown = false
+    }
 }
