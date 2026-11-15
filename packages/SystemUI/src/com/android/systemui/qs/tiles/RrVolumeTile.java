@@ -35,8 +35,6 @@ import com.android.systemui.qs.logging.QSLogger;
 import com.android.systemui.qs.tileimpl.QSTileImpl;
 import com.android.systemui.res.R;
 
-import java.text.NumberFormat;
-
 import javax.inject.Inject;
 
 public class RrVolumeTile extends QSTileImpl<BooleanState> {
@@ -126,13 +124,12 @@ public class RrVolumeTile extends QSTileImpl<BooleanState> {
     @Override
     protected void handleUpdateState(BooleanState state, Object arg) {
         final int level = mAudio.getStreamVolume(STREAM);
-        final int max = Math.max(mAudio.getStreamMaxVolume(STREAM), 1);
         state.value = level > 0;
         state.icon = maybeLoadResourceIcon(
                 state.value ? R.drawable.ic_volume_media : R.drawable.ic_volume_media_mute);
         state.label = getTileLabel();
         state.secondaryLabel = state.value
-                ? NumberFormat.getPercentInstance().format((double) level / max)
+                ? null
                 : mContext.getString(R.string.qs_volume_tile_muted);
         state.contentDescription = state.label;
         state.stateDescription = state.secondaryLabel;
