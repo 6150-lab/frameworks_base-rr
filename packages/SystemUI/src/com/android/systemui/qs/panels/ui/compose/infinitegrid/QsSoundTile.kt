@@ -41,15 +41,21 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import com.android.systemui.qs.panels.shared.model.QsVolumeLook
 import com.android.systemui.res.R
+import kotlin.math.roundToInt
 
 internal class SoundMode(val mode: Int, val icon: Int, val label: Int)
+
+private val SWITCH_INSET = 3.dp
 
 private val Ring =
     SoundMode(AudioManager.RINGER_MODE_NORMAL, R.drawable.ic_volume_ringer, R.string.qs_sound_tile_ring)
@@ -120,25 +126,28 @@ internal fun rememberSoundMode(): SoundModeState {
 }
 
 @Composable
-internal fun BoxScope.SoundModeContent(state: SoundModeState, colors: TileColors) {
-    val slider = volumeSliderColors()
-    val thumb = slider.thumbColor
+internal fun BoxScope.SoundModeContent(state: SoundModeState, colors: TileColors, look: TileLook) {
+    val paint = levelPaint(QsVolumeLook.FILL)
     val selected = state.modes.indexOfFirst { it.mode == state.mode }.coerceAtLeast(0)
+    val last = (state.modes.size - 1).toFloat()
     val at by
         animateFloatAsState(
             selected.toFloat(),
             spring(dampingRatio = Spring.DampingRatioLowBouncy, stiffness = Spring.StiffnessMediumLow),
             label = "QSTileSoundMode",
         )
-    BoxWithConstraints(Modifier.fillMaxSize().padding(3.dp)) {
+    BoxWithConstraints(Modifier.fillMaxSize().padding(SWITCH_INSET)) {
         val segment = maxWidth / state.modes.size
-        val shape = RoundedCornerShape(50)
+        val step = constraints.maxWidth.toFloat() / state.modes.size
+        val shape = RoundedCornerShape((look.inactiveRadius - SWITCH_INSET).coerceAtLeast(4.dp))
         Box(
-            Modifier.offset(x = segment * at)
+            Modifier.offset { IntOffset((step * at.coerceIn(0f, last)).roundToInt(), 0) }
                 .width(segment)
                 .fillMaxHeight()
-                .clip(shape)
-                .background(thumb)
+                .then(
+                    paint.fade?.let { Modifier.background(Brush.linearGradient(listOf(paint.fill, it)), shape) }
+                        ?: Modifier.background(paint.fill, shape)
+                )
         )
         Row(Modifier.fillMaxSize().selectableGroup()) {
             state.modes.forEachIndexed { index, item ->
@@ -158,7 +167,7 @@ internal fun BoxScope.SoundModeContent(state: SoundModeState, colors: TileColors
                     Icon(
                         painter = painterResource(item.icon),
                         contentDescription = stringResource(item.label),
-                        tint = if (on) thumb.inkOn() else colors.icon,
+                        tint = if (on) paint.ink else colors.icon,
                         modifier = Modifier.size(20.dp),
                     )
                 }

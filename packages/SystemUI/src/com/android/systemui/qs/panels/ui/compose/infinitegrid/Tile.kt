@@ -228,6 +228,7 @@ fun ContentScope.Tile(
                 }
         val colors =
             TileDefaults.getColorForState(paintState, iconOnly, paint, tone)
+                .let { if (volume != null || sound != null) it.withLevelTrack(paint) else it }
                 .withFills(tweaks, paintState.visualState, tone, ownColor != null, chipFills)
                 .withBacking(tweaks.iconBacking, active, tone)
                 .glassy(glass, active, tune)
@@ -480,7 +481,7 @@ fun ContentScope.Tile(
                     if (volume != null) {
                         VolumeTileContent(volume, colors, look, paint, iconOnly, rows, longClick)
                     } else if (sound != null) {
-                        SoundModeContent(sound, colors)
+                        SoundModeContent(sound, colors, look)
                     } else when (layout) {
                         TileLayout.Under ->
                             when {

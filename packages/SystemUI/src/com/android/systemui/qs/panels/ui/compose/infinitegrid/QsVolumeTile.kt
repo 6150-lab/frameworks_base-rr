@@ -45,7 +45,9 @@ import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -59,7 +61,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -68,6 +70,9 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.input.pointer.pointerInput
@@ -75,6 +80,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
@@ -86,6 +92,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.android.compose.theme.LocalAndroidColorScheme
 import com.android.systemui.brightness.domain.model.GammaBrightness
 import com.android.systemui.brightness.ui.compose.BrightnessSliderDimensions
 import com.android.systemui.brightness.ui.viewmodel.BrightnessSliderViewModel
@@ -116,10 +123,10 @@ import kotlinx.coroutines.launch
 
 private val StackSounds = listOf(QsVolumeSound.MEDIA, QsVolumeSound.RING, QsVolumeSound.ALARM)
 private const val FILL_ALPHA = 0.3f
-private const val SOLID_ALPHA = 0.8f
-private const val SEE_ALPHA = 0.42f
 private val LINE_TRACK = 20.dp
 private const val SHEEN_ALPHA = 0.2f
+private val BLOCK = 6.dp
+private val BLOCK_GAP = 3.dp
 
 private val QsVolumeSound.stream: Int
     get() =
@@ -435,9 +442,60 @@ internal fun rememberBrightnessTile(tweaks: QsTweaks): VolumeTileState? {
 }
 
 @Composable
-internal fun volumeSliderColors(): SliderColors =
-    (qsStyleSliderColors(qsSliderStyle()) ?: SliderDefaults.colors())
-        .glassy(LocalQsGlass.current, LocalQsGlassTune.current)
+internal fun volumeSliderColors(): SliderColors {
+    val tone = LocalQsTweaks.current.accent?.let { Color(it) }
+    val colors =
+        qsStyleSliderColors(qsSliderStyle())
+            ?: SliderDefaults.colors().let {
+                if (tone == null) it else it.copy(thumbColor = tone, activeTrackColor = tone)
+            }
+    return colors.glassy(LocalQsGlass.current, LocalQsGlassTune.current)
+}
+
+@Immutable
+internal class LevelPaint(val fill: Color, val ink: Color, val fade: Color? = null)
+
+@Composable
+internal fun levelPaint(look: QsVolumeLook): LevelPaint {
+    val style = qsSliderStyle()
+    val tone = LocalQsTweaks.current.accent?.let { Color(it) }
+    val on = glassAlphas(LocalQsGlass.current, LocalQsGlassTune.current)?.first ?: 1f
+    val liquid = look == QsVolumeLook.LIQUID
+    if (style == QsStyle.REMIX) {
+        val start = tone ?: colorResource(android.R.color.system_accent1_500)
+        if (liquid) return LevelPaint(start.copy(alpha = on), start.inkOn())
+        val end =
+            tone?.let { lerp(it, Color.Black, .35f) }
+                ?: colorResource(android.R.color.system_accent1_700)
+        return LevelPaint(start.copy(alpha = on), Color.White, end.copy(alpha = on))
+    }
+    val accent = tone ?: (qsStyleSliderColors(style) ?: SliderDefaults.colors()).thumbColor
+    val see =
+        when {
+            liquid -> 1f
+            style == QsStyle.GLASS -> .42f
+            style == QsStyle.NEON -> .34f
+            style == QsStyle.BLUEPRINT -> .3f
+            else -> 1f
+        }
+    return if (see < 1f) LevelPaint(accent.copy(alpha = see), accent)
+    else LevelPaint(accent.copy(alpha = on), accent.inkOn())
+}
+
+@Composable
+@ReadOnlyComposable
+internal fun TileColors.withLevelTrack(style: QsStyle): TileColors =
+    if (background.alpha > 0f) {
+        this
+    } else {
+        when (style) {
+            QsStyle.CLASSIC -> copy(background = Color.White.copy(alpha = .06f))
+            QsStyle.DUO -> copy(background = Color.White.copy(alpha = .1f))
+            QsStyle.CIRCLES,
+            QsStyle.SHAPES -> copy(background = LocalAndroidColorScheme.current.surfaceEffect1)
+            else -> this
+        }
+    }
 
 private fun Modifier.horizontalLevelDrag(channel: LevelChannel, rtl: Boolean): Modifier =
     pointerInput(channel, rtl) {
@@ -498,64 +556,70 @@ internal fun volumeLevelModifier(
     val filled = look == QsVolumeLook.FILL || look == QsVolumeLook.LIQUID
     val paints = filled || (iconOnly && !vertical)
     val fraction by animateFloatAsState(channel.fraction, label = "QSTileVolumeLevel")
-    val fill = volumeSliderColors().activeTrackColor
+    val paint = levelPaint(look)
     val liquid = look == QsVolumeLook.LIQUID
     val drawn =
         if (!paints) {
             Modifier
         } else {
-            Modifier.drawBehind {
+            Modifier.drawWithCache {
                 val tint =
-                    if (filled) fill.copy(alpha = maxOf(fill.alpha, SEE_ALPHA))
-                    else fill.copy(alpha = FILL_ALPHA)
-                val deep = lerp(tint, Color.Black, .22f)
-                val lit = lerp(tint, Color.White, .24f)
-                val sheen = Color.White.copy(alpha = SHEEN_ALPHA)
-                if (vertical) {
-                    val height = size.height * fraction
-                    val top = size.height - height
-                    if (liquid) {
-                        drawRect(
-                            Brush.verticalGradient(listOf(lit, tint, deep), top, size.height),
-                            Offset(0f, top),
-                            Size(size.width, height),
-                        )
-                        drawRect(
-                            Brush.horizontalGradient(
-                                listOf(Color.Transparent, sheen, Color.Transparent),
-                                size.width * .06f,
-                                size.width * .44f,
-                            ),
-                            Offset(size.width * .06f, top),
-                            Size(size.width * .38f, height),
-                        )
-                    } else {
-                        drawRect(tint, Offset(0f, top), Size(size.width, height))
+                    if (filled) paint.fill
+                    else paint.fill.copy(alpha = minOf(paint.fill.alpha, FILL_ALPHA))
+                val body =
+                    when {
+                        liquid -> {
+                            val deep = lerp(tint, Color.Black, .22f)
+                            val lit = lerp(tint, Color.White, .24f)
+                            if (vertical) Brush.verticalGradient(listOf(lit, tint, deep))
+                            else
+                                Brush.horizontalGradient(
+                                    if (rtl) listOf(lit, tint, deep) else listOf(deep, tint, lit)
+                                )
+                        }
+                        filled && paint.fade != null ->
+                            Brush.linearGradient(
+                                listOf(tint, paint.fade),
+                                Offset.Zero,
+                                Offset(size.width, size.height),
+                            )
+                        else -> SolidColor(tint)
                     }
-                } else {
-                    val width = size.width * fraction
-                    val left = if (rtl) size.width - width else 0f
-                    if (liquid) {
-                        drawRect(
-                            Brush.horizontalGradient(
-                                if (rtl) listOf(lit, tint, deep) else listOf(deep, tint, lit),
-                                left,
-                                left + width,
-                            ),
-                            Offset(left, 0f),
-                            Size(width, size.height),
-                        )
-                        drawRect(
-                            Brush.verticalGradient(
-                                listOf(Color.Transparent, sheen, Color.Transparent),
-                                size.height * .06f,
-                                size.height * .40f,
-                            ),
-                            Offset(left, size.height * .06f),
-                            Size(width, size.height * .34f),
-                        )
+                val sheen = listOf(Color.Transparent, Color.White.copy(alpha = SHEEN_ALPHA), Color.Transparent)
+                val shine =
+                    if (vertical) Brush.horizontalGradient(sheen, size.width * .06f, size.width * .44f)
+                    else Brush.verticalGradient(sheen, size.height * .06f, size.height * .40f)
+                onDrawBehind {
+                    val level = fraction.coerceIn(0f, 1f)
+                    if (level <= 0f) return@onDrawBehind
+                    if (vertical) {
+                        val height = size.height * level
+                        val top = size.height - height
+                        if (liquid) {
+                            withTransform({
+                                translate(0f, top)
+                                scale(1f, level, Offset.Zero)
+                            }) {
+                                drawRect(body)
+                            }
+                            drawRect(shine, Offset(size.width * .06f, top), Size(size.width * .38f, height))
+                        } else {
+                            drawRect(body, Offset(0f, top), Size(size.width, height))
+                        }
                     } else {
-                        drawRect(tint, Offset(left, 0f), Size(width, size.height))
+                        val width = size.width * level
+                        val left = if (rtl) size.width - width else 0f
+                        if (liquid) {
+                            withTransform({
+                                translate(left, 0f)
+                                scale(level, 1f, Offset.Zero)
+                            }) {
+                                drawRect(body)
+                            }
+                            drawRect(shine, Offset(left, size.height * .06f), Size(width, size.height * .34f))
+                        } else {
+                            drawRect(body, Offset(left, 0f), Size(width, size.height))
+                        }
                     }
                 }
             }
@@ -598,17 +662,15 @@ internal fun BoxScope.VolumeTileContent(
     val parts =
         VolumeParts(colors, look, sliderColors, paint, show, state.percent, { longClick?.invoke() })
     val stack = volumeLook == QsVolumeLook.STACK && rows >= 2
-    val fill = sliderColors.activeTrackColor
     val recolor =
-        !stack &&
-            (volumeLook == QsVolumeLook.FILL || volumeLook == QsVolumeLook.LIQUID) &&
-            fill.alpha >= SOLID_ALPHA
+        !stack && (volumeLook == QsVolumeLook.FILL || volumeLook == QsVolumeLook.LIQUID)
+    val ink = levelPaint(volumeLook).ink
     val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val fraction by animateFloatAsState(state.main.fraction, label = "QSTileVolumeInk")
     Box(
         Modifier.fillMaxSize()
             .then(
-                if (recolor) Modifier.inkOverFill(fill.copy(alpha = 1f).inkOn(), { fraction }, vertical, rtl)
+                if (recolor) Modifier.inkOverFill(ink, { fraction }, vertical, rtl)
                 else Modifier
             )
     ) {
@@ -668,6 +730,9 @@ private class VolumeParts(
             QsSliderPercent.OFF -> false
         }
 
+    val iconSize: Dp
+        get() = look.largeIconSize.takeIf { it > 0.dp } ?: look.smallIconSize
+
     val labelStyle: TextStyle?
         get() = look.labelStyle
 
@@ -723,7 +788,7 @@ private fun ChannelIcon(
                 painterResource(if (live) channel.icon else channel.mutedIcon),
             contentDescription = null,
             tint = tint,
-            modifier = Modifier.size(parts.look.largeIconSize),
+            modifier = Modifier.size(parts.iconSize),
         )
     }
 }
@@ -833,10 +898,10 @@ private fun VolumeBlocks(
     modifier: Modifier = Modifier,
 ) {
     val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
-    val count = (channel.max - channel.min).coerceIn(8, 16)
-    val lit = (channel.fraction * count).roundToInt()
     Canvas(modifier) {
-        val gap = 3.dp.toPx()
+        val gap = BLOCK_GAP.toPx()
+        val count = blockCount(channel, size.width)
+        val lit = (channel.fraction * count).roundToInt()
         val blockHeight = height.toPx()
         val width = (size.width - gap * (count - 1)) / count
         val top = (size.height - blockHeight) / 2
@@ -981,7 +1046,7 @@ private fun BoxScope.TallContent(
         modifier =
             Modifier.align(Alignment.BottomCenter)
                 .padding(bottom = 10.dp)
-                .size(parts.look.largeIconSize),
+                .size(parts.iconSize),
     )
     val lane =
         Modifier.align(Alignment.Center)
@@ -1050,10 +1115,10 @@ private fun UprightBlocks(
     radius: Dp,
     modifier: Modifier = Modifier,
 ) {
-    val count = (channel.max - channel.min).coerceIn(8, 16)
-    val lit = (channel.fraction * count).roundToInt()
     Canvas(modifier) {
-        val gap = 3.dp.toPx()
+        val gap = BLOCK_GAP.toPx()
+        val count = blockCount(channel, size.height)
+        val lit = (channel.fraction * count).roundToInt()
         val width = min(size.width - 24.dp.toPx(), 40.dp.toPx())
         val height = (size.height - gap * (count - 1)) / count
         val left = (size.width - width) / 2
@@ -1129,6 +1194,12 @@ private fun ColumnScope.StackRow(
             }
         }
     }
+}
+
+private fun DrawScope.blockCount(channel: LevelChannel, length: Float): Int {
+    val gap = BLOCK_GAP.toPx()
+    val room = ((length + gap) / (BLOCK.toPx() + gap)).toInt()
+    return room.coerceIn(1, (channel.max - channel.min).coerceIn(8, 16))
 }
 
 private fun blockRadius(parts: VolumeParts): Dp =
