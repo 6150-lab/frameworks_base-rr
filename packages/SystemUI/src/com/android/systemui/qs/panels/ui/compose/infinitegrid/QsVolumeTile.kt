@@ -681,7 +681,7 @@ internal fun volumeLevelModifier(
                 ProgressBarRangeInfo(
                     channel.level.toFloat(),
                     channel.min.toFloat()..channel.max.toFloat(),
-                    (channel.max - channel.min - 1).coerceAtLeast(0),
+                    (channel.max - channel.min - 1).coerceIn(0, 19),
                 )
             setProgress { value ->
                 channel.set(value.roundToInt().coerceIn(channel.min, channel.max))
