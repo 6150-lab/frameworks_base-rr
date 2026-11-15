@@ -109,7 +109,7 @@ internal enum class CustomizerTab(@StringRes val label: Int) {
     Tiles(R.string.qs_custom_tab_tiles),
     Color(R.string.qs_custom_tab_color),
     Mix(R.string.qs_custom_tab_mix),
-    Slider(R.string.qs_custom_tab_sliders),
+    Slider(R.string.qs_custom_tab_slider),
     Add(R.string.qs_custom_tab_add),
 }
 
