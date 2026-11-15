@@ -26,10 +26,7 @@ import com.android.systemui.qs.pipeline.domain.autoaddable.CellAutoAddable
 import com.android.systemui.qs.pipeline.domain.autoaddable.DataSaverAutoAddable
 import com.android.systemui.qs.pipeline.domain.autoaddable.DeviceControlsAutoAddable
 import com.android.systemui.qs.pipeline.domain.autoaddable.HotspotAutoAddable
-import com.android.systemui.qs.pipeline.domain.autoaddable.BrightnessTileAutoAddable
 import com.android.systemui.qs.pipeline.domain.autoaddable.MediaTileAutoAddable
-import com.android.systemui.qs.pipeline.domain.autoaddable.SoundTileAutoAddable
-import com.android.systemui.qs.pipeline.domain.autoaddable.VolumeTileAutoAddable
 import com.android.systemui.qs.pipeline.domain.autoaddable.NightDisplayAutoAddable
 import com.android.systemui.qs.pipeline.domain.autoaddable.WalletAutoAddable
 import com.android.systemui.qs.pipeline.domain.autoaddable.WorkTileAutoAddable
@@ -80,14 +77,6 @@ interface BaseAutoAddableModule {
     @Binds @IntoSet fun bindHotspotAutoAddable(impl: HotspotAutoAddable): AutoAddable
 
     @Binds @IntoSet fun bindMediaTileAutoAddable(impl: MediaTileAutoAddable): AutoAddable
-
-    @Binds
-    @IntoSet
-    fun bindBrightnessTileAutoAddable(impl: BrightnessTileAutoAddable): AutoAddable
-
-    @Binds @IntoSet fun bindVolumeTileAutoAddable(impl: VolumeTileAutoAddable): AutoAddable
-
-    @Binds @IntoSet fun bindSoundTileAutoAddable(impl: SoundTileAutoAddable): AutoAddable
 
     @Binds @IntoSet fun bindNightDisplayAutoAddable(impl: NightDisplayAutoAddable): AutoAddable
 
