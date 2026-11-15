@@ -329,6 +329,8 @@ fun DefaultEditTileGrid(
                     onEditAction(EditAction.AddTile(spec))
                     preview.reveal = spec
                 },
+                currentTiles = specs,
+                onSetTiles = { onEditAction(EditAction.SetTiles(it)) },
             )
         },
     ) { innerPadding ->

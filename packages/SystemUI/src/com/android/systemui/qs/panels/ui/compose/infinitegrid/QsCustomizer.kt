@@ -79,6 +79,8 @@ import com.android.systemui.qs.panels.shared.model.QsMediaPlace
 import com.android.systemui.qs.panels.shared.model.QsMediaTileSize
 import com.android.systemui.qs.panels.shared.model.QsOffFill
 import com.android.systemui.qs.panels.shared.model.QsOnFill
+import com.android.systemui.qs.panels.shared.model.QsSliderLayout
+import com.android.systemui.qs.panels.shared.model.QsSliderPercent
 import com.android.systemui.qs.panels.shared.model.QsSliderPlace
 import com.android.systemui.qs.panels.shared.model.QsStyle
 import com.android.systemui.qs.panels.shared.model.QsTileDepth
@@ -107,7 +109,7 @@ internal enum class CustomizerTab(@StringRes val label: Int) {
     Tiles(R.string.qs_custom_tab_tiles),
     Color(R.string.qs_custom_tab_color),
     Mix(R.string.qs_custom_tab_mix),
-    Slider(R.string.qs_custom_tab_slider),
+    Slider(R.string.qs_custom_tab_sliders),
     Add(R.string.qs_custom_tab_add),
 }
 
@@ -163,6 +165,8 @@ internal fun QsCustomizerDock(
     onRemoveTile: (EditTileViewModel) -> Unit,
     onCloseTile: () -> Unit,
     onAddTile: (TileSpec) -> Unit,
+    currentTiles: List<TileSpec>,
+    onSetTiles: (List<TileSpec>) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val edit: ((QsTweaks) -> QsTweaks) -> Unit = repository::editTweaks
@@ -235,13 +239,16 @@ internal fun QsCustomizerDock(
                     when {
                         tile?.tileSpec?.spec == QsMediaTileSize.TILE_SPEC -> MediaSheet(edit)
                         tile?.tileSpec?.spec == QsVolumeSize.TILE_SPEC -> VolumeSheet(edit)
+                        tile?.tileSpec?.spec == QsVolumeSize.BRIGHTNESS_SPEC ||
+                            tile?.tileSpec?.spec == QsVolumeSize.SOUND_SPEC ->
+                            SlidersTab(edit, currentTiles, onSetTiles)
                         tile != null -> TileSheet(tile.tileSpec.spec, columns, edit)
                         tab == CustomizerTab.Theme -> ThemeTab(repository)
                         tab == CustomizerTab.Layout -> LayoutTab(columns, edit)
                         tab == CustomizerTab.Tiles -> TilesTab(edit)
                         tab == CustomizerTab.Color -> ColorTab(edit)
                         tab == CustomizerTab.Mix -> MixTab(edit)
-                        tab == CustomizerTab.Slider -> SliderTab(edit)
+                        tab == CustomizerTab.Slider -> SlidersTab(edit, currentTiles, onSetTiles)
                         else -> AddTab(allTiles, onAddTile)
                     }
                 }
@@ -434,7 +441,7 @@ private fun MediaSheet(edit: ((QsTweaks) -> QsTweaks) -> Unit) {
 @Composable
 private fun VolumeSheet(edit: ((QsTweaks) -> QsTweaks) -> Unit) {
     val tweaks = LocalQsTweaks.current
-    val look = tweaks.volumeLook ?: QsVolumeLook.SLIDER
+    val look = tweaks.volumeLook
     ThemeChips(
         stringResource(R.string.qs_custom_look),
         tweaks.tiles[QsVolumeSize.TILE_SPEC]?.look,
@@ -454,20 +461,14 @@ private fun VolumeSheet(edit: ((QsTweaks) -> QsTweaks) -> Unit) {
             ),
         selected = tweaks.volumeSize ?: QsVolumeSize.WIDE,
     ) { size ->
-        edit { it.copy(volumeSize = size.takeIf { s -> s != QsVolumeSize.WIDE }) }
+        edit { it.copy(volumeSize = size, sliderLayout = null) }
     }
     ChipRow(
         title = stringResource(R.string.qs_custom_media_look),
-        options =
-            listOf(
-                QsVolumeLook.SLIDER to stringResource(R.string.qs_custom_volume_slider),
-                QsVolumeLook.FILL to stringResource(R.string.qs_custom_volume_fill),
-                QsVolumeLook.BLOCKS to stringResource(R.string.qs_custom_media_blocks),
-                QsVolumeLook.STACK to stringResource(R.string.qs_custom_volume_stack),
-            ),
+        options = sliderLooks() + (QsVolumeLook.STACK to stringResource(R.string.qs_custom_volume_stack)),
         selected = look,
     ) { picked ->
-        edit { it.copy(volumeLook = picked.takeIf { l -> l != QsVolumeLook.SLIDER }) }
+        edit { it.copy(volumeLook = picked) }
     }
     if (look != QsVolumeLook.STACK) {
         ChipRow(
@@ -780,6 +781,133 @@ private fun MixTab(edit: ((QsTweaks) -> QsTweaks) -> Unit) {
     }
     ThemeChips(stringResource(R.string.qs_custom_mix_footer), tweaks.footerFrom) { style ->
         edit { it.copy(footerFrom = style) }
+    }
+}
+
+private val MediaSpec = TileSpec.create(QsMediaTileSize.TILE_SPEC)
+private val BrightnessSpec = TileSpec.create(QsVolumeSize.BRIGHTNESS_SPEC)
+private val VolumeSpec = TileSpec.create(QsVolumeSize.TILE_SPEC)
+private val SoundSpec = TileSpec.create(QsVolumeSize.SOUND_SPEC)
+
+@Composable
+private fun sliderLooks(): List<Pair<QsVolumeLook?, String>> =
+    listOf(
+        null to stringResource(R.string.qs_custom_slider_follow),
+        QsVolumeLook.FILL to stringResource(R.string.qs_custom_slider_solid),
+        QsVolumeLook.SLIDER to stringResource(R.string.qs_custom_slider_knob),
+        QsVolumeLook.BLOCKS to stringResource(R.string.qs_custom_media_blocks),
+        QsVolumeLook.LIQUID to stringResource(R.string.qs_custom_slider_liquid),
+    )
+
+private fun List<TileSpec>.withSound(on: Boolean): List<TileSpec> {
+    val rest = filter { it != SoundSpec }
+    if (!on) return rest
+    val at = rest.indexOfLast { it == VolumeSpec || it == BrightnessSpec }
+    return if (at < 0) rest + SoundSpec else rest.take(at + 1) + SoundSpec + rest.drop(at + 1)
+}
+
+private fun applySliderLayout(
+    layout: QsSliderLayout,
+    current: List<TileSpec>,
+    onSetTiles: (List<TileSpec>) -> Unit,
+    edit: ((QsTweaks) -> QsTweaks) -> Unit,
+) {
+    val sound = SoundSpec in current
+    val media = MediaSpec.takeIf { it in current }
+    val sliders = listOfNotNull(BrightnessSpec, VolumeSpec, SoundSpec.takeIf { sound })
+    val front =
+        when (layout) {
+            QsSliderLayout.PAIR,
+            QsSliderLayout.CORNER -> listOfNotNull(media) + sliders
+            QsSliderLayout.SPLIT,
+            QsSliderLayout.RAILS -> sliders + listOfNotNull(media)
+        }
+    onSetTiles(front + current.filter { it !in front && it != SoundSpec })
+    edit {
+        it.copy(
+            sliderLayout = layout,
+            brightnessSize =
+                when (layout) {
+                    QsSliderLayout.PAIR -> QsVolumeSize.TALL
+                    QsSliderLayout.SPLIT -> QsVolumeSize.HALF
+                    QsSliderLayout.RAILS -> QsVolumeSize.WIDE
+                    QsSliderLayout.CORNER -> QsVolumeSize.SMALL
+                },
+            volumeSize =
+                when (layout) {
+                    QsSliderLayout.PAIR -> QsVolumeSize.TALL
+                    QsSliderLayout.SPLIT -> QsVolumeSize.HALF
+                    QsSliderLayout.RAILS -> if (sound) QsVolumeSize.HALF else QsVolumeSize.WIDE
+                    QsSliderLayout.CORNER -> QsVolumeSize.SMALL
+                },
+            soundSize = QsVolumeSize.HALF,
+            volumeLook = it.volumeLook.takeIf { look -> look != QsVolumeLook.STACK },
+            mediaSize =
+                if (layout == QsSliderLayout.PAIR || layout == QsSliderLayout.CORNER) {
+                    QsMediaTileSize.SQUARE
+                } else {
+                    it.mediaSize
+                },
+            mediaPlace = QsMediaPlace.GRID,
+            slidersByMedia = false,
+        )
+    }
+}
+
+@Composable
+private fun SlidersTab(
+    edit: ((QsTweaks) -> QsTweaks) -> Unit,
+    current: List<TileSpec>,
+    onSetTiles: (List<TileSpec>) -> Unit,
+) {
+    val tweaks = LocalQsTweaks.current
+    val sound = SoundSpec in current
+    ChipRow(
+        title = stringResource(R.string.qs_custom_sliders_layout),
+        options =
+            listOf(
+                QsSliderLayout.PAIR to stringResource(R.string.qs_custom_sliders_pair),
+                QsSliderLayout.SPLIT to stringResource(R.string.qs_custom_sliders_split),
+                QsSliderLayout.RAILS to stringResource(R.string.qs_custom_sliders_rails),
+                QsSliderLayout.CORNER to stringResource(R.string.qs_custom_sliders_corner),
+            ),
+        selected = tweaks.sliderLayout ?: QsSliderLayout.PAIR,
+    ) { layout ->
+        applySliderLayout(layout, current, onSetTiles, edit)
+    }
+    ChipRow(
+        title = stringResource(R.string.qs_custom_media_look),
+        options = sliderLooks(),
+        selected = tweaks.brightnessLook,
+    ) { look ->
+        edit { it.copy(brightnessLook = look, volumeLook = look) }
+    }
+    ChipRow(
+        title = stringResource(R.string.qs_custom_sliders_percent),
+        options =
+            listOf(
+                QsSliderPercent.ALWAYS to stringResource(R.string.qs_custom_sliders_always),
+                QsSliderPercent.DRAG to stringResource(R.string.qs_custom_sliders_dragging),
+                QsSliderPercent.OFF to stringResource(R.string.qs_custom_off),
+            ),
+        selected = tweaks.sliderPercent ?: QsSliderPercent.ALWAYS,
+    ) { percent ->
+        edit { it.copy(sliderPercent = percent.takeIf { p -> p != QsSliderPercent.ALWAYS }) }
+    }
+    ChipRow(
+        title = stringResource(R.string.qs_custom_sliders_sound),
+        options =
+            listOf(
+                true to stringResource(R.string.qs_custom_volume_on),
+                false to stringResource(R.string.qs_custom_off),
+            ),
+        selected = sound,
+    ) { on ->
+        if (on != sound) onSetTiles(current.withSound(on))
+    }
+    if (BrightnessSpec !in current) {
+        RowTitle(stringResource(R.string.qs_custom_sliders_bar))
+        SliderTab(edit)
     }
 }
 

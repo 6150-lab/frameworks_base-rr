@@ -110,6 +110,13 @@ enum class QsVolumeLook {
     LIQUID,
 }
 
+enum class QsSliderLayout {
+    PAIR,
+    SPLIT,
+    RAILS,
+    CORNER,
+}
+
 enum class QsSliderPercent {
     ALWAYS,
     DRAG,
@@ -196,6 +203,7 @@ data class QsTweaks(
     val brightnessLook: QsVolumeLook? = null,
     val soundSize: QsVolumeSize? = null,
     val sliderPercent: QsSliderPercent? = null,
+    val sliderLayout: QsSliderLayout? = null,
     val sliderPlace: QsSliderPlace? = null,
     val slidersByMedia: Boolean? = null,
     val tiles: Map<String, QsTileTweak> = emptyMap(),
@@ -328,6 +336,7 @@ object QsTweaksCodec {
             putOpt("brightnessLook", brightnessLook?.name)
             putOpt("soundSize", soundSize?.name)
             putOpt("sliderPercent", sliderPercent?.name)
+            putOpt("sliderLayout", sliderLayout?.name)
             putOpt("sliderPlace", sliderPlace?.name)
             putOpt("slidersByMedia", slidersByMedia)
             if (tiles.isNotEmpty()) {
@@ -376,6 +385,7 @@ object QsTweaksCodec {
             brightnessLook = enumOrNull<QsVolumeLook>("brightnessLook"),
             soundSize = enumOrNull<QsVolumeSize>("soundSize"),
             sliderPercent = enumOrNull<QsSliderPercent>("sliderPercent"),
+            sliderLayout = enumOrNull<QsSliderLayout>("sliderLayout"),
             sliderPlace = enumOrNull<QsSliderPlace>("sliderPlace"),
             slidersByMedia = if (has("slidersByMedia")) optBoolean("slidersByMedia") else null,
             tiles = optJSONObject("tiles")?.toTiles() ?: emptyMap(),
