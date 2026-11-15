@@ -459,7 +459,7 @@ private fun VolumeSheet(edit: ((QsTweaks) -> QsTweaks) -> Unit) {
                 QsVolumeSize.TALL to stringResource(R.string.qs_custom_media_tall),
                 QsVolumeSize.SQUARE to stringResource(R.string.qs_custom_media_square),
             ),
-        selected = tweaks.volumeSize ?: QsVolumeSize.WIDE,
+        selected = tweaks.volumeSize ?: QsVolumeSize.TALL,
     ) { size ->
         edit { it.copy(volumeSize = size, sliderLayout = null) }
     }

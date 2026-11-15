@@ -87,7 +87,7 @@ fun QsTweaks.cellsOf(
     val shape = shapeFrom ?: theme
     if (spec == QsMediaTileSize.TILE_SPEC) return mediaCells(shape, columns)
     if (spec == QsVolumeSize.TILE_SPEC) {
-        return levelCells(shape, columns, volumeSize ?: QsVolumeSize.WIDE, volumeLook)
+        return levelCells(shape, columns, volumeSize ?: QsVolumeSize.TALL, volumeLook)
     }
     if (spec == QsVolumeSize.BRIGHTNESS_SPEC) {
         return levelCells(shape, columns, brightnessSize ?: QsVolumeSize.TALL, null)
