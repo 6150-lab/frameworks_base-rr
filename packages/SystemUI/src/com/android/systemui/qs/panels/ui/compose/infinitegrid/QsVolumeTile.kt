@@ -239,12 +239,14 @@ internal class VolumeChannel(
     override fun set(next: Int) {
         if (next == level) return
         try {
-            audio.setStreamVolume(stream, next, 0)
+            audio.setStreamVolume(stream, next, AudioManager.FLAG_SHOW_UI_WARNINGS)
         } catch (e: SecurityException) {
             sync()
             return
         }
-        level = next
+        val now = audio.getStreamVolume(stream)
+        if (now == level) return
+        level = now
         if (ticks) view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
     }
 
