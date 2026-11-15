@@ -165,6 +165,9 @@
     <string name="qs_media_tile_idle">Nothing playing</string>
     <string name="qs_volume_tile_label">Volume</string>
     <string name="qs_volume_tile_muted">Muted</string>
+    <string name="qs_brightness_tile_label">Brightness</string>
+    <string name="qs_brightness_tile_auto">Auto</string>
+    <string name="qs_brightness_tile_manual">Manual</string>
     <string name="qs_custom_volume_half">Half</string>
     <string name="qs_custom_volume_slider">Slider</string>
     <string name="qs_custom_volume_fill">Fill</string>

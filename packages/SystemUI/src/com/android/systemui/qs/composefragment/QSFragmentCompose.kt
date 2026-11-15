@@ -157,6 +157,7 @@ import com.android.systemui.qs.panels.shared.model.QsMediaPlace
 import com.android.systemui.qs.panels.shared.model.QsMediaTileSize
 import com.android.systemui.qs.panels.shared.model.QSFragmentComposeClippingTableLog
 import com.android.systemui.qs.panels.ui.compose.QsCirclesMediaRow
+import com.android.systemui.qs.panels.ui.compose.infinitegrid.LocalQsBrightness
 import com.android.systemui.qs.panels.ui.compose.QsStyleSliderFrame
 import com.android.systemui.qs.panels.ui.compose.qsSliderStyle
 import com.android.systemui.qs.panels.ui.compose.EditMode
@@ -310,6 +311,7 @@ constructor(
                 LocalQsMediaStyle provides qsMediaStyle,
                 LocalQsMediaTileSize provides qsMediaTileSize,
                 LocalQsTweaks provides qsTweaks,
+                LocalQsBrightness provides viewModel.containerViewModel.brightnessSliderViewModel,
             ) {
                 ProvideShortcutHelperIndication(interactionsConfig = interactionsConfig()) {
                     Box(

@@ -10,6 +10,7 @@ import com.android.systemui.dagger.qualifiers.Background
 import com.android.systemui.qs.panels.data.repository.QsStyleRepository
 import com.android.systemui.qs.panels.shared.model.QsMediaPlace
 import com.android.systemui.qs.panels.shared.model.QsMediaTileSize
+import com.android.systemui.qs.panels.shared.model.QsVolumeSize
 import com.android.systemui.qs.pipeline.domain.interactor.CurrentTilesInteractor
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
@@ -42,5 +43,11 @@ constructor(
             ) { hasTile, style, tweaks ->
                 hasTile && tweaks.mediaPlaceIn(style) != QsMediaPlace.GRID
             }
+            .stateIn(scope, SharingStarted.Eagerly, false)
+
+    val brightnessTileShown: StateFlow<Boolean> =
+        currentTilesInteractor.currentTiles
+            .map { tiles -> tiles.any { it.spec.spec == QsVolumeSize.BRIGHTNESS_SPEC } }
+            .distinctUntilChanged()
             .stateIn(scope, SharingStarted.Eagerly, false)
 }

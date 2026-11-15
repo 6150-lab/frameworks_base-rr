@@ -305,7 +305,14 @@ constructor(
         get() = containerViewModel.brightnessSliderViewModel.showMirror
 
     val isBrightnessSliderVisible: Boolean
-        get() = containerViewModel.isBrightnessSliderVisible
+        get() = containerViewModel.isBrightnessSliderVisible && !brightnessInGrid
+
+    private val brightnessInGrid by
+        hydrator.hydratedStateOf(
+            traceName = "brightnessInGrid",
+            initialValue = false,
+            source = mediaCardInteractor.brightnessTileShown,
+        )
 
     // The initial values in these two are not meaningful. The flow will emit on start the correct
     // values. This is because we need to lazily fetch them after initMediaHosts.

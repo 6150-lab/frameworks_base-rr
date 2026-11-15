@@ -97,6 +97,7 @@ enum class QsVolumeSize {
 
     companion object {
         const val TILE_SPEC = "rrvolume"
+        const val BRIGHTNESS_SPEC = "rrbrightness"
     }
 }
 
@@ -174,6 +175,8 @@ data class QsTweaks(
     val volumeShow: QsVolumeShow? = null,
     val volumeTap: QsVolumeTap? = null,
     val volumeTicks: Boolean? = null,
+    val brightnessSize: QsVolumeSize? = null,
+    val brightnessLook: QsVolumeLook? = null,
     val sliderPlace: QsSliderPlace? = null,
     val slidersByMedia: Boolean? = null,
     val tiles: Map<String, QsTileTweak> = emptyMap(),
@@ -302,6 +305,8 @@ object QsTweaksCodec {
             putOpt("volumeShow", volumeShow?.name)
             putOpt("volumeTap", volumeTap?.name)
             putOpt("volumeTicks", volumeTicks)
+            putOpt("brightnessSize", brightnessSize?.name)
+            putOpt("brightnessLook", brightnessLook?.name)
             putOpt("sliderPlace", sliderPlace?.name)
             putOpt("slidersByMedia", slidersByMedia)
             if (tiles.isNotEmpty()) {
@@ -346,6 +351,8 @@ object QsTweaksCodec {
             volumeShow = enumOrNull<QsVolumeShow>("volumeShow"),
             volumeTap = enumOrNull<QsVolumeTap>("volumeTap"),
             volumeTicks = if (has("volumeTicks")) optBoolean("volumeTicks") else null,
+            brightnessSize = enumOrNull<QsVolumeSize>("brightnessSize"),
+            brightnessLook = enumOrNull<QsVolumeLook>("brightnessLook"),
             sliderPlace = enumOrNull<QsSliderPlace>("sliderPlace"),
             slidersByMedia = if (has("slidersByMedia")) optBoolean("slidersByMedia") else null,
             tiles = optJSONObject("tiles")?.toTiles() ?: emptyMap(),

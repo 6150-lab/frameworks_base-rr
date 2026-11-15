@@ -122,6 +122,7 @@ import com.android.systemui.qs.panels.ui.viewmodel.toIconProvider
 import com.android.systemui.qs.panels.ui.viewmodel.toUiState
 import com.android.systemui.qs.pipeline.shared.TileSpec
 import com.android.systemui.qs.tileimpl.QSTileImpl
+import com.android.systemui.qs.tiles.RrBrightnessTile
 import com.android.systemui.qs.tiles.RrVolumeTile
 import com.android.systemui.qs.ui.composable.QuickSettingsShade
 import com.android.systemui.qs.ui.compose.borderOnFocus
@@ -194,7 +195,12 @@ fun ContentScope.Tile(
 
         val tweaks = LocalQsTweaks.current
         val tileTweak = tweaks.tiles[tile.spec.spec]
-        val volume = if (tile.spec.spec == RrVolumeTile.TILE_SPEC) rememberVolumeTile(tweaks) else null
+        val volume =
+            when (tile.spec.spec) {
+                RrVolumeTile.TILE_SPEC -> rememberVolumeTile(tweaks)
+                RrBrightnessTile.TILE_SPEC -> rememberBrightnessTile(tweaks)
+                else -> null
+            }
         val paintState = if (volume != null) uiState.copy(visualState = STATE_INACTIVE) else uiState
         val shape = tileShapeStyle()
         val paint = tilePaintStyle()

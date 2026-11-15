@@ -45,12 +45,16 @@ import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -74,7 +78,11 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.android.systemui.brightness.domain.model.GammaBrightness
 import com.android.systemui.brightness.ui.compose.BrightnessSliderDimensions
+import com.android.systemui.brightness.ui.viewmodel.BrightnessSliderViewModel
+import com.android.systemui.brightness.ui.viewmodel.Drag
 import com.android.systemui.qs.panels.shared.model.LocalQsGlass
 import com.android.systemui.qs.panels.shared.model.LocalQsGlassTune
 import com.android.systemui.qs.panels.shared.model.LocalQsTweaks
@@ -89,9 +97,12 @@ import com.android.systemui.qs.panels.ui.compose.qsSliderStyle
 import com.android.systemui.qs.panels.ui.compose.qsStyleSliderColors
 import com.android.systemui.qs.panels.ui.compose.qsStyleSliderDimensions
 import com.android.systemui.res.R
+import com.android.systemui.util.policy.PolicyRestriction
 import java.text.NumberFormat
 import kotlin.math.min
 import kotlin.math.roundToInt
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 private val StackSounds = listOf(QsVolumeSound.MEDIA, QsVolumeSound.RING, QsVolumeSound.ALARM)
 private const val FILL_ALPHA = 0.3f
@@ -137,30 +148,68 @@ private val QsVolumeSound.label: Int
         }
 
 @Stable
+internal abstract class LevelChannel {
+    abstract val min: Int
+    abstract val max: Int
+    var level by mutableIntStateOf(0)
+        protected set
+
+    var dragging = false
+    val fraction: Float
+        get() = (level - min).coerceAtLeast(0).toFloat() / (max - min).coerceAtLeast(1)
+
+    open val silent: Boolean
+        get() = level == 0
+
+    @get:DrawableRes abstract val icon: Int
+    @get:DrawableRes abstract val mutedIcon: Int
+    @get:StringRes abstract val label: Int
+
+    abstract fun sync()
+
+    abstract fun set(next: Int)
+
+    abstract fun toggleMute()
+
+    abstract fun showPanel()
+
+    fun setFraction(fraction: Float) {
+        set(min + (fraction.coerceIn(0f, 1f) * (max - min)).roundToInt())
+    }
+
+    open fun startDrag() {
+        dragging = true
+    }
+
+    open fun endDrag() {
+        dragging = false
+        sync()
+    }
+}
+
+@Stable
 internal class VolumeChannel(
     private val audio: AudioManager,
     private val view: View,
     private val ticks: Boolean,
     val sound: QsVolumeSound,
-) {
+) : LevelChannel() {
     private val stream = sound.stream
-    val min = audio.getStreamMinVolume(stream)
-    val max = audio.getStreamMaxVolume(stream).coerceAtLeast(min + 1)
-    var level by mutableIntStateOf(audio.getStreamVolume(stream))
-        private set
+    override val min = audio.getStreamMinVolume(stream)
+    override val max = audio.getStreamMaxVolume(stream).coerceAtLeast(min + 1)
+    override val icon = sound.icon
+    override val mutedIcon = sound.mutedIcon
+    override val label = sound.label
 
-    var dragging = false
-    val fraction: Float
-        get() = (level - min).coerceAtLeast(0).toFloat() / (max - min)
+    init {
+        level = audio.getStreamVolume(stream)
+    }
 
-    val silent: Boolean
-        get() = level == 0
-
-    fun sync() {
+    override fun sync() {
         if (!dragging) level = audio.getStreamVolume(stream)
     }
 
-    fun set(next: Int) {
+    override fun set(next: Int) {
         if (next == level) return
         try {
             audio.setStreamVolume(stream, next, 0)
@@ -172,11 +221,7 @@ internal class VolumeChannel(
         if (ticks) view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
     }
 
-    fun setFraction(fraction: Float) {
-        set(min + (fraction.coerceIn(0f, 1f) * (max - min)).roundToInt())
-    }
-
-    fun toggleMute() {
+    override fun toggleMute() {
         if (sound == QsVolumeSound.ALARM || sound == QsVolumeSound.CALL) {
             showPanel()
             return
@@ -193,16 +238,105 @@ internal class VolumeChannel(
         sync()
     }
 
-    fun showPanel() {
+    override fun showPanel() {
         audio.adjustStreamVolume(stream, AudioManager.ADJUST_SAME, AudioManager.FLAG_SHOW_UI)
     }
 }
 
 @Stable
-internal class VolumeTileState(val channels: List<VolumeChannel>, private val tap: QsVolumeTap) {
+internal class BrightnessChannel(
+    private val viewModel: BrightnessSliderViewModel,
+    private val scope: CoroutineScope,
+    private val view: View,
+    private val ticks: Boolean,
+    private val restricted: () -> PolicyRestriction.Restricted?,
+) : LevelChannel() {
+    override val min: Int
+        get() = viewModel.minBrightness.value
+
+    override val max: Int
+        get() = viewModel.maxBrightness.value.coerceAtLeast(min + 1)
+
+    override val silent: Boolean
+        get() = false
+
+    override val icon: Int
+        get() =
+            if (viewModel.autoMode) R.drawable.ic_qs_brightness_auto_on
+            else R.drawable.ic_brightness_full
+
+    override val mutedIcon: Int
+        get() = icon
+
+    override val label = R.string.qs_brightness_tile_label
+
+    private var step = -1
+
+    init {
+        sync()
+    }
+
+    override fun sync() {
+        val now = viewModel.currentBrightness.value
+        if (!dragging && now >= 0) level = now
+    }
+
+    override fun set(next: Int) {
+        val block = restricted()
+        if (block != null) {
+            viewModel.showPolicyRestrictionDialog(block)
+            return
+        }
+        if (next == level) return
+        level = next
+        val gamma = GammaBrightness(next)
+        scope.launch {
+            viewModel.onDrag(if (dragging) Drag.Dragging(gamma) else Drag.Stopped(gamma))
+        }
+        val now = (fraction * TICKS).toInt()
+        if (ticks && step >= 0 && now != step) {
+            view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
+        }
+        step = now
+    }
+
+    override fun startDrag() {
+        super.startDrag()
+        step = (fraction * TICKS).toInt()
+    }
+
+    override fun endDrag() {
+        dragging = false
+        step = -1
+        val gamma = GammaBrightness(level)
+        scope.launch { viewModel.onDrag(Drag.Stopped(gamma)) }
+    }
+
+    override fun toggleMute() {
+        viewModel.onIconClick()
+    }
+
+    override fun showPanel() {
+        viewModel.onIconClick()
+    }
+
+    private companion object {
+        const val TICKS = 20
+    }
+}
+
+val LocalQsBrightness = staticCompositionLocalOf<BrightnessSliderViewModel?> { null }
+
+@Stable
+internal class VolumeTileState(
+    val channels: List<LevelChannel>,
+    private val tap: QsVolumeTap,
+    val look: QsVolumeLook,
+    val show: QsVolumeShow,
+) {
     val main = channels.first()
 
-    fun onIcon(channel: VolumeChannel = main) {
+    fun onIcon(channel: LevelChannel = main) {
         if (tap == QsVolumeTap.PANEL) channel.showPanel() else channel.toggleMute()
     }
 }
@@ -216,16 +350,18 @@ internal fun rememberVolumeTile(tweaks: QsTweaks): VolumeTileState {
         else listOf(tweaks.volumeSound ?: QsVolumeSound.MEDIA)
     val ticks = tweaks.volumeTicks != false
     val tap = tweaks.volumeTap ?: QsVolumeTap.MUTE
+    val look = tweaks.volumeLook ?: QsVolumeLook.SLIDER
+    val show = tweaks.volumeShow ?: QsVolumeShow.ALL
     val state =
-        remember(context, view, sounds, ticks, tap) {
+        remember(context, view, sounds, ticks, tap, look, show) {
             val audio = context.getSystemService(AudioManager::class.java)
-            VolumeTileState(sounds.map { VolumeChannel(audio, view, ticks, it) }, tap)
+            VolumeTileState(sounds.map { VolumeChannel(audio, view, ticks, it) }, tap, look, show)
         }
     DisposableEffect(context, state) {
         val receiver =
             object : BroadcastReceiver() {
                 override fun onReceive(context: Context, intent: Intent) {
-                    state.channels.forEach(VolumeChannel::sync)
+                    state.channels.forEach(LevelChannel::sync)
                 }
             }
         val filter =
@@ -240,26 +376,45 @@ internal fun rememberVolumeTile(tweaks: QsTweaks): VolumeTileState {
 }
 
 @Composable
+internal fun rememberBrightnessTile(tweaks: QsTweaks): VolumeTileState? {
+    val viewModel = LocalQsBrightness.current ?: return null
+    val view = LocalView.current
+    val scope = rememberCoroutineScope()
+    val ticks = tweaks.volumeTicks != false
+    val look = tweaks.brightnessLook?.takeIf { it != QsVolumeLook.STACK } ?: QsVolumeLook.SLIDER
+    val restriction by
+        viewModel.policyRestriction.collectAsStateWithLifecycle(
+            initialValue = PolicyRestriction.NoRestriction
+        )
+    val channel =
+        remember(viewModel, scope, view, ticks) {
+            BrightnessChannel(viewModel, scope, view, ticks) {
+                restriction as? PolicyRestriction.Restricted
+            }
+        }
+    LaunchedEffect(channel) {
+        snapshotFlow { viewModel.currentBrightness.value }.collect { channel.sync() }
+    }
+    return remember(channel, look) {
+        VolumeTileState(listOf(channel), QsVolumeTap.MUTE, look, QsVolumeShow.ALL)
+    }
+}
+
+@Composable
 private fun volumeSliderColors(): SliderColors =
     (qsStyleSliderColors(qsSliderStyle()) ?: SliderDefaults.colors())
         .glassy(LocalQsGlass.current, LocalQsGlassTune.current)
 
-private fun Modifier.horizontalLevelDrag(channel: VolumeChannel, rtl: Boolean): Modifier =
+private fun Modifier.horizontalLevelDrag(channel: LevelChannel, rtl: Boolean): Modifier =
     pointerInput(channel, rtl) {
         var exact = 0f
         detectHorizontalDragGestures(
             onDragStart = {
                 exact = channel.level.toFloat()
-                channel.dragging = true
+                channel.startDrag()
             },
-            onDragEnd = {
-                channel.dragging = false
-                channel.sync()
-            },
-            onDragCancel = {
-                channel.dragging = false
-                channel.sync()
-            },
+            onDragEnd = { channel.endDrag() },
+            onDragCancel = { channel.endDrag() },
         ) { input, dx ->
             input.consume()
             val span = maxOf(size.width.toFloat(), 180.dp.toPx())
@@ -269,7 +424,7 @@ private fun Modifier.horizontalLevelDrag(channel: VolumeChannel, rtl: Boolean): 
         }
     }
 
-private fun Modifier.verticalLevelDrag(channel: VolumeChannel, view: View): Modifier =
+private fun Modifier.verticalLevelDrag(channel: LevelChannel, view: View): Modifier =
     pointerInput(channel) {
             awaitEachGesture {
                 awaitFirstDown(requireUnconsumed = false)
@@ -281,16 +436,10 @@ private fun Modifier.verticalLevelDrag(channel: VolumeChannel, view: View): Modi
             detectVerticalDragGestures(
                 onDragStart = {
                     exact = channel.level.toFloat()
-                    channel.dragging = true
+                    channel.startDrag()
                 },
-                onDragEnd = {
-                    channel.dragging = false
-                    channel.sync()
-                },
-                onDragCancel = {
-                    channel.dragging = false
-                    channel.sync()
-                },
+                onDragEnd = { channel.endDrag() },
+                onDragCancel = { channel.endDrag() },
             ) { input, dy ->
                 input.consume()
                 val steps = -dy / size.height * (channel.max - channel.min)
@@ -306,7 +455,7 @@ internal fun volumeLevelModifier(
     iconOnly: Boolean,
     rows: Int,
 ): Modifier {
-    val look = tweaks.volumeLook ?: QsVolumeLook.SLIDER
+    val look = state.look
     if (look == QsVolumeLook.STACK && rows >= 2) return Modifier
     val channel = state.main
     val view = LocalView.current
@@ -372,8 +521,8 @@ internal fun BoxScope.VolumeTileContent(
     onLongClick: (() -> Unit)?,
 ) {
     val tweaks = LocalQsTweaks.current
-    val volumeLook = tweaks.volumeLook ?: QsVolumeLook.SLIDER
-    val show = tweaks.volumeShow ?: QsVolumeShow.ALL
+    val volumeLook = state.look
+    val show = state.show
     val sliderColors = volumeSliderColors()
     val longClick by rememberUpdatedState(onLongClick)
     val parts = VolumeParts(colors, look, sliderColors, paint, show, { longClick?.invoke() })
@@ -412,7 +561,7 @@ private class VolumeParts(
 
 @Composable
 private fun ChannelIcon(
-    channel: VolumeChannel,
+    channel: LevelChannel,
     parts: VolumeParts,
     chip: Boolean,
     modifier: Modifier = Modifier,
@@ -447,7 +596,7 @@ private fun ChannelIcon(
     ) {
         Icon(
             painter =
-                painterResource(if (live) channel.sound.icon else channel.sound.mutedIcon),
+                painterResource(if (live) channel.icon else channel.mutedIcon),
             contentDescription = null,
             tint = tint,
             modifier = Modifier.size(parts.look.largeIconSize),
@@ -456,7 +605,7 @@ private fun ChannelIcon(
 }
 
 @Composable
-private fun channelPercent(channel: VolumeChannel, caps: Boolean): String {
+private fun channelPercent(channel: LevelChannel, caps: Boolean): String {
     val locale = LocalConfiguration.current.locales[0]
     val percent = remember(locale) { NumberFormat.getPercentInstance(locale) }
     val text =
@@ -466,11 +615,11 @@ private fun channelPercent(channel: VolumeChannel, caps: Boolean): String {
 }
 
 @Composable
-private fun ChannelTexts(channel: VolumeChannel, parts: VolumeParts, showName: Boolean) {
+private fun ChannelTexts(channel: LevelChannel, parts: VolumeParts, showName: Boolean) {
     val caps = parts.look.caps
     Column {
         if (showName) {
-            val name = stringResource(channel.sound.label)
+            val name = stringResource(channel.label)
             Text(
                 text = if (caps) name.uppercase() else name,
                 style = parts.labelStyle ?: MaterialTheme.typography.labelLarge,
@@ -488,7 +637,7 @@ private fun ChannelTexts(channel: VolumeChannel, parts: VolumeParts, showName: B
 }
 
 @Composable
-private fun EndPercent(channel: VolumeChannel, parts: VolumeParts) {
+private fun EndPercent(channel: LevelChannel, parts: VolumeParts) {
     Text(
         text = channelPercent(channel, parts.look.caps),
         style = parts.secondaryStyle ?: MaterialTheme.typography.labelMedium,
@@ -499,7 +648,7 @@ private fun EndPercent(channel: VolumeChannel, parts: VolumeParts) {
 }
 
 private fun Modifier.trackTap(
-    channel: VolumeChannel,
+    channel: LevelChannel,
     rtl: Boolean,
     onLongClick: () -> Unit,
 ): Modifier =
@@ -515,7 +664,7 @@ private fun Modifier.trackTap(
 
 @Composable
 private fun VolumeTrack(
-    channel: VolumeChannel,
+    channel: LevelChannel,
     colors: SliderColors,
     dimensions: BrightnessSliderDimensions,
     modifier: Modifier = Modifier,
@@ -551,7 +700,7 @@ private fun VolumeTrack(
 
 @Composable
 private fun VolumeBlocks(
-    channel: VolumeChannel,
+    channel: LevelChannel,
     colors: SliderColors,
     radius: Dp,
     height: Dp,
@@ -578,7 +727,7 @@ private fun VolumeBlocks(
 }
 
 @Composable
-private fun RowContent(channel: VolumeChannel, parts: VolumeParts, look: QsVolumeLook) {
+private fun RowContent(channel: LevelChannel, parts: VolumeParts, look: QsVolumeLook) {
     val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val sliderStyle = qsSliderStyle()
     val base = qsStyleSliderDimensions(sliderStyle, BrightnessSliderDimensions.Default)
@@ -629,7 +778,7 @@ private fun RowContent(channel: VolumeChannel, parts: VolumeParts, look: QsVolum
 }
 
 @Composable
-private fun SquareContent(channel: VolumeChannel, parts: VolumeParts, look: QsVolumeLook) {
+private fun SquareContent(channel: LevelChannel, parts: VolumeParts, look: QsVolumeLook) {
     val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val sliderStyle = qsSliderStyle()
     val dimensions = qsStyleSliderDimensions(sliderStyle, BrightnessSliderDimensions.Default)
@@ -673,7 +822,7 @@ private fun SquareContent(channel: VolumeChannel, parts: VolumeParts, look: QsVo
 
 @Composable
 private fun BoxScope.TallContent(
-    channel: VolumeChannel,
+    channel: LevelChannel,
     parts: VolumeParts,
     look: QsVolumeLook,
 ) {
@@ -692,7 +841,7 @@ private fun BoxScope.TallContent(
     }
     Icon(
         painter =
-            painterResource(if (channel.silent) channel.sound.mutedIcon else channel.sound.icon),
+            painterResource(if (channel.silent) channel.mutedIcon else channel.icon),
         contentDescription = null,
         tint = if (solid && channel.fraction > .14f) ink else parts.colors.icon,
         modifier =
@@ -724,7 +873,7 @@ private fun BoxScope.StackContent(state: VolumeTileState, parts: VolumeParts) {
 @Composable
 private fun ColumnScope.StackRow(
     state: VolumeTileState,
-    channel: VolumeChannel,
+    channel: LevelChannel,
     parts: VolumeParts,
     dimensions: BrightnessSliderDimensions,
 ) {
@@ -741,9 +890,9 @@ private fun ColumnScope.StackRow(
             Icon(
                 painter =
                     painterResource(
-                        if (channel.silent) channel.sound.mutedIcon else channel.sound.icon
+                        if (channel.silent) channel.mutedIcon else channel.icon
                     ),
-                contentDescription = stringResource(channel.sound.label),
+                contentDescription = stringResource(channel.label),
                 tint = if (channel.silent) parts.colors.icon else parts.slider.thumbColor,
                 modifier = Modifier.size(18.dp),
             )

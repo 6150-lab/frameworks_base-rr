@@ -29,6 +29,7 @@ import com.android.systemui.qs.tiles.ProfilesTile
 import com.android.systemui.qs.tiles.ReadingModeTile
 import com.android.systemui.qs.tiles.LookTile
 import com.android.systemui.qs.tiles.RrMediaTile
+import com.android.systemui.qs.tiles.RrBrightnessTile
 import com.android.systemui.qs.tiles.RrVolumeTile
 import com.android.systemui.qs.tiles.SyncTile
 import com.android.systemui.qs.tiles.UsbTetherTile
@@ -80,6 +81,12 @@ interface LineageModule {
     @IntoMap
     @StringKey(RrVolumeTile.TILE_SPEC)
     fun bindRrVolumeTile(rrVolumeTile: RrVolumeTile): QSTileImpl<*>
+
+    /** Inject RrBrightnessTile into tileMap in QSModule */
+    @Binds
+    @IntoMap
+    @StringKey(RrBrightnessTile.TILE_SPEC)
+    fun bindRrBrightnessTile(rrBrightnessTile: RrBrightnessTile): QSTileImpl<*>
 
     /** Inject HeadsUpTile into tileMap in QSModule */
     @Binds
@@ -283,6 +290,21 @@ interface LineageModule {
                     ),
                 instanceId = uiEventLogger.getNewInstanceId(),
                 category = TileCategory.UTILITIES,
+            )
+
+        @Provides
+        @IntoMap
+        @StringKey(RrBrightnessTile.TILE_SPEC)
+        fun provideRrBrightnessTileConfig(uiEventLogger: QsEventLogger): QSTileConfig =
+            QSTileConfig(
+                tileSpec = TileSpec.create(RrBrightnessTile.TILE_SPEC),
+                uiConfig =
+                    QSTileUIConfig.Resource(
+                        iconRes = R.drawable.ic_brightness_full,
+                        labelRes = R.string.qs_brightness_tile_label
+                    ),
+                instanceId = uiEventLogger.getNewInstanceId(),
+                category = TileCategory.DISPLAY,
             )
 
         @Provides
