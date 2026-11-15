@@ -50,4 +50,10 @@ constructor(
             .map { tiles -> tiles.any { it.spec.spec == QsVolumeSize.BRIGHTNESS_SPEC } }
             .distinctUntilChanged()
             .stateIn(scope, SharingStarted.Eagerly, false)
+
+    val volumeTileShown: StateFlow<Boolean> =
+        currentTilesInteractor.currentTiles
+            .map { tiles -> tiles.any { it.spec.spec == QsVolumeSize.TILE_SPEC } }
+            .distinctUntilChanged()
+            .stateIn(scope, SharingStarted.Eagerly, false)
 }

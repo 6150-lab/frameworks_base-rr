@@ -818,7 +818,7 @@ constructor(
                                 .padding(horizontal = qsHorizontalMargin())
                     ) {
                         QuickQuickSettingsLayout(
-                            brightness = BrightnessSlider,
+                            brightness = if (viewModel.brightnessInGrid) { {} } else BrightnessSlider,
                             tiles = Tiles,
                             media = Media,
                             mediaInRow = viewModel.qqsMediaInRow,
@@ -971,23 +971,20 @@ constructor(
             }
         // Tall brightness and volume sliders can sit next to the media card.
         val tweaks = LocalQsTweaks.current
+        val brightnessShown = rememberQsBrightnessSettings().showSlider != 0
+        val rowBrightness =
+            viewModel.containerViewModel.brightnessSliderViewModel.takeIf {
+                viewModel.isBrightnessSliderVisible && brightnessShown
+            }
+        val rowVolume = audioVolumeInteractor.takeIf { !viewModel.volumeInGrid }
         val circlesRow =
             tweaks.slidersByMediaIn(LocalQsStyle.current) &&
                 viewModel.qsMediaVisible &&
-                !viewModel.qsMediaInRow
-        val brightnessShown = rememberQsBrightnessSettings().showSlider != 0
+                !viewModel.qsMediaInRow &&
+                (rowBrightness != null || rowVolume != null)
         val MediaRow: @Composable () -> Unit =
             if (circlesRow) {
-                {
-                    QsCirclesMediaRow(
-                        media = Media,
-                        brightness =
-                            viewModel.containerViewModel.brightnessSliderViewModel.takeIf {
-                                viewModel.isBrightnessSliderVisible && brightnessShown
-                            },
-                        volume = audioVolumeInteractor,
-                    )
-                }
+                { QsCirclesMediaRow(media = Media, brightness = rowBrightness, volume = rowVolume) }
             } else {
                 Media
             }

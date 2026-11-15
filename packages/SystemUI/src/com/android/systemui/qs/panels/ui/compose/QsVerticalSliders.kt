@@ -63,7 +63,7 @@ private val MusicStream = AudioStream(AudioManager.STREAM_MUSIC)
 fun QsCirclesMediaRow(
     media: @Composable () -> Unit,
     brightness: BrightnessSliderViewModel?,
-    volume: AudioVolumeInteractor,
+    volume: AudioVolumeInteractor?,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -74,7 +74,9 @@ fun QsCirclesMediaRow(
         if (brightness != null) {
             VerticalBrightnessSlider(brightness)
         }
-        VerticalVolumeSlider(volume)
+        if (volume != null) {
+            VerticalVolumeSlider(volume)
+        }
     }
 }
 

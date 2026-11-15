@@ -307,11 +307,18 @@ constructor(
     val isBrightnessSliderVisible: Boolean
         get() = containerViewModel.isBrightnessSliderVisible && !brightnessInGrid
 
-    private val brightnessInGrid by
+    val brightnessInGrid by
         hydrator.hydratedStateOf(
             traceName = "brightnessInGrid",
             initialValue = false,
             source = mediaCardInteractor.brightnessTileShown,
+        )
+
+    val volumeInGrid by
+        hydrator.hydratedStateOf(
+            traceName = "volumeInGrid",
+            initialValue = false,
+            source = mediaCardInteractor.volumeTileShown,
         )
 
     // The initial values in these two are not meaningful. The flow will emit on start the correct
