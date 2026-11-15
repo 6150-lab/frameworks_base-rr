@@ -92,6 +92,13 @@ fun QsTweaks.cellsOf(
     if (spec == QsVolumeSize.BRIGHTNESS_SPEC) {
         return levelCells(shape, columns, brightnessSize ?: QsVolumeSize.TALL, null)
     }
+    if (spec == QsVolumeSize.SOUND_SPEC) {
+        return when (soundSize) {
+            QsVolumeSize.SMALL -> TileCells(1, 1)
+            QsVolumeSize.WIDE -> TileCells(columns, 1)
+            else -> TileCells(2.coerceAtMost(columns), 1)
+        }
+    }
     val long = TileCells(largeSpan.coerceAtMost(columns), 1)
     val own = tiles[spec]
     val auto =

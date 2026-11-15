@@ -401,7 +401,7 @@ internal fun rememberBrightnessTile(tweaks: QsTweaks): VolumeTileState? {
 }
 
 @Composable
-private fun volumeSliderColors(): SliderColors =
+internal fun volumeSliderColors(): SliderColors =
     (qsStyleSliderColors(qsSliderStyle()) ?: SliderDefaults.colors())
         .glassy(LocalQsGlass.current, LocalQsGlassTune.current)
 

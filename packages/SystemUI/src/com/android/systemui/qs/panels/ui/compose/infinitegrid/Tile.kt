@@ -123,6 +123,7 @@ import com.android.systemui.qs.panels.ui.viewmodel.toUiState
 import com.android.systemui.qs.pipeline.shared.TileSpec
 import com.android.systemui.qs.tileimpl.QSTileImpl
 import com.android.systemui.qs.tiles.RrBrightnessTile
+import com.android.systemui.qs.tiles.RrSoundTile
 import com.android.systemui.qs.tiles.RrVolumeTile
 import com.android.systemui.qs.ui.composable.QuickSettingsShade
 import com.android.systemui.qs.ui.compose.borderOnFocus
@@ -201,7 +202,11 @@ fun ContentScope.Tile(
                 RrBrightnessTile.TILE_SPEC -> rememberBrightnessTile(tweaks)
                 else -> null
             }
-        val paintState = if (volume != null) uiState.copy(visualState = STATE_INACTIVE) else uiState
+        val sound =
+            if (tile.spec.spec == RrSoundTile.TILE_SPEC && !iconOnly) rememberSoundMode() else null
+        val paintState =
+            if (volume != null || sound != null) uiState.copy(visualState = STATE_INACTIVE)
+            else uiState
         val shape = tileShapeStyle()
         val paint = tilePaintStyle()
         val glass = LocalQsGlass.current
@@ -474,6 +479,8 @@ fun ContentScope.Tile(
                             .takeIf { isDualTarget && !tapToggles }
                     if (volume != null) {
                         VolumeTileContent(volume, colors, look, paint, iconOnly, rows, longClick)
+                    } else if (sound != null) {
+                        SoundModeContent(sound, colors)
                     } else when (layout) {
                         TileLayout.Under ->
                             when {

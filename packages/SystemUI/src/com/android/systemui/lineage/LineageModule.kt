@@ -30,6 +30,7 @@ import com.android.systemui.qs.tiles.ReadingModeTile
 import com.android.systemui.qs.tiles.LookTile
 import com.android.systemui.qs.tiles.RrMediaTile
 import com.android.systemui.qs.tiles.RrBrightnessTile
+import com.android.systemui.qs.tiles.RrSoundTile
 import com.android.systemui.qs.tiles.RrVolumeTile
 import com.android.systemui.qs.tiles.SyncTile
 import com.android.systemui.qs.tiles.UsbTetherTile
@@ -87,6 +88,12 @@ interface LineageModule {
     @IntoMap
     @StringKey(RrBrightnessTile.TILE_SPEC)
     fun bindRrBrightnessTile(rrBrightnessTile: RrBrightnessTile): QSTileImpl<*>
+
+    /** Inject RrSoundTile into tileMap in QSModule */
+    @Binds
+    @IntoMap
+    @StringKey(RrSoundTile.TILE_SPEC)
+    fun bindRrSoundTile(rrSoundTile: RrSoundTile): QSTileImpl<*>
 
     /** Inject HeadsUpTile into tileMap in QSModule */
     @Binds
@@ -305,6 +312,21 @@ interface LineageModule {
                     ),
                 instanceId = uiEventLogger.getNewInstanceId(),
                 category = TileCategory.DISPLAY,
+            )
+
+        @Provides
+        @IntoMap
+        @StringKey(RrSoundTile.TILE_SPEC)
+        fun provideRrSoundTileConfig(uiEventLogger: QsEventLogger): QSTileConfig =
+            QSTileConfig(
+                tileSpec = TileSpec.create(RrSoundTile.TILE_SPEC),
+                uiConfig =
+                    QSTileUIConfig.Resource(
+                        iconRes = R.drawable.ic_volume_ringer,
+                        labelRes = R.string.qs_sound_tile_label
+                    ),
+                instanceId = uiEventLogger.getNewInstanceId(),
+                category = TileCategory.UTILITIES,
             )
 
         @Provides
