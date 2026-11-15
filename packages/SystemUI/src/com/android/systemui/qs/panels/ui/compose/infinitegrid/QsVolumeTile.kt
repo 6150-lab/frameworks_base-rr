@@ -421,6 +421,7 @@ internal fun rememberVolumeTile(tweaks: QsTweaks): VolumeTileState {
             IntentFilter().apply {
                 addAction(AudioManager.VOLUME_CHANGED_ACTION)
                 addAction(AudioManager.STREAM_MUTE_CHANGED_ACTION)
+                addAction(AudioManager.STREAM_DEVICES_CHANGED_ACTION)
             }
         context.registerReceiver(receiver, filter, Context.RECEIVER_NOT_EXPORTED)
         onDispose { context.unregisterReceiver(receiver) }
