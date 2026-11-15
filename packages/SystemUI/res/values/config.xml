@@ -85,7 +85,7 @@
 
     <!-- The default tiles to display in QuickSettings after the internet tile split-->
     <string name="quick_settings_tiles_default_split" translatable="false">
-        wifi,bt,cell,cast,rrmedia,rrbrightness,rrvolume,rrsound,dnd,wallet,airplane,rotation,flashlight,battery,alarm,controls,screenrecord
+        rrmedia,rrbrightness,rrvolume,rrsound,wifi,bt,cell,cast,dnd,wallet,airplane,rotation,flashlight,battery,alarm,controls,screenrecord
     </string>
 
     <!-- The default large tiles in Quick Settings after the internet tile split -->
