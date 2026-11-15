@@ -49,6 +49,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
@@ -59,10 +60,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -86,6 +93,9 @@ import com.android.systemui.brightness.ui.viewmodel.Drag
 import com.android.systemui.qs.panels.shared.model.LocalQsGlass
 import com.android.systemui.qs.panels.shared.model.LocalQsGlassTune
 import com.android.systemui.qs.panels.shared.model.LocalQsTweaks
+import com.android.systemui.qs.panels.shared.model.QsGlass
+import com.android.systemui.qs.panels.shared.model.QsSliderPercent
+import com.android.systemui.qs.panels.shared.model.levelLookFor
 import com.android.systemui.qs.panels.shared.model.QsStyle
 import com.android.systemui.qs.panels.shared.model.QsTweaks
 import com.android.systemui.qs.panels.shared.model.QsVolumeLook
@@ -106,6 +116,8 @@ import kotlinx.coroutines.launch
 
 private val StackSounds = listOf(QsVolumeSound.MEDIA, QsVolumeSound.RING, QsVolumeSound.ALARM)
 private const val FILL_ALPHA = 0.3f
+private const val SOLID_ALPHA = 0.8f
+private const val SHEEN_ALPHA = 0.32f
 private const val EDGE_ALPHA = 0.9f
 
 private val QsVolumeSound.stream: Int
@@ -154,7 +166,7 @@ internal abstract class LevelChannel {
     var level by mutableIntStateOf(0)
         protected set
 
-    var dragging = false
+    var dragging by mutableStateOf(false)
     val fraction: Float
         get() = (level - min).coerceAtLeast(0).toFloat() / (max - min).coerceAtLeast(1)
 
@@ -333,6 +345,7 @@ internal class VolumeTileState(
     private val tap: QsVolumeTap,
     val look: QsVolumeLook,
     val show: QsVolumeShow,
+    val percent: QsSliderPercent,
 ) {
     val main = channels.first()
 
@@ -350,12 +363,17 @@ internal fun rememberVolumeTile(tweaks: QsTweaks): VolumeTileState {
         else listOf(tweaks.volumeSound ?: QsVolumeSound.MEDIA)
     val ticks = tweaks.volumeTicks != false
     val tap = tweaks.volumeTap ?: QsVolumeTap.MUTE
-    val look = tweaks.volumeLook ?: QsVolumeLook.SLIDER
+    val look = levelLookFor(tweaks.volumeLook, qsSliderStyle(), LocalQsGlass.current == QsGlass.LIQUID)
     val show = tweaks.volumeShow ?: QsVolumeShow.ALL
-    val state =
-        remember(context, view, sounds, ticks, tap, look, show) {
+    val percent = tweaks.sliderPercent ?: QsSliderPercent.ALWAYS
+    val channels =
+        remember(context, view, sounds, ticks) {
             val audio = context.getSystemService(AudioManager::class.java)
-            VolumeTileState(sounds.map { VolumeChannel(audio, view, ticks, it) }, tap, look, show)
+            sounds.map { VolumeChannel(audio, view, ticks, it) }
+        }
+    val state =
+        remember(channels, tap, look, show, percent) {
+            VolumeTileState(channels, tap, look, show, percent)
         }
     DisposableEffect(context, state) {
         val receiver =
@@ -381,7 +399,13 @@ internal fun rememberBrightnessTile(tweaks: QsTweaks): VolumeTileState? {
     val view = LocalView.current
     val scope = rememberCoroutineScope()
     val ticks = tweaks.volumeTicks != false
-    val look = tweaks.brightnessLook?.takeIf { it != QsVolumeLook.STACK } ?: QsVolumeLook.SLIDER
+    val look =
+        levelLookFor(
+            tweaks.brightnessLook?.takeIf { it != QsVolumeLook.STACK },
+            qsSliderStyle(),
+            LocalQsGlass.current == QsGlass.LIQUID,
+        )
+    val percent = tweaks.sliderPercent ?: QsSliderPercent.ALWAYS
     val restriction by
         viewModel.policyRestriction.collectAsStateWithLifecycle(
             initialValue = PolicyRestriction.NoRestriction
@@ -395,8 +419,8 @@ internal fun rememberBrightnessTile(tweaks: QsTweaks): VolumeTileState? {
     LaunchedEffect(channel) {
         snapshotFlow { viewModel.currentBrightness.value }.collect { channel.sync() }
     }
-    return remember(channel, look) {
-        VolumeTileState(listOf(channel), QsVolumeTap.MUTE, look, QsVolumeShow.ALL)
+    return remember(channel, look, percent) {
+        VolumeTileState(listOf(channel), QsVolumeTap.MUTE, look, QsVolumeShow.ALL, percent)
     }
 }
 
@@ -461,30 +485,64 @@ internal fun volumeLevelModifier(
     val view = LocalView.current
     val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val vertical = iconOnly && rows >= 2
-    val solid = vertical && look != QsVolumeLook.FILL
-    val paints = iconOnly || look == QsVolumeLook.FILL
+    val filled = look == QsVolumeLook.FILL || look == QsVolumeLook.LIQUID
+    val paints = filled || (iconOnly && !vertical)
     val fraction by animateFloatAsState(channel.fraction, label = "QSTileVolumeLevel")
     val fill = volumeSliderColors().activeTrackColor
+    val solid = filled && fill.alpha >= SOLID_ALPHA
+    val liquid = look == QsVolumeLook.LIQUID
     val drawn =
         if (!paints) {
             Modifier
         } else {
             Modifier.drawBehind {
                 val edge = 2.dp.toPx()
-                val tint = if (solid) fill else fill.copy(alpha = FILL_ALPHA)
+                val tint = if (filled) fill else fill.copy(alpha = FILL_ALPHA)
                 val edgeTint = fill.copy(alpha = EDGE_ALPHA)
+                val deep = lerp(tint, Color.Black, .22f)
+                val lit = lerp(tint, Color.White, .24f)
                 if (vertical) {
                     val height = size.height * fraction
                     val top = size.height - height
-                    drawRect(tint, Offset(0f, top), Size(size.width, height))
+                    if (liquid) {
+                        drawRect(
+                            Brush.verticalGradient(listOf(lit, tint, deep), top, size.height),
+                            Offset(0f, top),
+                            Size(size.width, height),
+                        )
+                        drawRect(
+                            Color.White.copy(alpha = SHEEN_ALPHA),
+                            Offset(size.width * .16f, 14.dp.toPx()),
+                            Size(3.dp.toPx(), (size.height - 28.dp.toPx()).coerceAtLeast(0f)),
+                        )
+                    } else {
+                        drawRect(tint, Offset(0f, top), Size(size.width, height))
+                    }
                     if (!solid && fraction > 0f) {
                         drawRect(edgeTint, Offset(0f, top), Size(size.width, edge))
                     }
                 } else {
                     val width = size.width * fraction
                     val left = if (rtl) size.width - width else 0f
-                    drawRect(tint, Offset(left, 0f), Size(width, size.height))
-                    if (fraction > 0f) {
+                    if (liquid) {
+                        drawRect(
+                            Brush.horizontalGradient(
+                                if (rtl) listOf(lit, tint, deep) else listOf(deep, tint, lit),
+                                left,
+                                left + width,
+                            ),
+                            Offset(left, 0f),
+                            Size(width, size.height),
+                        )
+                        drawRect(
+                            Color.White.copy(alpha = SHEEN_ALPHA),
+                            Offset(16.dp.toPx(), size.height * .17f),
+                            Size((size.width - 32.dp.toPx()).coerceAtLeast(0f), 2.dp.toPx()),
+                        )
+                    } else {
+                        drawRect(tint, Offset(left, 0f), Size(width, size.height))
+                    }
+                    if (!solid && fraction > 0f) {
                         val x = if (rtl) left else left + width - edge
                         drawRect(edgeTint, Offset(x, 0f), Size(edge, size.height))
                     }
@@ -525,16 +583,63 @@ internal fun BoxScope.VolumeTileContent(
     val show = state.show
     val sliderColors = volumeSliderColors()
     val longClick by rememberUpdatedState(onLongClick)
-    val parts = VolumeParts(colors, look, sliderColors, paint, show, { longClick?.invoke() })
-    when {
-        volumeLook == QsVolumeLook.STACK && rows >= 2 -> StackContent(state, parts)
-        iconOnly && rows >= 2 -> TallContent(state.main, parts, volumeLook)
-        iconOnly ->
-            ChannelIcon(state.main, parts, chip = false, Modifier.align(Alignment.Center))
-        rows >= 2 -> SquareContent(state.main, parts, volumeLook)
-        else -> RowContent(state.main, parts, volumeLook)
+    val parts =
+        VolumeParts(colors, look, sliderColors, paint, show, state.percent, { longClick?.invoke() })
+    val stack = volumeLook == QsVolumeLook.STACK && rows >= 2
+    val vertical = iconOnly && rows >= 2
+    val fill = sliderColors.activeTrackColor
+    val recolor =
+        !stack &&
+            (volumeLook == QsVolumeLook.FILL || volumeLook == QsVolumeLook.LIQUID) &&
+            fill.alpha >= SOLID_ALPHA
+    val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+    val fraction by animateFloatAsState(state.main.fraction, label = "QSTileVolumeInk")
+    Box(
+        Modifier.fillMaxSize()
+            .then(
+                if (recolor) Modifier.inkOverFill(fill.copy(alpha = 1f).inkOn(), { fraction }, vertical, rtl)
+                else Modifier
+            )
+    ) {
+        when {
+            stack -> StackContent(state, parts)
+            vertical -> TallContent(state.main, parts, volumeLook)
+            iconOnly ->
+                ChannelIcon(state.main, parts, chip = false, Modifier.align(Alignment.Center))
+            rows >= 2 -> SquareContent(state.main, parts, volumeLook)
+            else -> RowContent(state.main, parts, volumeLook)
+        }
     }
 }
+
+private fun Modifier.inkOverFill(
+    ink: Color,
+    fraction: () -> Float,
+    vertical: Boolean,
+    rtl: Boolean,
+): Modifier =
+    graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
+        .drawWithContent {
+            drawContent()
+            val level = fraction().coerceIn(0f, 1f)
+            if (vertical) {
+                val height = size.height * level
+                drawRect(
+                    ink,
+                    Offset(0f, size.height - height),
+                    Size(size.width, height),
+                    blendMode = BlendMode.SrcIn,
+                )
+            } else {
+                val width = size.width * level
+                drawRect(
+                    ink,
+                    Offset(if (rtl) size.width - width else 0f, 0f),
+                    Size(width, size.height),
+                    blendMode = BlendMode.SrcIn,
+                )
+            }
+        }
 
 private class VolumeParts(
     val colors: TileColors,
@@ -542,8 +647,16 @@ private class VolumeParts(
     val slider: SliderColors,
     val paint: QsStyle,
     val show: QsVolumeShow,
+    val percent: QsSliderPercent,
     val onLongClick: () -> Unit,
 ) {
+    fun showsPercent(channel: LevelChannel): Boolean =
+        when (percent) {
+            QsSliderPercent.ALWAYS -> true
+            QsSliderPercent.DRAG -> channel.dragging
+            QsSliderPercent.OFF -> false
+        }
+
     val labelStyle: TextStyle?
         get() = look.labelStyle
 
@@ -627,12 +740,14 @@ private fun ChannelTexts(channel: LevelChannel, parts: VolumeParts, showName: Bo
                 maxLines = 1,
             )
         }
-        Text(
-            text = channelPercent(channel, caps),
-            style = parts.secondaryStyle ?: MaterialTheme.typography.labelMedium,
-            color = parts.colors.secondaryLabel,
-            maxLines = 1,
-        )
+        if (parts.showsPercent(channel)) {
+            Text(
+                text = channelPercent(channel, caps),
+                style = parts.secondaryStyle ?: MaterialTheme.typography.labelMedium,
+                color = parts.colors.secondaryLabel,
+                maxLines = 1,
+            )
+        }
     }
 }
 
@@ -738,7 +853,7 @@ private fun RowContent(channel: LevelChannel, parts: VolumeParts, look: QsVolume
         )
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val roomy = maxWidth >= 240.dp
-        val fill = look == QsVolumeLook.FILL
+        val fill = look == QsVolumeLook.FILL || look == QsVolumeLook.LIQUID
         val showName = parts.show == QsVolumeShow.ALL && (fill || roomy)
         val showTexts = showName || (parts.show == QsVolumeShow.PERCENT && fill)
         Row(
@@ -746,7 +861,7 @@ private fun RowContent(channel: LevelChannel, parts: VolumeParts, look: QsVolume
             horizontalArrangement = Arrangement.spacedBy(10.dp),
             modifier = Modifier.fillMaxSize().padding(start = 10.dp, end = 12.dp),
         ) {
-            ChannelIcon(channel, parts, chip = true)
+            ChannelIcon(channel, parts, chip = !fill)
             if (showTexts) ChannelTexts(channel, parts, showName)
             when (look) {
                 QsVolumeLook.BLOCKS ->
@@ -759,7 +874,8 @@ private fun RowContent(channel: LevelChannel, parts: VolumeParts, look: QsVolume
                             .fillMaxHeight()
                             .trackTap(channel, rtl, parts.onLongClick),
                     )
-                QsVolumeLook.FILL -> Box(Modifier.weight(1f))
+                QsVolumeLook.FILL,
+                QsVolumeLook.LIQUID -> Box(Modifier.weight(1f))
                 else ->
                     VolumeTrack(
                         channel,
@@ -770,7 +886,12 @@ private fun RowContent(channel: LevelChannel, parts: VolumeParts, look: QsVolume
                             .trackTap(channel, rtl, parts.onLongClick),
                     )
             }
-            if (!fill && !showTexts && parts.show != QsVolumeShow.ICON) {
+            if (
+                !fill &&
+                    !showTexts &&
+                    parts.show != QsVolumeShow.ICON &&
+                    parts.showsPercent(channel)
+            ) {
                 EndPercent(channel, parts)
             }
         }
@@ -790,7 +911,11 @@ private fun SquareContent(channel: LevelChannel, parts: VolumeParts, look: QsVol
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            ChannelIcon(channel, parts, chip = true)
+            ChannelIcon(
+                channel,
+                parts,
+                chip = look != QsVolumeLook.FILL && look != QsVolumeLook.LIQUID,
+            )
             if (parts.show != QsVolumeShow.ICON) {
                 ChannelTexts(channel, parts, parts.show == QsVolumeShow.ALL)
             }
@@ -806,7 +931,8 @@ private fun SquareContent(channel: LevelChannel, parts: VolumeParts, look: QsVol
                         .height(32.dp)
                         .trackTap(channel, rtl, parts.onLongClick),
                 )
-            QsVolumeLook.FILL -> Box(Modifier)
+            QsVolumeLook.FILL,
+            QsVolumeLook.LIQUID -> Box(Modifier)
             else ->
                 VolumeTrack(
                     channel,
@@ -826,14 +952,11 @@ private fun BoxScope.TallContent(
     parts: VolumeParts,
     look: QsVolumeLook,
 ) {
-    val solid = look != QsVolumeLook.FILL
-    val fill = parts.slider.activeTrackColor
-    val ink = fill.copy(alpha = 1f).inkOn()
-    if (parts.show != QsVolumeShow.ICON) {
+    if (parts.show != QsVolumeShow.ICON && parts.showsPercent(channel)) {
         Text(
             text = channelPercent(channel, parts.look.caps),
             style = parts.secondaryStyle ?: MaterialTheme.typography.labelMedium,
-            color = if (solid && channel.fraction > .86f) ink else parts.colors.secondaryLabel,
+            color = parts.colors.secondaryLabel,
             maxLines = 1,
             softWrap = false,
             modifier = Modifier.align(Alignment.TopCenter).padding(top = 10.dp),
@@ -843,12 +966,95 @@ private fun BoxScope.TallContent(
         painter =
             painterResource(if (channel.silent) channel.mutedIcon else channel.icon),
         contentDescription = null,
-        tint = if (solid && channel.fraction > .14f) ink else parts.colors.icon,
+        tint = parts.colors.icon,
         modifier =
             Modifier.align(Alignment.BottomCenter)
                 .padding(bottom = 10.dp)
                 .size(parts.look.largeIconSize),
     )
+    val lane =
+        Modifier.align(Alignment.Center)
+            .fillMaxWidth()
+            .padding(top = 34.dp, bottom = 44.dp)
+            .fillMaxHeight()
+    when (look) {
+        QsVolumeLook.SLIDER -> {
+            val dimensions = qsStyleSliderDimensions(qsSliderStyle(), BrightnessSliderDimensions.Default)
+            UprightTrack(channel, parts.slider, dimensions, lane)
+        }
+        QsVolumeLook.BLOCKS -> UprightBlocks(channel, parts.slider, blockRadius(parts), lane)
+        else -> {}
+    }
+}
+
+@Composable
+private fun UprightTrack(
+    channel: LevelChannel,
+    colors: SliderColors,
+    dimensions: BrightnessSliderDimensions,
+    modifier: Modifier = Modifier,
+) {
+    val fraction by animateFloatAsState(channel.fraction, label = "QSTileVolumeUpright")
+    Canvas(modifier) {
+        val thickness = min(dimensions.trackHeight.toPx(), size.width - 16.dp.toPx())
+        val across = min(dimensions.thumbHeight.toPx(), size.width - 8.dp.toPx())
+        val along = dimensions.thumbWidth.toPx()
+        val round = dimensions.thumbWidth == dimensions.thumbHeight
+        val radius = CornerRadius(min(14.dp.toPx(), thickness / 2))
+        val gap = if (dimensions.thumbWidth <= 6.dp) 3.dp.toPx() else 0f
+        val reach = size.height - (if (round) across else along)
+        val center = (if (round) across else along) / 2 + reach * (1f - fraction)
+        val left = (size.width - thickness) / 2
+        val half = (if (round) across else along) / 2
+        val activeTop = if (gap > 0f) center + half + gap else center
+        val inactiveEnd = if (gap > 0f) center - half - gap else center
+        if (inactiveEnd > 0f) {
+            drawRoundRect(colors.inactiveTrackColor, Offset(left, 0f), Size(thickness, inactiveEnd), radius)
+        }
+        if (activeTop < size.height) {
+            drawRoundRect(
+                colors.activeTrackColor,
+                Offset(left, activeTop),
+                Size(thickness, size.height - activeTop),
+                radius,
+            )
+        }
+        if (round) {
+            drawCircle(colors.thumbColor, across / 2, Offset(size.width / 2, center))
+        } else {
+            drawRoundRect(
+                colors.thumbColor,
+                Offset((size.width - across) / 2, center - along / 2),
+                Size(across, along),
+                CornerRadius(along / 2),
+            )
+        }
+    }
+}
+
+@Composable
+private fun UprightBlocks(
+    channel: LevelChannel,
+    colors: SliderColors,
+    radius: Dp,
+    modifier: Modifier = Modifier,
+) {
+    val count = (channel.max - channel.min).coerceIn(8, 16)
+    val lit = (channel.fraction * count).roundToInt()
+    Canvas(modifier) {
+        val gap = 3.dp.toPx()
+        val width = min(size.width - 24.dp.toPx(), 40.dp.toPx())
+        val height = (size.height - gap * (count - 1)) / count
+        val left = (size.width - width) / 2
+        repeat(count) { index ->
+            drawRoundRect(
+                if (index < lit) colors.activeTrackColor else colors.inactiveTrackColor,
+                Offset(left, size.height - (index + 1) * height - index * gap),
+                Size(width, height),
+                CornerRadius(min(radius.toPx(), height / 2)),
+            )
+        }
+    }
 }
 
 @Composable

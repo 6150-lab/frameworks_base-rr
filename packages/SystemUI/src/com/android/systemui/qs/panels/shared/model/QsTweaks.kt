@@ -107,7 +107,23 @@ enum class QsVolumeLook {
     FILL,
     BLOCKS,
     STACK,
+    LIQUID,
 }
+
+enum class QsSliderPercent {
+    ALWAYS,
+    DRAG,
+    OFF,
+}
+
+fun levelLookFor(own: QsVolumeLook?, theme: QsStyle, liquidGlass: Boolean): QsVolumeLook =
+    own
+        ?: when {
+            liquidGlass -> QsVolumeLook.LIQUID
+            theme == QsStyle.CLASSIC || theme == QsStyle.SOFT -> QsVolumeLook.SLIDER
+            theme == QsStyle.BLUEPRINT -> QsVolumeLook.BLOCKS
+            else -> QsVolumeLook.FILL
+        }
 
 enum class QsVolumeSound {
     MEDIA,
@@ -179,6 +195,7 @@ data class QsTweaks(
     val brightnessSize: QsVolumeSize? = null,
     val brightnessLook: QsVolumeLook? = null,
     val soundSize: QsVolumeSize? = null,
+    val sliderPercent: QsSliderPercent? = null,
     val sliderPlace: QsSliderPlace? = null,
     val slidersByMedia: Boolean? = null,
     val tiles: Map<String, QsTileTweak> = emptyMap(),
@@ -310,6 +327,7 @@ object QsTweaksCodec {
             putOpt("brightnessSize", brightnessSize?.name)
             putOpt("brightnessLook", brightnessLook?.name)
             putOpt("soundSize", soundSize?.name)
+            putOpt("sliderPercent", sliderPercent?.name)
             putOpt("sliderPlace", sliderPlace?.name)
             putOpt("slidersByMedia", slidersByMedia)
             if (tiles.isNotEmpty()) {
@@ -357,6 +375,7 @@ object QsTweaksCodec {
             brightnessSize = enumOrNull<QsVolumeSize>("brightnessSize"),
             brightnessLook = enumOrNull<QsVolumeLook>("brightnessLook"),
             soundSize = enumOrNull<QsVolumeSize>("soundSize"),
+            sliderPercent = enumOrNull<QsSliderPercent>("sliderPercent"),
             sliderPlace = enumOrNull<QsSliderPlace>("sliderPlace"),
             slidersByMedia = if (has("slidersByMedia")) optBoolean("slidersByMedia") else null,
             tiles = optJSONObject("tiles")?.toTiles() ?: emptyMap(),
