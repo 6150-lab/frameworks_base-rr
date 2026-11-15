@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -40,6 +41,7 @@ import com.android.systemui.qs.panels.shared.model.LocalQsTweaks
 import com.android.systemui.qs.panels.shared.model.QsMediaTileSize
 import com.android.systemui.qs.panels.shared.model.SizedTileImpl
 import com.android.systemui.qs.panels.shared.model.isBeside
+import com.android.systemui.qs.panels.ui.compose.infinitegrid.LocalQsCollapsed
 import com.android.systemui.qs.panels.ui.compose.infinitegrid.PerTileLook
 import com.android.systemui.qs.panels.ui.compose.infinitegrid.Tile
 import com.android.systemui.qs.panels.ui.compose.infinitegrid.TilePlacementGrid
@@ -109,29 +111,31 @@ fun ContentScope.QuickQuickSettings(
                         squishiness = { squishiness },
                     )
                 } else {
-                    PerTileLook(placed.tile.spec) {
-                        Tile(
-                            tile = placed.tile,
-                            iconOnly = place.columns == 1,
-                            squishiness = { squishiness },
-                            coroutineScope = scope,
-                            bounceableInfo =
-                                bounceables.bounceableInfo(
-                                    SizedTileImpl(placed.tile, place.columns),
-                                    index = index,
-                                    column = place.column,
-                                    columns = columns,
-                                    isFirstInRow = !placements.isBeside(index, index - 1),
-                                    isLastInRow = !placements.isBeside(index, index + 1),
-                                ),
-                            tileHapticsViewModelFactory = viewModel.tileHapticsViewModelFactory,
-                            // There should be no QuickQuickSettings when the details view is
-                            // enabled.
-                            detailsViewModel = null,
-                            isVisible = listening,
-                            rows = place.rows,
-                            height = height,
-                        )
+                    CompositionLocalProvider(LocalQsCollapsed provides true) {
+                        PerTileLook(placed.tile.spec) {
+                            Tile(
+                                tile = placed.tile,
+                                iconOnly = place.columns == 1,
+                                squishiness = { squishiness },
+                                coroutineScope = scope,
+                                bounceableInfo =
+                                    bounceables.bounceableInfo(
+                                        SizedTileImpl(placed.tile, place.columns),
+                                        index = index,
+                                        column = place.column,
+                                        columns = columns,
+                                        isFirstInRow = !placements.isBeside(index, index - 1),
+                                        isLastInRow = !placements.isBeside(index, index + 1),
+                                    ),
+                                tileHapticsViewModelFactory = viewModel.tileHapticsViewModelFactory,
+                                // There should be no QuickQuickSettings when the details view is
+                                // enabled.
+                                detailsViewModel = null,
+                                isVisible = listening,
+                                rows = place.rows,
+                                height = height,
+                            )
+                        }
                     }
                 }
             }

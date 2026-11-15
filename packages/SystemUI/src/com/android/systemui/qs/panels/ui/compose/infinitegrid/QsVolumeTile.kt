@@ -347,6 +347,8 @@ internal class BrightnessChannel(
 
 val LocalQsBrightness = staticCompositionLocalOf<BrightnessSliderViewModel?> { null }
 
+val LocalQsCollapsed = staticCompositionLocalOf { false }
+
 @Stable
 internal class VolumeTileState(
     val channels: List<LevelChannel>,
@@ -552,6 +554,7 @@ internal fun volumeLevelModifier(
     if (look == QsVolumeLook.STACK && rows >= 2) return Modifier
     val channel = state.main
     val view = LocalView.current
+    val collapsed = LocalQsCollapsed.current
     val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val filled = look == QsVolumeLook.FILL || look == QsVolumeLook.LIQUID
     val paints = filled || (iconOnly && !vertical)
@@ -638,8 +641,11 @@ internal fun volumeLevelModifier(
         }
         .then(drawn)
         .then(
-            if (vertical) Modifier.verticalLevelDrag(channel, view)
-            else Modifier.horizontalLevelDrag(channel, rtl)
+            when {
+                !vertical -> Modifier.horizontalLevelDrag(channel, rtl)
+                collapsed -> Modifier
+                else -> Modifier.verticalLevelDrag(channel, view)
+            }
         )
 }
 
