@@ -75,6 +75,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -127,6 +128,9 @@ private val LINE_TRACK = 20.dp
 private const val SHEEN_ALPHA = 0.2f
 private val BLOCK = 6.dp
 private val BLOCK_GAP = 3.dp
+private val ICON_ZONE = 56.dp
+private const val TAP_ICON = -1f
+private const val TAP_NONE = -2f
 
 private val QsVolumeSound.stream: Int
     get() =
@@ -359,6 +363,7 @@ internal class VolumeTileState(
     private val picked: Boolean,
 ) {
     val main = channels.first()
+    var tapSpot = TAP_ICON
 
     fun lookFor(upright: Boolean): QsVolumeLook =
         if (upright && !picked && (look == QsVolumeLook.SLIDER || look == QsVolumeLook.BLOCKS)) {
@@ -369,6 +374,15 @@ internal class VolumeTileState(
 
     fun onIcon(channel: LevelChannel = main) {
         if (tap == QsVolumeTap.PANEL) channel.showPanel() else channel.toggleMute()
+    }
+
+    fun onTap() {
+        val spot = tapSpot
+        tapSpot = TAP_ICON
+        when {
+            spot == TAP_ICON -> onIcon()
+            spot >= 0f -> main.setFraction(spot)
+        }
     }
 }
 
@@ -542,6 +556,25 @@ private fun Modifier.verticalLevelDrag(channel: LevelChannel, view: View): Modif
             }
         }
 
+private fun Modifier.tapSpot(
+    state: VolumeTileState,
+    vertical: Boolean,
+    slides: Boolean,
+    rtl: Boolean,
+): Modifier =
+    pointerInput(state, vertical, slides, rtl) {
+        awaitEachGesture {
+            val down = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
+            val x = if (rtl) size.width - down.position.x else down.position.x
+            state.tapSpot =
+                when {
+                    vertical -> if (down.position.y > size.height * .7f) TAP_ICON else TAP_NONE
+                    slides && x > ICON_ZONE.toPx() -> x / size.width
+                    else -> TAP_ICON
+                }
+        }
+    }
+
 @Composable
 internal fun volumeLevelModifier(
     state: VolumeTileState,
@@ -640,6 +673,7 @@ internal fun volumeLevelModifier(
             }
         }
         .then(drawn)
+        .tapSpot(state, vertical, filled && !iconOnly, rtl)
         .then(
             when {
                 !vertical -> Modifier.horizontalLevelDrag(channel, rtl)

@@ -402,7 +402,7 @@ fun ContentScope.Tile(
                     interactionSource = pressSource.takeIf { volume == null },
                     onClick = onClick@{
                             if (volume != null) {
-                                volume.onIcon()
+                                volume.onTap()
                                 hapticsViewModel.setTileInteractionState(
                                     TileHapticsViewModel.TileInteractionState.CLICKED
                                 )
