@@ -14,7 +14,7 @@ import android.view.HapticFeedbackConstants
 import android.view.View
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -49,6 +49,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -57,6 +58,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -120,6 +122,7 @@ import java.text.NumberFormat
 import kotlin.math.min
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 private val StackSounds = listOf(QsVolumeSound.MEDIA, QsVolumeSound.RING, QsVolumeSound.ALARM)
@@ -458,6 +461,15 @@ internal fun rememberBrightnessTile(tweaks: QsTweaks): VolumeTileState? {
 }
 
 @Composable
+private fun rememberLevelFraction(channel: LevelChannel): State<Float> {
+    val level = remember(channel) { Animatable(Snapshot.withoutReadObservation { channel.fraction }) }
+    LaunchedEffect(channel) {
+        snapshotFlow { channel.fraction }.collectLatest { level.animateTo(it) }
+    }
+    return level.asState()
+}
+
+@Composable
 internal fun volumeSliderColors(): SliderColors {
     val tone = LocalQsTweaks.current.accent?.let { Color(it) }
     val colors =
@@ -591,7 +603,7 @@ internal fun volumeLevelModifier(
     val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val filled = look == QsVolumeLook.FILL || look == QsVolumeLook.LIQUID
     val paints = filled || (iconOnly && !vertical)
-    val fraction by animateFloatAsState(channel.fraction, label = "QSTileVolumeLevel")
+    val fraction by rememberLevelFraction(channel)
     val paint = levelPaint(look)
     val liquid = look == QsVolumeLook.LIQUID
     val drawn =
@@ -706,7 +718,7 @@ internal fun BoxScope.VolumeTileContent(
         !stack && (volumeLook == QsVolumeLook.FILL || volumeLook == QsVolumeLook.LIQUID)
     val ink = levelPaint(volumeLook).ink
     val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
-    val fraction by animateFloatAsState(state.main.fraction, label = "QSTileVolumeInk")
+    val fraction by rememberLevelFraction(state.main)
     Box(
         Modifier.fillMaxSize()
             .then(
@@ -901,7 +913,7 @@ private fun VolumeTrack(
     modifier: Modifier = Modifier,
 ) {
     val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
-    val fraction by animateFloatAsState(channel.fraction, label = "QSTileVolumeTrack")
+    val fraction by rememberLevelFraction(channel)
     Canvas(modifier) {
         val trackHeight = dimensions.trackHeight.toPx()
         val thumbWidth = dimensions.thumbWidth.toPx()
@@ -1110,7 +1122,7 @@ private fun UprightTrack(
     dimensions: BrightnessSliderDimensions,
     modifier: Modifier = Modifier,
 ) {
-    val fraction by animateFloatAsState(channel.fraction, label = "QSTileVolumeUpright")
+    val fraction by rememberLevelFraction(channel)
     Canvas(modifier) {
         val line = dimensions.trackHeight < LINE_TRACK
         val thickness =
