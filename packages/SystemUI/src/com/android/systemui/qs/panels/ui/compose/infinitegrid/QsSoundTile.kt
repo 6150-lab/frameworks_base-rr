@@ -130,7 +130,7 @@ internal fun BoxScope.SoundModeContent(state: SoundModeState, colors: TileColors
             spring(dampingRatio = Spring.DampingRatioLowBouncy, stiffness = Spring.StiffnessMediumLow),
             label = "QSTileSoundMode",
         )
-    BoxWithConstraints(Modifier.fillMaxSize().padding(5.dp)) {
+    BoxWithConstraints(Modifier.fillMaxSize().padding(3.dp)) {
         val segment = maxWidth / state.modes.size
         val shape = RoundedCornerShape(50)
         Box(
