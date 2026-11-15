@@ -150,7 +150,7 @@ private fun QsTweaks.mediaCells(shape: QsStyle, columns: Int): TileCells {
 
 /**
  * The tweaks after [spec]'s corner was dragged to [columns] by [rows] cells on a grid of
- * [gridColumns]. The player and the volume tile keep their named sizes, so the nearest one is picked.
+ * [gridColumns]. The player and the slider tiles keep their named sizes, so the nearest one is picked.
  */
 fun QsTweaks.resized(
     spec: String,
@@ -173,7 +173,7 @@ fun QsTweaks.resized(
             }
         return copy(mediaSize = size.takeIf { it != QsMediaTileSize.SQUARE })
     }
-    if (spec == QsVolumeSize.TILE_SPEC) {
+    if (spec == QsVolumeSize.TILE_SPEC || spec == QsVolumeSize.BRIGHTNESS_SPEC) {
         val size =
             when {
                 rows == 1 && columns == 1 -> QsVolumeSize.SMALL
@@ -181,8 +181,18 @@ fun QsTweaks.resized(
                 rows == 1 -> QsVolumeSize.HALF
                 columns == 1 -> QsVolumeSize.TALL
                 else -> QsVolumeSize.SQUARE
+            }.takeIf { it != QsVolumeSize.TALL }
+        return if (spec == QsVolumeSize.TILE_SPEC) copy(volumeSize = size)
+        else copy(brightnessSize = size)
+    }
+    if (spec == QsVolumeSize.SOUND_SPEC) {
+        val size =
+            when {
+                columns == 1 -> QsVolumeSize.SMALL
+                columns >= gridColumns -> QsVolumeSize.WIDE
+                else -> null
             }
-        return copy(volumeSize = size.takeIf { it != QsVolumeSize.WIDE })
+        return copy(soundSize = size)
     }
     return withTile(spec) { it.copy(columns = columns, rows = rows.takeIf { r -> r > 1 }) }
 }
