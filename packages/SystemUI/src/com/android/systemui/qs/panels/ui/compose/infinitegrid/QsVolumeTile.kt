@@ -409,9 +409,10 @@ internal fun rememberVolumeTile(tweaks: QsTweaks): VolumeTileState {
             val audio = context.getSystemService(AudioManager::class.java)
             sounds.map { VolumeChannel(audio, view, ticks, it) }
         }
+    val picked = tweaks.volumeLook != null
     val state =
-        remember(channels, tap, look, show, percent) {
-            VolumeTileState(channels, tap, look, show, percent, tweaks.volumeLook != null)
+        remember(channels, tap, look, show, percent, picked) {
+            VolumeTileState(channels, tap, look, show, percent, picked)
         }
     DisposableEffect(context, state) {
         val receiver =
