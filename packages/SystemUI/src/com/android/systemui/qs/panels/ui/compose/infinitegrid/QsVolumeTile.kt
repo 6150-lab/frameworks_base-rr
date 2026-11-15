@@ -298,6 +298,7 @@ internal class BrightnessChannel(
     override val label = R.string.qs_brightness_tile_label
 
     private var step = -1
+    private var warned = false
 
     init {
         sync()
@@ -311,7 +312,8 @@ internal class BrightnessChannel(
     override fun set(next: Int) {
         val block = restricted()
         if (block != null) {
-            viewModel.showPolicyRestrictionDialog(block)
+            if (!warned) viewModel.showPolicyRestrictionDialog(block)
+            warned = dragging
             return
         }
         if (next == level) return
@@ -330,6 +332,7 @@ internal class BrightnessChannel(
     override fun startDrag() {
         super.startDrag()
         step = (fraction * TICKS).toInt()
+        warned = false
     }
 
     override fun endDrag() {
