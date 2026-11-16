@@ -321,6 +321,10 @@ internal class BrightnessChannel(
     override val blocked: Boolean
         get() = restricted() != null
 
+    /** Like the stock bar: while brightness is dragged the shade fades and the tile stays. */
+    val mirrored: Boolean
+        get() = dragging && viewModel.showMirror
+
     init {
         sync()
     }
@@ -354,10 +358,12 @@ internal class BrightnessChannel(
         super.startDrag()
         step = (fraction * TICKS).toInt()
         warned = false
+        if (!blocked) viewModel.setIsDragging(true)
     }
 
     override fun endDrag() {
         dragging = false
+        viewModel.setIsDragging(false)
         step = -1
         val gamma = GammaBrightness(level)
         scope.launch { viewModel.onDrag(Drag.Stopped(gamma)) }
@@ -391,6 +397,10 @@ internal class VolumeTileState(
 ) {
     val main = channels.first()
     var tapSpot = TAP_ICON
+
+    /** The brightness tile while the shade fades around it. */
+    val mirrored: Boolean
+        get() = (main as? BrightnessChannel)?.mirrored == true
 
     fun lookFor(upright: Boolean): QsVolumeLook =
         if (upright && !picked && (look == QsVolumeLook.SLIDER || look == QsVolumeLook.BLOCKS)) {
@@ -480,6 +490,8 @@ internal fun rememberBrightnessTile(tweaks: QsTweaks): VolumeTileState? {
     LaunchedEffect(channel) {
         snapshotFlow { viewModel.currentBrightness.value }.collect { channel.sync() }
     }
+    // A drag cut off by the panel closing must not leave the shade faded.
+    DisposableEffect(channel) { onDispose { if (channel.dragging) channel.endDrag() } }
     val picked = tweaks.brightnessLook.let { it != null && it != QsVolumeLook.STACK }
     return remember(channel, look, percent, picked) {
         VolumeTileState(listOf(channel), QsVolumeTap.MUTE, look, QsVolumeShow.ALL, percent, picked)

@@ -78,6 +78,7 @@ import com.android.compose.animation.rememberExpandableController
 import com.android.compose.animation.scene.ContentScope
 import com.android.compose.modifiers.thenIf
 import com.android.compose.theme.LocalAndroidColorScheme
+import com.android.compose.ui.graphics.drawInOverlay
 import com.android.internal.util.catalyxx.GlassSettings
 import com.android.mechanics.compose.modifier.verticalFadeContentReveal
 import com.android.mechanics.compose.modifier.verticalTactileSurfaceReveal
@@ -85,6 +86,7 @@ import com.android.mechanics.effects.VerticalTactileSurfaceRevealEffect
 import com.android.systemui.Flags
 import com.android.systemui.animation.Expandable
 import com.android.systemui.animation.TransitionAnimator.Companion.dynamicTargetResolutionEnabled
+import com.android.systemui.brightness.ui.compose.ContainerColors
 import com.android.systemui.common.shared.model.Icon
 import com.android.systemui.compose.modifiers.sysuiResTag
 import com.android.systemui.glass.ui.OwnGlass
@@ -285,7 +287,13 @@ fun ContentScope.Tile(
             }
         val levelModifier =
             if (volume != null) volumeLevelModifier(volume, tweaks, iconOnly, rows) else Modifier
-        val animatedColor by animateColorAsState(colors.background, label = "QSTileBackgroundColor")
+        // Dragging brightness pops the tile out over the faded shade, on the stock bar's backing.
+        val mirrored = volume?.mirrored == true
+        val animatedColor by
+            animateColorAsState(
+                if (mirrored) ContainerColors.defaultContainerColor else colors.background,
+                label = "QSTileBackgroundColor",
+            )
         // Catalyxx glass: the tile's rim catches the light, and a finger lights it up
         OwnGlassShown(GlassSettings.PLACE_SHADE, isVisible)
         val glassTouch = rememberOwnGlassTouch()
@@ -358,6 +366,7 @@ fun ContentScope.Tile(
                         .ownGlassRim(GlassSettings.PLACE_SHADE, tileShape, glassTouch),
                 modifier =
                     modifier
+                        .then(if (mirrored) Modifier.drawInOverlay() else Modifier)
                         .then(surfaceRevealModifier)
                         .then(styleModifier)
                         .borderOnFocus(
