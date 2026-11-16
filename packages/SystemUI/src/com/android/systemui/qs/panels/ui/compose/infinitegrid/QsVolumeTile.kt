@@ -51,6 +51,7 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -185,6 +186,14 @@ internal abstract class LevelChannel {
     val fraction: Float
         get() = (level - min).coerceAtLeast(0).toFloat() / (max - min).coerceAtLeast(1)
 
+    /** Where the finger holds the level during a drag, between whole steps. */
+    var dragFraction by mutableFloatStateOf(0f)
+        private set
+
+    /** A policy blocks changes, so a drag must not move the fill. */
+    protected open val blocked: Boolean
+        get() = false
+
     open val silent: Boolean
         get() = level == 0
 
@@ -204,7 +213,14 @@ internal abstract class LevelChannel {
         set(min + (fraction.coerceIn(0f, 1f) * (max - min)).roundToInt())
     }
 
+    /** A drag at [exact] level units: the fill follows it, the level takes the nearest step. */
+    fun drag(exact: Float) {
+        if (!blocked) dragFraction = ((exact - min) / (max - min).coerceAtLeast(1)).coerceIn(0f, 1f)
+        set(exact.roundToInt())
+    }
+
     open fun startDrag() {
+        dragFraction = fraction
         dragging = true
     }
 
@@ -301,6 +317,9 @@ internal class BrightnessChannel(
 
     private var step = -1
     private var warned = false
+
+    override val blocked: Boolean
+        get() = restricted() != null
 
     init {
         sync()
@@ -471,7 +490,9 @@ internal fun rememberBrightnessTile(tweaks: QsTweaks): VolumeTileState? {
 private fun rememberLevelFraction(channel: LevelChannel): State<Float> {
     val level = remember(channel) { Animatable(Snapshot.withoutReadObservation { channel.fraction }) }
     LaunchedEffect(channel) {
-        snapshotFlow { channel.fraction }.collectLatest { level.animateTo(it) }
+        // Under the finger the fill tracks it exactly; changes from elsewhere glide in.
+        snapshotFlow { if (channel.dragging) channel.dragFraction else channel.fraction }
+            .collectLatest { if (channel.dragging) level.snapTo(it) else level.animateTo(it) }
     }
     return level.asState()
 }
@@ -547,7 +568,7 @@ private fun Modifier.horizontalLevelDrag(channel: LevelChannel, rtl: Boolean): M
             val span = maxOf(size.width.toFloat(), 180.dp.toPx())
             val steps = (if (rtl) -dx else dx) / span * (channel.max - channel.min)
             exact = (exact + steps).coerceIn(channel.min.toFloat(), channel.max.toFloat())
-            channel.set(exact.roundToInt())
+            channel.drag(exact)
         }
     }
 
@@ -571,7 +592,7 @@ private fun Modifier.verticalLevelDrag(channel: LevelChannel, view: View): Modif
                 input.consume()
                 val steps = -dy / size.height * (channel.max - channel.min)
                 exact = (exact + steps).coerceIn(channel.min.toFloat(), channel.max.toFloat())
-                channel.set(exact.roundToInt())
+                channel.drag(exact)
             }
         }
 
